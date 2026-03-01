@@ -865,27 +865,6 @@
       border-radius:999px;
       z-index:6;
     }
-    .plannerFigureGrayOverlay{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      object-fit:contain;
-      object-position:center;
-      pointer-events:none;
-      opacity:0;
-      z-index:2;
-      transform:none;
-      transition:none;
-      will-change:auto;
-    }
-    .plannerFigureGrayOverlay.is-visible{
-      opacity:1;
-      transform:none;
-    }
-    .plannerFigureGrayOverlay--back{
-      z-index:0;
-    }
     .plannerFigureOverlayImage{
       position:absolute;
       inset:0;
@@ -3019,9 +2998,7 @@
           <div class="plannerFigure">
             <div class="plannerFigureInner">
               <div class="plannerBackSketch plannerSketch--ghost" id="plannerBackSketch"></div>
-              <img src="img/Frauen interactive.svg" alt="Interaktive Körperzonen Frauen Front" loading="lazy" id="plannerFigureImage" class="plannerFigureBase">
-              <img src="img/INT/FX%20GRAY%20RUCKEN.svg" alt="" loading="lazy" id="plannerFigureGrayBackOverlay" class="plannerFigureGrayOverlay plannerFigureGrayOverlay--back" aria-hidden="true">
-              <img src="img/INT/FX%20GRAY.svg" alt="" loading="lazy" id="plannerFigureGrayOverlay" class="plannerFigureGrayOverlay" aria-hidden="true">
+              <img src="img/INT/FR_NEW_FULL.svg" alt="Interaktive Körperzonen Frauen Front" loading="lazy" id="plannerFigureImage" class="plannerFigureBase">
               <img src="img/INT/FR_RS_OBERLIPPE.svg" alt="" loading="lazy" id="plannerFigureOverlayUpperlip" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FR_RS_ACHSELN.svg" alt="" loading="lazy" id="plannerFigureOverlayAxilla" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FR_RS_KINN.svg" alt="" loading="lazy" id="plannerFigureOverlayChin" class="plannerFigureOverlayImage" aria-hidden="true">
@@ -3131,13 +3108,11 @@
   const plannerFigure = document.querySelector(".plannerFigure");
   const plannerFigureInner = document.querySelector(".plannerFigureInner");
   const plannerFigureImage = document.getElementById("plannerFigureImage");
-  const plannerFigureGrayBackOverlay = document.getElementById("plannerFigureGrayBackOverlay");
   const plannerViewPrevBtn = document.getElementById("plannerViewPrev");
   const plannerViewNextBtn = document.getElementById("plannerViewNext");
   const plannerViewSwitch = document.getElementById("plannerViewSwitch");
   const plannerViewButtons = Array.from(document.querySelectorAll("[data-planner-view]"));
   const plannerBackSketch = document.getElementById("plannerBackSketch");
-  const plannerFigureGrayOverlay = document.getElementById("plannerFigureGrayOverlay");
   const plannerFigureOverlayUpperlip = document.getElementById("plannerFigureOverlayUpperlip");
   const plannerFigureOverlayAxilla = document.getElementById("plannerFigureOverlayAxilla");
   const plannerFigureOverlayChin = document.getElementById("plannerFigureOverlayChin");
@@ -3338,7 +3313,7 @@
   };
   const plannerFigureByMode = {
     frauen:{
-      front:{ src:"img/Frauen interactive.svg", alt:"Interaktive Körperzonen Frauen Front", aspect:"2200 / 5500" },
+      front:{ src:"img/INT/FR_NEW_FULL.svg", alt:"Interaktive Körperzonen Frauen Front", aspect:"2200 / 5500" },
       back:{ src:"img/Frauen interactive back1.svg", alt:"Interaktive Körperzonen Frauen Back", aspect:"2200 / 5500" }
     },
     herren:{ src:"img/Herren interactive.svg", alt:"Interaktive Körperzonen Herren", aspect:"2300 / 5500" }
@@ -4314,15 +4289,6 @@
     }
     syncPlannerViewSwitch(mode);
     requestAnimationFrame(positionPlannerViewArrows);
-    const showGray = mode === "frauen" && isInteractiveSectionInView();
-    const isFrauenFront = mode === "frauen" && plannerFrauenView === "front";
-    const isFrauenBack = mode === "frauen" && plannerFrauenView === "back";
-    if(plannerFigureGrayOverlay){
-      plannerFigureGrayOverlay.classList.toggle("is-visible", showGray && isFrauenFront);
-    }
-    if(plannerFigureGrayBackOverlay){
-      plannerFigureGrayBackOverlay.classList.toggle("is-visible", showGray && isFrauenBack);
-    }
     if(plannerFigureOverlayUpperlip){
       plannerFigureOverlayUpperlip.classList.remove("is-visible");
     }
@@ -4399,14 +4365,7 @@
     }
   }
   function setPlannerInactivePartsIdle(isIdle){
-    const frontIdle = !!isIdle && plannerFrauenView === "front";
-    const backIdle = !!isIdle && plannerFrauenView === "back";
-    if(plannerFigureGrayOverlay){
-      plannerFigureGrayOverlay.classList.toggle("is-visible", frontIdle);
-    }
-    if(plannerFigureGrayBackOverlay){
-      plannerFigureGrayBackOverlay.classList.toggle("is-visible", backIdle);
-    }
+    void isIdle;
   }
   function resetPlannerInactiveWaveClasses(){
     clearPlannerGuideOverlay();
@@ -4502,7 +4461,7 @@
     return rect.bottom > (vh * 0.18) && rect.top < (vh * 0.82);
   }
   function shouldShowPlannerInactiveIdle(){
-    return activeLaserMode() === "frauen" && (!!plannerFigureGrayOverlay || !!plannerFigureGrayBackOverlay) && isInteractiveSectionInView();
+    return false;
   }
   function syncPlannerInactiveIdleState(){
     const shouldShowIdle = shouldShowPlannerInactiveIdle();
