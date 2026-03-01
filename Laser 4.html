@@ -834,19 +834,20 @@
     }
     .plannerMobileInfoZones{
       display:block;
-      max-width:56%;
+      max-width:34vw;
+      min-width:92px;
       font-size:12px;
       line-height:1.25;
       color:rgba(17,18,24,.88);
       letter-spacing:-.01em;
       font-weight:580;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      white-space:pre-line;
+      overflow-wrap:anywhere;
+      word-break:break-word;
     }
     .plannerMobileInfoPrice{
-      min-width:116px;
-      max-width:44vw;
+      min-width:104px;
+      max-width:34vw;
       text-align:right;
     }
     .plannerMobileInfoPriceOld{
@@ -5417,14 +5418,11 @@
       y = Math.max(8, Math.min(hostRect.height - 8, plannerLastZonePointer.y - 18));
     }
     const topEdgePadding = 16;
-    const visibleRiseCap = plannerFigure
-      ? Math.max(148, plannerFigure.clientHeight * 0.58)
-      : 260;
-    // Limit travel to visible viewport height so lower tapped zones
-    // don't produce oversized path + perceived speed glitch.
-    rise = Math.max(72, Math.min(visibleRiseCap, y - topEdgePadding));
+    // Keep true travel distance: bottom zones should travel farther,
+    // but at the same speed as top zones.
+    rise = Math.max(72, y - topEdgePadding);
     const comboSpeedPxPerSec = 108;
-    duration = Math.max(1.05, Math.min(2.45, (rise + 14) / comboSpeedPxPerSec));
+    duration = Math.max(0.85, (rise + 14) / comboSpeedPxPerSec);
     plannerFigureInner.appendChild(fx);
     const sideEdgePadding = 8;
     const fxRect = fx.getBoundingClientRect();
@@ -5557,8 +5555,13 @@
       .map((item) => plannerLabel(item.label))
       .filter(Boolean);
     if(!labels.length) return "—";
-    if(labels.length <= 2) return labels.join(" + ");
-    return `${labels[0]} + ${labels[1]} +${labels.length - 2}`;
+    const words = labels.join(" ").replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
+    if(!words.length) return "—";
+    const lines = [];
+    for(let i = 0; i < words.length; i += 2){
+      lines.push(words.slice(i, i + 2).join(" "));
+    }
+    return lines.join("\n");
   }
   function updatePlannerMobileInfo(mode, selectedSet, selected, displayTotal){
     if(!plannerMobileInfo || !plannerMobileInfoZones || !plannerMobileInfoPriceOld || !plannerMobileInfoPriceCurrent || !plannerMobileInfoSaved) return;
