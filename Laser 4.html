@@ -816,19 +816,24 @@
       pointer-events:none;
       will-change:transform, opacity;
     }
-    .plannerFigureBase.is-view-switching{
+    .plannerFigureBase.is-view-switching,
+    .plannerFigureOverlayImage.is-view-switching{
       pointer-events:none;
     }
-    .plannerFigureBase.is-switch-out-left{
+    .plannerFigureBase.is-switch-out-left,
+    .plannerFigureOverlayImage.is-switch-out-left{
       animation:plannerViewOutLeft .14s ease forwards;
     }
-    .plannerFigureBase.is-switch-out-right{
+    .plannerFigureBase.is-switch-out-right,
+    .plannerFigureOverlayImage.is-switch-out-right{
       animation:plannerViewOutRight .14s ease forwards;
     }
-    .plannerFigureBase.is-switch-in-left{
+    .plannerFigureBase.is-switch-in-left,
+    .plannerFigureOverlayImage.is-switch-in-left{
       animation:plannerViewInLeft .18s cubic-bezier(.22,.8,.24,1) forwards;
     }
-    .plannerFigureBase.is-switch-in-right{
+    .plannerFigureBase.is-switch-in-right,
+    .plannerFigureOverlayImage.is-switch-in-right{
       animation:plannerViewInRight .18s cubic-bezier(.22,.8,.24,1) forwards;
     }
     @keyframes plannerViewOutLeft{
@@ -876,7 +881,7 @@
       z-index:3;
       opacity:0;
       transition:opacity .08s linear;
-      will-change:opacity;
+      will-change:opacity, transform;
     }
     .plannerFigureOverlayImage.is-visible,
     .plannerFigureOverlayImage.is-guide-visible{
@@ -4261,6 +4266,23 @@
       requestAnimationFrame(positionPlannerViewArrows);
     }
   }
+  function plannerSwitchAnimatedLayers(){
+    return [
+      plannerFigureImage,
+      plannerFigureOverlayUpperlip,
+      plannerFigureOverlayAxilla,
+      plannerFigureOverlayChin,
+      plannerFigureOverlayUpperarms,
+      plannerFigureOverlayUnderarms,
+      plannerFigureOverlayBauchMedia,
+      plannerFigureOverlayBauchFull,
+      plannerFigureOverlayBikini,
+      plannerFigureOverlayObersch,
+      plannerFigureOverlayUntersch,
+      plannerFigureOverlayBack,
+      plannerFigureOverlayImage
+    ].filter(Boolean);
+  }
   function applyPlannerFigureMode(mode, options = {}){
     if(!plannerFigureImage) return;
     const modeVisual = plannerFigureByMode[mode] || plannerFigureByMode.herren;
@@ -4279,29 +4301,38 @@
       clearTimeout(plannerViewSwitchInTimer);
       plannerViewSwitchInTimer = null;
     }
-    plannerFigureImage.classList.remove(
-      "is-view-switching",
-      "is-switch-out-left",
-      "is-switch-out-right",
-      "is-switch-in-left",
-      "is-switch-in-right"
-    );
+    const animatedLayers = plannerSwitchAnimatedLayers();
+    animatedLayers.forEach((el) => {
+      el.classList.remove(
+        "is-view-switching",
+        "is-switch-out-left",
+        "is-switch-out-right",
+        "is-switch-in-left",
+        "is-switch-in-right"
+      );
+    });
     if(!shouldAnimate){
-    plannerFigureImage.setAttribute("src", visual.src);
-    plannerFigureImage.setAttribute("alt", visual.alt);
+      plannerFigureImage.setAttribute("src", visual.src);
+      plannerFigureImage.setAttribute("alt", visual.alt);
     } else {
       const seq = ++plannerViewSwitchSeq;
       const toBack = options.direction === "to-back";
-      plannerFigureImage.classList.add("is-view-switching", toBack ? "is-switch-out-left" : "is-switch-out-right");
+      animatedLayers.forEach((el) => {
+        el.classList.add("is-view-switching", toBack ? "is-switch-out-left" : "is-switch-out-right");
+      });
       plannerViewSwitchOutTimer = setTimeout(() => {
         if(seq !== plannerViewSwitchSeq) return;
         plannerFigureImage.setAttribute("src", visual.src);
         plannerFigureImage.setAttribute("alt", visual.alt);
-        plannerFigureImage.classList.remove("is-switch-out-left", "is-switch-out-right");
-        plannerFigureImage.classList.add(toBack ? "is-switch-in-right" : "is-switch-in-left");
+        animatedLayers.forEach((el) => {
+          el.classList.remove("is-switch-out-left", "is-switch-out-right");
+          el.classList.add(toBack ? "is-switch-in-right" : "is-switch-in-left");
+        });
         plannerViewSwitchInTimer = setTimeout(() => {
           if(seq !== plannerViewSwitchSeq) return;
-          plannerFigureImage.classList.remove("is-view-switching", "is-switch-in-left", "is-switch-in-right");
+          animatedLayers.forEach((el) => {
+            el.classList.remove("is-view-switching", "is-switch-in-left", "is-switch-in-right");
+          });
         }, 190);
       }, 145);
     }
@@ -6870,6 +6901,14 @@
       if(e.touches.length === 2){
         cancelPlannerInertia();
         cancelPlannerZoomAnimation();
+        cancelPlannerSettleAnimation();
+        cancelPlannerVerticalSnap();
+        cancelPlannerEdgeBounce();
+        cancelPlannerZoomEdgeBounce();
+        setPlannerZoomEdgeScale(1);
+        setPlannerEdgeOffsetY(0);
+        clearPlannerSettleTimer();
+        clearPlannerAutoResetTimer();
         plannerTouchPanActive = false;
         plannerZoomEdgeLock = 0;
         plannerPinchStartDistance = touchDistance(e.touches[0], e.touches[1]);
@@ -6879,6 +6918,14 @@
       if(e.touches.length === 1 && canPanPlannerFigure()){
         cancelPlannerInertia();
         cancelPlannerZoomAnimation();
+        cancelPlannerSettleAnimation();
+        cancelPlannerVerticalSnap();
+        cancelPlannerEdgeBounce();
+        cancelPlannerZoomEdgeBounce();
+        setPlannerZoomEdgeScale(1);
+        setPlannerEdgeOffsetY(0);
+        clearPlannerSettleTimer();
+        clearPlannerAutoResetTimer();
         plannerPinchStartDistance = null;
         plannerTouchPanActive = true;
         plannerTouchStartX = e.touches[0].clientX;
@@ -6906,9 +6953,9 @@
            (smoothedZoom < PLANNER_MIN_ZOOM && plannerZoom <= PLANNER_MIN_ZOOM + 0.001)){
           triggerPlannerZoomEdgeBounce(smoothedZoom > maxZoom ? 1 : -1, 300, 1.015);
         } else {
-          setPlannerZoom(smoothedZoom, midX, midY);
+          // Lighter live pinch update: keep focus point, skip heavy per-move resets/reframing.
+          applyPlannerZoom(smoothedZoom, midX, midY, "none");
         }
-        schedulePlannerAutoReset();
         return;
       }
       if(e.touches.length === 1 && plannerSwipeTracking){
@@ -6938,7 +6985,6 @@
           plannerFigure.scrollTop = rawTop;
           setPlannerEdgeOffsetY(0);
         }
-        schedulePlannerAutoReset();
       }
     }, { passive:false });
     plannerFigure.addEventListener("touchend", (e) => {
