@@ -1973,6 +1973,9 @@
       text-decoration:none;
       text-align:center;
       transition:background .18s ease, color .18s ease;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+      user-select:none;
     }
     .laserSwitchBtn:hover{
       color:#111218;
@@ -1980,6 +1983,17 @@
     .laserSwitchBtn.is-active{
       background:#111218;
       color:#fff;
+    }
+    @media (hover:none), (pointer:coarse){
+      .laserSwitchBtn{
+        transition:none;
+      }
+      .laserSwitchBtn:hover{
+        color:rgba(17,18,24,.66);
+      }
+      .laserSwitchBtn.is-active:hover{
+        color:#fff;
+      }
     }
     .laserSwitchHint{
       margin:0;
@@ -2864,7 +2878,7 @@
     }
     @media (max-width:767px){
       #laser-switches.section{
-        padding:6px 0 30px;
+        padding:6px 0 45px;
       }
       #interactive-placeholder.section{
         padding:0;
@@ -3294,6 +3308,7 @@
   let plannerPricingView = "single";
   let plannerCopyFeedbackTimer = null;
   const plannerLastToggleAtByKey = new Map();
+  let laserSwitchCooldownUntil = 0;
   const PLANNER_TOGGLE_GUARD_MS = 220;
   let lastLegalTrigger = null;
   const PLANNER_MIN_ZOOM = 1;
@@ -6713,7 +6728,12 @@
     });
   }
 
-  function setActiveLaserSwitch(mode){
+  function setActiveLaserSwitch(mode, options = {}){
+    const force = !!options.force;
+    const currentMode = activeLaserMode();
+    if(!force && currentMode === mode){
+      return false;
+    }
     clearPlannerPremiumSequence();
     clearPlannerBundleSequencesForMode(mode === "herren" ? "frauen" : "herren");
     clearPlannerBundleSequencesForMode(mode);
@@ -6725,6 +6745,7 @@
     applyModePricing(mode);
     schedulePlannerRender(mode);
     clampPlannerPan(mode);
+    return true;
   }
   function laserSwitchModeFromUrl(){
     const params = new URLSearchParams(window.location.search);
@@ -6766,15 +6787,20 @@
   if(laserSwitchButtons.length){
     laserSwitchButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
+        btn.blur();
+        const now = Date.now();
+        if(now < laserSwitchCooldownUntil) return;
         const mode = btn.dataset.laserSwitch === "herren" ? "herren" : "frauen";
-        setActiveLaserSwitch(mode);
+        const changed = setActiveLaserSwitch(mode);
+        if(!changed) return;
+        laserSwitchCooldownUntil = now + 180;
         const url = new URL(window.location.href);
         url.searchParams.set("laser", mode);
         url.hash = "";
         window.history.replaceState({}, "", `${url.pathname}?${url.searchParams.toString()}`);
       });
     });
-    setActiveLaserSwitch(laserSwitchModeFromUrl());
+    setActiveLaserSwitch(laserSwitchModeFromUrl(), { force:true });
   }
   if(plannerClearBtn){
     plannerClearBtn.addEventListener("click", () => {
