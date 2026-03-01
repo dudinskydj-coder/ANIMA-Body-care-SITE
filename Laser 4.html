@@ -779,6 +779,38 @@
       stroke-linecap:round;
       stroke-linejoin:round;
     }
+    .plannerFullscreenBtn{
+      position:absolute;
+      top:10px;
+      right:10px;
+      width:40px;
+      height:40px;
+      border:none;
+      border-radius:999px;
+      background:rgba(241,243,247,.92);
+      color:#111218;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      z-index:10;
+      box-shadow:0 4px 12px rgba(0,0,0,.10);
+      transition:background-color .2s ease, transform .18s ease, box-shadow .2s ease;
+    }
+    .plannerFullscreenBtn:hover{
+      background:#fff;
+      box-shadow:0 6px 14px rgba(0,0,0,.12);
+      transform:scale(1.02);
+    }
+    .plannerFullscreenBtn svg{
+      width:18px;
+      height:18px;
+      stroke:currentColor;
+      stroke-width:2.2;
+      fill:none;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
     .plannerFigure::-webkit-scrollbar{
       width:0;
       height:0;
@@ -820,20 +852,16 @@
     .plannerFigureOverlayImage.is-view-switching{
       pointer-events:none;
     }
-    .plannerFigureBase.is-switch-out-left,
-    .plannerFigureOverlayImage.is-switch-out-left{
+    .plannerFigureBase.is-switch-out-left{
       animation:plannerViewOutLeft .14s ease forwards;
     }
-    .plannerFigureBase.is-switch-out-right,
-    .plannerFigureOverlayImage.is-switch-out-right{
+    .plannerFigureBase.is-switch-out-right{
       animation:plannerViewOutRight .14s ease forwards;
     }
-    .plannerFigureBase.is-switch-in-left,
-    .plannerFigureOverlayImage.is-switch-in-left{
+    .plannerFigureBase.is-switch-in-left{
       animation:plannerViewInLeft .18s cubic-bezier(.22,.8,.24,1) forwards;
     }
-    .plannerFigureBase.is-switch-in-right,
-    .plannerFigureOverlayImage.is-switch-in-right{
+    .plannerFigureBase.is-switch-in-right{
       animation:plannerViewInRight .18s cubic-bezier(.22,.8,.24,1) forwards;
     }
     @keyframes plannerViewOutLeft{
@@ -851,6 +879,22 @@
     @keyframes plannerViewInRight{
       from{ opacity:0; transform:translateX(18px) scale(.995); }
       to{ opacity:1; transform:translateX(0) scale(1); }
+    }
+    @keyframes plannerViewShiftOutLeft{
+      from{ transform:translateX(0) scale(1); }
+      to{ transform:translateX(-18px) scale(.995); }
+    }
+    @keyframes plannerViewShiftOutRight{
+      from{ transform:translateX(0) scale(1); }
+      to{ transform:translateX(18px) scale(.995); }
+    }
+    @keyframes plannerViewShiftInLeft{
+      from{ transform:translateX(-18px) scale(.995); }
+      to{ transform:translateX(0) scale(1); }
+    }
+    @keyframes plannerViewShiftInRight{
+      from{ transform:translateX(18px) scale(.995); }
+      to{ transform:translateX(0) scale(1); }
     }
     .plannerBackSketch{
       position:absolute;
@@ -886,6 +930,18 @@
     .plannerFigureOverlayImage.is-visible,
     .plannerFigureOverlayImage.is-guide-visible{
       opacity:1;
+    }
+    .plannerFigureOverlayImage.is-switch-out-left{
+      animation:plannerViewShiftOutLeft .14s ease forwards;
+    }
+    .plannerFigureOverlayImage.is-switch-out-right{
+      animation:plannerViewShiftOutRight .14s ease forwards;
+    }
+    .plannerFigureOverlayImage.is-switch-in-left{
+      animation:plannerViewShiftInLeft .18s cubic-bezier(.22,.8,.24,1) forwards;
+    }
+    .plannerFigureOverlayImage.is-switch-in-right{
+      animation:plannerViewShiftInRight .18s cubic-bezier(.22,.8,.24,1) forwards;
     }
     .plannerFigureOverlayImage--back{
       z-index:0;
@@ -2795,8 +2851,8 @@
         -webkit-overflow-scrolling:auto;
       }
       #menuOverlay{
-        min-height:100dvh;
-        max-height:100dvh;
+        min-height:100svh;
+        max-height:100svh;
       }
       #menuOverlay .overlayInner{
         padding:calc(var(--headerH) + 10px) 22px 16px;
@@ -2846,7 +2902,7 @@
         gap:10px;
       }
       .plannerPane--zones{
-        min-height:calc(100dvh - var(--headerH) - 22px);
+        min-height:calc(100svh - var(--headerH) - 22px);
         padding:0;
       }
       .plannerPane--zones .plannerFigureWrap{
@@ -2854,7 +2910,7 @@
         margin-top:0;
       }
       .plannerFigure{
-        height:calc(100dvh - var(--headerH) - 22px);
+        height:calc(100svh - var(--headerH) - 22px);
         padding:0 8px;
       }
       .plannerViewArrow{
@@ -2864,6 +2920,47 @@
       }
       .plannerViewArrow--prev{ left:6px; }
       .plannerViewArrow--next{ right:6px; }
+      .plannerFullscreenBtn{
+        display:none;
+      }
+      body.planner-fullscreen{
+        overflow:hidden;
+      }
+      body.planner-fullscreen .plannerFullscreenBtn--close{
+        display:flex;
+      }
+      body.planner-fullscreen #interactive-placeholder.section{
+        padding:0 !important;
+      }
+      body.planner-fullscreen .plannerPane--zones{
+        position:fixed;
+        inset:0;
+        z-index:1400;
+        min-height:100svh;
+        height:100svh;
+        border-radius:0;
+        background:#eef0f4;
+        padding-top:env(safe-area-inset-top);
+        padding-bottom:env(safe-area-inset-bottom);
+      }
+      body.planner-fullscreen .plannerPane--zones .plannerFigureWrap{
+        height:100svh;
+      }
+      body.planner-fullscreen .plannerFigure{
+        height:100svh;
+        padding:0 8px;
+      }
+      body.planner-fullscreen .plannerViewArrow{
+        top:50%;
+      }
+      body.planner-fullscreen .plannerViewSwitch{
+        position:absolute;
+        left:0;
+        right:0;
+        bottom:14px;
+        margin:0 auto;
+        z-index:9;
+      }
     }
   </style>
 </head>
@@ -3005,6 +3102,9 @@
     <div class="laserPlanner reveal" aria-label="Interaktiver Zonenplaner">
       <div class="plannerPane plannerPane--zones">
         <div class="plannerFigureWrap">
+          <button type="button" class="plannerFullscreenBtn plannerFullscreenBtn--close" id="plannerFullscreenClose" aria-label="Close fullscreen view">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
           <button type="button" class="plannerViewArrow plannerViewArrow--prev" id="plannerViewPrev" aria-label="Previous view">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
           </button>
@@ -3126,6 +3226,7 @@
   const plannerFigureImage = document.getElementById("plannerFigureImage");
   const plannerViewPrevBtn = document.getElementById("plannerViewPrev");
   const plannerViewNextBtn = document.getElementById("plannerViewNext");
+  const plannerFullscreenCloseBtn = document.getElementById("plannerFullscreenClose");
   const plannerViewSwitch = document.getElementById("plannerViewSwitch");
   const plannerViewButtons = Array.from(document.querySelectorAll("[data-planner-view]"));
   const plannerBackSketch = document.getElementById("plannerBackSketch");
@@ -3180,6 +3281,7 @@
   let videoMouseTimer = null;
   let videoScrollLockY = 0;
   let plannerZoom = 1;
+  let plannerFullscreenScrollY = 0;
   let plannerFrauenView = "front";
   let plannerViewSwitchOutTimer = null;
   let plannerViewSwitchInTimer = null;
@@ -3631,6 +3733,39 @@
     window.scrollTo(0, videoScrollLockY);
     requestAnimationFrame(() => {
       root.style.scrollBehavior = prevScrollBehavior;
+    });
+  }
+  function openPlannerFullscreen(){
+    if(!(mobileVideoMq && mobileVideoMq.matches)) return;
+    if(body.classList.contains("planner-fullscreen")) return;
+    plannerFullscreenScrollY = window.scrollY || window.pageYOffset || 0;
+    body.classList.add("planner-fullscreen");
+    body.style.position = "fixed";
+    body.style.top = `-${plannerFullscreenScrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+    requestAnimationFrame(() => {
+      clampPlannerPan(activeLaserMode());
+      positionPlannerViewArrows();
+    });
+  }
+  function closePlannerFullscreen(){
+    if(!body.classList.contains("planner-fullscreen")) return;
+    const root = document.documentElement;
+    const prevScrollBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+    body.classList.remove("planner-fullscreen");
+    body.style.position = "";
+    body.style.top = "";
+    body.style.left = "";
+    body.style.right = "";
+    body.style.width = "";
+    window.scrollTo(0, plannerFullscreenScrollY);
+    requestAnimationFrame(() => {
+      root.style.scrollBehavior = prevScrollBehavior;
+      clampPlannerPan(activeLaserMode());
+      positionPlannerViewArrows();
     });
   }
 
@@ -6651,6 +6786,16 @@
       schedulePlannerRender(activeLaserMode());
     });
   }
+  if(plannerFullscreenCloseBtn){
+    plannerFullscreenCloseBtn.addEventListener("click", () => {
+      closePlannerFullscreen();
+    });
+  }
+  document.addEventListener("keydown", (e) => {
+    if(e.key === "Escape"){
+      closePlannerFullscreen();
+    }
+  });
     if(plannerViewButtons.length){
       plannerViewButtons.forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -6737,6 +6882,12 @@
   }
   if(plannerFigure){
     plannerFigure.addEventListener("click", (event) => {
+      if((mobileVideoMq && mobileVideoMq.matches) && !body.classList.contains("planner-fullscreen")){
+        openPlannerFullscreen();
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
       const zoneBtn = event.target.closest(".zoneSketchBtn");
       if(!zoneBtn || !plannerFigure.contains(zoneBtn) || !plannerFigureInner) return;
       zoneBtn.blur();
@@ -7022,6 +7173,9 @@
     }, { passive:true });
   }
   window.addEventListener("resize", () => {
+    if(body.classList.contains("planner-fullscreen") && !(mobileVideoMq && mobileVideoMq.matches)){
+      closePlannerFullscreen();
+    }
     clampPlannerPan(activeLaserMode());
     schedulePlannerRender(activeLaserMode());
     maybeStartPlannerGuideEffect();
