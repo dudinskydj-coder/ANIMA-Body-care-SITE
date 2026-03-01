@@ -21,6 +21,35 @@
       --headerIconStroke:2;
     }
     *{box-sizing:border-box}
+    html,
+    body{
+      -webkit-tap-highlight-color:transparent;
+    }
+    a,
+    button,
+    [role="button"],
+    input[type="button"],
+    input[type="submit"],
+    input[type="reset"]{
+      -webkit-tap-highlight-color:transparent;
+    }
+    @media (hover:none), (pointer:coarse){
+      a:focus,
+      a:focus-visible,
+      button:focus,
+      button:focus-visible,
+      [role="button"]:focus,
+      [role="button"]:focus-visible,
+      input[type="button"]:focus,
+      input[type="button"]:focus-visible,
+      input[type="submit"]:focus,
+      input[type="submit"]:focus-visible,
+      input[type="reset"]:focus,
+      input[type="reset"]:focus-visible{
+        outline:none !important;
+        box-shadow:none !important;
+      }
+    }
     html{scroll-behavior:smooth}
     body{
       margin:0;
@@ -5304,7 +5333,8 @@
     }
     const topEdgePadding = 16;
     rise = Math.max(72, y - topEdgePadding);
-    duration = Math.max(1.35, Math.min(2.1, rise / 120));
+    const comboSpeedPxPerSec = 110;
+    duration = Math.max(0.95, Math.min(3.2, rise / comboSpeedPxPerSec));
     plannerFigureInner.appendChild(fx);
     const sideEdgePadding = 8;
     const fxRect = fx.getBoundingClientRect();
