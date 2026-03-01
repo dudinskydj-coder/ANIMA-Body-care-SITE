@@ -920,8 +920,15 @@
       background:transparent !important;
       box-shadow:none !important;
       color:transparent !important;
+      outline:none !important;
+      -webkit-tap-highlight-color:transparent !important;
+      -webkit-appearance:none !important;
+      appearance:none !important;
     }
     .plannerSketch--ghost .zoneSketchBtn:hover,
+    .plannerSketch--ghost .zoneSketchBtn:active,
+    .plannerSketch--ghost .zoneSketchBtn:focus,
+    .plannerSketch--ghost .zoneSketchBtn:focus-visible,
     .plannerSketch--ghost .zoneSketchBtn.is-active{
       border-color:transparent !important;
       background:transparent !important;
@@ -974,6 +981,10 @@
       display:flex;
       align-items:center;
       justify-content:center;
+      outline:none;
+      -webkit-tap-highlight-color:transparent;
+      -webkit-appearance:none;
+      appearance:none;
     }
     .zoneSketchBtn:hover{
       background:rgba(255,255,255,.82);
@@ -3187,6 +3198,10 @@
   let plannerTouchStartY = 0;
   let plannerTouchStartScrollLeft = 0;
   let plannerTouchStartScrollTop = 0;
+  let plannerSwipeTracking = false;
+  let plannerSwipeStartX = 0;
+  let plannerSwipeStartY = 0;
+  let plannerSwipeStartAt = 0;
   let plannerSuppressClickUntil = 0;
   let plannerAutoResetTimer = null;
   let plannerRenderRaf = null;
@@ -3238,7 +3253,10 @@
   let lastLegalTrigger = null;
   const PLANNER_MIN_ZOOM = 1;
   const PLANNER_MAX_ZOOM = 2.8;
-  const PLANNER_MOBILE_MAX_ZOOM = 1.72;
+  const PLANNER_MOBILE_MAX_ZOOM = 2.08;
+  const PLANNER_SWIPE_MIN_X = 54;
+  const PLANNER_SWIPE_MAX_Y = 42;
+  const PLANNER_SWIPE_MAX_MS = 520;
   const faqState = { active:false, openIndex:null };
   const desktopHover = window.matchMedia("(hover: hover) and (pointer: fine)");
   const instantMenuMq = window.matchMedia("(max-width: 1024px)");
@@ -4942,17 +4960,13 @@
     const bodyRight = sw * bounds.right;
     const centered = ((bodyLeft + bodyRight) - cw) / 2;
     const maxScrollX = Math.max(0, sw - cw);
-    if(mobileVideoMq && mobileVideoMq.matches){
-      plannerFigure.scrollLeft = Math.max(0, Math.min(maxScrollX, centered));
-      return;
-    }
-    if(plannerZoom <= 1.02){
+    if(plannerZoom <= 1.04){
       plannerFigure.scrollLeft = Math.max(0, Math.min(maxScrollX, centered));
       return;
     }
     // Horizontal pan must stay within body bounds, but with a small edge slack.
     // Previous bounds were reversed, which locked narrow mobile viewports.
-    const edgeSlack = cw * 0.08;
+    const edgeSlack = cw * ((mobileVideoMq && mobileVideoMq.matches) ? 0.22 : 0.08);
     let minX = bodyLeft - edgeSlack;
     let maxX = (bodyRight - cw) + edgeSlack;
     minX = Math.max(0, Math.min(maxScrollX, minX));
@@ -4983,7 +4997,7 @@
     return { min:minY, max:maxY };
   }
   function canPanPlannerFigure(){
-    return plannerZoom > 1.01;
+    return plannerZoom > 1.08;
   }
   function plannerPanSpeedFactor(){
     // Higher zoom = faster pan to reduce repeated dragging.
@@ -6694,6 +6708,7 @@
     plannerFigure.addEventListener("click", (event) => {
       const zoneBtn = event.target.closest(".zoneSketchBtn");
       if(!zoneBtn || !plannerFigure.contains(zoneBtn) || !plannerFigureInner) return;
+      zoneBtn.blur();
       const hostRect = plannerFigureInner.getBoundingClientRect();
       plannerLastZonePointer = {
         x:event.clientX - hostRect.left,
@@ -6843,6 +6858,15 @@
     plannerFigure.addEventListener("touchstart", (e) => {
       if(!e.touches) return;
       ensureInteractiveInViewForInteraction();
+      if(e.touches.length === 1){
+        const touch = e.touches[0];
+        plannerSwipeTracking = activeLaserMode() === "frauen" && plannerZoom <= 1.02;
+        plannerSwipeStartX = touch.clientX;
+        plannerSwipeStartY = touch.clientY;
+        plannerSwipeStartAt = Date.now();
+      } else {
+        plannerSwipeTracking = false;
+      }
       if(e.touches.length === 2){
         cancelPlannerInertia();
         cancelPlannerZoomAnimation();
@@ -6867,6 +6891,7 @@
       if(!e.touches) return;
       if(e.touches.length === 2 && plannerPinchStartDistance){
         e.preventDefault();
+        plannerSwipeTracking = false;
         plannerTouchPanActive = false;
         const currentDistance = touchDistance(e.touches[0], e.touches[1]);
         if(!currentDistance) return;
@@ -6885,6 +6910,13 @@
         }
         schedulePlannerAutoReset();
         return;
+      }
+      if(e.touches.length === 1 && plannerSwipeTracking){
+        const dx = e.touches[0].clientX - plannerSwipeStartX;
+        const dy = e.touches[0].clientY - plannerSwipeStartY;
+        if(Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.2){
+          e.preventDefault();
+        }
       }
       if(e.touches.length === 1 && plannerTouchPanActive && canPanPlannerFigure()){
         e.preventDefault();
@@ -6909,7 +6941,23 @@
         schedulePlannerAutoReset();
       }
     }, { passive:false });
-    plannerFigure.addEventListener("touchend", () => {
+    plannerFigure.addEventListener("touchend", (e) => {
+      if(plannerSwipeTracking){
+        const touch = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
+        const endX = touch ? touch.clientX : plannerSwipeStartX;
+        const endY = touch ? touch.clientY : plannerSwipeStartY;
+        const dx = endX - plannerSwipeStartX;
+        const dy = endY - plannerSwipeStartY;
+        const dt = Date.now() - plannerSwipeStartAt;
+        const isSwipe = dt <= PLANNER_SWIPE_MAX_MS &&
+          Math.abs(dx) >= PLANNER_SWIPE_MIN_X &&
+          Math.abs(dy) <= PLANNER_SWIPE_MAX_Y &&
+          Math.abs(dx) > Math.abs(dy) * 1.2;
+        if(isSwipe){
+          movePlannerFrauenView(dx < 0 ? 1 : -1);
+        }
+      }
+      plannerSwipeTracking = false;
       plannerPinchStartDistance = null;
       plannerTouchPanActive = false;
       bouncePlannerEdgeToRest();
@@ -6918,6 +6966,7 @@
       schedulePlannerAutoReset();
     }, { passive:true });
     plannerFigure.addEventListener("touchcancel", () => {
+      plannerSwipeTracking = false;
       plannerPinchStartDistance = null;
       plannerTouchPanActive = false;
       bouncePlannerEdgeToRest();
