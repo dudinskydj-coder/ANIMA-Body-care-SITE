@@ -1628,27 +1628,29 @@
     .orderItemSave{
       display:inline-flex;
       align-items:center;
-      gap:8px;
+      gap:10px;
       width:max-content;
-      font-size:12px;
-      line-height:1.35;
+      font-size:14px;
+      line-height:1.4;
       color:#00b300;
       letter-spacing:-.01em;
-      font-weight:600;
+      font-weight:650;
     }
     .orderSavingLine{
       display:inline-flex;
       align-items:center;
-      gap:8px;
+      gap:10px;
       width:max-content;
     }
     .orderItemSaveHintBtn{
-      margin-left:8px;
+      margin-left:4px;
       border:none;
       background:transparent;
       padding:0;
-      width:14px;
-      height:14px;
+      width:24px;
+      height:24px;
+      min-width:24px;
+      min-height:24px;
       color:#111218;
       cursor:pointer;
       display:inline-flex;
@@ -1656,6 +1658,10 @@
       justify-content:center;
       vertical-align:middle;
       transition:color .18s ease, transform .18s ease;
+      border-radius:999px;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+      user-select:none;
     }
     .orderItemSaveHintBtn:hover{
       color:#111218;
@@ -1666,8 +1672,8 @@
       transform:none;
     }
     .orderItemSaveHintIcon{
-      width:10px;
-      height:6px;
+      width:12px;
+      height:8px;
       background:currentColor;
       clip-path:polygon(50% 100%, 0 0, 100% 0);
       transform:rotate(0deg);
@@ -2961,6 +2967,15 @@
       }
       .plannerViewArrow--prev{ left:6px; }
       .plannerViewArrow--next{ right:6px; }
+      .orderItemSave{
+        font-size:15px;
+      }
+      .orderItemSaveHintBtn{
+        width:28px;
+        height:28px;
+        min-width:28px;
+        min-height:28px;
+      }
     }
   </style>
 </head>
@@ -5196,7 +5211,10 @@
     if(plannerPinchRaf) return;
     plannerPinchRaf = requestAnimationFrame(() => {
       plannerPinchRaf = null;
-      applyPlannerZoom(plannerPinchTargetZoom, plannerPinchFocusX, plannerPinchFocusY, "none");
+      const delta = plannerPinchTargetZoom - plannerZoom;
+      const follow = Math.min(0.7, Math.max(0.34, Math.abs(delta) * 1.55));
+      const nextZoom = plannerZoom + (delta * follow);
+      applyPlannerZoom(nextZoom, plannerPinchFocusX, plannerPinchFocusY, "none");
     });
   }
   function plannerLabel(labelMap){
@@ -5333,8 +5351,10 @@
     }
     const topEdgePadding = 16;
     rise = Math.max(72, y - topEdgePadding);
-    const comboSpeedPxPerSec = 110;
-    duration = Math.max(0.95, Math.min(3.2, rise / comboSpeedPxPerSec));
+    const comboSpeedPxPerSec = 112;
+    // Keep speed visually consistent for top and bottom zones.
+    // Previous hard max duration made long paths look too fast on mobile.
+    duration = Math.max(0.95, Math.min(5.2, (rise + 14) / comboSpeedPxPerSec));
     plannerFigureInner.appendChild(fx);
     const sideEdgePadding = 8;
     const fxRect = fx.getBoundingClientRect();
@@ -5405,6 +5425,9 @@
     return text;
   }
   function plannerResolveTermUrl(mode, selectedSet){
+    if((mobileVideoMq && mobileVideoMq.matches) || (coarsePointerMq && coarsePointerMq.matches)){
+      return SALONKEE_BOOKING_FALLBACK_URL;
+    }
     const selected = Array.from(selectedSet || []);
     if(!selected.length) return SALONKEE_BOOKING_FALLBACK_URL;
     const links = plannerSalonkeeUrlByMode[mode] || {};
@@ -5412,6 +5435,18 @@
     const firstMapped = selected.find((zoneId) => !!links[zoneId]);
     if(firstMapped) return links[firstMapped];
     return SALONKEE_BOOKING_FALLBACK_URL;
+  }
+  function openPlannerExternalUrl(url){
+    if(!url) return;
+    let opened = null;
+    try{
+      opened = window.open(url, "_blank", "noopener");
+    } catch(_e){
+      opened = null;
+    }
+    if(!opened){
+      window.location.href = url;
+    }
   }
   function updatePlannerTermLink(mode, selectedSet){
     if(!plannerTermBtn) return;
@@ -6897,6 +6932,25 @@
       }, 1400);
     });
   }
+  if(plannerBuyBtn){
+    plannerBuyBtn.addEventListener("click", (event) => {
+      const target = event.currentTarget;
+      const url = (target && target.getAttribute("href")) || SALONKEE_BOOKING_FALLBACK_URL;
+      event.preventDefault();
+      if(target && typeof target.blur === "function") target.blur();
+      openPlannerExternalUrl(url);
+    });
+  }
+  if(plannerTermBtn){
+    plannerTermBtn.addEventListener("click", (event) => {
+      const mode = activeLaserMode();
+      const selectedSet = plannerSelectedByMode[mode] || new Set();
+      const url = plannerResolveTermUrl(mode, selectedSet);
+      event.preventDefault();
+      if(typeof plannerTermBtn.blur === "function") plannerTermBtn.blur();
+      openPlannerExternalUrl(url);
+    });
+  }
   if(plannerOrderList){
     plannerOrderList.addEventListener("click", (event) => {
       const toggleBtn = event.target.closest(".orderItemSaveHintBtn");
@@ -7134,9 +7188,26 @@
         const currentDistance = touchDistance(e.touches[0], e.touches[1]);
         if(!currentDistance) return;
         const rawRatio = currentDistance / plannerPinchStartDistance;
-        plannerPinchFocusX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-        plannerPinchFocusY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-        plannerPinchTargetZoom = plannerPinchStartZoom * rawRatio;
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        plannerPinchFocusX = (plannerPinchFocusX * 0.55) + (midX * 0.45);
+        plannerPinchFocusY = (plannerPinchFocusY * 0.55) + (midY * 0.45);
+        const rawTargetZoom = plannerPinchStartZoom * rawRatio;
+        const maxZoom = plannerMaxZoom();
+        if(rawTargetZoom > maxZoom){
+          plannerPinchTargetZoom = maxZoom;
+          if(plannerZoom >= maxZoom - 0.004){
+            triggerPlannerZoomEdgeBounce(1, 260, 1.016);
+          }
+        } else if(rawTargetZoom < PLANNER_MIN_ZOOM){
+          plannerPinchTargetZoom = PLANNER_MIN_ZOOM;
+          if(plannerZoom <= PLANNER_MIN_ZOOM + 0.004){
+            triggerPlannerZoomEdgeBounce(-1, 260, 1.016);
+          }
+        } else {
+          plannerPinchTargetZoom = rawTargetZoom;
+          plannerZoomEdgeLock = 0;
+        }
         // Run pinch updates at most once per frame to avoid touchmove overload/jank.
         schedulePlannerPinchZoom();
         return;
@@ -7199,6 +7270,10 @@
       } else {
         setPlannerEdgeOffsetY(0);
         clampPlannerPan(activeLaserMode());
+        if(plannerZoom <= PLANNER_MIN_ZOOM + 0.01 || plannerZoom >= plannerMaxZoom() - 0.01){
+          bouncePlannerZoomEdge(260, 1.014);
+        }
+        maybeSettlePlannerToHome(220);
       }
       schedulePlannerAutoReset();
     }, { passive:true });
