@@ -904,48 +904,32 @@
       pointer-events:none;
     }
     .plannerFigureBase.is-switch-out-left{
-      animation:plannerViewOutLeft .09s ease forwards;
+      animation:plannerViewSlideOutLeft .165s cubic-bezier(.22,.7,.24,1) forwards;
     }
     .plannerFigureBase.is-switch-out-right{
-      animation:plannerViewOutRight .09s ease forwards;
+      animation:plannerViewSlideOutRight .165s cubic-bezier(.22,.7,.24,1) forwards;
     }
     .plannerFigureBase.is-switch-in-left{
-      animation:plannerViewInLeft .12s cubic-bezier(.22,.8,.24,1) forwards;
+      animation:plannerViewSlideInLeft .19s cubic-bezier(.22,.8,.24,1) forwards;
     }
     .plannerFigureBase.is-switch-in-right{
-      animation:plannerViewInRight .12s cubic-bezier(.22,.8,.24,1) forwards;
+      animation:plannerViewSlideInRight .19s cubic-bezier(.22,.8,.24,1) forwards;
     }
-    @keyframes plannerViewOutLeft{
-      from{ opacity:1; transform:translateX(0) scale(1); }
-      to{ opacity:0; transform:translateX(-18px) scale(.995); }
+    @keyframes plannerViewSlideOutLeft{
+      from{ transform:translate3d(0, 0, 0); }
+      to{ transform:translate3d(-26%, 0, 0); }
     }
-    @keyframes plannerViewOutRight{
-      from{ opacity:1; transform:translateX(0) scale(1); }
-      to{ opacity:0; transform:translateX(18px) scale(.995); }
+    @keyframes plannerViewSlideOutRight{
+      from{ transform:translate3d(0, 0, 0); }
+      to{ transform:translate3d(26%, 0, 0); }
     }
-    @keyframes plannerViewInLeft{
-      from{ opacity:0; transform:translateX(-18px) scale(.995); }
-      to{ opacity:1; transform:translateX(0) scale(1); }
+    @keyframes plannerViewSlideInLeft{
+      from{ transform:translate3d(-26%, 0, 0); }
+      to{ transform:translate3d(0, 0, 0); }
     }
-    @keyframes plannerViewInRight{
-      from{ opacity:0; transform:translateX(18px) scale(.995); }
-      to{ opacity:1; transform:translateX(0) scale(1); }
-    }
-    @keyframes plannerViewShiftOutLeft{
-      from{ transform:translateX(0) scale(1); }
-      to{ transform:translateX(-18px) scale(.995); }
-    }
-    @keyframes plannerViewShiftOutRight{
-      from{ transform:translateX(0) scale(1); }
-      to{ transform:translateX(18px) scale(.995); }
-    }
-    @keyframes plannerViewShiftInLeft{
-      from{ transform:translateX(-18px) scale(.995); }
-      to{ transform:translateX(0) scale(1); }
-    }
-    @keyframes plannerViewShiftInRight{
-      from{ transform:translateX(18px) scale(.995); }
-      to{ transform:translateX(0) scale(1); }
+    @keyframes plannerViewSlideInRight{
+      from{ transform:translate3d(26%, 0, 0); }
+      to{ transform:translate3d(0, 0, 0); }
     }
     .plannerBackSketch{
       position:absolute;
@@ -983,16 +967,16 @@
       opacity:1;
     }
     .plannerFigureOverlayImage.is-switch-out-left{
-      animation:plannerViewShiftOutLeft .09s ease forwards;
+      animation:plannerViewSlideOutLeft .165s cubic-bezier(.22,.7,.24,1) forwards;
     }
     .plannerFigureOverlayImage.is-switch-out-right{
-      animation:plannerViewShiftOutRight .09s ease forwards;
+      animation:plannerViewSlideOutRight .165s cubic-bezier(.22,.7,.24,1) forwards;
     }
     .plannerFigureOverlayImage.is-switch-in-left{
-      animation:plannerViewShiftInLeft .12s cubic-bezier(.22,.8,.24,1) forwards;
+      animation:plannerViewSlideInLeft .19s cubic-bezier(.22,.8,.24,1) forwards;
     }
     .plannerFigureOverlayImage.is-switch-in-right{
-      animation:plannerViewShiftInRight .12s cubic-bezier(.22,.8,.24,1) forwards;
+      animation:plannerViewSlideInRight .19s cubic-bezier(.22,.8,.24,1) forwards;
     }
     .plannerFigureOverlayImage--back{
       z-index:0;
@@ -4533,8 +4517,8 @@
           animatedLayers.forEach((el) => {
             el.classList.remove("is-view-switching", "is-switch-in-left", "is-switch-in-right");
           });
-        }, 130);
-      }, 90);
+        }, 205);
+      }, 170);
     }
     syncPlannerViewSwitch(mode);
     requestAnimationFrame(positionPlannerViewArrows);
@@ -5402,11 +5386,14 @@
       y = Math.max(8, Math.min(hostRect.height - 8, plannerLastZonePointer.y - 18));
     }
     const topEdgePadding = 16;
-    rise = Math.max(72, y - topEdgePadding);
-    const comboSpeedPxPerSec = 112;
-    // Keep speed visually consistent for top and bottom zones.
-    // Previous hard max duration made long paths look too fast on mobile.
-    duration = Math.max(0.95, Math.min(5.2, (rise + 14) / comboSpeedPxPerSec));
+    const visibleRiseCap = plannerFigure
+      ? Math.max(148, plannerFigure.clientHeight * 0.58)
+      : 260;
+    // Limit travel to visible viewport height so lower tapped zones
+    // don't produce oversized path + perceived speed glitch.
+    rise = Math.max(72, Math.min(visibleRiseCap, y - topEdgePadding));
+    const comboSpeedPxPerSec = 108;
+    duration = Math.max(1.05, Math.min(2.45, (rise + 14) / comboSpeedPxPerSec));
     plannerFigureInner.appendChild(fx);
     const sideEdgePadding = 8;
     const fxRect = fx.getBoundingClientRect();
