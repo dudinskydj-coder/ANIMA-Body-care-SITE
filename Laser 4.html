@@ -2906,6 +2906,17 @@
         width:42px;
         height:42px;
         top:50%;
+        border-radius:0;
+        background:transparent;
+        box-shadow:none;
+        backdrop-filter:none;
+        -webkit-backdrop-filter:none;
+        transition:opacity .18s ease;
+      }
+      .plannerViewArrow:hover{
+        background:transparent;
+        box-shadow:none;
+        transform:translateY(-50%);
       }
       .plannerViewArrow--prev{ left:6px; }
       .plannerViewArrow--next{ right:6px; }
@@ -5259,6 +5270,8 @@
     const fx = document.createElement("span");
     fx.className = `plannerComboFx${options.premium ? " plannerComboFx--premium" : ""}`;
     fx.textContent = text;
+    fx.style.animation = "none";
+    fx.style.visibility = "hidden";
     let rise = 180;
     let duration = 1.55;
     const hostRect = plannerFigureInner.getBoundingClientRect();
@@ -5280,11 +5293,20 @@
     const topEdgePadding = 16;
     rise = Math.max(72, y - topEdgePadding);
     duration = Math.max(1.35, Math.min(2.1, rise / 120));
+    plannerFigureInner.appendChild(fx);
+    const sideEdgePadding = 8;
+    const fxRect = fx.getBoundingClientRect();
+    const halfFxWidth = fxRect.width / 2;
+    const minCenterX = sideEdgePadding + halfFxWidth;
+    const maxCenterX = Math.max(minCenterX, hostRect.width - sideEdgePadding - halfFxWidth);
+    x = Math.max(minCenterX, Math.min(maxCenterX, x));
     fx.style.left = `${x}px`;
     fx.style.top = `${y}px`;
     fx.style.setProperty("--plannerComboRise", `${rise}px`);
     fx.style.animationDuration = `${duration}s`;
-    plannerFigureInner.appendChild(fx);
+    fx.style.visibility = "";
+    void fx.offsetWidth;
+    fx.style.animation = "";
     fx.addEventListener("animationend", () => fx.remove(), { once:true });
     return Math.round(duration * 1000);
   }
