@@ -2867,15 +2867,15 @@
         padding:0;
       }
       .laserPlanner{
-        gap:0;
+        gap:12px;
         min-height:100svh;
       }
       .plannerPane--zones{
-        min-height:100svh;
+        min-height:calc(100svh + 128px);
         padding:0;
       }
       .plannerPane--zones .plannerFigureWrap{
-        height:100svh;
+        height:calc(100svh + 128px);
         margin-top:0;
       }
       .plannerFigure{
@@ -4763,9 +4763,9 @@
     const rect = interactiveSection.getBoundingClientRect();
     const vh = window.innerHeight || document.documentElement.clientHeight || 0;
     if(!vh) return;
-    const isApproachingFromAbove = rect.top > 0 && rect.top < (vh * 0.34);
+    const isApproachingFromAbove = rect.top > -12 && rect.top < (vh * 0.68);
     if(!isApproachingFromAbove) return;
-    plannerMobileSnapCooldownUntil = now + 900;
+    plannerMobileSnapCooldownUntil = now + 1200;
     interactiveSection.scrollIntoView({ behavior:"smooth", block:"start" });
   }
   function startPlannerInertia(initialVx, initialVy){
