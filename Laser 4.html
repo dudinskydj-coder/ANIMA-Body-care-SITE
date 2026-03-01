@@ -755,6 +755,11 @@
       z-index:8;
       box-shadow:0 4px 12px rgba(0,0,0,.10);
       transition:background-color .2s ease, transform .18s ease, opacity .18s ease, box-shadow .2s ease;
+      -webkit-tap-highlight-color:transparent;
+      -webkit-appearance:none;
+      appearance:none;
+      user-select:none;
+      outline:none;
     }
     .plannerViewArrow:hover{
       background:#fff;
@@ -766,6 +771,13 @@
       pointer-events:none;
       cursor:not-allowed;
       transform:translateY(-50%);
+      box-shadow:none;
+    }
+    .plannerViewArrow:focus,
+    .plannerViewArrow:focus-visible,
+    .plannerViewArrow:active{
+      outline:none;
+      background:transparent;
       box-shadow:none;
     }
     .plannerViewArrow--prev{ left:10px; }
@@ -2878,7 +2890,7 @@
     }
     @media (max-width:767px){
       #laser-switches.section{
-        padding:6px 0 45px;
+        padding:6px 0 60px;
       }
       #interactive-placeholder.section{
         padding:0;
