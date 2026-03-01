@@ -4260,7 +4260,19 @@
     setPlannerFrauenView(plannerFrauenViewOrder[next]);
   }
   function positionPlannerViewArrows(){
-    return;
+    if(!plannerFigureWrap) return;
+    const figureRect = plannerFigure ? plannerFigure.getBoundingClientRect() : null;
+    const wrapRect = plannerFigureWrap.getBoundingClientRect();
+    if(!figureRect || !wrapRect || wrapRect.height <= 0) return;
+    const topPx = (figureRect.top - wrapRect.top) + (figureRect.height * 0.5);
+    if(plannerViewPrevBtn){
+      plannerViewPrevBtn.style.top = `${topPx}px`;
+      plannerViewPrevBtn.style.transform = "translateY(-50%)";
+    }
+    if(plannerViewNextBtn){
+      plannerViewNextBtn.style.top = `${topPx}px`;
+      plannerViewNextBtn.style.transform = "translateY(-50%)";
+    }
   }
   function syncPlannerViewSwitch(mode){
     const frauenMode = mode === "frauen";
@@ -4769,17 +4781,7 @@
     interactiveSection.scrollIntoView({ behavior:"smooth", block:"center" });
   }
   function maybeSnapInteractiveSectionOnMobile(){
-    if(!(mobileVideoMq && mobileVideoMq.matches)) return;
-    if(!interactiveSection) return;
-    const now = Date.now();
-    if(now < plannerMobileSnapCooldownUntil) return;
-    const rect = interactiveSection.getBoundingClientRect();
-    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
-    if(!vh) return;
-    const isApproachingFromAbove = rect.top > -12 && rect.top < (vh * 0.68);
-    if(!isApproachingFromAbove) return;
-    plannerMobileSnapCooldownUntil = now + 1200;
-    interactiveSection.scrollIntoView({ behavior:"smooth", block:"start" });
+    return;
   }
   function startPlannerInertia(initialVx, initialVy){
     if(!plannerFigure) return;
@@ -5043,6 +5045,10 @@
     const centered = ((bodyLeft + bodyRight) - cw) / 2;
     const maxScrollX = Math.max(0, sw - cw);
     if(plannerZoom <= 1.04){
+      if(mobileVideoMq && mobileVideoMq.matches){
+        plannerFigure.scrollLeft = Math.max(0, Math.min(maxScrollX, plannerFigure.scrollLeft));
+        return;
+      }
       plannerFigure.scrollLeft = Math.max(0, Math.min(maxScrollX, centered));
       return;
     }
