@@ -3293,16 +3293,19 @@
   let lastLegalTrigger = null;
   const PLANNER_MIN_ZOOM = 1;
   const PLANNER_MAX_ZOOM = 2.8;
-  const PLANNER_MOBILE_MAX_ZOOM = 2.08;
+  const PLANNER_MOBILE_MAX_ZOOM = 1.35;
   const PLANNER_SWIPE_MIN_X = 54;
   const PLANNER_SWIPE_MAX_Y = 42;
   const PLANNER_SWIPE_MAX_MS = 520;
   const faqState = { active:false, openIndex:null };
   const desktopHover = window.matchMedia("(hover: hover) and (pointer: fine)");
+  const coarsePointerMq = window.matchMedia("(pointer: coarse)");
   const instantMenuMq = window.matchMedia("(max-width: 1024px)");
   const mobileVideoMq = window.matchMedia("(max-width: 767px)");
   function plannerMaxZoom(){
-    return mobileVideoMq && mobileVideoMq.matches ? PLANNER_MOBILE_MAX_ZOOM : PLANNER_MAX_ZOOM;
+    return (mobileVideoMq && mobileVideoMq.matches) || (coarsePointerMq && coarsePointerMq.matches)
+      ? PLANNER_MOBILE_MAX_ZOOM
+      : PLANNER_MAX_ZOOM;
   }
   const LASER_VIDEO_DESKTOP_SRC = "img/DEKA Epilation.mp4";
   const LASER_VIDEO_MOBILE_SRC = "img/DEKA Epilation Mob.mp4";
@@ -5059,11 +5062,12 @@
     const bodyRight = sw * bounds.right;
     const centered = ((bodyLeft + bodyRight) - cw) / 2;
     const maxScrollX = Math.max(0, sw - cw);
+    // Mobile/touch mode: keep X centered at all times (vertical pan only).
+    if((mobileVideoMq && mobileVideoMq.matches) || (coarsePointerMq && coarsePointerMq.matches)){
+      plannerFigure.scrollLeft = Math.max(0, Math.min(maxScrollX, centered));
+      return;
+    }
     if(plannerZoom <= 1.04){
-      if(mobileVideoMq && mobileVideoMq.matches){
-        plannerFigure.scrollLeft = Math.max(0, Math.min(maxScrollX, plannerFigure.scrollLeft));
-        return;
-      }
       plannerFigure.scrollLeft = Math.max(0, Math.min(maxScrollX, centered));
       return;
     }
