@@ -820,6 +820,48 @@
       stroke-linecap:round;
       stroke-linejoin:round;
     }
+    .plannerMobileInfo{
+      display:none;
+      position:absolute;
+      right:10px;
+      top:10px;
+      z-index:9;
+      min-width:126px;
+      max-width:44vw;
+      border-radius:14px;
+      border:1px solid rgba(17,18,24,.14);
+      background:rgba(255,255,255,.9);
+      backdrop-filter:saturate(155%) blur(9px);
+      -webkit-backdrop-filter:saturate(155%) blur(9px);
+      box-shadow:0 8px 20px rgba(0,0,0,.1);
+      padding:8px 10px;
+      pointer-events:none;
+    }
+    .plannerMobileInfoCount{
+      display:block;
+      font-size:11px;
+      line-height:1.25;
+      color:rgba(17,18,24,.66);
+      letter-spacing:-.01em;
+      font-weight:560;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .plannerMobileInfoTotal{
+      display:block;
+      margin-top:2px;
+      font-size:15px;
+      line-height:1.15;
+      color:#111218;
+      letter-spacing:-.02em;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .plannerMobileInfo.is-empty .plannerMobileInfoTotal{
+      color:rgba(17,18,24,.62);
+      font-weight:620;
+    }
     .plannerFigure::-webkit-scrollbar{
       width:0;
       height:0;
@@ -2967,6 +3009,9 @@
       }
       .plannerViewArrow--prev{ left:6px; }
       .plannerViewArrow--next{ right:6px; }
+      .plannerMobileInfo{
+        display:block;
+      }
       .orderItemSave{
         font-size:15px;
       }
@@ -3123,6 +3168,10 @@
           <button type="button" class="plannerViewArrow plannerViewArrow--next" id="plannerViewNext" aria-label="Next view">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
           </button>
+          <div class="plannerMobileInfo" id="plannerMobileInfo" aria-hidden="true">
+            <span class="plannerMobileInfoCount" id="plannerMobileInfoCount">0 Zonen</span>
+            <strong class="plannerMobileInfoTotal" id="plannerMobileInfoTotal">0 €</strong>
+          </div>
           <div class="plannerFigure">
             <div class="plannerFigureInner">
               <div class="plannerBackSketch plannerSketch--ghost" id="plannerBackSketch"></div>
@@ -3237,6 +3286,9 @@
   const plannerFigureWrap = document.querySelector(".plannerFigureWrap");
   const plannerFigure = document.querySelector(".plannerFigure");
   const plannerFigureInner = document.querySelector(".plannerFigureInner");
+  const plannerMobileInfo = document.getElementById("plannerMobileInfo");
+  const plannerMobileInfoCount = document.getElementById("plannerMobileInfoCount");
+  const plannerMobileInfoTotal = document.getElementById("plannerMobileInfoTotal");
   const plannerFigureImage = document.getElementById("plannerFigureImage");
   const plannerViewPrevBtn = document.getElementById("plannerViewPrev");
   const plannerViewNextBtn = document.getElementById("plannerViewNext");
@@ -5481,6 +5533,28 @@
     if(lang === "en") return mode === "herren" ? "Men" : "Women";
     return mode === "herren" ? "Herren" : "Frauen";
   }
+  function plannerZoneCountLabel(count){
+    const safeCount = Math.max(0, Number(count) || 0);
+    const lang = currentLang();
+    if(lang === "en"){
+      return safeCount === 1 ? "1 zone" : `${safeCount} zones`;
+    }
+    if(lang === "ru"){
+      const mod10 = safeCount % 10;
+      const mod100 = safeCount % 100;
+      if(mod10 === 1 && mod100 !== 11) return `${safeCount} зона`;
+      if(mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${safeCount} зоны`;
+      return `${safeCount} зон`;
+    }
+    return safeCount === 1 ? "1 Zone" : `${safeCount} Zonen`;
+  }
+  function updatePlannerMobileInfo(selectedSet, displayTotal){
+    if(!plannerMobileInfo || !plannerMobileInfoCount || !plannerMobileInfoTotal) return;
+    const selectedCount = selectedSet ? selectedSet.size : 0;
+    plannerMobileInfo.classList.toggle("is-empty", !selectedCount);
+    plannerMobileInfoCount.textContent = plannerZoneCountLabel(selectedCount);
+    plannerMobileInfoTotal.textContent = `${plannerText("total")}: ${formatEuro(displayTotal)}`;
+  }
   function plannerSelectionCopyText(mode, selectedSet){
     const selected = plannerOrderItems(mode, selectedSet || new Set());
     const header = `Laser Auswahl (${plannerModeLabel(mode)})`;
@@ -5832,6 +5906,7 @@
       displayTotal = sessionTotal * PLANNER_COURSE_PAYABLE_SESSIONS;
     }
     renderPlannerTotalValue(displayTotal, shouldAnimateTotalFlip);
+    updatePlannerMobileInfo(selectedSet, displayTotal);
   }
   function renderPlannerZones(mode){
     if(!plannerZoneGrid) return;
