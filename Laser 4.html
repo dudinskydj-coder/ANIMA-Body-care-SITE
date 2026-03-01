@@ -914,6 +914,9 @@
     .plannerFigureOverlayImage--back{
       z-index:0;
     }
+    .plannerFigureOverlayImage--axilla-gray{
+      z-index:5;
+    }
     .plannerSketch{
       position:absolute;
       inset:0;
@@ -2861,13 +2864,13 @@
     }
     @media (max-width:767px){
       #laser-switches.section{
-        padding:6px 0 4px;
+        padding:6px 0 10px;
       }
       #interactive-placeholder.section{
         padding:0;
       }
       .laserPlanner{
-        gap:12px;
+        gap:10px;
         min-height:100svh;
       }
       .plannerPane--zones{
@@ -3044,6 +3047,7 @@
               <img src="img/INT/FR_RS_ACHSELN.svg" alt="" loading="lazy" id="plannerFigureOverlayAxilla" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FR_RS_KINN.svg" alt="" loading="lazy" id="plannerFigureOverlayChin" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FR_RS_OBERARME_MAIN.svg" alt="" loading="lazy" id="plannerFigureOverlayUpperarms" class="plannerFigureOverlayImage" aria-hidden="true">
+              <img src="img/INT/FR_GR_ACHSELN_MAIN.svg" alt="" loading="lazy" id="plannerFigureOverlayAxillaGray" class="plannerFigureOverlayImage plannerFigureOverlayImage--axilla-gray" aria-hidden="true">
               <img src="img/INT/FR_RS_UNTERARME_MAIN.svg" alt="" loading="lazy" id="plannerFigureOverlayUnderarms" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FR_RS_BAUCH_MEDIA_LN.svg" alt="" loading="lazy" id="plannerFigureOverlayBauchMedia" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FR_RS_BAUCH.svg" alt="" loading="lazy" id="plannerFigureOverlayBauchFull" class="plannerFigureOverlayImage" aria-hidden="true">
@@ -3158,6 +3162,7 @@
   const plannerFigureOverlayAxilla = document.getElementById("plannerFigureOverlayAxilla");
   const plannerFigureOverlayChin = document.getElementById("plannerFigureOverlayChin");
   const plannerFigureOverlayUpperarms = document.getElementById("plannerFigureOverlayUpperarms");
+  const plannerFigureOverlayAxillaGray = document.getElementById("plannerFigureOverlayAxillaGray");
   const plannerFigureOverlayUnderarms = document.getElementById("plannerFigureOverlayUnderarms");
   const plannerFigureOverlayBauchMedia = document.getElementById("plannerFigureOverlayBauchMedia");
   const plannerFigureOverlayBauchFull = document.getElementById("plannerFigureOverlayBauchFull");
@@ -4298,6 +4303,7 @@
       plannerFigureOverlayAxilla,
       plannerFigureOverlayChin,
       plannerFigureOverlayUpperarms,
+      plannerFigureOverlayAxillaGray,
       plannerFigureOverlayUnderarms,
       plannerFigureOverlayBauchMedia,
       plannerFigureOverlayBauchFull,
@@ -4374,6 +4380,9 @@
     }
     if(plannerFigureOverlayUpperarms){
       plannerFigureOverlayUpperarms.classList.remove("is-visible");
+    }
+    if(plannerFigureOverlayAxillaGray){
+      plannerFigureOverlayAxillaGray.classList.remove("is-visible");
     }
     if(plannerFigureOverlayUnderarms){
       plannerFigureOverlayUnderarms.classList.remove("is-visible");
@@ -4573,6 +4582,7 @@
     const shouldShowAxillaOverlay = isFrauenFront && selectedSet.has("axilla");
     const shouldShowChinOverlay = isFrauenFront && selectedSet.has("chin");
     const shouldShowUpperarmsOverlay = isFrauenFront && selectedSet.has("upperarms");
+    const shouldShowAxillaGrayOverlay = isFrauenFront && selectedSet.has("upperarms") && !selectedSet.has("axilla");
     const shouldShowUnderarmsOverlay = isFrauenFront && selectedSet.has("underarms");
     const shouldShowBauchMediaOverlay = isFrauenFront && selectedSet.has("medialinebauch");
     const shouldShowBauchFullOverlay = isFrauenFront && selectedSet.has("bauchfull");
@@ -4592,6 +4602,9 @@
     }
     if(plannerFigureOverlayUpperarms){
       plannerFigureOverlayUpperarms.classList.toggle("is-visible", shouldShowUpperarmsOverlay);
+    }
+    if(plannerFigureOverlayAxillaGray){
+      plannerFigureOverlayAxillaGray.classList.toggle("is-visible", shouldShowAxillaGrayOverlay);
     }
     if(plannerFigureOverlayUnderarms){
       plannerFigureOverlayUnderarms.classList.toggle("is-visible", shouldShowUnderarmsOverlay);
