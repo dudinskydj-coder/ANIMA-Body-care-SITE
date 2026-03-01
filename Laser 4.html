@@ -821,16 +821,16 @@
       pointer-events:none;
     }
     .plannerFigureBase.is-switch-out-left{
-      animation:plannerViewOutLeft .14s ease forwards;
+      animation:plannerViewOutLeft .09s ease forwards;
     }
     .plannerFigureBase.is-switch-out-right{
-      animation:plannerViewOutRight .14s ease forwards;
+      animation:plannerViewOutRight .09s ease forwards;
     }
     .plannerFigureBase.is-switch-in-left{
-      animation:plannerViewInLeft .18s cubic-bezier(.22,.8,.24,1) forwards;
+      animation:plannerViewInLeft .12s cubic-bezier(.22,.8,.24,1) forwards;
     }
     .plannerFigureBase.is-switch-in-right{
-      animation:plannerViewInRight .18s cubic-bezier(.22,.8,.24,1) forwards;
+      animation:plannerViewInRight .12s cubic-bezier(.22,.8,.24,1) forwards;
     }
     @keyframes plannerViewOutLeft{
       from{ opacity:1; transform:translateX(0) scale(1); }
@@ -900,16 +900,16 @@
       opacity:1;
     }
     .plannerFigureOverlayImage.is-switch-out-left{
-      animation:plannerViewShiftOutLeft .14s ease forwards;
+      animation:plannerViewShiftOutLeft .09s ease forwards;
     }
     .plannerFigureOverlayImage.is-switch-out-right{
-      animation:plannerViewShiftOutRight .14s ease forwards;
+      animation:plannerViewShiftOutRight .09s ease forwards;
     }
     .plannerFigureOverlayImage.is-switch-in-left{
-      animation:plannerViewShiftInLeft .18s cubic-bezier(.22,.8,.24,1) forwards;
+      animation:plannerViewShiftInLeft .12s cubic-bezier(.22,.8,.24,1) forwards;
     }
     .plannerFigureOverlayImage.is-switch-in-right{
-      animation:plannerViewShiftInRight .18s cubic-bezier(.22,.8,.24,1) forwards;
+      animation:plannerViewShiftInRight .12s cubic-bezier(.22,.8,.24,1) forwards;
     }
     .plannerFigureOverlayImage--back{
       z-index:0;
@@ -2864,7 +2864,7 @@
     }
     @media (max-width:767px){
       #laser-switches.section{
-        padding:6px 0 14px;
+        padding:6px 0 24px;
       }
       #interactive-placeholder.section{
         padding:0;
@@ -2883,7 +2883,7 @@
       }
       .plannerFigure{
         height:calc(100svh - 6px);
-        padding:6px 6px 0;
+        padding:14px 6px 0;
       }
       .plannerViewSwitch{
         margin:6px auto 0;
@@ -4391,8 +4391,8 @@
           animatedLayers.forEach((el) => {
             el.classList.remove("is-view-switching", "is-switch-in-left", "is-switch-in-right");
           });
-        }, 190);
-      }, 145);
+        }, 130);
+      }, 90);
     }
     syncPlannerViewSwitch(mode);
     requestAnimationFrame(positionPlannerViewArrows);
