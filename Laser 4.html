@@ -3237,6 +3237,11 @@
   let plannerTouchStartY = 0;
   let plannerTouchStartScrollLeft = 0;
   let plannerTouchStartScrollTop = 0;
+  let plannerPinchActive = false;
+  let plannerPinchRaf = null;
+  let plannerPinchTargetZoom = 1;
+  let plannerPinchFocusX = 0;
+  let plannerPinchFocusY = 0;
   let plannerSwipeTracking = false;
   let plannerSwipeStartX = 0;
   let plannerSwipeStartY = 0;
@@ -5115,6 +5120,18 @@
     const dy = touchA.clientY - touchB.clientY;
     return Math.hypot(dx, dy);
   }
+  function cancelPlannerPinchRaf(){
+    if(!plannerPinchRaf) return;
+    cancelAnimationFrame(plannerPinchRaf);
+    plannerPinchRaf = null;
+  }
+  function schedulePlannerPinchZoom(){
+    if(plannerPinchRaf) return;
+    plannerPinchRaf = requestAnimationFrame(() => {
+      plannerPinchRaf = null;
+      applyPlannerZoom(plannerPinchTargetZoom, plannerPinchFocusX, plannerPinchFocusY, "none");
+    });
+  }
   function plannerLabel(labelMap){
     const lang = currentLang();
     return (labelMap && (labelMap[lang] || labelMap.de)) || "";
@@ -6966,6 +6983,7 @@
       if(!e.touches) return;
       ensureInteractiveInViewForInteraction();
       if(e.touches.length === 1){
+        plannerPinchActive = false;
         const touch = e.touches[0];
         plannerSwipeTracking = activeLaserMode() === "frauen" && plannerZoom <= 1.02;
         plannerSwipeStartX = touch.clientX;
@@ -6975,6 +6993,8 @@
         plannerSwipeTracking = false;
       }
       if(e.touches.length === 2){
+        plannerPinchActive = true;
+        cancelPlannerPinchRaf();
         cancelPlannerInertia();
         cancelPlannerZoomAnimation();
         cancelPlannerSettleAnimation();
@@ -6989,9 +7009,13 @@
         plannerZoomEdgeLock = 0;
         plannerPinchStartDistance = touchDistance(e.touches[0], e.touches[1]);
         plannerPinchStartZoom = plannerZoom;
+        plannerPinchFocusX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        plannerPinchFocusY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        plannerPinchTargetZoom = plannerZoom;
         return;
       }
       if(e.touches.length === 1 && canPanPlannerFigure()){
+        cancelPlannerPinchRaf();
         cancelPlannerInertia();
         cancelPlannerZoomAnimation();
         cancelPlannerSettleAnimation();
@@ -7014,17 +7038,17 @@
       if(!e.touches) return;
       if(e.touches.length === 2 && plannerPinchStartDistance){
         e.preventDefault();
+        plannerPinchActive = true;
         plannerSwipeTracking = false;
         plannerTouchPanActive = false;
         const currentDistance = touchDistance(e.touches[0], e.touches[1]);
         if(!currentDistance) return;
         const rawRatio = currentDistance / plannerPinchStartDistance;
-        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-        const targetZoom = plannerPinchStartZoom * rawRatio;
-        // Touch pinch should feel native: direct scale from finger distance,
-        // anchored at finger midpoint, without desktop-style smoothing/framing.
-        applyPlannerZoom(targetZoom, midX, midY, "none");
+        plannerPinchFocusX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        plannerPinchFocusY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        plannerPinchTargetZoom = plannerPinchStartZoom * rawRatio;
+        // Run pinch updates at most once per frame to avoid touchmove overload/jank.
+        schedulePlannerPinchZoom();
         return;
       }
       if(e.touches.length === 1 && plannerSwipeTracking){
@@ -7074,15 +7098,25 @@
       }
       plannerSwipeTracking = false;
       plannerPinchStartDistance = null;
+      cancelPlannerPinchRaf();
+      const wasPinching = plannerPinchActive;
+      plannerPinchActive = false;
       plannerTouchPanActive = false;
-      bouncePlannerEdgeToRest();
-      snapPlannerVerticalExtremes(activeLaserMode(), 0.2);
-      maybeSettlePlannerToHome(260);
+      if(!wasPinching){
+        bouncePlannerEdgeToRest();
+        snapPlannerVerticalExtremes(activeLaserMode(), 0.2);
+        maybeSettlePlannerToHome(260);
+      } else {
+        setPlannerEdgeOffsetY(0);
+        clampPlannerPan(activeLaserMode());
+      }
       schedulePlannerAutoReset();
     }, { passive:true });
     plannerFigure.addEventListener("touchcancel", () => {
       plannerSwipeTracking = false;
       plannerPinchStartDistance = null;
+      cancelPlannerPinchRaf();
+      plannerPinchActive = false;
       plannerTouchPanActive = false;
       bouncePlannerEdgeToRest();
       snapPlannerVerticalExtremes(activeLaserMode(), 0.2);
