@@ -4304,8 +4304,13 @@
     syncPlannerViewSwitch(mode);
     if(changed && mode === "frauen"){
       const direction = (prevView === "front" && nextView === "back") ? "to-back" : "to-front";
-      applyPlannerFigureMode(mode, { animate:true, direction });
-      schedulePlannerRender(mode);
+      applyPlannerFigureMode(mode, {
+        animate:true,
+        direction,
+        onVisualSwapped:() => {
+          schedulePlannerRender(mode);
+        }
+      });
       requestAnimationFrame(positionPlannerViewArrows);
     }
   }
@@ -4358,6 +4363,9 @@
     if(!shouldAnimate){
       plannerFigureImage.setAttribute("src", visual.src);
       plannerFigureImage.setAttribute("alt", visual.alt);
+      if(typeof options.onVisualSwapped === "function"){
+        options.onVisualSwapped();
+      }
     } else {
       const seq = ++plannerViewSwitchSeq;
       const toBack = options.direction === "to-back";
@@ -4368,6 +4376,9 @@
         if(seq !== plannerViewSwitchSeq) return;
         plannerFigureImage.setAttribute("src", visual.src);
         plannerFigureImage.setAttribute("alt", visual.alt);
+        if(typeof options.onVisualSwapped === "function"){
+          options.onVisualSwapped();
+        }
         animatedLayers.forEach((el) => {
           el.classList.remove("is-switch-out-left", "is-switch-out-right");
           el.classList.add(toBack ? "is-switch-in-right" : "is-switch-in-left");
@@ -7001,19 +7012,12 @@
         const currentDistance = touchDistance(e.touches[0], e.touches[1]);
         if(!currentDistance) return;
         const rawRatio = currentDistance / plannerPinchStartDistance;
-        const ratio = 1 + ((rawRatio - 1) * 0.48);
         const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
         const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-        const targetZoom = plannerPinchStartZoom * ratio;
-        const smoothedZoom = plannerZoom + ((targetZoom - plannerZoom) * 0.34);
-        const maxZoom = plannerMaxZoom();
-        if((smoothedZoom > maxZoom && plannerZoom >= maxZoom - 0.001) ||
-           (smoothedZoom < PLANNER_MIN_ZOOM && plannerZoom <= PLANNER_MIN_ZOOM + 0.001)){
-          triggerPlannerZoomEdgeBounce(smoothedZoom > maxZoom ? 1 : -1, 300, 1.015);
-        } else {
-          // Lighter live pinch update: keep focus point, skip heavy per-move resets/reframing.
-          applyPlannerZoom(smoothedZoom, midX, midY, "none");
-        }
+        const targetZoom = plannerPinchStartZoom * rawRatio;
+        // Touch pinch should feel native: direct scale from finger distance,
+        // anchored at finger midpoint, without desktop-style smoothing/framing.
+        applyPlannerZoom(targetZoom, midX, midY, "none");
         return;
       }
       if(e.touches.length === 1 && plannerSwipeTracking){
