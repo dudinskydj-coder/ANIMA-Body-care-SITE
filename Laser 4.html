@@ -3659,40 +3659,6 @@
       root.style.scrollBehavior = prevScrollBehavior;
     });
   }
-  function openPlannerFullscreen(){
-    if(!(mobileVideoMq && mobileVideoMq.matches)) return;
-    if(body.classList.contains("planner-fullscreen")) return;
-    plannerFullscreenScrollY = window.scrollY || window.pageYOffset || 0;
-    body.classList.add("planner-fullscreen");
-    body.style.position = "fixed";
-    body.style.top = `-${plannerFullscreenScrollY}px`;
-    body.style.left = "0";
-    body.style.right = "0";
-    body.style.width = "100%";
-    requestAnimationFrame(() => {
-      clampPlannerPan(activeLaserMode());
-      positionPlannerViewArrows();
-    });
-  }
-  function closePlannerFullscreen(){
-    if(!body.classList.contains("planner-fullscreen")) return;
-    const root = document.documentElement;
-    const prevScrollBehavior = root.style.scrollBehavior;
-    root.style.scrollBehavior = "auto";
-    body.classList.remove("planner-fullscreen");
-    body.style.position = "";
-    body.style.top = "";
-    body.style.left = "";
-    body.style.right = "";
-    body.style.width = "";
-    window.scrollTo(0, plannerFullscreenScrollY);
-    requestAnimationFrame(() => {
-      root.style.scrollBehavior = prevScrollBehavior;
-      clampPlannerPan(activeLaserMode());
-      positionPlannerViewArrows();
-    });
-  }
-
   function setHeaderHeightVar(){
     const h = headerEl ? headerEl.offsetHeight : 62;
     document.documentElement.style.setProperty("--headerH", `${h}px`);
@@ -4791,7 +4757,7 @@
   }
   function maybeSnapInteractiveSectionOnMobile(){
     if(!(mobileVideoMq && mobileVideoMq.matches)) return;
-    if(!interactiveSection || body.classList.contains("planner-fullscreen")) return;
+    if(!interactiveSection) return;
     const now = Date.now();
     if(now < plannerMobileSnapCooldownUntil) return;
     const rect = interactiveSection.getBoundingClientRect();
@@ -6723,16 +6689,6 @@
       schedulePlannerRender(activeLaserMode());
     });
   }
-  if(plannerFullscreenCloseBtn){
-    plannerFullscreenCloseBtn.addEventListener("click", () => {
-      closePlannerFullscreen();
-    });
-  }
-  document.addEventListener("keydown", (e) => {
-    if(e.key === "Escape"){
-      closePlannerFullscreen();
-    }
-  });
     if(plannerViewButtons.length){
       plannerViewButtons.forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -6819,12 +6775,6 @@
   }
   if(plannerFigure){
     plannerFigure.addEventListener("click", (event) => {
-      if((mobileVideoMq && mobileVideoMq.matches) && !body.classList.contains("planner-fullscreen")){
-        openPlannerFullscreen();
-        event.preventDefault();
-        event.stopPropagation();
-        return;
-      }
       const zoneBtn = event.target.closest(".zoneSketchBtn");
       if(!zoneBtn || !plannerFigure.contains(zoneBtn) || !plannerFigureInner) return;
       zoneBtn.blur();
@@ -7110,9 +7060,6 @@
     }, { passive:true });
   }
   window.addEventListener("resize", () => {
-    if(body.classList.contains("planner-fullscreen") && !(mobileVideoMq && mobileVideoMq.matches)){
-      closePlannerFullscreen();
-    }
     clampPlannerPan(activeLaserMode());
     schedulePlannerRender(activeLaserMode());
     maybeStartPlannerGuideEffect();
