@@ -5462,13 +5462,28 @@
       x = Math.max(8, Math.min(hostRect.width - 8, plannerLastZonePointer.x));
       y = Math.max(8, Math.min(hostRect.height - 8, plannerLastZonePointer.y - 18));
     }
-    rise = 180;
-    duration = 1.55;
+    const topEdgePadding = 16;
+    rise = Math.max(72, y - topEdgePadding);
+    duration = Math.max(1.35, Math.min(2.1, rise / 120));
+
+    // Keep text fully readable inside the figure bounds.
+    fx.style.animation = "none";
+    fx.style.visibility = "hidden";
+    plannerFigureInner.appendChild(fx);
+    const fxRect = fx.getBoundingClientRect();
+    const sideEdgePadding = 8;
+    const halfFxWidth = fxRect.width / 2;
+    const minCenterX = sideEdgePadding + halfFxWidth;
+    const maxCenterX = Math.max(minCenterX, hostRect.width - sideEdgePadding - halfFxWidth);
+    x = Math.max(minCenterX, Math.min(maxCenterX, x));
+
     fx.style.left = `${x}px`;
     fx.style.top = `${y}px`;
     fx.style.setProperty("--plannerComboRise", `${rise}px`);
     fx.style.animationDuration = `${duration}s`;
-    plannerFigureInner.appendChild(fx);
+    fx.style.visibility = "";
+    void fx.offsetWidth;
+    fx.style.animation = "";
     fx.addEventListener("animationend", () => fx.remove(), { once:true });
     return Math.round(duration * 1000);
   }
