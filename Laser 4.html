@@ -3005,13 +3005,10 @@
       }
       #interactive-placeholder.section{
         padding:0;
-        margin-left:calc(50% - 50vw);
-        margin-right:calc(50% - 50vw);
       }
       .laserPlanner{
         gap:8px;
         min-height:100svh;
-        width:100vw;
       }
       .plannerPane--zones{
         min-height:calc(100svh + 84px);
@@ -3020,6 +3017,9 @@
       .plannerPane--zones .plannerFigureWrap{
         height:calc(100svh + 84px);
         margin-top:0;
+        width:100vw;
+        margin-left:calc(50% - 50vw);
+        margin-right:calc(50% - 50vw);
       }
       .plannerFigure{
         height:calc(100svh - 6px);
@@ -3044,10 +3044,12 @@
         box-shadow:none;
         transform:translateY(-50%);
       }
-      .plannerViewArrow--prev{ left:0; }
-      .plannerViewArrow--next{ right:0; }
+      .plannerViewArrow--prev{ left:6px; }
+      .plannerViewArrow--next{ right:6px; }
       .plannerMobileInfo{
         display:flex;
+        left:22px;
+        right:22px;
       }
       .orderItemSave{
         font-size:15px;
@@ -3219,7 +3221,10 @@
               <img src="img/INT/FR_NEW_FULL.svg" alt="Interaktive Körperzonen Frauen Front" loading="lazy" id="plannerFigureImage" class="plannerFigureBase">
               <img src="img/INT/FR_RS_OBERLIPPE.svg" alt="" loading="lazy" id="plannerFigureOverlayUpperlip" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FR_RS_ACHSELN.svg" alt="" loading="lazy" id="plannerFigureOverlayAxilla" class="plannerFigureOverlayImage" aria-hidden="true">
-              <img src="img/INT/FR_RS_KINN.svg" alt="" loading="lazy" id="plannerFigureOverlayChin" class="plannerFigureOverlayImage" aria-hidden="true">
+              <img src="img/INT/FR_RS_HALS.svg" alt="" loading="lazy" id="plannerFigureOverlayChin" class="plannerFigureOverlayImage" aria-hidden="true">
+              <img src="img/INT/FR_RS_Brustbereich.svg" alt="" loading="lazy" id="plannerFigureOverlayChest" class="plannerFigureOverlayImage" aria-hidden="true">
+              <img src="img/INT/FR_RS_HANDE.svg" alt="" loading="lazy" id="plannerFigureOverlayHands" class="plannerFigureOverlayImage" aria-hidden="true">
+              <img src="img/INT/FR_RS_FUSSE.svg" alt="" loading="lazy" id="plannerFigureOverlayFeet" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FR_RS_OBERARME_MAIN.svg" alt="" loading="lazy" id="plannerFigureOverlayUpperarms" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FR_GR_ACHSELN_MAIN.svg" alt="" loading="lazy" id="plannerFigureOverlayAxillaGray" class="plannerFigureOverlayImage plannerFigureOverlayImage--axilla-gray" aria-hidden="true">
               <img src="img/INT/FR_RS_UNTERARME_MAIN.svg" alt="" loading="lazy" id="plannerFigureOverlayUnderarms" class="plannerFigureOverlayImage" aria-hidden="true">
@@ -3343,6 +3348,9 @@
   const plannerFigureOverlayUpperlip = document.getElementById("plannerFigureOverlayUpperlip");
   const plannerFigureOverlayAxilla = document.getElementById("plannerFigureOverlayAxilla");
   const plannerFigureOverlayChin = document.getElementById("plannerFigureOverlayChin");
+  const plannerFigureOverlayChest = document.getElementById("plannerFigureOverlayChest");
+  const plannerFigureOverlayHands = document.getElementById("plannerFigureOverlayHands");
+  const plannerFigureOverlayFeet = document.getElementById("plannerFigureOverlayFeet");
   const plannerFigureOverlayUpperarms = document.getElementById("plannerFigureOverlayUpperarms");
   const plannerFigureOverlayAxillaGray = document.getElementById("plannerFigureOverlayAxillaGray");
   const plannerFigureOverlayUnderarms = document.getElementById("plannerFigureOverlayUnderarms");
@@ -3510,7 +3518,10 @@
   const plannerZonesByMode = {
     frauen: [
       { id:"upperlip", label:{ de:"Oberlippe", en:"Upper lip", ru:"Верхняя губа" }, price:25 },
-      { id:"chin", label:{ de:"Kinn", en:"Chin", ru:"Подбородок" }, price:25 },
+      { id:"chin", label:{ de:"Hals", en:"Neck", ru:"Шея" }, price:25 },
+      { id:"chest", label:{ de:"Brustbereich", en:"Chest area", ru:"Зона груди" }, price:45 },
+      { id:"hands", label:{ de:"Hände", en:"Hands", ru:"Кисти рук" }, price:35 },
+      { id:"feet", label:{ de:"Füße", en:"Feet", ru:"Ступни" }, price:35 },
       { id:"axilla", label:{ de:"Achseln", en:"Underarms", ru:"Подмышки" }, price:45 },
       { id:"upperarms", label:{ de:"Oberarme", en:"Upper arms", ru:"Верхняя часть рук" }, price:45 },
       { id:"underarms", label:{ de:"Unterarme", en:"Lower arms", ru:"Нижняя часть рук" }, price:45 },
@@ -3536,6 +3547,9 @@
     frauen: {
       upperlip:{ x:47.8, y:9.9, w:4.6, h:4.6 },
       chin:{ x:47.8, y:13.7, w:4.6, h:5.2 },
+      chest:{ x:50.6, y:24.2, w:5.4, h:6.3 },
+      hands:{ x:57.0, y:45.8, w:3.2, h:8.2 },
+      feet:{ x:50.6, y:93.2, w:4.0, h:5.0 },
       axilla:{ x:41.5, y:21.3, w:4.7, h:1.87 },
       upperarms:{ x:56.2, y:18.0, w:3.2, h:10.5 },
       underarms:{ x:56.2, y:34.4, w:3.2, h:12.2 },
@@ -3570,7 +3584,12 @@
   };
   const plannerHoverHotspotsFrauen = [
     { key:"OBERLIPPE", x1:0.448, x2:0.552, y1:0.098, y2:0.168 },
-    { key:"KINN", x1:0.445, x2:0.555, y1:0.165, y2:0.235 },
+    { key:"HALS", x1:0.445, x2:0.555, y1:0.165, y2:0.235 },
+    { key:"BRUSTBEREICH", x1:0.38, x2:0.62, y1:0.235, y2:0.325 },
+    { key:"HANDE_L", x1:0.065, x2:0.20, y1:0.53, y2:0.67 },
+    { key:"HANDE_R", x1:0.80, x2:0.935, y1:0.53, y2:0.67 },
+    { key:"FUSSE_L", x1:0.42, x2:0.50, y1:0.965, y2:1.0 },
+    { key:"FUSSE_R", x1:0.50, x2:0.58, y1:0.965, y2:1.0 },
     { key:"ACHSELN_MAIN", x1:0.30, x2:0.70, y1:0.29, y2:0.37 },
     { key:"OBERARME_MAIN", x1:0.20, x2:0.80, y1:0.30, y2:0.47 },
     { key:"UNTERARME_MAIN", x1:0.16, x2:0.84, y1:0.46, y2:0.66 },
@@ -3583,7 +3602,10 @@
   const plannerHoverPartsByZone = {
     frauen: {
       upperlip:["OBERLIPPE"],
-      chin:["KINN"],
+      chin:["HALS"],
+      chest:["BRUSTBEREICH"],
+      hands:["HANDE_L", "HANDE_R"],
+      feet:["FUSSE_L", "FUSSE_R"],
       axilla:["ACHSELN_MAIN"],
       upperarms:["OBERARME_MAIN"],
       underarms:["UNTERARME_MAIN"],
@@ -4549,6 +4571,9 @@
       plannerFigureOverlayUpperlip,
       plannerFigureOverlayAxilla,
       plannerFigureOverlayChin,
+      plannerFigureOverlayChest,
+      plannerFigureOverlayHands,
+      plannerFigureOverlayFeet,
       plannerFigureOverlayUpperarms,
       plannerFigureOverlayAxillaGray,
       plannerFigureOverlayUnderarms,
@@ -4671,6 +4696,15 @@
     if(plannerFigureOverlayChin){
       plannerFigureOverlayChin.classList.remove("is-visible");
     }
+    if(plannerFigureOverlayChest){
+      plannerFigureOverlayChest.classList.remove("is-visible");
+    }
+    if(plannerFigureOverlayHands){
+      plannerFigureOverlayHands.classList.remove("is-visible");
+    }
+    if(plannerFigureOverlayFeet){
+      plannerFigureOverlayFeet.classList.remove("is-visible");
+    }
     if(plannerFigureOverlayUpperarms){
       plannerFigureOverlayUpperarms.classList.remove("is-visible");
     }
@@ -4711,6 +4745,15 @@
     }
     if(plannerFigureOverlayChin){
       plannerFigureOverlayChin.classList.remove("is-guide-visible");
+    }
+    if(plannerFigureOverlayChest){
+      plannerFigureOverlayChest.classList.remove("is-guide-visible");
+    }
+    if(plannerFigureOverlayHands){
+      plannerFigureOverlayHands.classList.remove("is-guide-visible");
+    }
+    if(plannerFigureOverlayFeet){
+      plannerFigureOverlayFeet.classList.remove("is-guide-visible");
     }
     if(plannerFigureOverlayUpperarms){
       plannerFigureOverlayUpperarms.classList.remove("is-guide-visible");
@@ -4755,7 +4798,12 @@
   function plannerOverlayElementsForPartKey(partKey){
     switch(partKey){
       case "OBERLIPPE": return [plannerFigureOverlayUpperlip];
-      case "KINN": return [plannerFigureOverlayChin];
+      case "HALS": return [plannerFigureOverlayChin];
+      case "BRUSTBEREICH": return [plannerFigureOverlayChest];
+      case "HANDE_L": return [plannerFigureOverlayHands];
+      case "HANDE_R": return [plannerFigureOverlayHands];
+      case "FUSSE_L": return [plannerFigureOverlayFeet];
+      case "FUSSE_R": return [plannerFigureOverlayFeet];
       case "ACHSELN_MAIN": return [plannerFigureOverlayAxilla];
       case "OBERARME_MAIN": return [plannerFigureOverlayUpperarms, plannerFigureOverlayAxillaGray];
       case "UNTERARME_MAIN": return [plannerFigureOverlayUnderarms];
@@ -4770,6 +4818,9 @@
         return [
           plannerFigureOverlayUpperlip,
           plannerFigureOverlayChin,
+          plannerFigureOverlayChest,
+          plannerFigureOverlayHands,
+          plannerFigureOverlayFeet,
           plannerFigureOverlayAxilla,
           plannerFigureOverlayUpperarms,
           plannerFigureOverlayUnderarms,
@@ -4881,6 +4932,9 @@
     const shouldShowUpperlipOverlay = isFrauenFront && selectedSet.has("upperlip");
     const shouldShowAxillaOverlay = isFrauenFront && selectedSet.has("axilla");
     const shouldShowChinOverlay = isFrauenFront && selectedSet.has("chin");
+    const shouldShowChestOverlay = isFrauenFront && selectedSet.has("chest");
+    const shouldShowHandsOverlay = isFrauenFront && selectedSet.has("hands");
+    const shouldShowFeetOverlay = isFrauenFront && selectedSet.has("feet");
     const shouldShowUpperarmsOverlay = isFrauenFront && selectedSet.has("upperarms");
     const shouldShowAxillaGrayOverlay = isFrauenFront && selectedSet.has("upperarms") && !selectedSet.has("axilla");
     const shouldShowUnderarmsOverlay = isFrauenFront && selectedSet.has("underarms");
@@ -4899,6 +4953,15 @@
     }
     if(plannerFigureOverlayChin){
       plannerFigureOverlayChin.classList.toggle("is-visible", shouldShowChinOverlay);
+    }
+    if(plannerFigureOverlayChest){
+      plannerFigureOverlayChest.classList.toggle("is-visible", shouldShowChestOverlay);
+    }
+    if(plannerFigureOverlayHands){
+      plannerFigureOverlayHands.classList.toggle("is-visible", shouldShowHandsOverlay);
+    }
+    if(plannerFigureOverlayFeet){
+      plannerFigureOverlayFeet.classList.toggle("is-visible", shouldShowFeetOverlay);
     }
     if(plannerFigureOverlayUpperarms){
       plannerFigureOverlayUpperarms.classList.toggle("is-visible", shouldShowUpperarmsOverlay);
