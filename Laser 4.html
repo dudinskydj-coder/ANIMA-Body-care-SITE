@@ -5462,9 +5462,8 @@
       x = Math.max(8, Math.min(hostRect.width - 8, plannerLastZonePointer.x));
       y = Math.max(8, Math.min(hostRect.height - 8, plannerLastZonePointer.y - 18));
     }
-    const topEdgePadding = 16;
-    rise = Math.max(72, y - topEdgePadding);
-    duration = Math.max(1.35, Math.min(2.1, rise / 120));
+    rise = 180;
+    duration = 1.55;
     fx.style.left = `${x}px`;
     fx.style.top = `${y}px`;
     fx.style.setProperty("--plannerComboRise", `${rise}px`);
