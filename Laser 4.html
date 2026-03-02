@@ -4549,7 +4549,9 @@
     } else {
       const seq = ++plannerViewSwitchSeq;
       const directionSign = options.direction === "to-back" ? -1 : 1;
-      const distancePct = 100;
+      const slideDistancePx = plannerFigure
+        ? Math.max(180, plannerFigure.clientWidth * 0.9)
+        : 540;
       const durationMs = 320;
       let swapped = false;
       const ease = (t) => 0.5 - (Math.cos(Math.PI * t) * 0.5);
@@ -4560,10 +4562,10 @@
       const frame = (now) => {
         if(seq !== plannerViewSwitchSeq) return;
         const p = Math.min(1, (now - start) / durationMs);
-        let offsetPct = 0;
+        let offsetPx = 0;
         if(p < 0.5){
           const t = ease(p / 0.5);
-          offsetPct = directionSign * distancePct * t;
+          offsetPx = directionSign * slideDistancePx * t;
         } else {
           if(!swapped){
             plannerFigureImage.setAttribute("src", visual.src);
@@ -4574,10 +4576,10 @@
             swapped = true;
           }
           const t = ease((p - 0.5) / 0.5);
-          offsetPct = (-directionSign * distancePct) * (1 - t);
+          offsetPx = (-directionSign * slideDistancePx) * (1 - t);
         }
         animatedLayers.forEach((el) => {
-          el.style.transform = `translate3d(${offsetPct}%, 0, 0)`;
+          el.style.transform = `translate3d(${Math.round(offsetPx)}px, 0, 0)`;
         });
         if(p < 1){
           plannerViewSlideRaf = requestAnimationFrame(frame);
