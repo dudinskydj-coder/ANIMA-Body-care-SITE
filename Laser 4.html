@@ -3004,24 +3004,20 @@
         padding:0;
       }
       .laserPlanner{
-        gap:0;
+        gap:8px;
         min-height:100svh;
       }
       .plannerPane--zones{
-        min-height:100svh;
+        min-height:calc(100svh + 84px);
         padding:0;
-        width:100vw;
-        margin-left:calc(50% - 50vw);
-        margin-right:calc(50% - 50vw);
       }
       .plannerPane--zones .plannerFigureWrap{
-        height:100svh;
-        width:100%;
+        height:calc(100svh + 84px);
         margin-top:0;
       }
       .plannerFigure{
-        height:100svh;
-        padding:0;
+        height:calc(100svh - 6px);
+        padding:14px 6px 0;
       }
       .plannerViewSwitch{
         margin:6px auto 0;
@@ -3447,6 +3443,7 @@
   let plannerAutoFocusCooldownUntil = 0;
   let plannerMobileSnapCooldownUntil = 0;
   let plannerGuideDisabled = true;
+  let plannerViewTransitionActive = false;
   let plannerHoverPartKey = null;
   let plannerHoverSuppressed = false;
   let plannerHoverSuppressedKey = null;
@@ -3477,7 +3474,7 @@
   let lastLegalTrigger = null;
   const PLANNER_MIN_ZOOM = 1;
   const PLANNER_MAX_ZOOM = 2.8;
-  const PLANNER_MOBILE_MAX_ZOOM = 1;
+  const PLANNER_MOBILE_MAX_ZOOM = 1.35;
   const PLANNER_SWIPE_MIN_X = 30;
   const PLANNER_SWIPE_MAX_Y = 64;
   const PLANNER_SWIPE_MAX_MS = 920;
@@ -4495,6 +4492,23 @@
     const mode = options.mode || activeLaserMode();
     syncPlannerViewSwitch(mode);
     if(changed && mode === "frauen"){
+      plannerViewTransitionActive = true;
+      plannerButtonHoverPreviewActive = false;
+      plannerHoverPreviewActive = false;
+      plannerHoverSuppressed = false;
+      plannerHoverSuppressedKey = null;
+      clearPlannerHoverPreview();
+      clearPlannerAutoResetTimer();
+      clearPlannerSettleTimer();
+      cancelPlannerInertia();
+      cancelPlannerPinchRaf();
+      cancelPlannerZoomAnimation();
+      cancelPlannerSettleAnimation();
+      cancelPlannerVerticalSnap();
+      cancelPlannerEdgeBounce();
+      cancelPlannerZoomEdgeBounce();
+      setPlannerZoomEdgeScale(1);
+      setPlannerEdgeOffsetY(0);
       const prevIndex = plannerFrauenViewOrder.indexOf(prevView);
       const nextIndex = plannerFrauenViewOrder.indexOf(nextView);
       const direction = nextIndex > prevIndex ? "to-back" : "to-front";
@@ -4506,11 +4520,14 @@
           updatePlannerFigureOverlay(mode);
         },
         onVisualSettled:() => {
+          plannerViewTransitionActive = false;
           // Do full interactive re-render only after slide completes.
           schedulePlannerRender(mode);
         }
       });
       requestAnimationFrame(positionPlannerViewArrows);
+    } else {
+      plannerViewTransitionActive = false;
     }
     if(changed){
       plannerPersistState();
@@ -4584,8 +4601,8 @@
       const seq = ++plannerViewSwitchSeq;
       const directionSign = options.direction === "to-back" ? -1 : 1;
       const slideDistancePx = plannerFigure
-        ? Math.max(260, plannerFigure.clientWidth + 56)
-        : 640;
+        ? Math.max(240, plannerFigure.clientWidth * 1.7)
+        : 760;
       const durationMs = 320;
       let swapped = false;
       const ease = (t) => 0.5 - (Math.cos(Math.PI * t) * 0.5);
@@ -4763,6 +4780,10 @@
     clearPlannerGuideOverlay();
   }
   function setPlannerHoverPreviewParts(partKeys){
+    if(plannerViewTransitionActive){
+      clearPlannerHoverPreview();
+      return;
+    }
     const keys = Array.isArray(partKeys) ? partKeys.filter(Boolean) : [];
     const nextHoverKey = keys.join("|");
     if(plannerHoverSuppressed){
@@ -4804,7 +4825,7 @@
     return hit ? hit.key : null;
   }
   function canRunFrauenHoverPreview(){
-    return activeLaserMode() === "frauen" && plannerFrauenView === "front";
+    return activeLaserMode() === "frauen" && plannerFrauenView === "front" && !plannerViewTransitionActive;
   }
   function isInteractiveSectionInView(){
     if(!interactiveSection) return true;
@@ -5502,25 +5523,21 @@
     const topEdgePadding = 16;
     rise = Math.max(72, y - topEdgePadding);
     duration = Math.max(1.35, Math.min(2.1, rise / 120));
+    fx.style.left = `${x}px`;
+    fx.style.top = `${y}px`;
+    fx.style.setProperty("--plannerComboRise", `${rise}px`);
+    fx.style.animationDuration = `${duration}s`;
+    plannerFigureInner.appendChild(fx);
 
     // Keep text fully readable inside the figure bounds.
-    fx.style.animation = "none";
-    fx.style.visibility = "hidden";
-    plannerFigureInner.appendChild(fx);
     const fxRect = fx.getBoundingClientRect();
     const sideEdgePadding = 8;
     const halfFxWidth = fxRect.width / 2;
     const minCenterX = sideEdgePadding + halfFxWidth;
     const maxCenterX = Math.max(minCenterX, hostRect.width - sideEdgePadding - halfFxWidth);
     x = Math.max(minCenterX, Math.min(maxCenterX, x));
-
     fx.style.left = `${x}px`;
-    fx.style.top = `${y}px`;
-    fx.style.setProperty("--plannerComboRise", `${rise}px`);
-    fx.style.animationDuration = `${duration}s`;
-    fx.style.visibility = "";
-    void fx.offsetWidth;
-    fx.style.animation = "";
+
     fx.addEventListener("animationend", () => fx.remove(), { once:true });
     return Math.round(duration * 1000);
   }
