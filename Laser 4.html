@@ -5456,20 +5456,19 @@
       x = Math.max(8, Math.min(hostRect.width - 8, plannerLastZonePointer.x));
       y = Math.max(8, Math.min(hostRect.height - 8, plannerLastZonePointer.y - 18));
     }
-    // Calculate travel in viewport coordinates (visible figure area),
-    // so speed is identical for top and bottom selections.
-    let viewStartY = y;
-    let viewTargetY = 22;
+    // Constant speed model:
+    // same px/sec for every zone; only distance changes.
+    const comboSpeedPxPerSec = 105;
+    let targetY = 22;
     if(plannerFigure){
       const scrollTop = plannerFigure.scrollTop || 0;
       const vh = Math.max(120, plannerFigure.clientHeight || 0);
-      viewStartY = y - scrollTop;
-      viewStartY = Math.max(10, Math.min(vh - 10, viewStartY));
-      viewTargetY = Math.max(16, Math.min(42, vh * 0.14));
+      const targetViewportY = Math.max(16, Math.min(42, vh * 0.14));
+      targetY = scrollTop + targetViewportY;
     }
-    rise = Math.max(64, viewStartY - viewTargetY);
-    const comboSpeedPxPerSec = 96;
-    duration = Math.max(0.95, rise / comboSpeedPxPerSec);
+    const distance = Math.max(26, y - targetY);
+    rise = distance;
+    duration = distance / comboSpeedPxPerSec;
     plannerFigureInner.appendChild(fx);
     const sideEdgePadding = 8;
     const fxRect = fx.getBoundingClientRect();
