@@ -3492,6 +3492,7 @@
   const LASER_VIDEO_MOBILE_SRC = "img/DEKA Epilation Mob.mp4";
   const PLANNER_COURSE_SESSIONS = 6;
   const PLANNER_COURSE_PAYABLE_SESSIONS = 5;
+  const PLANNER_VIEW_SLIDE_ANIMATION = false;
   const PLANNER_STATE_SESSION_KEY = "anima_laser_planner_state_v1";
   const SALONKEE_BOOKING_FALLBACK_URL = "https://salonkee.de/salon/anima-body-care-salon";
   const plannerSalonkeeUrlByMode = {
@@ -4513,7 +4514,7 @@
       const nextIndex = plannerFrauenViewOrder.indexOf(nextView);
       const direction = nextIndex > prevIndex ? "to-back" : "to-front";
       applyPlannerFigureMode(mode, {
-        animate:true,
+        animate:PLANNER_VIEW_SLIDE_ANIMATION,
         direction,
         onVisualSwapped:() => {
           // Keep the slide smooth: update only cheap visibility state mid-flight.
@@ -4525,6 +4526,10 @@
           schedulePlannerRender(mode);
         }
       });
+      if(!PLANNER_VIEW_SLIDE_ANIMATION){
+        plannerViewTransitionActive = false;
+        schedulePlannerRender(mode);
+      }
       requestAnimationFrame(positionPlannerViewArrows);
     } else {
       plannerViewTransitionActive = false;
