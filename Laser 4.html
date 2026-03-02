@@ -3005,10 +3005,13 @@
       }
       #interactive-placeholder.section{
         padding:0;
+        margin-left:calc(50% - 50vw);
+        margin-right:calc(50% - 50vw);
       }
       .laserPlanner{
         gap:8px;
         min-height:100svh;
+        width:100vw;
       }
       .plannerPane--zones{
         min-height:calc(100svh + 84px);
@@ -3020,7 +3023,7 @@
       }
       .plannerFigure{
         height:calc(100svh - 6px);
-        padding:14px 6px 0;
+        padding:14px 0 0;
       }
       .plannerViewSwitch{
         margin:6px auto 0;
@@ -3041,8 +3044,8 @@
         box-shadow:none;
         transform:translateY(-50%);
       }
-      .plannerViewArrow--prev{ left:6px; }
-      .plannerViewArrow--next{ right:6px; }
+      .plannerViewArrow--prev{ left:0; }
+      .plannerViewArrow--next{ right:0; }
       .plannerMobileInfo{
         display:flex;
       }
