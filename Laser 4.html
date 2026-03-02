@@ -3182,10 +3182,10 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
           </button>
           <div class="plannerMobileInfo" id="plannerMobileInfo" aria-hidden="true">
-            <span class="plannerMobileInfoZones" id="plannerMobileInfoZones">-</span>
+            <span class="plannerMobileInfoZones" id="plannerMobileInfoZones"></span>
             <span class="plannerMobileInfoPrice" id="plannerMobileInfoPrice">
               <span class="plannerMobileInfoPriceOld" id="plannerMobileInfoPriceOld"></span>
-              <strong class="plannerMobileInfoPriceCurrent" id="plannerMobileInfoPriceCurrent">0 €</strong>
+              <strong class="plannerMobileInfoPriceCurrent" id="plannerMobileInfoPriceCurrent"></strong>
               <span class="plannerMobileInfoSaved" id="plannerMobileInfoSaved"></span>
             </span>
           </div>
@@ -5553,11 +5553,11 @@
     return mode === "herren" ? "Herren" : "Frauen";
   }
   function plannerMobileZoneNames(mode, selected){
-    if(!Array.isArray(selected) || !selected.length) return "—";
+    if(!Array.isArray(selected) || !selected.length) return "";
     const labels = selected
       .map((item) => plannerLabel(item.label))
       .filter(Boolean);
-    if(!labels.length) return "—";
+    if(!labels.length) return "";
     const words = labels.join(" ").replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
     if(!words.length) return "—";
     const lines = [];
@@ -5569,6 +5569,14 @@
   function updatePlannerMobileInfo(mode, selectedSet, selected, displayTotal){
     if(!plannerMobileInfo || !plannerMobileInfoZones || !plannerMobileInfoPriceOld || !plannerMobileInfoPriceCurrent || !plannerMobileInfoSaved) return;
     const selectedCount = selectedSet ? selectedSet.size : 0;
+    if(!selectedCount){
+      plannerMobileInfo.classList.add("is-empty");
+      plannerMobileInfoZones.textContent = "";
+      plannerMobileInfoPriceCurrent.textContent = "";
+      plannerMobileInfoPriceOld.textContent = "";
+      plannerMobileInfoSaved.textContent = "";
+      return;
+    }
     const originalSessionTotal = Array.isArray(selected)
       ? selected.reduce((sum, item) => sum + (Number(item.originalPrice) || Number(item.price) || 0), 0)
       : 0;
@@ -5576,7 +5584,7 @@
       ? (originalSessionTotal * PLANNER_COURSE_SESSIONS)
       : originalSessionTotal;
     const saved = Math.max(0, oldTotal - displayTotal);
-    plannerMobileInfo.classList.toggle("is-empty", !selectedCount);
+    plannerMobileInfo.classList.remove("is-empty");
     plannerMobileInfoZones.textContent = plannerMobileZoneNames(mode, selected);
     plannerMobileInfoPriceCurrent.textContent = formatEuro(displayTotal);
     plannerMobileInfoPriceOld.textContent = saved > 0 ? formatEuro(oldTotal) : "";
