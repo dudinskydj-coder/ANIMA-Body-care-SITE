@@ -3174,21 +3174,21 @@
         zoneIds:["upperarms", "underarms"],
         price:80,
         label:{ de:"Arme komplett", en:"Arms komplett", ru:"Руки комплект" },
-        fx:{ de:"+10 € gespart", en:"+10 € saved", ru:"+10 € сэкономлено" }
+        fx:{ de:"+10 € gespart", en:"+10 € saved", ru:"Выгода 10 €" }
       },
       {
         id:"legs_bundle",
         zoneIds:["obersch", "untersch"],
         price:160,
         label:{ de:"Beine komplett", en:"Legs komplett", ru:"Ноги комплект" },
-        fx:{ de:"+20 € gespart", en:"+20 € saved", ru:"+20 € сэкономлено" }
+        fx:{ de:"+20 € gespart", en:"+20 € saved", ru:"Выгода 20 €" }
       },
       {
         id:"premium_bundle",
         zoneIds:["upperarms", "underarms", "obersch", "untersch"],
         price:210,
         label:{ de:"Arme-Kompl. + Beine-Kompl.", en:"Arms pack + legs pack", ru:"Руки комплект + ноги комплект" },
-        fx:{ de:"+60 € gespart", en:"+60 € saved", ru:"+60 € сэкономлено" }
+        fx:{ de:"+60 € gespart", en:"+60 € saved", ru:"Выгода 60 €" }
       }
     ],
     herren:[]
@@ -3238,12 +3238,12 @@
       copy:"Скопировать",
       buy:"Покупка",
       term:"Термин",
-      savedWord:"сэкономлено",
+      savedWord:"выгода",
       premiumBadge:"Премиум пакет -60 €",
       premiumTag:"Premium Package",
       mergeArms:"Руки комплект",
       mergeLegs:"Ноги комплект",
-      premiumExtraSaved:"+30 € сэкономлено"
+      premiumExtraSaved:"Выгода 30 €"
     }
   };
 
@@ -4867,6 +4867,7 @@
     plannerLastRenderedTotalAmount = value;
   }
   function plannerSavedLabel(value){
+    if(currentLang() === "ru") return `Выгода ${formatEuro(value)}`;
     return `+${formatEuro(value)} ${plannerText("savedWord")}`;
   }
   function plannerBundleSavedAmount(mode, bundleId){
@@ -5161,12 +5162,10 @@
               if(baseBundleId) renderBundleByPhase(baseBundleId);
               if(secondBundleId) renderBundleByPhase(secondBundleId);
             } else if(isPremiumMergePhase){
-              const savedWord = plannerText("savedWord");
-              const mergeFx = `<span class="orderMergeFx"><span class="orderMergeTotal orderMergeTotal--static">+60 € ${savedWord}</span></span>`;
+              const mergeFx = `<span class="orderMergeFx"><span class="orderMergeTotal orderMergeTotal--static">${plannerSavedLabel(60)}</span></span>`;
               renderBundleRow(zone, { showPremiumTag:true, mergeFxHtml:mergeFx, hideSaved:true });
             } else {
-              const savedWord = plannerText("savedWord");
-              const mergeFx = `<span class="orderMergeFx"><span class="orderMergeTotal orderMergeTotal--static">+60 € ${savedWord}</span></span>`;
+              const mergeFx = `<span class="orderMergeFx"><span class="orderMergeTotal orderMergeTotal--static">${plannerSavedLabel(60)}</span></span>`;
               renderBundleRow(zone, { showPremiumTag:true, mergeFxHtml:mergeFx, hideSaved:true });
             }
           } else {
