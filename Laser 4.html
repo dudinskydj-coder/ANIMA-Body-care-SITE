@@ -732,6 +732,7 @@
       cursor:grab;
       scrollbar-width:none;
       -ms-overflow-style:none;
+      z-index:5;
     }
     .plannerViewSwitch{
       display:inline-flex;
@@ -781,7 +782,7 @@
       align-items:center;
       justify-content:center;
       cursor:pointer;
-      z-index:8;
+      z-index:1;
       box-shadow:0 4px 12px rgba(0,0,0,.10);
       transition:background-color .2s ease, transform .18s ease, opacity .18s ease, box-shadow .2s ease;
       -webkit-tap-highlight-color:transparent;
@@ -826,7 +827,7 @@
       left:12px;
       right:12px;
       top:12px;
-      z-index:9;
+      z-index:1;
       align-items:flex-start;
       justify-content:space-between;
       gap:10px;
@@ -2073,46 +2074,65 @@
     .laserSwitch{
       display:inline-flex;
       align-items:center;
-      gap:8px;
-      padding:6px;
-      border-radius:999px;
-      background:#f3f3f6;
-      border:1px solid rgba(0,0,0,.08);
+      gap:20px;
+      padding:0;
+      border-radius:0;
+      background:transparent;
+      border:none;
     }
     .laserSwitchBtn{
-      min-width:146px;
+      min-width:auto;
       border:none;
-      border-radius:999px;
-      padding:10px 18px;
-      font-size:14px;
-      font-weight:650;
+      border-radius:0;
+      padding:4px 0 6px;
+      font-size:18px;
+      font-weight:620;
       letter-spacing:-.01em;
       background:transparent;
-      color:rgba(17,18,24,.66);
+      color:rgba(17,18,24,.56);
       cursor:pointer;
       text-decoration:none;
       text-align:center;
-      transition:background .18s ease, color .18s ease;
+      transition:color .18s ease;
       -webkit-tap-highlight-color:transparent;
       touch-action:manipulation;
       user-select:none;
+      position:relative;
+      line-height:1;
+    }
+    .laserSwitchBtn::after{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:0;
+      height:2px;
+      background:#111218;
+      transform:scaleX(0);
+      transform-origin:center;
+      transition:transform .18s ease;
     }
     .laserSwitchBtn:hover{
       color:#111218;
     }
     .laserSwitchBtn.is-active{
-      background:#111218;
-      color:#fff;
+      color:#111218;
+    }
+    .laserSwitchBtn.is-active::after{
+      transform:scaleX(1);
     }
     @media (hover:none), (pointer:coarse){
       .laserSwitchBtn{
         transition:none;
       }
+      .laserSwitchBtn::after{
+        transition:none;
+      }
       .laserSwitchBtn:hover{
-        color:rgba(17,18,24,.66);
+        color:rgba(17,18,24,.56);
       }
       .laserSwitchBtn.is-active:hover{
-        color:#fff;
+        color:#111218;
       }
     }
     .laserSwitchHint{
@@ -3469,7 +3489,6 @@
   let plannerPricingView = "single";
   let plannerCopyFeedbackTimer = null;
   const plannerLastToggleAtByKey = new Map();
-  let laserSwitchCooldownUntil = 0;
   const PLANNER_TOGGLE_GUARD_MS = 220;
   let lastLegalTrigger = null;
   const PLANNER_MIN_ZOOM = 1;
@@ -3614,21 +3633,21 @@
         zoneIds:["upperarms", "underarms"],
         price:80,
         label:{ de:"Arme komplett", en:"Arms komplett", ru:"Руки комплект" },
-        fx:{ de:"+10 € gespart", en:"+10 € saved", ru:"Выгода 10 €" }
+        fx:{ de:"Um 10 € günstiger", en:"Better value by €10", ru:"Выгоднее на 10 €" }
       },
       {
         id:"legs_bundle",
         zoneIds:["obersch", "untersch"],
         price:160,
         label:{ de:"Beine komplett", en:"Legs komplett", ru:"Ноги комплект" },
-        fx:{ de:"+20 € gespart", en:"+20 € saved", ru:"Выгода 20 €" }
+        fx:{ de:"Um 20 € günstiger", en:"Better value by €20", ru:"Выгоднее на 20 €" }
       },
       {
         id:"premium_bundle",
         zoneIds:["upperarms", "underarms", "obersch", "untersch"],
         price:210,
         label:{ de:"Arme-Kompl. + Beine-Kompl.", en:"Arms pack + legs pack", ru:"Руки комплект + ноги комплект" },
-        fx:{ de:"+60 € gespart", en:"+60 € saved", ru:"Выгода 60 €" }
+        fx:{ de:"Um 60 € günstiger", en:"Better value by €60", ru:"Выгоднее на 60 €" }
       }
     ],
     herren:[]
@@ -3649,12 +3668,12 @@
       courseTag:"6er Kur Paket",
       courseTagPremium:"Premium 6er Kur Paket",
       buyCourse:"Kurs kaufen",
-      savedWord:"gespart",
+      savedWord:"günstiger",
       premiumBadge:"Premium Paket -60 €",
       premiumTag:"Premium Paket",
       mergeArms:"Arme komplett",
       mergeLegs:"Beine komplett",
-      premiumExtraSaved:"+30 € gespart"
+      premiumExtraSaved:"Um 30 € günstiger"
     },
     en:{
       zonesTitle:"Choose zones",
@@ -3671,12 +3690,12 @@
       courseTag:"6-session course pack",
       courseTagPremium:"Premium 6-session course pack",
       buyCourse:"Buy course",
-      savedWord:"saved",
+      savedWord:"better value",
       premiumBadge:"Premium package -60 €",
       premiumTag:"Premium Package",
       mergeArms:"Arms pack",
       mergeLegs:"Legs pack",
-      premiumExtraSaved:"+30 € saved"
+      premiumExtraSaved:"Better value by €30"
     },
     ru:{
       zonesTitle:"Выберите зоны",
@@ -3693,12 +3712,12 @@
       courseTag:"Курс 6 визитов",
       courseTagPremium:"Премиум курс 6 визитов",
       buyCourse:"Купить курс",
-      savedWord:"выгода",
+      savedWord:"выгоднее",
       premiumBadge:"Премиум пакет -60 €",
       premiumTag:"Премиум пакет",
       mergeArms:"Руки комплект",
       mergeLegs:"Ноги комплект",
-      premiumExtraSaved:"Выгода 30 €"
+      premiumExtraSaved:"Выгоднее на 30 €"
     }
   };
 
@@ -5573,8 +5592,11 @@
     plannerLastRenderedTotalAmount = value;
   }
   function plannerSavedLabel(value){
-    if(currentLang() === "ru") return `Выгода ${formatEuro(value)}`;
-    return `+${formatEuro(value)} ${plannerText("savedWord")}`;
+    const amount = formatEuro(value);
+    const lang = currentLang();
+    if(lang === "ru") return `Выгоднее на ${amount}`;
+    if(lang === "en") return `Better value by €${value}`;
+    return `Um ${amount} günstiger`;
   }
   function plannerBundleSavedAmount(mode, bundleId){
     const bundle = plannerBundleById(mode, bundleId);
@@ -7156,12 +7178,9 @@
     laserSwitchButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
         btn.blur();
-        const now = Date.now();
-        if(now < laserSwitchCooldownUntil) return;
         const mode = btn.dataset.laserSwitch === "herren" ? "herren" : "frauen";
         const changed = setActiveLaserSwitch(mode);
         if(!changed) return;
-        laserSwitchCooldownUntil = now + 180;
         const url = new URL(window.location.href);
         url.searchParams.set("laser", mode);
         url.hash = "";
