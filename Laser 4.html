@@ -744,6 +744,8 @@
       padding:2px 4px;
       border-radius:999px;
       background:transparent;
+      position:relative;
+      z-index:6;
     }
     .plannerViewBtn{
       width:10px;
@@ -782,7 +784,7 @@
       align-items:center;
       justify-content:center;
       cursor:pointer;
-      z-index:1;
+      z-index:6;
       box-shadow:0 4px 12px rgba(0,0,0,.10);
       transition:background-color .2s ease, transform .18s ease, opacity .18s ease, box-shadow .2s ease;
       -webkit-tap-highlight-color:transparent;
@@ -2074,65 +2076,46 @@
     .laserSwitch{
       display:inline-flex;
       align-items:center;
-      gap:20px;
-      padding:0;
-      border-radius:0;
-      background:transparent;
-      border:none;
+      gap:8px;
+      padding:6px;
+      border-radius:999px;
+      background:#f3f3f6;
+      border:1px solid rgba(0,0,0,.08);
     }
     .laserSwitchBtn{
-      min-width:auto;
+      min-width:146px;
       border:none;
-      border-radius:0;
-      padding:4px 0 6px;
-      font-size:18px;
-      font-weight:620;
+      border-radius:999px;
+      padding:10px 18px;
+      font-size:14px;
+      font-weight:650;
       letter-spacing:-.01em;
       background:transparent;
-      color:rgba(17,18,24,.56);
+      color:rgba(17,18,24,.66);
       cursor:pointer;
       text-decoration:none;
       text-align:center;
-      transition:color .18s ease;
+      transition:background .18s ease, color .18s ease;
       -webkit-tap-highlight-color:transparent;
       touch-action:manipulation;
       user-select:none;
-      position:relative;
-      line-height:1;
-    }
-    .laserSwitchBtn::after{
-      content:"";
-      position:absolute;
-      left:0;
-      right:0;
-      bottom:0;
-      height:2px;
-      background:#111218;
-      transform:scaleX(0);
-      transform-origin:center;
-      transition:transform .18s ease;
     }
     .laserSwitchBtn:hover{
       color:#111218;
     }
     .laserSwitchBtn.is-active{
-      color:#111218;
-    }
-    .laserSwitchBtn.is-active::after{
-      transform:scaleX(1);
+      background:#111218;
+      color:#fff;
     }
     @media (hover:none), (pointer:coarse){
       .laserSwitchBtn{
         transition:none;
       }
-      .laserSwitchBtn::after{
-        transition:none;
-      }
       .laserSwitchBtn:hover{
-        color:rgba(17,18,24,.56);
+        color:rgba(17,18,24,.66);
       }
       .laserSwitchBtn.is-active:hover{
-        color:#111218;
+        color:#fff;
       }
     }
     .laserSwitchHint{
@@ -3578,7 +3561,7 @@
     frauen:{
       front:{ src:"img/INT/FR_NEW_FULL.svg", alt:"Interaktive Körperzonen Frauen Front", aspect:"2200 / 5500" },
       back:{ src:"img/Frauen interactive back1.svg", alt:"Interaktive Körperzonen Frauen Back", aspect:"2200 / 5500" },
-      face:{ src:"img/INT/Frauen_Face_1.svg", alt:"Interaktive Körperzonen Frauen Gesicht", aspect:"2200 / 5500" }
+      face:{ src:"img/INT/Frauen_Face_2.svg", alt:"Interaktive Körperzonen Frauen Gesicht", aspect:"2200 / 5500" }
     },
     herren:{ src:"img/Herren interactive.svg", alt:"Interaktive Körperzonen Herren", aspect:"2300 / 5500" }
   };
@@ -4389,7 +4372,7 @@
       trust: { src:"img/IMG_2483.JPG", alt:"Laser treatment setup for women" },
       gallery1: { src:"img/IMG_0245.JPG", alt:"Women laser care atmosphere" },
       gallery2: { src:"img/IMG_0222.JPG", alt:"Women skin detail" },
-      gallery3: { src:"img/INT/Frauen_Face_1.svg", alt:"Women face treatment zone illustration" },
+      gallery3: { src:"img/INT/Frauen_Face_2.svg", alt:"Women face treatment zone illustration" },
       gallery4: { src:"img/IMG_9815.JPG", alt:"Women consultation in studio" }
     },
     herren: {
