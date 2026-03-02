@@ -3004,20 +3004,24 @@
         padding:0;
       }
       .laserPlanner{
-        gap:8px;
+        gap:0;
         min-height:100svh;
       }
       .plannerPane--zones{
-        min-height:calc(100svh + 84px);
+        min-height:100svh;
         padding:0;
+        width:100vw;
+        margin-left:calc(50% - 50vw);
+        margin-right:calc(50% - 50vw);
       }
       .plannerPane--zones .plannerFigureWrap{
-        height:calc(100svh + 84px);
+        height:100svh;
+        width:100%;
         margin-top:0;
       }
       .plannerFigure{
-        height:calc(100svh - 6px);
-        padding:14px 6px 0;
+        height:100svh;
+        padding:0;
       }
       .plannerViewSwitch{
         margin:6px auto 0;
@@ -3473,7 +3477,7 @@
   let lastLegalTrigger = null;
   const PLANNER_MIN_ZOOM = 1;
   const PLANNER_MAX_ZOOM = 2.8;
-  const PLANNER_MOBILE_MAX_ZOOM = 1.35;
+  const PLANNER_MOBILE_MAX_ZOOM = 1;
   const PLANNER_SWIPE_MIN_X = 30;
   const PLANNER_SWIPE_MAX_Y = 64;
   const PLANNER_SWIPE_MAX_MS = 920;
@@ -3491,6 +3495,7 @@
   const LASER_VIDEO_MOBILE_SRC = "img/DEKA Epilation Mob.mp4";
   const PLANNER_COURSE_SESSIONS = 6;
   const PLANNER_COURSE_PAYABLE_SESSIONS = 5;
+  const PLANNER_STATE_SESSION_KEY = "anima_laser_planner_state_v1";
   const SALONKEE_BOOKING_FALLBACK_URL = "https://salonkee.de/salon/anima-body-care-salon";
   const plannerSalonkeeUrlByMode = {
     frauen:{
@@ -4507,6 +4512,9 @@
       });
       requestAnimationFrame(positionPlannerViewArrows);
     }
+    if(changed){
+      plannerPersistState();
+    }
   }
   function plannerSwitchAnimatedLayers(){
     return [
@@ -4576,8 +4584,8 @@
       const seq = ++plannerViewSwitchSeq;
       const directionSign = options.direction === "to-back" ? -1 : 1;
       const slideDistancePx = plannerFigure
-        ? Math.max(180, plannerFigure.clientWidth * 0.9)
-        : 540;
+        ? Math.max(260, plannerFigure.clientWidth + 56)
+        : 640;
       const durationMs = 320;
       let swapped = false;
       const ease = (t) => 0.5 - (Math.cos(Math.PI * t) * 0.5);
@@ -5568,6 +5576,57 @@
     });
     return text;
   }
+  function plannerPersistState(){
+    const payload = {
+      mode:activeLaserMode(),
+      frauenView:plannerFrauenView,
+      pricingView:plannerPricingView,
+      selected:{
+        frauen:Array.from(plannerSelectedByMode.frauen || []),
+        herren:Array.from(plannerSelectedByMode.herren || [])
+      }
+    };
+    try{
+      sessionStorage.setItem(PLANNER_STATE_SESSION_KEY, JSON.stringify(payload));
+    } catch(_e){
+      // no-op: storage may be unavailable
+    }
+  }
+  function plannerRestoreState(){
+    let raw = "";
+    try{
+      raw = sessionStorage.getItem(PLANNER_STATE_SESSION_KEY) || "";
+    } catch(_e){
+      return false;
+    }
+    if(!raw) return false;
+    let payload = null;
+    try{
+      payload = JSON.parse(raw);
+    } catch(_e){
+      return false;
+    }
+    if(!payload || typeof payload !== "object") return false;
+    const restoreModeSet = (mode) => {
+      const allowed = new Set((plannerZonesByMode[mode] || []).map((zone) => zone.id));
+      const rawList = Array.isArray(payload.selected && payload.selected[mode]) ? payload.selected[mode] : [];
+      const filtered = rawList.filter((zoneId) => typeof zoneId === "string" && allowed.has(zoneId));
+      plannerSelectedByMode[mode] = new Set(filtered);
+    };
+    restoreModeSet("frauen");
+    restoreModeSet("herren");
+    if(payload.pricingView === "course" || payload.pricingView === "single"){
+      setPlannerPricingView(payload.pricingView);
+    }
+    const restoredMode = payload.mode === "herren" ? "herren" : "frauen";
+    const restoredView = (typeof payload.frauenView === "string" && plannerFrauenViewOrder.includes(payload.frauenView))
+      ? payload.frauenView
+      : "front";
+    setPlannerFrauenView(restoredView, { mode:restoredMode });
+    setActiveLaserSwitch(restoredMode, { force:true });
+    schedulePlannerRender(restoredMode);
+    return true;
+  }
   function plannerResolveTermUrl(mode, selectedSet){
     if((mobileVideoMq && mobileVideoMq.matches) || (coarsePointerMq && coarsePointerMq.matches)){
       return SALONKEE_BOOKING_FALLBACK_URL;
@@ -5582,6 +5641,7 @@
   }
   function openPlannerExternalUrl(url){
     if(!url) return;
+    plannerPersistState();
     let opened = null;
     try{
       opened = window.open(url, "_blank", "noopener");
@@ -5599,6 +5659,7 @@
   function setPlannerPricingView(view){
     plannerPricingView = view === "course" ? "course" : "single";
     if(plannerCourseSwitch) plannerCourseSwitch.checked = plannerPricingView === "course";
+    plannerPersistState();
   }
   function updatePlannerPricingPanels(hasSelection){
     if(plannerRegularSummary) plannerRegularSummary.hidden = false;
@@ -5631,13 +5692,15 @@
       .map((item) => plannerLabel(item.label))
       .filter(Boolean);
     if(!labels.length) return "";
-    const words = labels.join(" ").replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
-    if(!words.length) return "—";
-    const lines = [];
-    for(let i = 0; i < words.length; i += 2){
-      lines.push(words.slice(i, i + 2).join(" "));
-    }
-    return lines.join("\n");
+    const first = labels[0].trim();
+    if(labels.length === 1) return first || "—";
+    const rest = labels
+      .slice(1)
+      .map((label) => label.trim())
+      .filter(Boolean)
+      .join(" + ");
+    if(!rest) return first || "—";
+    return `${first}\n+ ${rest}`;
   }
   function updatePlannerMobileInfo(mode, selectedSet, selected, displayTotal){
     if(!plannerMobileInfo || !plannerMobileInfoZones || !plannerMobileInfoPriceOld || !plannerMobileInfoPriceCurrent || !plannerMobileInfoSaved) return;
@@ -5791,6 +5854,7 @@
       });
     }
     maybeStartPlannerGuideEffect();
+    plannerPersistState();
     return true;
   }
   function updatePlannerOrder(mode){
@@ -7027,6 +7091,7 @@
     applyModePricing(mode);
     schedulePlannerRender(mode);
     clampPlannerPan(mode);
+    plannerPersistState();
     return true;
   }
   function laserSwitchModeFromUrl(){
@@ -7084,6 +7149,7 @@
     });
     setActiveLaserSwitch(laserSwitchModeFromUrl(), { force:true });
   }
+  plannerRestoreState();
   if(plannerClearBtn){
     plannerClearBtn.addEventListener("click", () => {
       markPlannerInteracted();
@@ -7094,6 +7160,7 @@
       const selectedSet = plannerSelectedByMode[mode];
       if(selectedSet) selectedSet.clear();
       schedulePlannerRender(mode);
+      plannerPersistState();
     });
   }
   if(plannerCopyBtn){
@@ -7483,6 +7550,9 @@
     maybeSnapInteractiveSectionOnMobile();
     positionPlannerViewArrows();
   }, { passive:true });
+  window.addEventListener("pagehide", () => {
+    plannerPersistState();
+  });
   updatePlannerZoom();
   positionPlannerViewArrows();
   if(plannerFigureImage){
