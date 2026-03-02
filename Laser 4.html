@@ -929,7 +929,8 @@
       will-change:transform, opacity;
     }
     .plannerFigureBase.is-view-switching,
-    .plannerFigureOverlayImage.is-view-switching{
+    .plannerFigureOverlayImage.is-view-switching,
+    .plannerFigureFrontline.is-view-switching{
       pointer-events:none;
     }
     .plannerFigureBase.is-switch-out-left{
@@ -4522,7 +4523,8 @@
       plannerFigureOverlayObersch,
       plannerFigureOverlayUntersch,
       plannerFigureOverlayBack,
-      plannerFigureOverlayImage
+      plannerFigureOverlayImage,
+      plannerFigureFrontline
     ].filter(Boolean);
   }
   function cancelPlannerViewSlideAnimation(){
