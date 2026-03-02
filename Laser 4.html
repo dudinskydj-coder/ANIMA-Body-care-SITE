@@ -3369,6 +3369,7 @@
   let plannerFrauenView = "front";
   let plannerViewSwitchOutTimer = null;
   let plannerViewSwitchInTimer = null;
+  let plannerViewSlideRaf = null;
   let plannerViewSwitchSeq = 0;
   const plannerFrauenViewOrder = ["front", "back"];
   let plannerPinchStartDistance = null;
@@ -4472,6 +4473,11 @@
         animate:true,
         direction,
         onVisualSwapped:() => {
+          // Keep the slide smooth: update only cheap visibility state mid-flight.
+          updatePlannerFigureOverlay(mode);
+        },
+        onVisualSettled:() => {
+          // Do full interactive re-render only after slide completes.
           schedulePlannerRender(mode);
         }
       });
@@ -4496,6 +4502,11 @@
       plannerFigureOverlayImage
     ].filter(Boolean);
   }
+  function cancelPlannerViewSlideAnimation(){
+    if(!plannerViewSlideRaf) return;
+    cancelAnimationFrame(plannerViewSlideRaf);
+    plannerViewSlideRaf = null;
+  }
   function applyPlannerFigureMode(mode, options = {}){
     if(!plannerFigureImage) return;
     const modeVisual = plannerFigureByMode[mode] || plannerFigureByMode.herren;
@@ -4514,6 +4525,7 @@
       clearTimeout(plannerViewSwitchInTimer);
       plannerViewSwitchInTimer = null;
     }
+    cancelPlannerViewSlideAnimation();
     const animatedLayers = plannerSwitchAnimatedLayers();
     animatedLayers.forEach((el) => {
       el.classList.remove(
@@ -4523,6 +4535,7 @@
         "is-switch-in-left",
         "is-switch-in-right"
       );
+      el.style.transform = "";
     });
     if(!shouldAnimate){
       plannerFigureImage.setAttribute("src", visual.src);
@@ -4532,28 +4545,51 @@
       }
     } else {
       const seq = ++plannerViewSwitchSeq;
-      const toBack = options.direction === "to-back";
+      const directionSign = options.direction === "to-back" ? -1 : 1;
+      const distancePct = 24;
+      const durationMs = 260;
+      let swapped = false;
+      const ease = (t) => 0.5 - (Math.cos(Math.PI * t) * 0.5);
       animatedLayers.forEach((el) => {
-        el.classList.add("is-view-switching", toBack ? "is-switch-out-left" : "is-switch-out-right");
+        el.classList.add("is-view-switching");
       });
-      plannerViewSwitchOutTimer = setTimeout(() => {
+      const start = performance.now();
+      const frame = (now) => {
         if(seq !== plannerViewSwitchSeq) return;
-        plannerFigureImage.setAttribute("src", visual.src);
-        plannerFigureImage.setAttribute("alt", visual.alt);
-        if(typeof options.onVisualSwapped === "function"){
-          options.onVisualSwapped();
+        const p = Math.min(1, (now - start) / durationMs);
+        let offsetPct = 0;
+        if(p < 0.5){
+          const t = ease(p / 0.5);
+          offsetPct = directionSign * distancePct * t;
+        } else {
+          if(!swapped){
+            plannerFigureImage.setAttribute("src", visual.src);
+            plannerFigureImage.setAttribute("alt", visual.alt);
+            if(typeof options.onVisualSwapped === "function"){
+              options.onVisualSwapped();
+            }
+            swapped = true;
+          }
+          const t = ease((p - 0.5) / 0.5);
+          offsetPct = (-directionSign * distancePct) * (1 - t);
         }
         animatedLayers.forEach((el) => {
-          el.classList.remove("is-switch-out-left", "is-switch-out-right");
-          el.classList.add(toBack ? "is-switch-in-right" : "is-switch-in-left");
+          el.style.transform = `translate3d(${offsetPct}%, 0, 0)`;
         });
-        plannerViewSwitchInTimer = setTimeout(() => {
-          if(seq !== plannerViewSwitchSeq) return;
+        if(p < 1){
+          plannerViewSlideRaf = requestAnimationFrame(frame);
+        } else {
+          plannerViewSlideRaf = null;
           animatedLayers.forEach((el) => {
-            el.classList.remove("is-view-switching", "is-switch-in-left", "is-switch-in-right");
+            el.classList.remove("is-view-switching");
+            el.style.transform = "";
           });
-        }, 205);
-      }, 170);
+          if(typeof options.onVisualSettled === "function"){
+            options.onVisualSettled();
+          }
+        }
+      };
+      plannerViewSlideRaf = requestAnimationFrame(frame);
     }
     syncPlannerViewSwitch(mode);
     requestAnimationFrame(positionPlannerViewArrows);
