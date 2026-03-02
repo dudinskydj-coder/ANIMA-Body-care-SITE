@@ -1007,6 +1007,20 @@
     .plannerFigureOverlayImage.is-switch-in-right{
       animation:plannerViewSlideInRight .19s cubic-bezier(.22,.8,.24,1) forwards;
     }
+    .plannerFigureFrontline{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      object-position:center;
+      pointer-events:none;
+      z-index:8;
+      opacity:0;
+    }
+    .plannerFigureFrontline.is-visible{
+      opacity:1;
+    }
     .plannerFigureOverlayImage--back{
       z-index:0;
     }
@@ -3209,12 +3223,14 @@
               <img src="img/INT/FR_RS_UNTERSCH_MAIN.svg" alt="" loading="lazy" id="plannerFigureOverlayUntersch" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FR_RS_RUCKEN.svg" alt="" loading="lazy" id="plannerFigureOverlayBack" class="plannerFigureOverlayImage plannerFigureOverlayImage--back" aria-hidden="true">
               <img src="img/INT/FR_RS_INTIM_KOM+POF.svg" alt="" loading="lazy" id="plannerFigureOverlayImage" class="plannerFigureOverlayImage" aria-hidden="true">
+              <img src="img/INT/Frauen_FRONT%20LINE.svg" alt="" loading="lazy" id="plannerFigureFrontline" class="plannerFigureFrontline" aria-hidden="true">
               <div class="plannerSketch plannerSketch--ghost" id="plannerSketch"></div>
             </div>
           </div>
           <div class="plannerViewSwitch" id="plannerViewSwitch" role="group" aria-label="Figure side">
             <button type="button" class="plannerViewBtn is-active" data-planner-view="front" aria-pressed="true" aria-label="Front view"></button>
             <button type="button" class="plannerViewBtn" data-planner-view="back" aria-pressed="false" aria-label="Back view"></button>
+            <button type="button" class="plannerViewBtn" data-planner-view="face" aria-pressed="false" aria-label="Face view"></button>
           </div>
         </div>
       </div>
@@ -3330,6 +3346,7 @@
   const plannerFigureOverlayUntersch = document.getElementById("plannerFigureOverlayUntersch");
   const plannerFigureOverlayBack = document.getElementById("plannerFigureOverlayBack");
   const plannerFigureOverlayImage = document.getElementById("plannerFigureOverlayImage");
+  const plannerFigureFrontline = document.getElementById("plannerFigureFrontline");
   const plannerSketch = document.getElementById("plannerSketch");
   const plannerZoneGrid = document.getElementById("plannerZoneGrid");
   const plannerOrderList = document.getElementById("plannerOrderList");
@@ -3374,7 +3391,7 @@
   let plannerViewSwitchInTimer = null;
   let plannerViewSlideRaf = null;
   let plannerViewSwitchSeq = 0;
-  const plannerFrauenViewOrder = ["front", "back"];
+  const plannerFrauenViewOrder = ["front", "back", "face"];
   let plannerPinchStartDistance = null;
   let plannerPinchStartZoom = 1;
   let plannerDragActive = false;
@@ -3537,7 +3554,8 @@
   const plannerFigureByMode = {
     frauen:{
       front:{ src:"img/INT/FR_NEW_FULL.svg", alt:"Interaktive Körperzonen Frauen Front", aspect:"2200 / 5500" },
-      back:{ src:"img/Frauen interactive back1.svg", alt:"Interaktive Körperzonen Frauen Back", aspect:"2200 / 5500" }
+      back:{ src:"img/Frauen interactive back1.svg", alt:"Interaktive Körperzonen Frauen Back", aspect:"2200 / 5500" },
+      face:{ src:"img/INT/Frauen_Face_1.svg", alt:"Interaktive Körperzonen Frauen Gesicht", aspect:"2200 / 5500" }
     },
     herren:{ src:"img/Herren interactive.svg", alt:"Interaktive Körperzonen Herren", aspect:"2300 / 5500" }
   };
@@ -4471,7 +4489,9 @@
     const mode = options.mode || activeLaserMode();
     syncPlannerViewSwitch(mode);
     if(changed && mode === "frauen"){
-      const direction = (prevView === "front" && nextView === "back") ? "to-back" : "to-front";
+      const prevIndex = plannerFrauenViewOrder.indexOf(prevView);
+      const nextIndex = plannerFrauenViewOrder.indexOf(nextView);
+      const direction = nextIndex > prevIndex ? "to-back" : "to-front";
       applyPlannerFigureMode(mode, {
         animate:true,
         direction,
@@ -4520,6 +4540,10 @@
       plannerFigureInner.style.aspectRatio = visual.aspect || "2200 / 5500";
     }
     const shouldAnimate = !!options.animate && mode === "frauen";
+    const showFrontline = mode === "frauen" && plannerFrauenView === "front";
+    if(plannerFigureFrontline){
+      plannerFigureFrontline.classList.toggle("is-visible", !shouldAnimate && showFrontline);
+    }
     if(plannerViewSwitchOutTimer){
       clearTimeout(plannerViewSwitchOutTimer);
       plannerViewSwitchOutTimer = null;
@@ -4570,6 +4594,9 @@
           if(!swapped){
             plannerFigureImage.setAttribute("src", visual.src);
             plannerFigureImage.setAttribute("alt", visual.alt);
+            if(plannerFigureFrontline){
+              plannerFigureFrontline.classList.toggle("is-visible", showFrontline);
+            }
             if(typeof options.onVisualSwapped === "function"){
               options.onVisualSwapped();
             }
