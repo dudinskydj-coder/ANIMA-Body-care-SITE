@@ -1178,6 +1178,10 @@
       line-height:1.2;
       letter-spacing:0;
     }
+    .zoneSketchBtn--intim-pof-back{
+      clip-path:none;
+      border-radius:2px;
+    }
     .zoneSketchBtn--bikini-intim{
       clip-path:polygon(-18.75% 0, 118.75% 0, 50% 100%);
       z-index:1;
@@ -1377,7 +1381,7 @@
     }
     .zoneSketchBtn--obersch{
       z-index:0;
-      clip-path:polygon(2% 0, 98% 0, 84% 100%, 16% 100%);
+      clip-path:polygon(-2% 0, 102% 0, 84% 100%, 16% 100%);
     }
     .zoneSketchBtn--obersch-tilt{
       z-index:0;
@@ -3507,13 +3511,19 @@
   const plannerZonesByMode = {
     frauen: [
       { id:"chin", label:{ de:"Hals", en:"Neck", ru:"Шея" }, price:25 },
+      { id:"nacken", label:{ de:"Nacken", en:"Nape", ru:"Затылок" }, price:25 },
+      { id:"glabella", label:{ de:"Zwischenbrauen", en:"Between brows", ru:"Межбровье" }, price:25 },
+      { id:"upperlip", label:{ de:"Oberlippe", en:"Upper lip", ru:"Верхняя губа" }, price:25 },
       { id:"chest", label:{ de:"Brustbereich", en:"Chest area", ru:"Зона груди" }, price:45 },
+      { id:"upperback", label:{ de:"Oberer Rücken + Schultern", en:"Upper back + shoulders", ru:"Верхняя часть спины + плечи" }, price:45 },
       { id:"hands", label:{ de:"Hände", en:"Hands", ru:"Кисти рук" }, price:35 },
       { id:"feet", label:{ de:"Füße", en:"Feet", ru:"Ступни" }, price:35 },
       { id:"axilla", label:{ de:"Achseln", en:"Underarms", ru:"Подмышки" }, price:45 },
       { id:"upperarms", label:{ de:"Oberarme", en:"Upper arms", ru:"Верхняя часть рук" }, price:45 },
       { id:"underarms", label:{ de:"Unterarme", en:"Lower arms", ru:"Нижняя часть рук" }, price:45 },
       { id:"bauchfull", label:{ de:"Bauch", en:"Belly", ru:"Живот" }, price:45 },
+      { id:"lowerback", label:{ de:"Unterer Rücken", en:"Lower back", ru:"Нижняя часть спины" }, price:45 },
+      { id:"pobacken", label:{ de:"Pobacken", en:"Buttocks", ru:"Ягодицы" }, price:45 },
       { id:"medialinebauch", label:{ de:"Mediale Bauchlinie", en:"Median belly line", ru:"Медиальная линия живота" }, price:45 },
       { id:"obersch", label:{ de:"Oberschenkel", en:"Upper legs", ru:"Верхняя часть ног" }, price:90 },
       { id:"untersch", label:{ de:"Unterschenkel + Knie", en:"Lower legs + knees", ru:"Нижняя часть ног + колени" }, price:90 },
@@ -3534,13 +3544,19 @@
   const plannerSketchByMode = {
     frauen: {
       chin:{ x:47.8, y:13.7, w:4.6, h:5.2 },
+      nacken:{ x:47.8, y:13.7, w:4.6, h:5.2 },
+      glabella:{ x:47.8, y:13.7, w:4.6, h:5.2 },
+      upperlip:{ x:47.8, y:13.7, w:4.6, h:5.2 },
       chest:{ x:50.6, y:24.2, w:5.4, h:6.3 },
+      upperback:{ x:50.6, y:24.2, w:5.4, h:6.3 },
       hands:{ x:57.0, y:45.8, w:3.2, h:8.2 },
       feet:{ x:50.6, y:93.2, w:4.0, h:5.0 },
       axilla:{ x:41.5, y:21.3, w:4.7, h:1.87 },
       upperarms:{ x:56.2, y:18.0, w:3.2, h:10.5 },
       underarms:{ x:56.2, y:34.4, w:3.2, h:12.2 },
       bauchfull:{ x:50.78, y:30.15, w:4.0, h:13.0 },
+      lowerback:{ x:50.78, y:30.15, w:4.0, h:13.0 },
+      pobacken:{ x:45.5, y:43.01, w:9, h:9 },
       medialinebauch:{ x:49.25, y:35.2, w:1.5, h:8.0 },
       obersch:{ x:50.6, y:53.0, w:4.2, h:15.3 },
       untersch:{ x:50.6, y:68.0, w:4.2, h:13.3 },
@@ -3594,6 +3610,8 @@
   const plannerHoverPartsByZone = {
     frauen: {
       chin:["HALS"],
+      glabella:["HALS"],
+      upperlip:["HALS"],
       chest:["BRUSTBEREICH"],
       hands:["HANDE_L", "HANDE_R"],
       feet:["FUSSE_L", "FUSSE_R"],
@@ -3601,6 +3619,8 @@
       upperarms:["OBERARME_MAIN"],
       underarms:["UNTERARME_MAIN"],
       bauchfull:["BAUCH"],
+      lowerback:["BAUCH"],
+      pobacken:["INTIM_KOM_POF"],
       medialinebauch:["BAUCH_MEDIA_LN"],
       obersch:["OBERSCH_MAIN"],
       untersch:["UNTERSCH_MAIN"],
@@ -4919,7 +4939,6 @@
     }
     const selectedSet = plannerSelectedByMode[mode] || new Set();
     const isFrauenFront = mode === "frauen" && plannerFrauenView === "front";
-    const isFrauenBack = mode === "frauen" && plannerFrauenView === "back";
     const shouldShowUpperlipOverlay = false;
     const shouldShowAxillaOverlay = isFrauenFront && selectedSet.has("axilla");
     const shouldShowChinOverlay = isFrauenFront && selectedSet.has("chin");
@@ -5867,10 +5886,16 @@
     const wasSelected = selectedSet.has(zoneId);
     if(wasSelected){
       selectedSet.delete(zoneId);
-      const suppressedParts = plannerHoverPartsForZone(mode, zoneId);
-      const suppressedKey = Array.isArray(suppressedParts) ? suppressedParts.join("|") : "";
-      plannerHoverSuppressed = !!suppressedKey;
-      plannerHoverSuppressedKey = suppressedKey || null;
+      const shouldSuppressHover = !!(coarsePointerMq && coarsePointerMq.matches);
+      if(shouldSuppressHover){
+        const suppressedParts = plannerHoverPartsForZone(mode, zoneId);
+        const suppressedKey = Array.isArray(suppressedParts) ? suppressedParts.join("|") : "";
+        plannerHoverSuppressed = !!suppressedKey;
+        plannerHoverSuppressedKey = suppressedKey || null;
+      } else {
+        plannerHoverSuppressed = false;
+        plannerHoverSuppressedKey = null;
+      }
       clearPlannerHoverPreview();
     } else {
       selectedSet.add(zoneId);
@@ -6161,10 +6186,27 @@
   }
   function renderPlannerZones(mode){
     if(!plannerZoneGrid) return;
+    const isFrauenFace = mode === "frauen" && plannerFrauenView === "face";
+    const isFrauenFront = mode === "frauen" && plannerFrauenView === "front";
+    const isFrauenBack = mode === "frauen" && plannerFrauenView === "back";
     const zones = plannerZonesByMode[mode] || [];
     const selectedSet = plannerSelectedByMode[mode] || new Set();
     plannerZoneGrid.innerHTML = "";
     zones.forEach((zone) => {
+      if(isFrauenFace && zone.id !== "chin" && zone.id !== "nacken" && zone.id !== "glabella" && zone.id !== "upperlip") return;
+      if(isFrauenFront && zone.id === "lowerback") return;
+      if(isFrauenFront && zone.id === "pobacken") return;
+      if(isFrauenFront && zone.id === "glabella") return;
+      if(isFrauenFront && zone.id === "upperlip") return;
+      if(isFrauenFront && zone.id === "nacken") return;
+      if(isFrauenFront && zone.id === "upperback") return;
+      if(isFrauenBack && zone.id === "chin") return;
+      if(isFrauenBack && zone.id === "glabella") return;
+      if(isFrauenBack && zone.id === "upperlip") return;
+      if(isFrauenBack && zone.id === "chest") return;
+      if(isFrauenBack && zone.id === "bauchfull") return;
+      if(isFrauenBack && zone.id === "medialinebauch") return;
+      if(isFrauenBack && zone.id === "bikini") return;
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "zoneBtn";
@@ -6195,6 +6237,7 @@
   }
   function renderPlannerSketch(mode){
     if(!plannerSketch) return;
+    const isFrauenFace = mode === "frauen" && plannerFrauenView === "face";
     const zones = plannerZonesByMode[mode] || [];
     const selectedSet = plannerSelectedByMode[mode] || new Set();
     const positions = plannerSketchByMode[mode] || {};
@@ -6218,8 +6261,21 @@
     plannerSketch.innerHTML = "";
     if(plannerBackSketch) plannerBackSketch.innerHTML = "";
     zones.forEach((zone) => {
+      if(isFrauenFace && zone.id !== "chin" && zone.id !== "nacken" && zone.id !== "glabella" && zone.id !== "upperlip") return;
       if(isFrauenFront && zone.id === "back") return;
-      if(isFrauenBack && zone.id !== "back") return;
+      if(isFrauenFront && zone.id === "lowerback") return;
+      if(isFrauenFront && zone.id === "pobacken") return;
+      if(isFrauenFront && zone.id === "glabella") return;
+      if(isFrauenFront && zone.id === "upperlip") return;
+      if(isFrauenFront && zone.id === "nacken") return;
+      if(isFrauenFront && zone.id === "upperback") return;
+      if(isFrauenBack && zone.id === "chin") return;
+      if(isFrauenBack && zone.id === "glabella") return;
+      if(isFrauenBack && zone.id === "upperlip") return;
+      if(isFrauenBack && zone.id === "chest") return;
+      if(isFrauenBack && zone.id === "bauchfull") return;
+      if(isFrauenBack && zone.id === "medialinebauch") return;
+      if(isFrauenBack && zone.id === "bikini") return;
       const area = stretchArea(positions[zone.id]);
       if(!area) return;
       const btn = document.createElement("button");
@@ -6235,24 +6291,69 @@
       const isBikiniButton = mode === "frauen" && zone.id === "bikini";
       const isUpperlipButton = mode === "frauen" && zone.id === "upperlip";
       const isChinButton = mode === "frauen" && zone.id === "chin";
+      const isNackenButton = mode === "frauen" && zone.id === "nacken";
+      const isGlabellaButton = mode === "frauen" && zone.id === "glabella";
       const isChestButton = mode === "frauen" && zone.id === "chest";
+      const isUpperBackButton = mode === "frauen" && zone.id === "upperback";
       const isFeetButton = mode === "frauen" && zone.id === "feet";
       const isHandsButton = mode === "frauen" && zone.id === "hands";
       const isAxillaButton = mode === "frauen" && zone.id === "axilla";
       const isUpperarmsButton = mode === "frauen" && zone.id === "upperarms";
       const isUnderarmsButton = mode === "frauen" && zone.id === "underarms";
       const isBauchFullButton = mode === "frauen" && zone.id === "bauchfull";
+      const isLowerBackButton = mode === "frauen" && zone.id === "lowerback";
+      const isPobackenButton = mode === "frauen" && zone.id === "pobacken";
       const isMediaLineBauchButton = mode === "frauen" && zone.id === "medialinebauch";
       const isOberschButton = mode === "frauen" && zone.id === "obersch";
       const isUnterschButton = mode === "frauen" && zone.id === "untersch";
       const isBackButton = mode === "frauen" && zone.id === "back";
-      const buttonText = isIntimPofButton ? "INT.FR.INTIM_POF" : (isBikiniButton ? "BIKINI" : (isUpperarmsButton ? "OBERARME" : (isUnderarmsButton ? "UNTERARME" : (isMediaLineBauchButton ? "BAUCH LN" : (isBauchFullButton ? "BAUCH" : (isOberschButton ? "OBERSCH" : (isUnterschButton ? "UNTERSCH + KNIE" : (isBackButton ? "RÜCKEN" : plannerLabel(zone.label)))))))));
+      let faceChinDuplicateSpec = null;
+      let buttonText = plannerLabel(zone.label);
+      if(isIntimPofButton) buttonText = "INT.FR.INTIM_POF";
+      else if(isBikiniButton) buttonText = "BIKINI";
+      else if(isUpperarmsButton) buttonText = "OBERARME";
+      else if(isUnderarmsButton) buttonText = "UNTERARME";
+      else if(isMediaLineBauchButton) buttonText = "BAUCH LN";
+      else if(isBauchFullButton) buttonText = "BAUCH";
+      else if(isLowerBackButton) buttonText = "UNTERER RÜCKEN";
+      else if(isPobackenButton) buttonText = "POBACKEN";
+      else if(isGlabellaButton) buttonText = "ZW. BRAUEN";
+      else if(isUpperlipButton) buttonText = "OBERLIPPE";
+      else if(isOberschButton) buttonText = "OBERSCH";
+      else if(isUnterschButton) buttonText = "UNTERSCH + KNIE";
+      else if(isBackButton) buttonText = "RÜCKEN";
       btn.innerHTML = `<span class="zoneSketchTag">${buttonText}</span>`;
-      if(isIntimPofButton) btn.classList.add("zoneSketchBtn--intim-pof");
+      if(isIntimPofButton){
+        btn.classList.add("zoneSketchBtn--intim-pof");
+        if(isFrauenBack){
+          btn.classList.add("zoneSketchBtn--intim-pof-back");
+          const bauchRaw = positions.bauchfull;
+          const bauchArea = stretchArea(bauchRaw);
+          const intimBottom = area.y + area.h;
+          const intimCenterX = area.x + (area.w * 0.5);
+          let targetWidth = area.w * 0.2;
+          if(bauchArea){
+            const bauchMirroredX = 100 - bauchArea.x - bauchArea.w;
+            const bauchMergedWidth = (bauchArea.x + bauchArea.w) - bauchMirroredX;
+            const bauchExtraWidth = bauchMergedWidth / 9;
+            const bauchWidth = bauchMergedWidth + bauchExtraWidth;
+            const medialineWidth = bauchWidth / 3;
+            targetWidth = medialineWidth * 0.5;
+          }
+          const widenedWidth = targetWidth * 1.025;
+          const shortenedHeight = Math.max(0.1, area.h * 0.5);
+          btn.style.width = `${widenedWidth}%`;
+          btn.style.left = `${intimCenterX - (widenedWidth * 0.5)}%`;
+          btn.style.top = `${intimBottom - shortenedHeight}%`;
+          btn.style.height = `${shortenedHeight}%`;
+          btn.style.zIndex = "6";
+        }
+      }
       if(isBikiniButton) btn.classList.add("zoneSketchBtn--bikini");
+      if(isGlabellaButton) btn.classList.add("zoneSketchBtn--axilla");
       if(isUpperarmsButton) btn.classList.add("zoneSketchBtn--upperarms");
       if(isUnderarmsButton) btn.classList.add("zoneSketchBtn--underarms");
-      if(isBauchFullButton) btn.classList.add("zoneSketchBtn--bauchfull");
+      if(isBauchFullButton || isLowerBackButton || isPobackenButton) btn.classList.add("zoneSketchBtn--bauchfull");
       if(isMediaLineBauchButton){
         btn.classList.add("zoneSketchBtn--medialinebauch");
         const bauchRaw = positions.bauchfull;
@@ -6283,20 +6384,82 @@
       if(isUnterschButton) btn.classList.add("zoneSketchBtn--upperarms");
       if(isBackButton) btn.classList.add("zoneSketchBtn--back", "zoneSketchBtn--always-visible");
       if(isUpperlipButton) btn.classList.add("zoneSketchBtn--upperlip");
-      if(isChinButton){
+      if(isChinButton || isNackenButton){
         btn.classList.add("zoneSketchBtn--chin");
         // Replace side triangles by expanding the main Hals button equally left/right.
         const chinSideExpand = area.w * 0.5;
-        btn.style.left = `${area.x - chinSideExpand}%`;
-        btn.style.width = `${area.w + (chinSideExpand * 2)}%`;
+        const chinBaseLeft = area.x - chinSideExpand;
+        const chinBaseWidth = area.w + (chinSideExpand * 2);
+        btn.style.left = `${chinBaseLeft}%`;
+        btn.style.width = `${chinBaseWidth}%`;
+        if(isFrauenFace && isChinButton){
+          const faceChinTop = area.y + (area.h * 2.0);
+          const faceChinHeight = area.h * 1.2;
+          btn.style.top = `${faceChinTop - (faceChinHeight - area.h)}%`;
+          btn.style.left = `${chinBaseLeft + 0.5}%`;
+          btn.style.height = `${faceChinHeight}%`;
+          faceChinDuplicateSpec = {
+            left:(chinBaseLeft - 1.5) - 0.6,
+            top:((((faceChinTop - (faceChinHeight - area.h)) + (faceChinHeight * 6)) - 5) + 2.5) - 1,
+            width:chinBaseWidth,
+            height:faceChinHeight
+          };
+        }
+        if(isFrauenFace && isNackenButton){
+          const faceNackenHeight = (area.h * 2) * 0.99;
+          const bottomPadding = 1;
+          const faceNackenBaseWidth = chinBaseWidth * 1.025;
+          const faceNackenLeft = chinBaseLeft - ((faceNackenBaseWidth - chinBaseWidth) * 0.5);
+          const faceNackenWidth = faceNackenBaseWidth + 1;
+          btn.style.height = `${faceNackenHeight}%`;
+          btn.style.width = `${faceNackenWidth}%`;
+          btn.style.left = `${faceNackenLeft}%`;
+          btn.style.top = `${Math.max(0, 100 - faceNackenHeight - bottomPadding - 1)}%`;
+        }
       }
-      if(isChestButton){
+      if(isFrauenFace && isGlabellaButton){
+        const glabellaSize = (area.w * 0.95) * 1.5;
+        const glabellaCenterX = area.x + (area.w * 0.5);
+        const glabellaTop = (area.y + (area.h * 1.35)) - (glabellaSize * 0.7);
+        btn.style.left = `${glabellaCenterX - (glabellaSize * 0.5)}%`;
+        btn.style.top = `${glabellaTop}%`;
+        btn.style.width = `${glabellaSize}%`;
+        btn.style.height = `${glabellaSize}%`;
+      }
+      if(isFrauenFace && isUpperlipButton){
+        const chinSideExpand = area.w * 0.5;
+        const halsLeft = (area.x - chinSideExpand) + 0.5;
+        const halsWidth = area.w + (chinSideExpand * 2);
+        const halsHeight = area.h * 1.2;
+        const halsTop = area.y + (area.h * 1.8);
+        const glabellaSize = (area.w * 0.95) * 1.5;
+        const glabellaTop = (area.y + (area.h * 1.35)) - (glabellaSize * 0.7);
+        const glabellaBottom = glabellaTop + glabellaSize;
+        const upperlipTop = (glabellaBottom + halsTop) * 0.5;
+        btn.style.left = `${halsLeft}%`;
+        btn.style.top = `${upperlipTop}%`;
+        btn.style.width = `${halsWidth}%`;
+        btn.style.height = `${halsHeight}%`;
+        btn.style.borderRadius = "0";
+      }
+      if(isChestButton || isUpperBackButton){
         btn.classList.add("zoneSketchBtn--chest");
-        // Expand x2 from the bottom-right anchor so it grows left/up.
-        btn.style.left = `${area.x - area.w}%`;
-        btn.style.top = `${area.y - area.h}%`;
-        btn.style.width = `${area.w * 2}%`;
-        btn.style.height = `${area.h * 2}%`;
+        // Keep top/bottom/right fixed, widen only to the left by 5%.
+        const baseLeft = area.x - area.w;
+        const baseTop = area.y - area.h;
+        const baseWidth = area.w * 2;
+        const baseHeight = area.h * 2;
+        const chestRight = baseLeft + baseWidth;
+        const chestWidth = baseWidth * 1.10;
+        const chestLeft = chestRight - chestWidth;
+        const chestShiftLeft = 1;
+        const chestLeftAdjusted = (chestLeft + 1) - chestShiftLeft;
+        const chestRightAdjusted = (chestRight + 2) - chestShiftLeft;
+        const upperBackExtraLeft = isUpperBackButton ? 2 : 0;
+        btn.style.left = `${chestLeftAdjusted - upperBackExtraLeft}%`;
+        btn.style.top = `${baseTop}%`;
+        btn.style.width = `${Math.max(0.1, (chestRightAdjusted - chestLeftAdjusted) + upperBackExtraLeft)}%`;
+        btn.style.height = `${baseHeight}%`;
       }
       if(isFeetButton){
         const unterschRaw = positions.untersch;
@@ -6335,20 +6498,56 @@
         plannerButtonHoverPreviewActive = false;
         clearPlannerHoverPreview();
       });
-      if(isUpperarmsButton || isBauchFullButton || isOberschButton || isHandsButton || isUnterschButton || isBikiniButton){
+      if(isUpperarmsButton || isBauchFullButton || isLowerBackButton || isPobackenButton || isOberschButton || isUnterschButton || isBikiniButton){
         // Upper arm top controls are rendered as a single merged button below.
       } else if(isBackButton && plannerBackSketch){
         plannerBackSketch.appendChild(btn);
       } else {
         plannerSketch.appendChild(btn);
       }
+      if(faceChinDuplicateSpec){
+        const dupBtn = document.createElement("button");
+        dupBtn.type = "button";
+        dupBtn.className = "zoneSketchBtn zoneSketchBtn--chin";
+        if(selectedSet.has(zone.id)) dupBtn.classList.add("is-active");
+        dupBtn.style.left = `${faceChinDuplicateSpec.left}%`;
+        dupBtn.style.top = `${faceChinDuplicateSpec.top}%`;
+        dupBtn.style.width = `${faceChinDuplicateSpec.width + 1}%`;
+        dupBtn.style.height = `${faceChinDuplicateSpec.height}%`;
+        dupBtn.style.transform = "rotate(25deg)";
+        dupBtn.style.transformOrigin = "50% 50%";
+        dupBtn.style.zIndex = "6";
+        dupBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
+        dupBtn.innerHTML = `<span class="zoneSketchTag">${buttonText}</span>`;
+        dupBtn.addEventListener("click", () => {
+          plannerButtonHoverPreviewActive = false;
+          clearPlannerHoverPreview();
+          togglePlannerZone(mode, zone.id);
+          schedulePlannerRender(mode);
+          requestAnimationFrame(() => {
+            ensureInteractiveInViewForInteraction();
+          });
+        });
+        dupBtn.addEventListener("mouseenter", () => {
+          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
+          plannerButtonHoverPreviewActive = hoverParts.length > 0;
+          setPlannerHoverPreviewParts(hoverParts);
+        });
+        dupBtn.addEventListener("mouseleave", () => {
+          plannerButtonHoverPreviewActive = false;
+          clearPlannerHoverPreview();
+        });
+        plannerSketch.appendChild(dupBtn);
+      }
       if(isHandsButton){
         const handsWidthScale = 1.6;
-        const handsWidth = area.w * handsWidthScale;
-        const handsExtra = handsWidth - area.w;
         const handsOutwardShift = 1.35;
         const handsUpShift = 0.7;
         const handsHeightExtra = 0.6;
+        const handsWidth = area.w * handsWidthScale;
+        const handsInnerTrimRatio = 0.25;
+        const handsInnerTrim = handsWidth * handsInnerTrimRatio;
+        const handsWidthReduced = handsWidth - handsInnerTrim;
         const handsHeight = area.h + handsHeightExtra;
         const underarmsRaw = positions.underarms;
         const underarmsArea = stretchArea(underarmsRaw);
@@ -6363,9 +6562,9 @@
           ? `calc(${underarmsArea.x + underarmsArea.w}% + 5px)`
           : `${area.x}%`;
         btn.classList.add("zoneSketchBtn--upperarms");
-        btn.style.left = `calc(${rightHandLeft} + ${handsOutwardShift}%)`;
+        btn.style.left = `calc(${rightHandLeft} + ${handsOutwardShift}% + ${handsInnerTrim}%)`;
         btn.style.top = `${anchorTop - handsUpShift}%`;
-        btn.style.width = `${handsWidth}%`;
+        btn.style.width = `${handsWidthReduced}%`;
         btn.style.height = `${handsHeight}%`;
         plannerSketch.appendChild(btn);
 
@@ -6374,13 +6573,14 @@
         const leftHandLeft = underarmsArea
           ? `${mirroredUnderarmX - underarmsArea.w + underarmsLeftNudge - underarmsOutwardWidth}%`
           : `${mirroredX}%`;
+        const handsExtra = handsWidth - area.w;
         const mirrorBtn = document.createElement("button");
         mirrorBtn.type = "button";
         mirrorBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms";
         if(selectedSet.has(zone.id)) mirrorBtn.classList.add("is-active");
         mirrorBtn.style.left = `calc(${leftHandLeft} - ${handsExtra}% - ${handsOutwardShift}%)`;
         mirrorBtn.style.top = `${anchorTop - handsUpShift}%`;
-        mirrorBtn.style.width = `${handsWidth}%`;
+        mirrorBtn.style.width = `${handsWidthReduced}%`;
         mirrorBtn.style.height = `${handsHeight}%`;
         mirrorBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
         mirrorBtn.innerHTML = `<span class="zoneSketchTag">${plannerLabel(zone.label)}</span>`;
@@ -6444,9 +6644,9 @@
         lowerBtn.type = "button";
         lowerBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms zoneSketchBtn--upperarms-lower";
         if(selectedSet.has(zone.id)) lowerBtn.classList.add("is-active");
-        lowerBtn.style.left = `${area.x + lowerOutwardOffset + 0.03}%`;
+        lowerBtn.style.left = `${area.x + lowerOutwardOffset + 0.73}%`;
         lowerBtn.style.top = `${area.y + lowerOffset}%`;
-        lowerBtn.style.width = `${area.w}%`;
+        lowerBtn.style.width = `${area.w * 1.30}%`;
         lowerBtn.style.height = `${area.h}%`;
         lowerBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
         lowerBtn.innerHTML = `<span class="zoneSketchTag">OBERARME</span>`;
@@ -6503,7 +6703,7 @@
         plannerSketch.appendChild(mirrorBtn);
 
       }
-      if(isBauchFullButton){
+      if(isBauchFullButton || isLowerBackButton){
         const mirroredX = 100 - area.x - area.w;
         const mergedWidth = (area.x + area.w) - mirroredX;
         const extraWidth = mergedWidth / 9;
@@ -6526,7 +6726,89 @@
         mergedBtn.style.width = `${finalWidth}%`;
         mergedBtn.style.height = `${bauchHeight}%`;
         mergedBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        mergedBtn.innerHTML = `<span class="zoneSketchTag">BAUCH</span>`;
+        mergedBtn.innerHTML = `<span class="zoneSketchTag">${isLowerBackButton ? "UNTERER RÜCKEN" : "BAUCH"}</span>`;
+        mergedBtn.addEventListener("click", () => {
+          plannerButtonHoverPreviewActive = false;
+          clearPlannerHoverPreview();
+          togglePlannerZone(mode, zone.id);
+          schedulePlannerRender(mode);
+          requestAnimationFrame(() => {
+            ensureInteractiveInViewForInteraction();
+          });
+        });
+        mergedBtn.addEventListener("mouseenter", () => {
+          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
+          plannerButtonHoverPreviewActive = hoverParts.length > 0;
+          setPlannerHoverPreviewParts(hoverParts);
+        });
+        mergedBtn.addEventListener("mouseleave", () => {
+          plannerButtonHoverPreviewActive = false;
+          clearPlannerHoverPreview();
+        });
+        plannerSketch.appendChild(mergedBtn);
+      }
+      if(isPobackenButton){
+        const lowerBackRaw = positions.lowerback || positions.bauchfull;
+        const lowerBackArea = stretchArea(lowerBackRaw);
+        const baseArea = lowerBackArea || area;
+        let finalLeft;
+        let finalWidth;
+        let oberschTopRef;
+        const oberschRaw = positions.obersch;
+        const oberschArea = stretchArea(oberschRaw);
+        if(oberschArea){
+          const mirroredXObersch = 100 - oberschArea.x - oberschArea.w;
+          const mergedWidthObersch = (oberschArea.x + oberschArea.w) - mirroredXObersch;
+          const extraWidthObersch = mergedWidthObersch / 9;
+          const mergedLeftObersch = mirroredXObersch - (extraWidthObersch * 0.5);
+          const mergedWidthExpandedObersch = mergedWidthObersch + extraWidthObersch;
+          finalWidth = ((mergedWidthExpandedObersch * 1.344) * 1.12) * 1.05;
+          finalLeft = mergedLeftObersch - ((finalWidth - mergedWidthExpandedObersch) * 0.5);
+          const mergedBottomObersch = oberschArea.y + oberschArea.h;
+          const intimRawForObersch = positions.intim;
+          const intimAreaForObersch = stretchArea(intimRawForObersch);
+          const bauchRawForObersch = positions.bauchfull;
+          const bauchAreaForObersch = stretchArea(bauchRawForObersch);
+          const bauchBottomForObersch = bauchAreaForObersch ? (bauchAreaForObersch.y + Math.max(0.1, bauchAreaForObersch.h - 0.9)) : oberschArea.y;
+          const intimThirdTopForObersch = intimAreaForObersch ? (intimAreaForObersch.y + (intimAreaForObersch.h / 3)) : oberschArea.y;
+          const mergedTopBaseObersch = Math.max(oberschArea.y, bauchBottomForObersch, intimThirdTopForObersch);
+          const mergedHeightBaseObersch = Math.max(0.1, mergedBottomObersch - mergedTopBaseObersch);
+          const mergedHeightObersch = (mergedHeightBaseObersch * 1.5) * 1.12;
+          oberschTopRef = mergedBottomObersch - mergedHeightObersch;
+        } else {
+          const mirroredX = 100 - baseArea.x - baseArea.w;
+          const mergedWidth = (baseArea.x + baseArea.w) - mirroredX;
+          const extraWidth = mergedWidth / 9;
+          const widthScale = 1.12;
+          finalWidth = (mergedWidth + extraWidth) * widthScale;
+          finalLeft = (mirroredX - (extraWidth * 0.5)) - ((finalWidth - (mergedWidth + extraWidth)) * 0.5);
+          oberschTopRef = area.y;
+        }
+        const narrowedWidth = finalWidth * 0.95;
+        finalLeft = finalLeft + ((finalWidth - narrowedWidth) * 0.5);
+        finalWidth = narrowedWidth;
+        const baseHeight = Math.max(0.1, (baseArea.h * (2 / 3)) * 1.03);
+        const grownWidth = finalWidth * 1.06;
+        const grownHeight = baseHeight * 1.05;
+        finalLeft = finalLeft - ((grownWidth - finalWidth) * 0.5);
+        finalWidth = grownWidth;
+        const pobackenTopBase = oberschTopRef + 0.4;
+        const pobackenTop = (pobackenTopBase - ((grownHeight - baseHeight) * 0.5)) - 1;
+        const baseFinalHeight = Math.max(0.1, grownHeight * 1.20);
+        const bottomY = pobackenTop + baseFinalHeight;
+        const finalHeight = Math.max(0.1, baseFinalHeight * 0.95);
+        const finalTop = bottomY - finalHeight;
+        const mergedBtn = document.createElement("button");
+        mergedBtn.type = "button";
+        mergedBtn.className = "zoneSketchBtn zoneSketchBtn--bauchfull";
+        if(selectedSet.has(zone.id)) mergedBtn.classList.add("is-active");
+        mergedBtn.style.left = `${finalLeft}%`;
+        mergedBtn.style.top = `${finalTop}%`;
+        mergedBtn.style.width = `${finalWidth}%`;
+        mergedBtn.style.height = `${finalHeight}%`;
+        mergedBtn.style.zIndex = "2";
+        mergedBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
+        mergedBtn.innerHTML = `<span class="zoneSketchTag">POBACKEN</span>`;
         mergedBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
@@ -6607,9 +6889,9 @@
         lowerMirrorBtn.type = "button";
         lowerMirrorBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms zoneSketchBtn--upperarms-mirror zoneSketchBtn--upperarms-lower";
         if(selectedSet.has(zone.id)) lowerMirrorBtn.classList.add("is-active");
-        lowerMirrorBtn.style.left = `${mirroredX - lowerOutwardOffset}%`;
+        lowerMirrorBtn.style.left = `${mirroredX - lowerOutwardOffset - (area.w * 0.30) - 0.70}%`;
         lowerMirrorBtn.style.top = `${area.y + lowerOffset}%`;
-        lowerMirrorBtn.style.width = `${area.w}%`;
+        lowerMirrorBtn.style.width = `${area.w * 1.30}%`;
         lowerMirrorBtn.style.height = `${area.h}%`;
         lowerMirrorBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
         lowerMirrorBtn.innerHTML = `<span class="zoneSketchTag">OBERARME</span>`;
@@ -6639,7 +6921,7 @@
         const extraWidth = mergedWidth / 9;
         const mergedLeft = mirroredX - (extraWidth * 0.5);
         const mergedWidthExpanded = mergedWidth + extraWidth;
-        const widenedWidth = (mergedWidthExpanded * 1.344) * 1.12;
+        const widenedWidth = ((mergedWidthExpanded * 1.344) * 1.12) * 1.05;
         const widenedLeft = mergedLeft - ((widenedWidth - mergedWidthExpanded) * 0.5);
         const mergedBottom = area.y + area.h;
         const intimRaw = positions.intim;
@@ -6685,14 +6967,16 @@
       if(isUnterschButton){
         const mirroredX = 100 - area.x - area.w;
         const mergedWidth = (area.x + area.w) - mirroredX;
+        const mergedWidthExpanded = mergedWidth * 1.1;
+        const mergedLeft = mirroredX - ((mergedWidthExpanded - mergedWidth) * 0.5);
         const mergedHeight = area.h * 1.8;
         const mergedBtn = document.createElement("button");
         mergedBtn.type = "button";
         mergedBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms";
         if(selectedSet.has(zone.id)) mergedBtn.classList.add("is-active");
-        mergedBtn.style.left = `${mirroredX}%`;
+        mergedBtn.style.left = `${mergedLeft}%`;
         mergedBtn.style.top = `${area.y}%`;
-        mergedBtn.style.width = `${mergedWidth}%`;
+        mergedBtn.style.width = `${mergedWidthExpanded}%`;
         mergedBtn.style.height = `${mergedHeight}%`;
         mergedBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
         mergedBtn.innerHTML = `<span class="zoneSketchTag">UNTERSCH + KNIE</span>`;
@@ -6723,15 +7007,18 @@
         const leftUnderarmExtend = 0.6;
         const underarmsDownExtend = 2.4;
         const underarmsOutwardWidth = 0.35;
+        const underarmsWidthScale = 1.30;
+        const underarmsBaseWidth = area.w + underarmsOutwardWidth;
+        const underarmsWidth = underarmsBaseWidth * underarmsWidthScale;
+        const underarmsWidthExtraHalf = (underarmsWidth - underarmsBaseWidth) * 0.5;
         const mirroredX = 100 - area.x - area.w;
         const mirrorBtn = document.createElement("button");
         mirrorBtn.type = "button";
         mirrorBtn.className = "zoneSketchBtn zoneSketchBtn--underarms zoneSketchBtn--underarms-mirror";
         if(selectedSet.has(zone.id)) mirrorBtn.classList.add("is-active");
-        mirrorBtn.style.left = `${mirroredX - underarmsOutwardOffset + underarmsLeftNudge - underarmsOutwardWidth}%`;
+        mirrorBtn.style.left = `${mirroredX - underarmsOutwardOffset + underarmsLeftNudge - underarmsOutwardWidth - underarmsWidthExtraHalf}%`;
         mirrorBtn.style.top = `${area.y - underarmsUpOffset - leftUnderarmExtend}%`;
-        mirrorBtn.style.width = `${area.w}%`;
-        mirrorBtn.style.width = `${area.w + underarmsOutwardWidth}%`;
+        mirrorBtn.style.width = `${underarmsWidth}%`;
         mirrorBtn.style.height = `${area.h + leftUnderarmExtend + underarmsDownExtend}%`;
         mirrorBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
         mirrorBtn.innerHTML = `<span class="zoneSketchTag">UNTERARME</span>`;
@@ -6754,9 +7041,9 @@
           clearPlannerHoverPreview();
         });
         plannerSketch.appendChild(mirrorBtn);
-        btn.style.left = `calc(${area.x + underarmsOutwardOffset}% + 5px)`;
+        btn.style.left = `calc(${area.x + underarmsOutwardOffset - underarmsWidthExtraHalf}% + 5px)`;
         btn.style.top = `${area.y - underarmsUpOffset}%`;
-        btn.style.width = `${area.w + underarmsOutwardWidth}%`;
+        btn.style.width = `${underarmsWidth}%`;
         btn.style.height = `${area.h + underarmsDownExtend}%`;
       }
     });
