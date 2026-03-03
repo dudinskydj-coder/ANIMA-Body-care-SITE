@@ -1421,6 +1421,23 @@
       font-size:13px;
       opacity:.78;
     }
+    .zoneSketchBtn,
+    .zoneSketchBtn:hover,
+    .zoneSketchBtn.is-active,
+    .zoneBtn,
+    .zoneBtn:hover,
+    .zoneBtn.is-active{
+      opacity:0 !important;
+      background:transparent !important;
+      border-color:transparent !important;
+      color:transparent !important;
+      box-shadow:none !important;
+    }
+    .zoneSketchTag,
+    .zoneBtnName,
+    .zoneBtnPrice{
+      visibility:hidden !important;
+    }
     .orderList{
       margin:18px 0 0;
       padding:0;
@@ -2827,8 +2844,8 @@
           <div class="plannerFigure">
             <div class="plannerFigureInner">
               <img src="img/INT/FX%20GRAY%20RUCKEN.svg" alt="" loading="lazy" id="plannerFigureGrayBackOverlay" class="plannerFigureGrayOverlay plannerFigureGrayOverlay--back" aria-hidden="true">
-              <div class="plannerBackSketch plannerSketch--ghost" id="plannerBackSketch"></div>
-              <img src="img/Frauen interactive.svg" alt="Interaktive Körperzonen" loading="lazy" id="plannerFigureImage" class="plannerFigureBase">
+              <div class="plannerBackSketch" id="plannerBackSketch"></div>
+              <img src="img/INT/FR_GR_FULL_BODY.svg" alt="Interaktive Körperzonen" loading="lazy" id="plannerFigureImage" class="plannerFigureBase">
               <img src="img/INT/FX%20GRAY.svg" alt="" loading="lazy" id="plannerFigureGrayOverlay" class="plannerFigureGrayOverlay" aria-hidden="true">
               <img src="img/INT/FR_RS_OBERLIPPE.svg" alt="" loading="lazy" id="plannerFigureOverlayUpperlip" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FR_RS_ACHSELN.svg" alt="" loading="lazy" id="plannerFigureOverlayAxilla" class="plannerFigureOverlayImage" aria-hidden="true">
@@ -2845,8 +2862,8 @@
               <img src="img/INT/FR_RS_UNTERSCH_MAIN.svg" alt="" loading="lazy" id="plannerFigureOverlayUntersch" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FR_RS_RUCKEN.svg" alt="" loading="lazy" id="plannerFigureOverlayBack" class="plannerFigureOverlayImage plannerFigureOverlayImage--back" aria-hidden="true">
               <img src="img/INT/FR_RS_INTIM_KOM+POF.svg" alt="" loading="lazy" id="plannerFigureOverlayImage" class="plannerFigureOverlayImage" aria-hidden="true">
-              <img src="img/INT/Frauen_FRONT%20LINE.svg" alt="" loading="lazy" id="plannerFigureFrontline" class="plannerFigureFrontline" aria-hidden="true">
-              <div class="plannerSketch plannerSketch--ghost" id="plannerSketch"></div>
+              <img src="img/INT/FR_GR_FULL_BODY+PATH.svg" alt="" loading="lazy" id="plannerFigureFrontline" class="plannerFigureFrontline" aria-hidden="true">
+              <div class="plannerSketch" id="plannerSketch"></div>
             </div>
           </div>
         </div>
@@ -3074,7 +3091,6 @@
   };
   const plannerZonesByMode = {
     frauen: [
-      { id:"upperlip", label:{ de:"Oberlippe", en:"Upper lip", ru:"Верхняя губа" }, price:25 },
       { id:"chin", label:{ de:"Hals", en:"Neck", ru:"Шея" }, price:25 },
       { id:"chest", label:{ de:"Brustbereich", en:"Chest area", ru:"Зона груди" }, price:45 },
       { id:"hands", label:{ de:"Hände", en:"Hands", ru:"Кисти рук" }, price:35 },
@@ -3085,7 +3101,7 @@
       { id:"medialinebauch", label:{ de:"Mediale Bauchlinie", en:"Median belly line", ru:"Медиальная линия живота" }, price:45 },
       { id:"bauchfull", label:{ de:"Bauch", en:"Belly", ru:"Живот" }, price:45 },
       { id:"obersch", label:{ de:"Oberschenkel", en:"Upper legs", ru:"Верхняя часть ног" }, price:90 },
-      { id:"untersch", label:{ de:"Unterschenkel", en:"Lower legs", ru:"Нижняя часть ног" }, price:90 },
+      { id:"untersch", label:{ de:"Unterschenkel + Knie", en:"Lower legs + knees", ru:"Нижняя часть ног + колени" }, price:90 },
       { id:"back", label:{ de:"Rücken", en:"Back", ru:"Спина" }, price:150 },
       { id:"bikini", label:{ de:"Bikini", en:"Bikini line", ru:"Бикини" }, price:40 },
       { id:"intim", label:{ de:"Intim komplett (inkl pofale)", en:"Intimate full (incl gluteal)", ru:"Интим полностью (вкл. межъягодичную зону)" }, price:85 }
@@ -3103,7 +3119,6 @@
   };
   const plannerSketchByMode = {
     frauen: {
-      upperlip:{ x:47.8, y:9.9, w:4.6, h:4.6 },
       chin:{ x:47.8, y:13.7, w:4.6, h:5.2 },
       chest:{ x:50.6, y:24.2, w:5.4, h:6.3 },
       hands:{ x:57.0, y:45.8, w:3.2, h:8.2 },
@@ -3134,11 +3149,10 @@
     }
   };
   const plannerFigureByMode = {
-    frauen:{ src:"img/Frauen interactive.svg", alt:"Interaktive Körperzonen Frauen" },
+    frauen:{ src:"img/INT/FR_GR_FULL_BODY.svg", alt:"Interaktive Körperzonen Frauen" },
     herren:{ src:"img/Herren interactive.svg", alt:"Interaktive Körperzonen Herren" }
   };
   const plannerHoverHotspotsFrauen = [
-    { key:"OBERLIPPE", x1:0.448, x2:0.552, y1:0.098, y2:0.168 },
     { key:"HALS", x1:0.445, x2:0.555, y1:0.165, y2:0.235 },
     { key:"BRUSTBEREICH", x1:0.38, x2:0.62, y1:0.235, y2:0.325 },
     { key:"HANDE_L", x1:0.065, x2:0.20, y1:0.53, y2:0.67 },
@@ -3156,7 +3170,6 @@
   ];
   const plannerHoverPartsByZone = {
     frauen: {
-      upperlip:["OBERLIPPE"],
       chin:["HALS"],
       chest:["BRUSTBEREICH"],
       hands:["HANDE_L", "HANDE_R"],
@@ -4259,7 +4272,7 @@
       stopPlannerGuideEffect();
     }
     const selectedSet = plannerSelectedByMode[mode] || new Set();
-    const shouldShowUpperlipOverlay = mode === "frauen" && selectedSet.has("upperlip");
+    const shouldShowUpperlipOverlay = false;
     const shouldShowAxillaOverlay = mode === "frauen" && selectedSet.has("axilla");
     const shouldShowChinOverlay = mode === "frauen" && selectedSet.has("chin");
     const shouldShowChestOverlay = mode === "frauen" && selectedSet.has("chest");
@@ -5351,7 +5364,7 @@
       const isOberschButton = mode === "frauen" && zone.id === "obersch";
       const isUnterschButton = mode === "frauen" && zone.id === "untersch";
       const isBackButton = mode === "frauen" && zone.id === "back";
-      const buttonText = isIntimPofButton ? "INT.FR.INTIM+POF" : (isBikiniButton ? "BIKINI" : (isUpperarmsButton ? "OBERARME" : (isUnderarmsButton ? "UNTERARME" : (isMediaLineBauchButton ? "BAUCH LN" : (isBauchFullButton ? "BAUCH" : (isOberschButton ? "OBERSCH" : (isUnterschButton ? "UNTERSCH" : (isBackButton ? "RÜCKEN" : plannerLabel(zone.label)))))))));
+      const buttonText = isIntimPofButton ? "INT.FR.INTIM+POF" : (isBikiniButton ? "BIKINI" : (isUpperarmsButton ? "OBERARME" : (isUnderarmsButton ? "UNTERARME" : (isMediaLineBauchButton ? "BAUCH LN" : (isBauchFullButton ? "BAUCH" : (isOberschButton ? "OBERSCH" : (isUnterschButton ? "UNTERSCH + KNIE" : (isBackButton ? "RÜCKEN" : plannerLabel(zone.label)))))))));
       btn.innerHTML = `<span class="zoneSketchTag">${buttonText}</span>`;
       if(isIntimPofButton) btn.classList.add("zoneSketchBtn--intim-pof");
       if(isBikiniButton) btn.classList.add("zoneSketchBtn--bikini");
@@ -5950,7 +5963,7 @@
         mirrorBtn.style.width = `${area.w}%`;
         mirrorBtn.style.height = `${area.h}%`;
         mirrorBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        mirrorBtn.innerHTML = `<span class="zoneSketchTag">UNTERSCH</span>`;
+        mirrorBtn.innerHTML = `<span class="zoneSketchTag">UNTERSCH + KNIE</span>`;
         mirrorBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
@@ -5981,7 +5994,7 @@
         lowerBtn.style.width = `${area.w}%`;
         lowerBtn.style.height = `${area.h * 0.8}%`;
         lowerBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        lowerBtn.innerHTML = `<span class="zoneSketchTag">UNTERSCH</span>`;
+        lowerBtn.innerHTML = `<span class="zoneSketchTag">UNTERSCH + KNIE</span>`;
         lowerBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
@@ -6011,7 +6024,7 @@
         lowerMirrorBtn.style.width = `${area.w}%`;
         lowerMirrorBtn.style.height = `${area.h * 0.8}%`;
         lowerMirrorBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        lowerMirrorBtn.innerHTML = `<span class="zoneSketchTag">UNTERSCH</span>`;
+        lowerMirrorBtn.innerHTML = `<span class="zoneSketchTag">UNTERSCH + KNIE</span>`;
         lowerMirrorBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
