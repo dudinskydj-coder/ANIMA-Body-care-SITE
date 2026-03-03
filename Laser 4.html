@@ -1161,6 +1161,7 @@
       border-radius:0;
       box-shadow:0 0 0 1px rgba(255,255,255,.75) inset;
       clip-path:polygon(50% 100%, 0 0, 100% 0);
+      z-index:2;
     }
     .zoneSketchBtn--intim-pof:hover{
       background:rgba(45,141,214,.24);
@@ -1177,6 +1178,10 @@
       line-height:1.2;
       letter-spacing:0;
     }
+    .zoneSketchBtn--bikini-intim{
+      clip-path:polygon(-18.75% 0, 118.75% 0, 50% 100%);
+      z-index:1;
+    }
     .zoneSketchBtn--bikini{
       border:2px solid #2d8dd6;
       background:rgba(45,141,214,.16);
@@ -1189,6 +1194,9 @@
     }
     .zoneSketchBtn--bikini-mirror{
       transform:rotate(32deg);
+    }
+    .zoneSketchBtn--bikini-taper-right{
+      clip-path:polygon(0 0, 100% 0, 75% 100%, 0 100%);
     }
     .zoneSketchBtn--bikini-tip{
       clip-path:polygon(50% 0, 0 100%, 100% 100%);
@@ -1328,6 +1336,36 @@
       padding:0 1px;
       white-space:nowrap;
     }
+    .zoneSketchBtn--chest{
+      border:2px solid #2d8dd6;
+      background:rgba(45,141,214,.16);
+      color:#0e2e49;
+      border-radius:0;
+      box-shadow:0 0 0 1px rgba(255,255,255,.75) inset;
+      clip-path:none;
+      transform:rotate(0deg);
+      z-index:3;
+    }
+    .zoneSketchBtn--chest:hover{
+      background:rgba(45,141,214,.24);
+      border-color:#1f78bd;
+      transform:translateY(-1px);
+    }
+    .zoneSketchBtn--chest.is-active{
+      background:#2d8dd6;
+      border-color:#2d8dd6;
+      color:#fff;
+      transform:rotate(0deg);
+    }
+    .zoneSketchBtn--chest .zoneSketchTag{
+      font-size:8px;
+      font-weight:760;
+      letter-spacing:0;
+      line-height:1;
+      text-align:center;
+      padding:0 1px;
+      white-space:nowrap;
+    }
     .zoneSketchBtn--untersch-taper{
       clip-path:polygon(0 0, 100% 0, 91.67% 100%, 8.33% 100%);
     }
@@ -1339,6 +1377,7 @@
     }
     .zoneSketchBtn--obersch{
       z-index:0;
+      clip-path:polygon(2% 0, 98% 0, 84% 100%, 16% 100%);
     }
     .zoneSketchBtn--obersch-tilt{
       z-index:0;
@@ -1367,30 +1406,6 @@
       text-align:center;
       padding:0 1px;
       white-space:nowrap;
-    }
-    .zoneSketchBtn--obersch-tilt-tri{
-      clip-path:polygon(50% 0, 0 100%, 100% 100%);
-      padding:0;
-      z-index:0;
-      transform:rotate(-25deg);
-    }
-    .zoneSketchBtn--obersch-tilt-tri.zoneSketchBtn--bikini-mirror{
-      transform:rotate(25deg);
-    }
-    .zoneSketchBtn--obersch-tilt-tri:hover{
-      transform:rotate(-25deg) translateY(-1px);
-    }
-    .zoneSketchBtn--obersch-tilt-tri.zoneSketchBtn--bikini-mirror:hover{
-      transform:rotate(25deg) translateY(-1px);
-    }
-    .zoneSketchBtn--obersch-tilt-tri.is-active{
-      transform:rotate(-25deg);
-    }
-    .zoneSketchBtn--obersch-tilt-tri.zoneSketchBtn--bikini-mirror.is-active{
-      transform:rotate(25deg);
-    }
-    .zoneSketchBtn--obersch-tilt-tri .zoneSketchTag{
-      display:none;
     }
     .zoneSketchBtn--underarms{
       border:2px solid #2d8dd6;
@@ -1431,36 +1446,6 @@
       padding:0 1px;
       white-space:nowrap;
     }
-    .zoneSketchBtn--medialinebauch{
-      border:2px solid #2d8dd6;
-      background:rgba(45,141,214,.16);
-      color:#0e2e49;
-      border-radius:0;
-      box-shadow:0 0 0 1px rgba(255,255,255,.75) inset;
-      clip-path:none;
-      transform:rotate(0deg);
-      z-index:3;
-    }
-    .zoneSketchBtn--medialinebauch:hover{
-      background:rgba(45,141,214,.24);
-      border-color:#1f78bd;
-      transform:translateY(-1px);
-    }
-    .zoneSketchBtn--medialinebauch.is-active{
-      background:#2d8dd6;
-      border-color:#2d8dd6;
-      color:#fff;
-      transform:rotate(0deg);
-    }
-    .zoneSketchBtn--medialinebauch .zoneSketchTag{
-      font-size:8px;
-      font-weight:760;
-      letter-spacing:0;
-      line-height:1;
-      text-align:center;
-      padding:0 1px;
-      white-space:nowrap;
-    }
     .zoneSketchBtn--bauchfull{
       border:2px solid #2d8dd6;
       background:rgba(45,141,214,.16);
@@ -1483,6 +1468,36 @@
       transform:rotate(0deg);
     }
     .zoneSketchBtn--bauchfull .zoneSketchTag{
+      font-size:8px;
+      font-weight:760;
+      letter-spacing:0;
+      line-height:1;
+      text-align:center;
+      padding:0 1px;
+      white-space:nowrap;
+    }
+    .zoneSketchBtn--medialinebauch{
+      border:2px solid #2d8dd6;
+      background:rgba(45,141,214,.16);
+      color:#0e2e49;
+      border-radius:0;
+      box-shadow:0 0 0 1px rgba(255,255,255,.75) inset;
+      clip-path:none;
+      transform:rotate(0deg);
+      z-index:4;
+    }
+    .zoneSketchBtn--medialinebauch:hover{
+      background:rgba(45,141,214,.24);
+      border-color:#1f78bd;
+      transform:translateY(-1px);
+    }
+    .zoneSketchBtn--medialinebauch.is-active{
+      background:#2d8dd6;
+      border-color:#2d8dd6;
+      color:#fff;
+      transform:rotate(0deg);
+    }
+    .zoneSketchBtn--medialinebauch .zoneSketchTag{
       font-size:8px;
       font-weight:760;
       letter-spacing:0;
@@ -1548,30 +1563,6 @@
       padding:0 2px;
       text-shadow:0 1px 1px rgba(0,0,0,.25);
     }
-    .zoneSketchBtn--chin-tip{
-      border:2px solid #2d8dd6;
-      background:rgba(45,141,214,.28);
-      color:#0e2e49;
-      border-radius:0;
-      box-shadow:0 0 0 1px rgba(255,255,255,.75) inset;
-      clip-path:polygon(0 50%, 100% 0, 100% 100%);
-      transform:none;
-      z-index:2;
-    }
-    .zoneSketchBtn--chin-tip.zoneSketchBtn--chin-tip-mirror{
-      clip-path:polygon(100% 50%, 0 0, 0 100%);
-    }
-    .zoneSketchBtn--chin-tip:hover{
-      background:rgba(45,141,214,.78);
-      transform:none;
-    }
-    .zoneSketchBtn--chin-tip.is-active{
-      background:#2d8dd6;
-      color:#fff;
-    }
-    .zoneSketchBtn--chin-tip .zoneSketchTag{
-      display:none;
-    }
     .zoneSketchBtn--back{
       border:1px dashed rgba(17,18,24,.36);
       background:rgba(255,255,255,.62);
@@ -1581,7 +1572,7 @@
       transform:none;
       box-shadow:none;
       z-index:5;
-      opacity:0;
+      opacity:1;
     }
     .zoneSketchBtn--back:hover{
       background:rgba(255,255,255,.82);
@@ -1656,23 +1647,6 @@
       margin-top:4px;
       font-size:13px;
       opacity:.78;
-    }
-    .zoneSketchBtn,
-    .zoneSketchBtn:hover,
-    .zoneSketchBtn.is-active,
-    .zoneBtn,
-    .zoneBtn:hover,
-    .zoneBtn.is-active{
-      opacity:0 !important;
-      background:transparent !important;
-      border-color:transparent !important;
-      color:transparent !important;
-      box-shadow:none !important;
-    }
-    .zoneSketchTag,
-    .zoneBtnName,
-    .zoneBtnPrice{
-      visibility:hidden !important;
     }
     .orderList{
       margin:18px 0 0;
@@ -3250,8 +3224,7 @@
               <img src="img/INT/FRAUEN_FRONT/FR_RS_BIKINI_MAIN.svg" alt="" loading="lazy" id="plannerFigureOverlayBikini" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FRAUEN_FRONT/FR_RS_OBERSCH_MAIN.svg" alt="" loading="lazy" id="plannerFigureOverlayObersch" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FRAUEN_FRONT/FR_RS_UNTERSCH_MAIN.svg" alt="" loading="lazy" id="plannerFigureOverlayUntersch" class="plannerFigureOverlayImage" aria-hidden="true">
-              <img src="img/INT/FRAUEN_FRONT/FR_RS_RUCKEN.svg" alt="" loading="lazy" id="plannerFigureOverlayBack" class="plannerFigureOverlayImage plannerFigureOverlayImage--back" aria-hidden="true">
-              <img src="img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM+POF.svg" alt="" loading="lazy" id="plannerFigureOverlayImage" class="plannerFigureOverlayImage" aria-hidden="true">
+              <img src="img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM_POF.svg" alt="" loading="lazy" id="plannerFigureOverlayImage" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FRAUEN_FRONT/FR_FRONT_GR_KONTUR.svg" alt="" loading="lazy" id="plannerFigureFrontline" class="plannerFigureFrontline" aria-hidden="true">
               <div class="plannerSketch" id="plannerSketch"></div>
             </div>
@@ -3376,7 +3349,6 @@
   const plannerFigureOverlayBikini = document.getElementById("plannerFigureOverlayBikini");
   const plannerFigureOverlayObersch = document.getElementById("plannerFigureOverlayObersch");
   const plannerFigureOverlayUntersch = document.getElementById("plannerFigureOverlayUntersch");
-  const plannerFigureOverlayBack = document.getElementById("plannerFigureOverlayBack");
   const plannerFigureOverlayImage = document.getElementById("plannerFigureOverlayImage");
   const plannerFigureFrontline = document.getElementById("plannerFigureFrontline");
   const plannerSketch = document.getElementById("plannerSketch");
@@ -3542,9 +3514,9 @@
       { id:"upperarms", label:{ de:"Oberarme", en:"Upper arms", ru:"Верхняя часть рук" }, price:45 },
       { id:"underarms", label:{ de:"Unterarme", en:"Lower arms", ru:"Нижняя часть рук" }, price:45 },
       { id:"bauchfull", label:{ de:"Bauch", en:"Belly", ru:"Живот" }, price:45 },
+      { id:"medialinebauch", label:{ de:"Mediale Bauchlinie", en:"Median belly line", ru:"Медиальная линия живота" }, price:45 },
       { id:"obersch", label:{ de:"Oberschenkel", en:"Upper legs", ru:"Верхняя часть ног" }, price:90 },
       { id:"untersch", label:{ de:"Unterschenkel + Knie", en:"Lower legs + knees", ru:"Нижняя часть ног + колени" }, price:90 },
-      { id:"back", label:{ de:"Rücken", en:"Back", ru:"Спина" }, price:150 },
       { id:"bikini", label:{ de:"Bikini", en:"Bikini line", ru:"Бикини" }, price:40 },
       { id:"intim", label:{ de:"Intim komplett (inkl pofale)", en:"Intimate full (incl gluteal)", ru:"Интим полностью (вкл. межъягодичную зону)" }, price:85 }
     ],
@@ -3569,6 +3541,7 @@
       upperarms:{ x:56.2, y:18.0, w:3.2, h:10.5 },
       underarms:{ x:56.2, y:34.4, w:3.2, h:12.2 },
       bauchfull:{ x:50.78, y:30.15, w:4.0, h:13.0 },
+      medialinebauch:{ x:49.25, y:35.2, w:1.5, h:8.0 },
       obersch:{ x:50.6, y:53.0, w:4.2, h:15.3 },
       untersch:{ x:50.6, y:68.0, w:4.2, h:13.3 },
       back:{ x:33.6, y:11.5, w:34.0, h:34.0 },
@@ -3614,7 +3587,7 @@
     { key:"UNTERARME_MAIN", x1:0.16, x2:0.84, y1:0.46, y2:0.66 },
     { key:"BAUCH", x1:0.43, x2:0.57, y1:0.34, y2:0.58 },
     { key:"BIKINI_MAIN", x1:0.39, x2:0.61, y1:0.54, y2:0.63 },
-    { key:"INTIM_KOM+POF", x1:0.46, x2:0.54, y1:0.58, y2:0.68 },
+    { key:"INTIM_KOM_POF", x1:0.46, x2:0.54, y1:0.58, y2:0.68 },
     { key:"OBERSCH_MAIN", x1:0.39, x2:0.61, y1:0.66, y2:0.82 },
     { key:"UNTERSCH_MAIN", x1:0.40, x2:0.60, y1:0.82, y2:0.97 }
   ];
@@ -3628,12 +3601,12 @@
       upperarms:["OBERARME_MAIN"],
       underarms:["UNTERARME_MAIN"],
       bauchfull:["BAUCH"],
+      medialinebauch:["BAUCH_MEDIA_LN"],
       obersch:["OBERSCH_MAIN"],
       untersch:["UNTERSCH_MAIN"],
-      back:["RUCKEN"],
       bikini:["BIKINI_MAIN"],
       legs:["OBERSCH_MAIN", "UNTERSCH_MAIN"],
-      intim:["INTIM_KOM+POF"],
+      intim:["INTIM_KOM_POF"],
       arms:["OBERARME_MAIN", "UNTERARME_MAIN"],
       all:["BODY"]
     },
@@ -4600,7 +4573,6 @@
       plannerFigureOverlayBikini,
       plannerFigureOverlayObersch,
       plannerFigureOverlayUntersch,
-      plannerFigureOverlayBack,
       plannerFigureOverlayImage,
       plannerFigureFrontline
     ].filter(Boolean);
@@ -4756,9 +4728,6 @@
     if(plannerFigureOverlayUntersch){
       plannerFigureOverlayUntersch.classList.remove("is-visible");
     }
-    if(plannerFigureOverlayBack){
-      plannerFigureOverlayBack.classList.remove("is-visible");
-    }
     if(plannerFigureOverlayImage){
       plannerFigureOverlayImage.classList.remove("is-visible");
     }
@@ -4806,9 +4775,6 @@
     if(plannerFigureOverlayUntersch){
       plannerFigureOverlayUntersch.classList.remove("is-guide-visible");
     }
-    if(plannerFigureOverlayBack){
-      plannerFigureOverlayBack.classList.remove("is-guide-visible");
-    }
     if(plannerFigureOverlayImage){
       plannerFigureOverlayImage.classList.remove("is-guide-visible", "is-guide-intim");
     }
@@ -4839,8 +4805,7 @@
       case "BIKINI_MAIN": return [plannerFigureOverlayBikini];
       case "OBERSCH_MAIN": return [plannerFigureOverlayObersch];
       case "UNTERSCH_MAIN": return [plannerFigureOverlayUntersch];
-      case "RUCKEN": return (plannerFrauenView === "back") ? [plannerFigureOverlayBack] : [];
-      case "INTIM_KOM+POF": return [plannerFigureOverlayImage];
+      case "INTIM_KOM_POF": return [plannerFigureOverlayImage];
       case "BODY":
         return [
           plannerFigureOverlayUpperlip,
@@ -4856,7 +4821,6 @@
           plannerFigureOverlayBikini,
           plannerFigureOverlayObersch,
           plannerFigureOverlayUntersch,
-          plannerFigureOverlayBack,
           plannerFigureOverlayImage
         ];
       default:
@@ -4901,8 +4865,8 @@
     setPlannerHoverPreviewParts([partKey]);
   }
   function plannerHoverPartsForZone(mode, zoneId){
-    if(mode === "frauen" && plannerFrauenView === "back"){
-      return zoneId === "back" ? ["RUCKEN"] : [];
+    if(mode === "frauen" && plannerFrauenView !== "front"){
+      return [];
     }
     const map = plannerHoverPartsByZone[mode] || {};
     return map[zoneId] || [];
@@ -4970,7 +4934,6 @@
     const shouldShowOberschOverlay = isFrauenFront && selectedSet.has("obersch");
     const shouldShowUnterschOverlay = isFrauenFront && selectedSet.has("untersch");
     const shouldShowBikiniOverlay = isFrauenFront && selectedSet.has("bikini");
-    const shouldShowBackOverlay = isFrauenBack && selectedSet.has("back");
     const shouldShowIntimOverlay = isFrauenFront && selectedSet.has("intim");
     if(plannerFigureOverlayUpperlip){
       plannerFigureOverlayUpperlip.classList.toggle("is-visible", shouldShowUpperlipOverlay);
@@ -5013,9 +4976,6 @@
     }
     if(plannerFigureOverlayUntersch){
       plannerFigureOverlayUntersch.classList.toggle("is-visible", shouldShowUnterschOverlay);
-    }
-    if(plannerFigureOverlayBack){
-      plannerFigureOverlayBack.classList.toggle("is-visible", shouldShowBackOverlay);
     }
     if(plannerFigureOverlayImage){
       plannerFigureOverlayImage.classList.toggle("is-visible", shouldShowIntimOverlay);
@@ -6275,27 +6235,84 @@
       const isBikiniButton = mode === "frauen" && zone.id === "bikini";
       const isUpperlipButton = mode === "frauen" && zone.id === "upperlip";
       const isChinButton = mode === "frauen" && zone.id === "chin";
+      const isChestButton = mode === "frauen" && zone.id === "chest";
+      const isFeetButton = mode === "frauen" && zone.id === "feet";
+      const isHandsButton = mode === "frauen" && zone.id === "hands";
       const isAxillaButton = mode === "frauen" && zone.id === "axilla";
       const isUpperarmsButton = mode === "frauen" && zone.id === "upperarms";
       const isUnderarmsButton = mode === "frauen" && zone.id === "underarms";
-      const isMediaLineBauchButton = mode === "frauen" && zone.id === "medialinebauch";
       const isBauchFullButton = mode === "frauen" && zone.id === "bauchfull";
+      const isMediaLineBauchButton = mode === "frauen" && zone.id === "medialinebauch";
       const isOberschButton = mode === "frauen" && zone.id === "obersch";
       const isUnterschButton = mode === "frauen" && zone.id === "untersch";
       const isBackButton = mode === "frauen" && zone.id === "back";
-      const buttonText = isIntimPofButton ? "INT.FR.INTIM+POF" : (isBikiniButton ? "BIKINI" : (isUpperarmsButton ? "OBERARME" : (isUnderarmsButton ? "UNTERARME" : (isMediaLineBauchButton ? "BAUCH LN" : (isBauchFullButton ? "BAUCH" : (isOberschButton ? "OBERSCH" : (isUnterschButton ? "UNTERSCH + KNIE" : (isBackButton ? "RÜCKEN" : plannerLabel(zone.label)))))))));
+      const buttonText = isIntimPofButton ? "INT.FR.INTIM_POF" : (isBikiniButton ? "BIKINI" : (isUpperarmsButton ? "OBERARME" : (isUnderarmsButton ? "UNTERARME" : (isMediaLineBauchButton ? "BAUCH LN" : (isBauchFullButton ? "BAUCH" : (isOberschButton ? "OBERSCH" : (isUnterschButton ? "UNTERSCH + KNIE" : (isBackButton ? "RÜCKEN" : plannerLabel(zone.label)))))))));
       btn.innerHTML = `<span class="zoneSketchTag">${buttonText}</span>`;
       if(isIntimPofButton) btn.classList.add("zoneSketchBtn--intim-pof");
       if(isBikiniButton) btn.classList.add("zoneSketchBtn--bikini");
       if(isUpperarmsButton) btn.classList.add("zoneSketchBtn--upperarms");
       if(isUnderarmsButton) btn.classList.add("zoneSketchBtn--underarms");
-      if(isMediaLineBauchButton) btn.classList.add("zoneSketchBtn--medialinebauch");
       if(isBauchFullButton) btn.classList.add("zoneSketchBtn--bauchfull");
+      if(isMediaLineBauchButton){
+        btn.classList.add("zoneSketchBtn--medialinebauch");
+        const bauchRaw = positions.bauchfull;
+        const bauchArea = stretchArea(bauchRaw);
+        if(bauchArea){
+          const bauchMirroredX = 100 - bauchArea.x - bauchArea.w;
+          const bauchMergedWidth = (bauchArea.x + bauchArea.w) - bauchMirroredX;
+          const bauchExtraWidth = bauchMergedWidth / 9;
+          const bauchLeft = bauchMirroredX - (bauchExtraWidth * 0.5);
+          const bauchTop = bauchArea.y + 0.45;
+          const bauchWidth = bauchMergedWidth + bauchExtraWidth;
+          const bauchHeight = Math.max(0.1, bauchArea.h - 0.9);
+          const lineWidth = bauchWidth / 3;
+          const lineLeft = bauchLeft + ((bauchWidth - lineWidth) * 0.5);
+          const baseLineHeight = bauchHeight * 0.5;
+          const lineHeight = baseLineHeight * 1.35;
+          const intimRaw = positions.intim;
+          const intimArea = stretchArea(intimRaw);
+          const intimTop = intimArea ? intimArea.y : (bauchTop + bauchHeight);
+          const lineTop = intimTop - lineHeight;
+          btn.style.left = `${lineLeft}%`;
+          btn.style.top = `${lineTop}%`;
+          btn.style.width = `${lineWidth}%`;
+          btn.style.height = `${lineHeight}%`;
+        }
+      }
       if(isOberschButton) btn.classList.add("zoneSketchBtn--upperarms", "zoneSketchBtn--obersch");
       if(isUnterschButton) btn.classList.add("zoneSketchBtn--upperarms");
       if(isBackButton) btn.classList.add("zoneSketchBtn--back", "zoneSketchBtn--always-visible");
       if(isUpperlipButton) btn.classList.add("zoneSketchBtn--upperlip");
-      if(isChinButton) btn.classList.add("zoneSketchBtn--chin");
+      if(isChinButton){
+        btn.classList.add("zoneSketchBtn--chin");
+        // Replace side triangles by expanding the main Hals button equally left/right.
+        const chinSideExpand = area.w * 0.5;
+        btn.style.left = `${area.x - chinSideExpand}%`;
+        btn.style.width = `${area.w + (chinSideExpand * 2)}%`;
+      }
+      if(isChestButton){
+        btn.classList.add("zoneSketchBtn--chest");
+        // Expand x2 from the bottom-right anchor so it grows left/up.
+        btn.style.left = `${area.x - area.w}%`;
+        btn.style.top = `${area.y - area.h}%`;
+        btn.style.width = `${area.w * 2}%`;
+        btn.style.height = `${area.h * 2}%`;
+      }
+      if(isFeetButton){
+        const unterschRaw = positions.untersch;
+        const unterschArea = stretchArea(unterschRaw);
+        btn.classList.add("zoneSketchBtn--upperarms");
+        if(unterschArea){
+          const unterschBottom = unterschArea.y + (unterschArea.h * 1.8);
+          const currentFeetBottom = area.y + area.h;
+          const mergedX = 100 - unterschArea.x - unterschArea.w;
+          const mergedWidth = (unterschArea.x + unterschArea.w) - mergedX;
+          btn.style.left = `${mergedX}%`;
+          btn.style.top = `${unterschBottom}%`;
+          btn.style.width = `${mergedWidth}%`;
+          btn.style.height = `${Math.max(0.1, currentFeetBottom - unterschBottom)}%`;
+        }
+      }
       if(isAxillaButton){
         btn.classList.add("zoneSketchBtn--axilla");
         btn.style.height = "";
@@ -6318,12 +6335,108 @@
         plannerButtonHoverPreviewActive = false;
         clearPlannerHoverPreview();
       });
-      if(isBackButton && plannerBackSketch){
+      if(isUpperarmsButton || isBauchFullButton || isOberschButton || isHandsButton || isUnterschButton || isBikiniButton){
+        // Upper arm top controls are rendered as a single merged button below.
+      } else if(isBackButton && plannerBackSketch){
         plannerBackSketch.appendChild(btn);
       } else {
         plannerSketch.appendChild(btn);
       }
+      if(isHandsButton){
+        const handsWidthScale = 1.6;
+        const handsWidth = area.w * handsWidthScale;
+        const handsExtra = handsWidth - area.w;
+        const handsOutwardShift = 1.35;
+        const handsUpShift = 0.7;
+        const handsHeightExtra = 0.6;
+        const handsHeight = area.h + handsHeightExtra;
+        const underarmsRaw = positions.underarms;
+        const underarmsArea = stretchArea(underarmsRaw);
+        const underarmsUpOffset = 0.7;
+        const underarmsLeftNudge = 0.12;
+        const underarmsDownExtend = 2.4;
+        const underarmsOutwardWidth = 0.35;
+        const anchorTop = underarmsArea
+          ? (underarmsArea.y - underarmsUpOffset + underarmsArea.h + underarmsDownExtend)
+          : area.y;
+        const rightHandLeft = underarmsArea
+          ? `calc(${underarmsArea.x + underarmsArea.w}% + 5px)`
+          : `${area.x}%`;
+        btn.classList.add("zoneSketchBtn--upperarms");
+        btn.style.left = `calc(${rightHandLeft} + ${handsOutwardShift}%)`;
+        btn.style.top = `${anchorTop - handsUpShift}%`;
+        btn.style.width = `${handsWidth}%`;
+        btn.style.height = `${handsHeight}%`;
+        plannerSketch.appendChild(btn);
+
+        const mirroredX = 100 - area.x - area.w;
+        const mirroredUnderarmX = underarmsArea ? (100 - underarmsArea.x - underarmsArea.w) : mirroredX;
+        const leftHandLeft = underarmsArea
+          ? `${mirroredUnderarmX - underarmsArea.w + underarmsLeftNudge - underarmsOutwardWidth}%`
+          : `${mirroredX}%`;
+        const mirrorBtn = document.createElement("button");
+        mirrorBtn.type = "button";
+        mirrorBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms";
+        if(selectedSet.has(zone.id)) mirrorBtn.classList.add("is-active");
+        mirrorBtn.style.left = `calc(${leftHandLeft} - ${handsExtra}% - ${handsOutwardShift}%)`;
+        mirrorBtn.style.top = `${anchorTop - handsUpShift}%`;
+        mirrorBtn.style.width = `${handsWidth}%`;
+        mirrorBtn.style.height = `${handsHeight}%`;
+        mirrorBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
+        mirrorBtn.innerHTML = `<span class="zoneSketchTag">${plannerLabel(zone.label)}</span>`;
+        mirrorBtn.addEventListener("click", () => {
+          plannerButtonHoverPreviewActive = false;
+          clearPlannerHoverPreview();
+          togglePlannerZone(mode, zone.id);
+          schedulePlannerRender(mode);
+          requestAnimationFrame(() => {
+            ensureInteractiveInViewForInteraction();
+          });
+        });
+        mirrorBtn.addEventListener("mouseenter", () => {
+          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
+          plannerButtonHoverPreviewActive = hoverParts.length > 0;
+          setPlannerHoverPreviewParts(hoverParts);
+        });
+        mirrorBtn.addEventListener("mouseleave", () => {
+          plannerButtonHoverPreviewActive = false;
+          clearPlannerHoverPreview();
+        });
+        plannerSketch.appendChild(mirrorBtn);
+      }
       if(isUpperarmsButton){
+        const mirroredX = 100 - area.x - area.w;
+        const mergedInset = 0.2;
+        const mergedTopBtn = document.createElement("button");
+        mergedTopBtn.type = "button";
+        mergedTopBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms";
+        if(selectedSet.has(zone.id)) mergedTopBtn.classList.add("is-active");
+        mergedTopBtn.style.left = `${mirroredX + mergedInset}%`;
+        mergedTopBtn.style.top = `${area.y}%`;
+        mergedTopBtn.style.width = `${(area.x + area.w) - (mirroredX + mergedInset * 2)}%`;
+        mergedTopBtn.style.height = `${area.h - 0.6}%`;
+        mergedTopBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
+        mergedTopBtn.innerHTML = `<span class="zoneSketchTag">OBERARME</span>`;
+        mergedTopBtn.addEventListener("click", () => {
+          plannerButtonHoverPreviewActive = false;
+          clearPlannerHoverPreview();
+          togglePlannerZone(mode, zone.id);
+          schedulePlannerRender(mode);
+          requestAnimationFrame(() => {
+            ensureInteractiveInViewForInteraction();
+          });
+        });
+        mergedTopBtn.addEventListener("mouseenter", () => {
+          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
+          plannerButtonHoverPreviewActive = hoverParts.length > 0;
+          setPlannerHoverPreviewParts(hoverParts);
+        });
+        mergedTopBtn.addEventListener("mouseleave", () => {
+          plannerButtonHoverPreviewActive = false;
+          clearPlannerHoverPreview();
+        });
+        plannerSketch.appendChild(mergedTopBtn);
+
         const lowerOffset = 5.8;
         const lowerOutwardOffset = 0.35;
         const lowerRightNudge = 0.12;
@@ -6392,17 +6505,29 @@
       }
       if(isBauchFullButton){
         const mirroredX = 100 - area.x - area.w;
-        const mirrorBtn = document.createElement("button");
-        mirrorBtn.type = "button";
-        mirrorBtn.className = "zoneSketchBtn zoneSketchBtn--bauchfull";
-        if(selectedSet.has(zone.id)) mirrorBtn.classList.add("is-active");
-        mirrorBtn.style.left = `${mirroredX}%`;
-        mirrorBtn.style.top = `${area.y}%`;
-        mirrorBtn.style.width = `${area.w}%`;
-        mirrorBtn.style.height = `${area.h}%`;
-        mirrorBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        mirrorBtn.innerHTML = `<span class="zoneSketchTag">BAUCH</span>`;
-        mirrorBtn.addEventListener("click", () => {
+        const mergedWidth = (area.x + area.w) - mirroredX;
+        const extraWidth = mergedWidth / 9;
+        const widthScale = 1.12;
+        const finalWidth = (mergedWidth + extraWidth) * widthScale;
+        const finalLeft = (mirroredX - (extraWidth * 0.5)) - ((finalWidth - (mergedWidth + extraWidth)) * 0.5);
+        const mergedBtn = document.createElement("button");
+        mergedBtn.type = "button";
+        mergedBtn.className = "zoneSketchBtn zoneSketchBtn--bauchfull";
+        if(selectedSet.has(zone.id)) mergedBtn.classList.add("is-active");
+        const intimRaw = positions.intim;
+        const intimArea = stretchArea(intimRaw);
+        const intimTop = intimArea ? intimArea.y : (area.y + area.h);
+        const chestRaw = positions.chest;
+        const chestArea = stretchArea(chestRaw);
+        const bauchTop = chestArea ? (chestArea.y + chestArea.h) : (area.y + 0.45);
+        const bauchHeight = Math.max(0.1, intimTop - bauchTop);
+        mergedBtn.style.left = `${finalLeft}%`;
+        mergedBtn.style.top = `${bauchTop}%`;
+        mergedBtn.style.width = `${finalWidth}%`;
+        mergedBtn.style.height = `${bauchHeight}%`;
+        mergedBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
+        mergedBtn.innerHTML = `<span class="zoneSketchTag">BAUCH</span>`;
+        mergedBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
           togglePlannerZone(mode, zone.id);
@@ -6411,28 +6536,50 @@
             ensureInteractiveInViewForInteraction();
           });
         });
-        mirrorBtn.addEventListener("mouseenter", () => {
+        mergedBtn.addEventListener("mouseenter", () => {
           const hoverParts = plannerHoverPartsForZone(mode, zone.id);
           plannerButtonHoverPreviewActive = hoverParts.length > 0;
           setPlannerHoverPreviewParts(hoverParts);
         });
-        mirrorBtn.addEventListener("mouseleave", () => {
+        mergedBtn.addEventListener("mouseleave", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
         });
-        plannerSketch.appendChild(mirrorBtn);
-
-        const topCenterBtn = document.createElement("button");
-        topCenterBtn.type = "button";
-        topCenterBtn.className = "zoneSketchBtn zoneSketchBtn--medialinebauch";
-        if(selectedSet.has(zone.id)) topCenterBtn.classList.add("is-active");
-        topCenterBtn.style.left = "49.25%";
-        topCenterBtn.style.top = "30.2%";
-        topCenterBtn.style.width = "1.5%";
-        topCenterBtn.style.height = "5.0%";
-        topCenterBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        topCenterBtn.innerHTML = `<span class="zoneSketchTag">BAUCH</span>`;
-        topCenterBtn.addEventListener("click", () => {
+        plannerSketch.appendChild(mergedBtn);
+      }
+      if(isBikiniButton){
+        const intimRaw = positions.intim;
+        const intimArea = stretchArea(intimRaw);
+        const oberschRaw = positions.obersch;
+        const oberschArea = stretchArea(oberschRaw);
+        const bauchRaw = positions.bauchfull;
+        const bauchArea = stretchArea(bauchRaw);
+        const bikiniWidth = intimArea ? intimArea.w : area.w;
+        const bikiniHeight = intimArea ? intimArea.h : area.h;
+        const bikiniLeft = intimArea ? intimArea.x : area.x;
+        const bauchBottom = bauchArea ? (bauchArea.y + Math.max(0.1, bauchArea.h - 0.9)) : area.y;
+        const intimThirdTop = intimArea ? (intimArea.y + (intimArea.h / 3)) : area.y;
+        const oberschTop = oberschArea ? Math.max(oberschArea.y, bauchBottom, intimThirdTop) : area.y;
+        const bikiniDownShift = 0.7;
+        const baseTop = (oberschTop - bikiniHeight) + bikiniDownShift;
+        const baseBottom = baseTop + bikiniHeight;
+        const bikiniScale = 1.58;
+        const scaledWidth = bikiniWidth * bikiniScale;
+        const scaledHeight = bikiniHeight * bikiniScale;
+        const centerX = bikiniLeft + (bikiniWidth * 0.5);
+        const bikiniTop = baseBottom - scaledHeight;
+        const scaledLeft = centerX - (scaledWidth * 0.5);
+        const bikiniBtn = document.createElement("button");
+        bikiniBtn.type = "button";
+        bikiniBtn.className = "zoneSketchBtn zoneSketchBtn--intim-pof zoneSketchBtn--bikini-intim";
+        if(selectedSet.has(zone.id)) bikiniBtn.classList.add("is-active");
+        bikiniBtn.style.left = `${scaledLeft}%`;
+        bikiniBtn.style.top = `${bikiniTop}%`;
+        bikiniBtn.style.width = `${scaledWidth}%`;
+        bikiniBtn.style.height = `${scaledHeight}%`;
+        bikiniBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
+        bikiniBtn.innerHTML = `<span class="zoneSketchTag">BIKINI</span>`;
+        bikiniBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
           togglePlannerZone(mode, zone.id);
@@ -6441,180 +6588,21 @@
             ensureInteractiveInViewForInteraction();
           });
         });
-        topCenterBtn.addEventListener("mouseenter", () => {
+        bikiniBtn.addEventListener("mouseenter", () => {
           const hoverParts = plannerHoverPartsForZone(mode, zone.id);
           plannerButtonHoverPreviewActive = hoverParts.length > 0;
           setPlannerHoverPreviewParts(hoverParts);
         });
-        topCenterBtn.addEventListener("mouseleave", () => {
+        bikiniBtn.addEventListener("mouseleave", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
         });
-        plannerSketch.appendChild(topCenterBtn);
-
-        const bauchTipWidth = 2.6;
-        const bauchTipHeight = 2.4;
-        const bauchTipTop = 39.1;
-        const bauchTipLeft = 42.92;
-        const bauchTipLeftBtn = document.createElement("button");
-        bauchTipLeftBtn.type = "button";
-        bauchTipLeftBtn.className = "zoneSketchBtn zoneSketchBtn--bikini zoneSketchBtn--bikini-tip zoneSketchBtn--bauch-tip";
-        if(selectedSet.has(zone.id)) bauchTipLeftBtn.classList.add("is-active");
-        bauchTipLeftBtn.style.left = `${bauchTipLeft}%`;
-        bauchTipLeftBtn.style.top = `${bauchTipTop}%`;
-        bauchTipLeftBtn.style.width = `${bauchTipWidth}%`;
-        bauchTipLeftBtn.style.height = `${bauchTipHeight}%`;
-        bauchTipLeftBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        bauchTipLeftBtn.innerHTML = `<span class="zoneSketchTag">BAUCH</span>`;
-        bauchTipLeftBtn.addEventListener("click", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
-          schedulePlannerRender(mode);
-          requestAnimationFrame(() => {
-            ensureInteractiveInViewForInteraction();
-          });
-        });
-        bauchTipLeftBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
-          plannerButtonHoverPreviewActive = hoverParts.length > 0;
-          setPlannerHoverPreviewParts(hoverParts);
-        });
-        bauchTipLeftBtn.addEventListener("mouseleave", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-        });
-        plannerSketch.appendChild(bauchTipLeftBtn);
-
-        const bauchTipRightLeft = 100 - bauchTipLeft - bauchTipWidth;
-        const bauchTipRightBtn = document.createElement("button");
-        bauchTipRightBtn.type = "button";
-        bauchTipRightBtn.className = "zoneSketchBtn zoneSketchBtn--bikini zoneSketchBtn--bikini-tip zoneSketchBtn--bauch-tip zoneSketchBtn--bikini-mirror";
-        if(selectedSet.has(zone.id)) bauchTipRightBtn.classList.add("is-active");
-        bauchTipRightBtn.style.left = `${bauchTipRightLeft}%`;
-        bauchTipRightBtn.style.top = `${bauchTipTop}%`;
-        bauchTipRightBtn.style.width = `${bauchTipWidth}%`;
-        bauchTipRightBtn.style.height = `${bauchTipHeight}%`;
-        bauchTipRightBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        bauchTipRightBtn.innerHTML = `<span class="zoneSketchTag">BAUCH</span>`;
-        bauchTipRightBtn.addEventListener("click", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
-          schedulePlannerRender(mode);
-          requestAnimationFrame(() => {
-            ensureInteractiveInViewForInteraction();
-          });
-        });
-        bauchTipRightBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
-          plannerButtonHoverPreviewActive = hoverParts.length > 0;
-          setPlannerHoverPreviewParts(hoverParts);
-        });
-        bauchTipRightBtn.addEventListener("mouseleave", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-        });
-        plannerSketch.appendChild(bauchTipRightBtn);
-
-        const bauchTopTipTop = 30.3;
-        const bauchTopTipWidth = 2.0;
-        const bauchTopTipHeight = 2.6;
-        const bauchTopTipCenterShift = 0.55;
-        const bauchTopTipLeftBtn = document.createElement("button");
-        bauchTopTipLeftBtn.type = "button";
-        bauchTopTipLeftBtn.className = "zoneSketchBtn zoneSketchBtn--bikini zoneSketchBtn--bikini-tip zoneSketchBtn--bauch-tip zoneSketchBtn--bauch-tip-top";
-        if(selectedSet.has(zone.id)) bauchTopTipLeftBtn.classList.add("is-active");
-        bauchTopTipLeftBtn.style.left = `${bauchTipLeft + (bauchTipWidth - bauchTopTipWidth) + bauchTopTipCenterShift}%`;
-        bauchTopTipLeftBtn.style.top = `${bauchTopTipTop}%`;
-        bauchTopTipLeftBtn.style.width = `${bauchTopTipWidth}%`;
-        bauchTopTipLeftBtn.style.height = `${bauchTopTipHeight}%`;
-        bauchTopTipLeftBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        bauchTopTipLeftBtn.innerHTML = `<span class="zoneSketchTag">BAUCH</span>`;
-        bauchTopTipLeftBtn.addEventListener("click", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
-          schedulePlannerRender(mode);
-          requestAnimationFrame(() => {
-            ensureInteractiveInViewForInteraction();
-          });
-        });
-        bauchTopTipLeftBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
-          plannerButtonHoverPreviewActive = hoverParts.length > 0;
-          setPlannerHoverPreviewParts(hoverParts);
-        });
-        bauchTopTipLeftBtn.addEventListener("mouseleave", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-        });
-        plannerSketch.appendChild(bauchTopTipLeftBtn);
-
-        const bauchTopTipRightBtn = document.createElement("button");
-        bauchTopTipRightBtn.type = "button";
-        bauchTopTipRightBtn.className = "zoneSketchBtn zoneSketchBtn--bikini zoneSketchBtn--bikini-tip zoneSketchBtn--bauch-tip zoneSketchBtn--bauch-tip-top zoneSketchBtn--bikini-mirror";
-        if(selectedSet.has(zone.id)) bauchTopTipRightBtn.classList.add("is-active");
-        bauchTopTipRightBtn.style.left = `${bauchTipRightLeft - bauchTopTipCenterShift}%`;
-        bauchTopTipRightBtn.style.top = `${bauchTopTipTop}%`;
-        bauchTopTipRightBtn.style.width = `${bauchTopTipWidth}%`;
-        bauchTopTipRightBtn.style.height = `${bauchTopTipHeight}%`;
-        bauchTopTipRightBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        bauchTopTipRightBtn.innerHTML = `<span class="zoneSketchTag">BAUCH</span>`;
-        bauchTopTipRightBtn.addEventListener("click", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
-          schedulePlannerRender(mode);
-          requestAnimationFrame(() => {
-            ensureInteractiveInViewForInteraction();
-          });
-        });
-        bauchTopTipRightBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
-          plannerButtonHoverPreviewActive = hoverParts.length > 0;
-          setPlannerHoverPreviewParts(hoverParts);
-        });
-        bauchTopTipRightBtn.addEventListener("mouseleave", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-        });
-        plannerSketch.appendChild(bauchTopTipRightBtn);
+        plannerSketch.appendChild(bikiniBtn);
       }
       if(isUpperarmsButton){
         const lowerOffset = 5.8;
         const lowerOutwardOffset = 0.35;
-        const leftUpperarmShorten = 0.6;
         const mirroredX = 100 - area.x - area.w;
-        const mirrorBtn = document.createElement("button");
-        mirrorBtn.type = "button";
-        mirrorBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms zoneSketchBtn--obersch zoneSketchBtn--upperarms-mirror";
-        if(selectedSet.has(zone.id)) mirrorBtn.classList.add("is-active");
-        mirrorBtn.style.left = `${mirroredX}%`;
-        mirrorBtn.style.top = `${area.y}%`;
-        mirrorBtn.style.width = `${area.w}%`;
-        mirrorBtn.style.height = `${area.h - leftUpperarmShorten}%`;
-        mirrorBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        mirrorBtn.innerHTML = `<span class="zoneSketchTag">OBERARME</span>`;
-        mirrorBtn.addEventListener("click", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
-          schedulePlannerRender(mode);
-          requestAnimationFrame(() => {
-            ensureInteractiveInViewForInteraction();
-          });
-        });
-        mirrorBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
-          plannerButtonHoverPreviewActive = hoverParts.length > 0;
-          setPlannerHoverPreviewParts(hoverParts);
-        });
-        mirrorBtn.addEventListener("mouseleave", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-        });
-        plannerSketch.appendChild(mirrorBtn);
         const lowerMirrorBtn = document.createElement("button");
         lowerMirrorBtn.type = "button";
         lowerMirrorBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms zoneSketchBtn--upperarms-mirror zoneSketchBtn--upperarms-lower";
@@ -6647,17 +6635,34 @@
       }
       if(isOberschButton){
         const mirroredX = 100 - area.x - area.w;
-        const mirrorBtn = document.createElement("button");
-        mirrorBtn.type = "button";
-        mirrorBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms zoneSketchBtn--upperarms-mirror";
-        if(selectedSet.has(zone.id)) mirrorBtn.classList.add("is-active");
-        mirrorBtn.style.left = `${mirroredX}%`;
-        mirrorBtn.style.top = `${area.y}%`;
-        mirrorBtn.style.width = `${area.w}%`;
-        mirrorBtn.style.height = `${area.h}%`;
-        mirrorBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        mirrorBtn.innerHTML = `<span class="zoneSketchTag">OBERSCH</span>`;
-        mirrorBtn.addEventListener("click", () => {
+        const mergedWidth = (area.x + area.w) - mirroredX;
+        const extraWidth = mergedWidth / 9;
+        const mergedLeft = mirroredX - (extraWidth * 0.5);
+        const mergedWidthExpanded = mergedWidth + extraWidth;
+        const widenedWidth = (mergedWidthExpanded * 1.344) * 1.12;
+        const widenedLeft = mergedLeft - ((widenedWidth - mergedWidthExpanded) * 0.5);
+        const mergedBottom = area.y + area.h;
+        const intimRaw = positions.intim;
+        const intimArea = stretchArea(intimRaw);
+        const bauchRaw = positions.bauchfull;
+        const bauchArea = stretchArea(bauchRaw);
+        const bauchBottom = bauchArea ? (bauchArea.y + Math.max(0.1, bauchArea.h - 0.9)) : area.y;
+        const intimThirdTop = intimArea ? (intimArea.y + (intimArea.h / 3)) : area.y;
+        const mergedTopBase = Math.max(area.y, bauchBottom, intimThirdTop);
+        const mergedHeightBase = Math.max(0.1, mergedBottom - mergedTopBase);
+        const mergedHeight = (mergedHeightBase * 1.5) * 1.12;
+        const mergedTop = mergedBottom - mergedHeight;
+        const mergedBtn = document.createElement("button");
+        mergedBtn.type = "button";
+        mergedBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms zoneSketchBtn--obersch";
+        if(selectedSet.has(zone.id)) mergedBtn.classList.add("is-active");
+        mergedBtn.style.left = `${widenedLeft}%`;
+        mergedBtn.style.top = `${mergedTop}%`;
+        mergedBtn.style.width = `${widenedWidth}%`;
+        mergedBtn.style.height = `${mergedHeight}%`;
+        mergedBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
+        mergedBtn.innerHTML = `<span class="zoneSketchTag">OBERSCH</span>`;
+        mergedBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
           togglePlannerZone(mode, zone.id);
@@ -6666,224 +6671,32 @@
             ensureInteractiveInViewForInteraction();
           });
         });
-        mirrorBtn.addEventListener("mouseenter", () => {
+        mergedBtn.addEventListener("mouseenter", () => {
           const hoverParts = plannerHoverPartsForZone(mode, zone.id);
           plannerButtonHoverPreviewActive = hoverParts.length > 0;
           setPlannerHoverPreviewParts(hoverParts);
         });
-        mirrorBtn.addEventListener("mouseleave", () => {
+        mergedBtn.addEventListener("mouseleave", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
         });
-        plannerSketch.appendChild(mirrorBtn);
-
-        const tiltWidth = area.w * 0.9;
-        const tiltHeight = area.h * 0.52;
-        const tiltTop = area.y + 0.8;
-        const tiltInset = 0.18;
-        const rightTiltLeft = area.x + tiltInset + (tiltWidth * 0.48);
-        const leftTiltLeft = mirroredX - tiltInset - (tiltWidth * 0.38);
-        const rightTiltBtn = document.createElement("button");
-        rightTiltBtn.type = "button";
-        rightTiltBtn.className = "zoneSketchBtn zoneSketchBtn--bikini zoneSketchBtn--obersch-tilt zoneSketchBtn--bikini-mirror";
-        if(selectedSet.has(zone.id)) rightTiltBtn.classList.add("is-active");
-        rightTiltBtn.style.left = `${rightTiltLeft}%`;
-        rightTiltBtn.style.top = `${tiltTop - (tiltHeight * 0.5)}%`;
-        rightTiltBtn.style.width = `${tiltWidth}%`;
-        rightTiltBtn.style.height = `${tiltHeight}%`;
-        rightTiltBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        rightTiltBtn.innerHTML = `<span class="zoneSketchTag">OBERSCH</span>`;
-        rightTiltBtn.addEventListener("click", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
-          schedulePlannerRender(mode);
-          requestAnimationFrame(() => {
-            ensureInteractiveInViewForInteraction();
-          });
-        });
-        rightTiltBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
-          plannerButtonHoverPreviewActive = hoverParts.length > 0;
-          setPlannerHoverPreviewParts(hoverParts);
-        });
-        rightTiltBtn.addEventListener("mouseleave", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-        });
-        plannerSketch.appendChild(rightTiltBtn);
-
-        const leftTiltBtn = document.createElement("button");
-        leftTiltBtn.type = "button";
-        leftTiltBtn.className = "zoneSketchBtn zoneSketchBtn--bikini zoneSketchBtn--obersch-tilt";
-        if(selectedSet.has(zone.id)) leftTiltBtn.classList.add("is-active");
-        leftTiltBtn.style.left = `${leftTiltLeft}%`;
-        leftTiltBtn.style.top = `${tiltTop - (tiltHeight * 0.5)}%`;
-        leftTiltBtn.style.width = `${tiltWidth}%`;
-        leftTiltBtn.style.height = `${tiltHeight}%`;
-        leftTiltBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        leftTiltBtn.innerHTML = `<span class="zoneSketchTag">OBERSCH</span>`;
-        leftTiltBtn.addEventListener("click", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
-          schedulePlannerRender(mode);
-          requestAnimationFrame(() => {
-            ensureInteractiveInViewForInteraction();
-          });
-        });
-        leftTiltBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
-          plannerButtonHoverPreviewActive = hoverParts.length > 0;
-          setPlannerHoverPreviewParts(hoverParts);
-        });
-        leftTiltBtn.addEventListener("mouseleave", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-        });
-        plannerSketch.appendChild(leftTiltBtn);
-
-        const triWidth = tiltWidth * 1.1;
-        const triHeight = tiltHeight;
-        const triTop = (tiltTop - (tiltHeight * 0.5)) - (tiltHeight * 0.75);
-        const triOutwardShift = tiltWidth * 0.45;
-
-        const rightTiltTriBtn = document.createElement("button");
-        rightTiltTriBtn.type = "button";
-        rightTiltTriBtn.className = "zoneSketchBtn zoneSketchBtn--bikini zoneSketchBtn--obersch-tilt zoneSketchBtn--obersch-tilt-tri zoneSketchBtn--bikini-mirror";
-        if(selectedSet.has(zone.id)) rightTiltTriBtn.classList.add("is-active");
-        rightTiltTriBtn.style.left = `${rightTiltLeft - ((triWidth - tiltWidth) * 0.5) + triOutwardShift}%`;
-        rightTiltTriBtn.style.top = `${triTop}%`;
-        rightTiltTriBtn.style.width = `${triWidth}%`;
-        rightTiltTriBtn.style.height = `${triHeight}%`;
-        rightTiltTriBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        rightTiltTriBtn.innerHTML = `<span class="zoneSketchTag">OBERSCH</span>`;
-        rightTiltTriBtn.addEventListener("click", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
-          schedulePlannerRender(mode);
-          requestAnimationFrame(() => {
-            ensureInteractiveInViewForInteraction();
-          });
-        });
-        rightTiltTriBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
-          plannerButtonHoverPreviewActive = hoverParts.length > 0;
-          setPlannerHoverPreviewParts(hoverParts);
-        });
-        rightTiltTriBtn.addEventListener("mouseleave", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-        });
-        plannerSketch.appendChild(rightTiltTriBtn);
-
-        const leftTiltTriBtn = document.createElement("button");
-        leftTiltTriBtn.type = "button";
-        leftTiltTriBtn.className = "zoneSketchBtn zoneSketchBtn--bikini zoneSketchBtn--obersch-tilt zoneSketchBtn--obersch-tilt-tri";
-        if(selectedSet.has(zone.id)) leftTiltTriBtn.classList.add("is-active");
-        leftTiltTriBtn.style.left = `${leftTiltLeft - ((triWidth - tiltWidth) * 0.5) - triOutwardShift}%`;
-        leftTiltTriBtn.style.top = `${triTop}%`;
-        leftTiltTriBtn.style.width = `${triWidth}%`;
-        leftTiltTriBtn.style.height = `${triHeight}%`;
-        leftTiltTriBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        leftTiltTriBtn.innerHTML = `<span class="zoneSketchTag">OBERSCH</span>`;
-        leftTiltTriBtn.addEventListener("click", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
-          schedulePlannerRender(mode);
-          requestAnimationFrame(() => {
-            ensureInteractiveInViewForInteraction();
-          });
-        });
-        leftTiltTriBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
-          plannerButtonHoverPreviewActive = hoverParts.length > 0;
-          setPlannerHoverPreviewParts(hoverParts);
-        });
-        leftTiltTriBtn.addEventListener("mouseleave", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-        });
-        plannerSketch.appendChild(leftTiltTriBtn);
-
-        const lowerTriRaise = triHeight * 0.28;
-        const lowerTriCenterPull = triOutwardShift * 0.45;
-        const lowerTriTop = area.y + (area.h * 0.5) - (triHeight * 0.5) - lowerTriRaise;
-        const rightLowerTiltTriBtn = document.createElement("button");
-        rightLowerTiltTriBtn.type = "button";
-        rightLowerTiltTriBtn.className = "zoneSketchBtn zoneSketchBtn--bikini zoneSketchBtn--obersch-tilt zoneSketchBtn--obersch-tilt-tri zoneSketchBtn--bikini-mirror";
-        if(selectedSet.has(zone.id)) rightLowerTiltTriBtn.classList.add("is-active");
-        rightLowerTiltTriBtn.style.left = `${rightTiltLeft - ((triWidth - tiltWidth) * 0.5) + triOutwardShift - lowerTriCenterPull}%`;
-        rightLowerTiltTriBtn.style.top = `${lowerTriTop}%`;
-        rightLowerTiltTriBtn.style.width = `${triWidth}%`;
-        rightLowerTiltTriBtn.style.height = `${triHeight}%`;
-        rightLowerTiltTriBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        rightLowerTiltTriBtn.innerHTML = `<span class="zoneSketchTag">OBERSCH</span>`;
-        rightLowerTiltTriBtn.addEventListener("click", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
-          schedulePlannerRender(mode);
-          requestAnimationFrame(() => {
-            ensureInteractiveInViewForInteraction();
-          });
-        });
-        rightLowerTiltTriBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
-          plannerButtonHoverPreviewActive = hoverParts.length > 0;
-          setPlannerHoverPreviewParts(hoverParts);
-        });
-        rightLowerTiltTriBtn.addEventListener("mouseleave", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-        });
-        plannerSketch.appendChild(rightLowerTiltTriBtn);
-
-        const leftLowerTiltTriBtn = document.createElement("button");
-        leftLowerTiltTriBtn.type = "button";
-        leftLowerTiltTriBtn.className = "zoneSketchBtn zoneSketchBtn--bikini zoneSketchBtn--obersch-tilt zoneSketchBtn--obersch-tilt-tri";
-        if(selectedSet.has(zone.id)) leftLowerTiltTriBtn.classList.add("is-active");
-        leftLowerTiltTriBtn.style.left = `${leftTiltLeft - ((triWidth - tiltWidth) * 0.5) - triOutwardShift + lowerTriCenterPull}%`;
-        leftLowerTiltTriBtn.style.top = `${lowerTriTop}%`;
-        leftLowerTiltTriBtn.style.width = `${triWidth}%`;
-        leftLowerTiltTriBtn.style.height = `${triHeight}%`;
-        leftLowerTiltTriBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        leftLowerTiltTriBtn.innerHTML = `<span class="zoneSketchTag">OBERSCH</span>`;
-        leftLowerTiltTriBtn.addEventListener("click", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
-          schedulePlannerRender(mode);
-          requestAnimationFrame(() => {
-            ensureInteractiveInViewForInteraction();
-          });
-        });
-        leftLowerTiltTriBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
-          plannerButtonHoverPreviewActive = hoverParts.length > 0;
-          setPlannerHoverPreviewParts(hoverParts);
-        });
-        leftLowerTiltTriBtn.addEventListener("mouseleave", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-        });
-        plannerSketch.appendChild(leftLowerTiltTriBtn);
+        plannerSketch.appendChild(mergedBtn);
       }
       if(isUnterschButton){
         const mirroredX = 100 - area.x - area.w;
-        const mirrorBtn = document.createElement("button");
-        mirrorBtn.type = "button";
-        mirrorBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms zoneSketchBtn--upperarms-mirror";
-        if(selectedSet.has(zone.id)) mirrorBtn.classList.add("is-active");
-        mirrorBtn.style.left = `${mirroredX}%`;
-        mirrorBtn.style.top = `${area.y}%`;
-        mirrorBtn.style.width = `${area.w}%`;
-        mirrorBtn.style.height = `${area.h}%`;
-        mirrorBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        mirrorBtn.innerHTML = `<span class="zoneSketchTag">UNTERSCH + KNIE</span>`;
-        mirrorBtn.addEventListener("click", () => {
+        const mergedWidth = (area.x + area.w) - mirroredX;
+        const mergedHeight = area.h * 1.8;
+        const mergedBtn = document.createElement("button");
+        mergedBtn.type = "button";
+        mergedBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms";
+        if(selectedSet.has(zone.id)) mergedBtn.classList.add("is-active");
+        mergedBtn.style.left = `${mirroredX}%`;
+        mergedBtn.style.top = `${area.y}%`;
+        mergedBtn.style.width = `${mergedWidth}%`;
+        mergedBtn.style.height = `${mergedHeight}%`;
+        mergedBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
+        mergedBtn.innerHTML = `<span class="zoneSketchTag">UNTERSCH + KNIE</span>`;
+        mergedBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
           togglePlannerZone(mode, zone.id);
@@ -6892,77 +6705,16 @@
             ensureInteractiveInViewForInteraction();
           });
         });
-        mirrorBtn.addEventListener("mouseenter", () => {
+        mergedBtn.addEventListener("mouseenter", () => {
           const hoverParts = plannerHoverPartsForZone(mode, zone.id);
           plannerButtonHoverPreviewActive = hoverParts.length > 0;
           setPlannerHoverPreviewParts(hoverParts);
         });
-        mirrorBtn.addEventListener("mouseleave", () => {
+        mergedBtn.addEventListener("mouseleave", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
         });
-        plannerSketch.appendChild(mirrorBtn);
-
-        const lowerTop = area.y + area.h;
-        const lowerBtn = document.createElement("button");
-        lowerBtn.type = "button";
-        lowerBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms zoneSketchBtn--untersch-taper zoneSketchBtn--untersch-taper-right";
-        if(selectedSet.has(zone.id)) lowerBtn.classList.add("is-active");
-        lowerBtn.style.left = `${area.x}%`;
-        lowerBtn.style.top = `${lowerTop}%`;
-        lowerBtn.style.width = `${area.w}%`;
-        lowerBtn.style.height = `${area.h * 0.8}%`;
-        lowerBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        lowerBtn.innerHTML = `<span class="zoneSketchTag">UNTERSCH + KNIE</span>`;
-        lowerBtn.addEventListener("click", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
-          schedulePlannerRender(mode);
-          requestAnimationFrame(() => {
-            ensureInteractiveInViewForInteraction();
-          });
-        });
-        lowerBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
-          plannerButtonHoverPreviewActive = hoverParts.length > 0;
-          setPlannerHoverPreviewParts(hoverParts);
-        });
-        lowerBtn.addEventListener("mouseleave", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-        });
-        plannerSketch.appendChild(lowerBtn);
-
-        const lowerMirrorBtn = document.createElement("button");
-        lowerMirrorBtn.type = "button";
-        lowerMirrorBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms zoneSketchBtn--upperarms-mirror zoneSketchBtn--untersch-taper zoneSketchBtn--untersch-taper-left";
-        if(selectedSet.has(zone.id)) lowerMirrorBtn.classList.add("is-active");
-        lowerMirrorBtn.style.left = `${mirroredX}%`;
-        lowerMirrorBtn.style.top = `${lowerTop}%`;
-        lowerMirrorBtn.style.width = `${area.w}%`;
-        lowerMirrorBtn.style.height = `${area.h * 0.8}%`;
-        lowerMirrorBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        lowerMirrorBtn.innerHTML = `<span class="zoneSketchTag">UNTERSCH + KNIE</span>`;
-        lowerMirrorBtn.addEventListener("click", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
-          schedulePlannerRender(mode);
-          requestAnimationFrame(() => {
-            ensureInteractiveInViewForInteraction();
-          });
-        });
-        lowerMirrorBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
-          plannerButtonHoverPreviewActive = hoverParts.length > 0;
-          setPlannerHoverPreviewParts(hoverParts);
-        });
-        lowerMirrorBtn.addEventListener("mouseleave", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-        });
-        plannerSketch.appendChild(lowerMirrorBtn);
+        plannerSketch.appendChild(mergedBtn);
       }
       if(isUnderarmsButton){
         const underarmsOutwardOffset = area.w;
@@ -7002,170 +6754,10 @@
           clearPlannerHoverPreview();
         });
         plannerSketch.appendChild(mirrorBtn);
-        btn.style.left = `${area.x + underarmsOutwardOffset}%`;
+        btn.style.left = `calc(${area.x + underarmsOutwardOffset}% + 5px)`;
         btn.style.top = `${area.y - underarmsUpOffset}%`;
         btn.style.width = `${area.w + underarmsOutwardWidth}%`;
         btn.style.height = `${area.h + underarmsDownExtend}%`;
-      }
-      if(isChinButton){
-        const tipW = area.w * 0.5;
-        const tipH = area.h * 0.5;
-        const tipGap = -0.05;
-        const tipTop = area.y + (area.h * 0.52);
-        const leftTip = document.createElement("button");
-        leftTip.type = "button";
-        leftTip.className = "zoneSketchBtn zoneSketchBtn--chin-tip";
-        if(selectedSet.has(zone.id)) leftTip.classList.add("is-active");
-        leftTip.style.left = `${area.x - tipW - tipGap}%`;
-        leftTip.style.top = `${tipTop}%`;
-        leftTip.style.width = `${tipW}%`;
-        leftTip.style.height = `${tipH}%`;
-        leftTip.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        leftTip.innerHTML = `<span class="zoneSketchTag">${plannerLabel(zone.label)}</span>`;
-        leftTip.addEventListener("click", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
-          schedulePlannerRender(mode);
-          requestAnimationFrame(() => {
-            ensureInteractiveInViewForInteraction();
-          });
-        });
-        leftTip.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
-          plannerButtonHoverPreviewActive = hoverParts.length > 0;
-          setPlannerHoverPreviewParts(hoverParts);
-        });
-        leftTip.addEventListener("mouseleave", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-        });
-        plannerSketch.appendChild(leftTip);
-
-        const rightTip = document.createElement("button");
-        rightTip.type = "button";
-        rightTip.className = "zoneSketchBtn zoneSketchBtn--chin-tip zoneSketchBtn--chin-tip-mirror";
-        if(selectedSet.has(zone.id)) rightTip.classList.add("is-active");
-        rightTip.style.left = `${area.x + area.w + tipGap}%`;
-        rightTip.style.top = `${tipTop}%`;
-        rightTip.style.width = `${tipW}%`;
-        rightTip.style.height = `${tipH}%`;
-        rightTip.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        rightTip.innerHTML = `<span class="zoneSketchTag">${plannerLabel(zone.label)}</span>`;
-        rightTip.addEventListener("click", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
-          schedulePlannerRender(mode);
-          requestAnimationFrame(() => {
-            ensureInteractiveInViewForInteraction();
-          });
-        });
-        rightTip.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
-          plannerButtonHoverPreviewActive = hoverParts.length > 0;
-          setPlannerHoverPreviewParts(hoverParts);
-        });
-        rightTip.addEventListener("mouseleave", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-        });
-        plannerSketch.appendChild(rightTip);
-      }
-      if(isBikiniButton){
-        const tipHeight = 2.6;
-        const tipRaise = 1.6;
-        const tipOutwardOffset = area.w * 0.98;
-        const tipDownOffset = tipHeight;
-        const rightTipNudge = 0.14;
-        const tipBtn = document.createElement("button");
-        tipBtn.type = "button";
-        tipBtn.className = "zoneSketchBtn zoneSketchBtn--bikini zoneSketchBtn--bikini-tip";
-        if(selectedSet.has(zone.id)) tipBtn.classList.add("is-active");
-        tipBtn.style.left = `${area.x - tipOutwardOffset + rightTipNudge}%`;
-        tipBtn.style.top = `${area.y - tipHeight - tipRaise + tipDownOffset}%`;
-        tipBtn.style.width = `${area.w}%`;
-        tipBtn.style.height = `${tipHeight}%`;
-        tipBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        tipBtn.innerHTML = `<span class="zoneSketchTag">BIKINI</span>`;
-        tipBtn.addEventListener("click", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
-          schedulePlannerRender(mode);
-          requestAnimationFrame(() => {
-            ensureInteractiveInViewForInteraction();
-          });
-        });
-        tipBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
-          plannerButtonHoverPreviewActive = hoverParts.length > 0;
-          setPlannerHoverPreviewParts(hoverParts);
-        });
-        tipBtn.addEventListener("mouseleave", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-        });
-        plannerSketch.appendChild(tipBtn);
-        const mirroredX = 100 - area.x - area.w;
-        const mirrorBtn = document.createElement("button");
-        mirrorBtn.type = "button";
-        mirrorBtn.className = "zoneSketchBtn zoneSketchBtn--bikini zoneSketchBtn--bikini-mirror";
-        if(selectedSet.has(zone.id)) mirrorBtn.classList.add("is-active");
-        mirrorBtn.style.left = `${mirroredX}%`;
-        mirrorBtn.style.top = `${area.y}%`;
-        mirrorBtn.style.width = `${area.w}%`;
-        mirrorBtn.style.height = `${area.h}%`;
-        mirrorBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        mirrorBtn.innerHTML = `<span class="zoneSketchTag">BIKINI</span>`;
-        mirrorBtn.addEventListener("click", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
-          schedulePlannerRender(mode);
-          requestAnimationFrame(() => {
-            ensureInteractiveInViewForInteraction();
-          });
-        });
-        mirrorBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
-          plannerButtonHoverPreviewActive = hoverParts.length > 0;
-          setPlannerHoverPreviewParts(hoverParts);
-        });
-        mirrorBtn.addEventListener("mouseleave", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-        });
-        plannerSketch.appendChild(mirrorBtn);
-        const tipMirrorBtn = document.createElement("button");
-        tipMirrorBtn.type = "button";
-        tipMirrorBtn.className = "zoneSketchBtn zoneSketchBtn--bikini zoneSketchBtn--bikini-tip zoneSketchBtn--bikini-mirror";
-        if(selectedSet.has(zone.id)) tipMirrorBtn.classList.add("is-active");
-        tipMirrorBtn.style.left = `${mirroredX + tipOutwardOffset}%`;
-        tipMirrorBtn.style.top = `${area.y - tipHeight - tipRaise + tipDownOffset}%`;
-        tipMirrorBtn.style.width = `${area.w}%`;
-        tipMirrorBtn.style.height = `${tipHeight}%`;
-        tipMirrorBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-        tipMirrorBtn.innerHTML = `<span class="zoneSketchTag">BIKINI</span>`;
-        tipMirrorBtn.addEventListener("click", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
-          schedulePlannerRender(mode);
-          requestAnimationFrame(() => {
-            ensureInteractiveInViewForInteraction();
-          });
-        });
-        tipMirrorBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
-          plannerButtonHoverPreviewActive = hoverParts.length > 0;
-          setPlannerHoverPreviewParts(hoverParts);
-        });
-        tipMirrorBtn.addEventListener("mouseleave", () => {
-          plannerButtonHoverPreviewActive = false;
-          clearPlannerHoverPreview();
-        });
-        plannerSketch.appendChild(tipMirrorBtn);
       }
     });
     if(mode === "frauen" && plannerBackSketch){

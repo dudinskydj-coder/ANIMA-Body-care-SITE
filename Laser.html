@@ -2861,8 +2861,8 @@
               <img src="img/INT/FRAUEN_FRONT/FR_RS_OBERSCH_MAIN.svg" alt="" loading="lazy" id="plannerFigureOverlayObersch" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FRAUEN_FRONT/FR_RS_UNTERSCH_MAIN.svg" alt="" loading="lazy" id="plannerFigureOverlayUntersch" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FRAUEN_FRONT/FR_RS_RUCKEN.svg" alt="" loading="lazy" id="plannerFigureOverlayBack" class="plannerFigureOverlayImage plannerFigureOverlayImage--back" aria-hidden="true">
-              <img src="img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM+POF.svg" alt="" loading="lazy" id="plannerFigureOverlayImage" class="plannerFigureOverlayImage" aria-hidden="true">
-              <img src="img/INT/FRAUEN_FRONT/FR_GR_FULL_BODY+PATH.svg" alt="" loading="lazy" id="plannerFigureFrontline" class="plannerFigureFrontline" aria-hidden="true">
+              <img src="img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM_POF.svg" alt="" loading="lazy" id="plannerFigureOverlayImage" class="plannerFigureOverlayImage" aria-hidden="true">
+              <img src="img/INT/FRAUEN_FRONT/FR_GR_FULL_BODY_PATH.svg" alt="" loading="lazy" id="plannerFigureFrontline" class="plannerFigureFrontline" aria-hidden="true">
               <div class="plannerSketch" id="plannerSketch"></div>
             </div>
           </div>
@@ -3164,7 +3164,7 @@
     { key:"UNTERARME_MAIN", x1:0.16, x2:0.84, y1:0.46, y2:0.66 },
     { key:"BAUCH", x1:0.43, x2:0.57, y1:0.34, y2:0.58 },
     { key:"BIKINI_MAIN", x1:0.39, x2:0.61, y1:0.54, y2:0.63 },
-    { key:"INTIM_KOM+POF", x1:0.46, x2:0.54, y1:0.58, y2:0.68 },
+    { key:"INTIM_KOM_POF", x1:0.46, x2:0.54, y1:0.58, y2:0.68 },
     { key:"OBERSCH_MAIN", x1:0.39, x2:0.61, y1:0.66, y2:0.82 },
     { key:"UNTERSCH_MAIN", x1:0.40, x2:0.60, y1:0.82, y2:0.97 }
   ];
@@ -3184,7 +3184,7 @@
       back:["RUCKEN"],
       bikini:["BIKINI_MAIN"],
       legs:["OBERSCH_MAIN", "UNTERSCH_MAIN"],
-      intim:["INTIM_KOM+POF"],
+      intim:["INTIM_KOM_POF"],
       arms:["OBERARME_MAIN", "UNTERARME_MAIN"],
       all:["BODY"]
     },
@@ -4165,7 +4165,7 @@
       case "OBERSCH_MAIN": return [plannerFigureOverlayObersch];
       case "UNTERSCH_MAIN": return [plannerFigureOverlayUntersch];
       case "RUCKEN": return [plannerFigureOverlayBack];
-      case "INTIM_KOM+POF": return [plannerFigureOverlayImage];
+      case "INTIM_KOM_POF": return [plannerFigureOverlayImage];
       case "BODY":
         return [
           plannerFigureOverlayUpperlip,
@@ -5364,7 +5364,7 @@
       const isOberschButton = mode === "frauen" && zone.id === "obersch";
       const isUnterschButton = mode === "frauen" && zone.id === "untersch";
       const isBackButton = mode === "frauen" && zone.id === "back";
-      const buttonText = isIntimPofButton ? "INT.FR.INTIM+POF" : (isBikiniButton ? "BIKINI" : (isUpperarmsButton ? "OBERARME" : (isUnderarmsButton ? "UNTERARME" : (isMediaLineBauchButton ? "BAUCH LN" : (isBauchFullButton ? "BAUCH" : (isOberschButton ? "OBERSCH" : (isUnterschButton ? "UNTERSCH + KNIE" : (isBackButton ? "RÜCKEN" : plannerLabel(zone.label)))))))));
+      const buttonText = isIntimPofButton ? "INT.FR.INTIM_POF" : (isBikiniButton ? "BIKINI" : (isUpperarmsButton ? "OBERARME" : (isUnderarmsButton ? "UNTERARME" : (isMediaLineBauchButton ? "BAUCH LN" : (isBauchFullButton ? "BAUCH" : (isOberschButton ? "OBERSCH" : (isUnterschButton ? "UNTERSCH + KNIE" : (isBackButton ? "RÜCKEN" : plannerLabel(zone.label)))))))));
       btn.innerHTML = `<span class="zoneSketchTag">${buttonText}</span>`;
       if(isIntimPofButton) btn.classList.add("zoneSketchBtn--intim-pof");
       if(isBikiniButton) btn.classList.add("zoneSketchBtn--bikini");
