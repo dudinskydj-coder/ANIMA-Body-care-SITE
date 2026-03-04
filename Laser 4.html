@@ -3526,6 +3526,107 @@
 <script>
   const yEl = document.getElementById("y");
   if(yEl) yEl.textContent = new Date().getFullYear();
+  const INT_RASTER_BREAKPOINT = 1024;
+  const intRasterMq = window.matchMedia(`(max-width: ${INT_RASTER_BREAKPOINT}px)`);
+
+  function detectIntPreferredFormat(){
+    try{
+      const canvas = document.createElement("canvas");
+      canvas.width = 1;
+      canvas.height = 1;
+      if(canvas.toDataURL("image/avif").indexOf("image/avif") === 5) return "avif";
+      if(canvas.toDataURL("image/webp").indexOf("image/webp") === 5) return "webp";
+    }catch(_err){
+      // fallback below
+    }
+    return "jpg";
+  }
+  const INT_PREFERRED_FORMAT = detectIntPreferredFormat();
+
+  function normalizeIntAssetPath(path){
+    if(!path) return "";
+    let normalized = String(path);
+    try{
+      normalized = new URL(normalized, window.location.href).pathname;
+    }catch(_err){
+      // keep original path
+    }
+    normalized = normalized.replace(/^\/+/, "");
+    normalized = normalized.replace(/^\.\//, "");
+    return normalized;
+  }
+  function isIntSvgAssetPath(path){
+    const normalized = normalizeIntAssetPath(path);
+    return normalized.startsWith("img/INT/") && /\.svg(?:[?#].*)?$/i.test(normalized);
+  }
+  function pickIntAssetWidth(){
+    const px = Math.ceil(window.innerWidth * (window.devicePixelRatio || 1));
+    if(px <= 520) return 400;
+    if(px <= 960) return 800;
+    return 1200;
+  }
+  function intRasterVariantPath(path){
+    const normalized = normalizeIntAssetPath(path);
+    if(!isIntSvgAssetPath(normalized) || !intRasterMq.matches) return normalized;
+    const width = pickIntAssetWidth();
+    return normalized.replace(/\.svg(?:[?#].*)?$/i, `-${width}.${INT_PREFERRED_FORMAT}`);
+  }
+  function applyIntResponsiveAssetToImage(img){
+    if(!(img instanceof HTMLImageElement)) return;
+    const currentSrc = img.getAttribute("src");
+    if(!img.dataset.intSvgOriginal && isIntSvgAssetPath(currentSrc)){
+      img.dataset.intSvgOriginal = normalizeIntAssetPath(currentSrc);
+    }
+    const original = img.dataset.intSvgOriginal;
+    if(!original) return;
+    const nextSrc = intRasterMq.matches ? intRasterVariantPath(original) : original;
+    if(nextSrc && currentSrc !== nextSrc){
+      img.setAttribute("src", nextSrc);
+    }
+  }
+  function refreshIntResponsiveAssets(root = document){
+    root.querySelectorAll("img[src]").forEach(applyIntResponsiveAssetToImage);
+  }
+  function initIntResponsiveSvgFallbacks(){
+    refreshIntResponsiveAssets(document);
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if(mutation.type === "attributes" && mutation.target instanceof HTMLImageElement){
+          applyIntResponsiveAssetToImage(mutation.target);
+          return;
+        }
+        mutation.addedNodes.forEach((node) => {
+          if(!(node instanceof Element)) return;
+          if(node instanceof HTMLImageElement){
+            applyIntResponsiveAssetToImage(node);
+          }else{
+            refreshIntResponsiveAssets(node);
+          }
+        });
+      });
+    });
+    observer.observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["src"]
+    });
+
+    let resizeTimer = null;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => refreshIntResponsiveAssets(document), 120);
+    }, { passive:true });
+
+    const onBreakpointChange = () => refreshIntResponsiveAssets(document);
+    if(typeof intRasterMq.addEventListener === "function"){
+      intRasterMq.addEventListener("change", onBreakpointChange);
+    }else if(typeof intRasterMq.addListener === "function"){
+      intRasterMq.addListener(onBreakpointChange);
+    }
+  }
+  initIntResponsiveSvgFallbacks();
 
   // Reveal animation
   const io = new IntersectionObserver((entries)=>{
