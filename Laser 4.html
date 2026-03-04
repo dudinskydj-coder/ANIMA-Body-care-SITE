@@ -3782,6 +3782,9 @@
   let plannerSwipeStartX = 0;
   let plannerSwipeStartY = 0;
   let plannerSwipeStartAt = 0;
+  let plannerLastTapAt = 0;
+  let plannerLastTapX = 0;
+  let plannerLastTapY = 0;
   let plannerSuppressClickUntil = 0;
   let plannerAutoResetTimer = null;
   let plannerRenderRaf = null;
@@ -3854,7 +3857,7 @@
     return !!((coarsePointerMq && coarsePointerMq.matches) || isIPadTouchDevice());
   }
   function plannerMaxZoom(){
-    return plannerShouldDisableZoomOnTouch() ? PLANNER_MIN_ZOOM : PLANNER_MAX_ZOOM;
+    return plannerShouldDisableZoomOnTouch() ? PLANNER_MOBILE_MAX_ZOOM : PLANNER_MAX_ZOOM;
   }
   const LASER_VIDEO_DESKTOP_SRC = "img/VIDEO/DEKA Epilation.mp4";
   const LASER_VIDEO_MOBILE_SRC = "img/VIDEO/DEKA Epilation Mob.mp4";
@@ -8627,8 +8630,11 @@
       }
     }, { passive:false });
     plannerFigure.addEventListener("touchend", (e) => {
+      const touch = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
+      const touchEndX = touch ? touch.clientX : 0;
+      const touchEndY = touch ? touch.clientY : 0;
+      const touchTargetIsZoneBtn = !!(e.target && typeof e.target.closest === "function" && e.target.closest(".zoneSketchBtn"));
       if(plannerSwipeTracking){
-        const touch = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
         const endX = touch ? touch.clientX : plannerSwipeStartX;
         const endY = touch ? touch.clientY : plannerSwipeStartY;
         const dx = endX - plannerSwipeStartX;
@@ -8648,6 +8654,24 @@
       const wasPinching = plannerPinchActive;
       plannerPinchActive = false;
       plannerTouchPanActive = false;
+      const canUseDoubleTapZoom = plannerShouldDisableZoomOnTouch() && !wasPinching && !!touch && !touchTargetIsZoneBtn;
+      if(canUseDoubleTapZoom){
+        const now = Date.now();
+        const tapDeltaMs = now - plannerLastTapAt;
+        const tapDistance = Math.hypot(touchEndX - plannerLastTapX, touchEndY - plannerLastTapY);
+        if(tapDeltaMs > 0 && tapDeltaMs <= 320 && tapDistance <= 32){
+          plannerLastTapAt = 0;
+          const targetZoom = plannerZoom > 1.06 ? PLANNER_MIN_ZOOM : Math.min(plannerMaxZoom(), 1.24);
+          animatePlannerZoom(targetZoom, touchEndX, touchEndY, 260, targetZoom > plannerZoom ? "middle" : "none");
+          schedulePlannerAutoReset();
+          return;
+        }
+        plannerLastTapAt = now;
+        plannerLastTapX = touchEndX;
+        plannerLastTapY = touchEndY;
+      } else {
+        plannerLastTapAt = 0;
+      }
       if(!wasPinching){
         bouncePlannerEdgeToRest();
         snapPlannerVerticalExtremes(activeLaserMode(), 0.2);
