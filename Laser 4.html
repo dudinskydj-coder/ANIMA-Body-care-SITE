@@ -823,6 +823,178 @@
       stroke-linecap:round;
       stroke-linejoin:round;
     }
+    .plannerFaceJoystick{
+      position:absolute;
+      right:14px;
+      bottom:56px;
+      z-index:9;
+      display:grid;
+      grid-template-columns:34px 34px 34px;
+      grid-template-rows:auto 34px 34px 34px 34px 34px 34px 34px 34px 34px 34px 34px;
+      gap:6px;
+      padding:8px;
+      border-radius:14px;
+      background:rgba(255,255,255,.92);
+      box-shadow:0 8px 20px rgba(0,0,0,.15);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .18s ease;
+      user-select:none;
+    }
+    .plannerFaceJoystick.is-visible{
+      opacity:1;
+      pointer-events:auto;
+    }
+    .plannerFaceJoystickTarget{
+      grid-column:1 / 4;
+      font-size:11px;
+      line-height:1;
+      letter-spacing:.04em;
+      font-weight:700;
+      color:#111218;
+      text-align:center;
+      padding-bottom:2px;
+      text-transform:uppercase;
+    }
+    .plannerFaceJoystickBtn{
+      border:1px solid rgba(17,18,24,.16);
+      border-radius:10px;
+      background:#fff;
+      color:#111218;
+      font-size:16px;
+      line-height:1;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+    }
+    .plannerFaceJoystickBtn:active{
+      background:rgba(17,18,24,.08);
+    }
+    .plannerFaceJoystickBtn[data-joystick-move="up"]{ grid-column:2; grid-row:2; }
+    .plannerFaceJoystickBtn[data-joystick-move="left"]{ grid-column:1; grid-row:3; }
+    .plannerFaceJoystickBtn[data-joystick-move="right"]{ grid-column:3; grid-row:3; }
+    .plannerFaceJoystickBtn[data-joystick-move="down"]{ grid-column:2; grid-row:4; }
+    .plannerFaceJoystickBtn[data-joystick-scale="up"]{ grid-column:1; grid-row:5; font-size:20px; }
+    .plannerFaceJoystickBtn[data-joystick-scale="down"]{ grid-column:3; grid-row:5; font-size:20px; }
+    .plannerFaceJoystickBtn[data-joystick-shape="square"]{ grid-column:1; grid-row:6; font-size:12px; }
+    .plannerFaceJoystickBtn[data-joystick-shape="rounded"]{ grid-column:2; grid-row:6; font-size:12px; }
+    .plannerFaceJoystickBtn[data-joystick-shape="circle"]{ grid-column:3; grid-row:6; font-size:12px; }
+    .plannerFaceJoystickBtn[data-joystick-shape="oval"]{ grid-column:1; grid-row:7; font-size:11px; }
+    .plannerFaceJoystickBtn[data-joystick-shape="pill"]{ grid-column:2; grid-row:7; font-size:11px; }
+    .plannerFaceJoystickBtn[data-joystick-shape="diamond"]{ grid-column:3; grid-row:7; font-size:11px; }
+    .plannerFaceJoystickBtn[data-joystick-shape="squircle"]{ grid-column:1; grid-row:8; font-size:10px; }
+    .plannerFaceJoystickBtn[data-joystick-shape="bevel"]{ grid-column:2; grid-row:8; font-size:10px; }
+    .plannerFaceJoystickBtn[data-joystick-shape="hexagon"]{ grid-column:3; grid-row:8; font-size:10px; }
+    .plannerFaceJoystickBtn[data-joystick-shape="parallelogram"]{ grid-column:1; grid-row:9; font-size:10px; }
+    .plannerFaceJoystickBtn[data-joystick-shape="trapezoid"]{ grid-column:2; grid-row:9; font-size:10px; }
+    .plannerFaceJoystickBtn[data-joystick-shape="capsulev"]{ grid-column:3; grid-row:9; font-size:10px; }
+    .plannerFaceJoystickBtn[data-joystick-shape]{
+      font-size:0;
+      position:relative;
+    }
+    .plannerFaceJoystickBtn[data-joystick-shape]::before{
+      content:"";
+      width:18px;
+      height:14px;
+      background:rgba(17,18,24,.14);
+      border:1.4px solid rgba(17,18,24,.72);
+      border-radius:0;
+      display:block;
+      box-sizing:border-box;
+    }
+    .plannerFaceJoystickBtn[data-joystick-shape="rounded"]::before{ border-radius:12%; }
+    .plannerFaceJoystickBtn[data-joystick-shape="circle"]::before{
+      width:14px;
+      height:14px;
+      border-radius:50%;
+    }
+    .plannerFaceJoystickBtn[data-joystick-shape="oval"]::before{
+      width:19px;
+      height:12px;
+      border-radius:50%;
+    }
+    .plannerFaceJoystickBtn[data-joystick-shape="pill"]::before{
+      width:20px;
+      height:10px;
+      border-radius:999px;
+    }
+    .plannerFaceJoystickBtn[data-joystick-shape="diamond"]::before{
+      width:12px;
+      height:12px;
+      transform:rotate(45deg);
+    }
+    .plannerFaceJoystickBtn[data-joystick-shape="squircle"]::before{ border-radius:28%; }
+    .plannerFaceJoystickBtn[data-joystick-shape="bevel"]::before{
+      clip-path:polygon(12% 0%, 88% 0%, 100% 12%, 100% 88%, 88% 100%, 12% 100%, 0% 88%, 0% 12%);
+    }
+    .plannerFaceJoystickBtn[data-joystick-shape="hexagon"]::before{
+      clip-path:polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    }
+    .plannerFaceJoystickBtn[data-joystick-shape="parallelogram"]::before{
+      clip-path:polygon(12% 0%, 100% 0%, 88% 100%, 0% 100%);
+    }
+    .plannerFaceJoystickBtn[data-joystick-shape="trapezoid"]::before{
+      clip-path:polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+    }
+    .plannerFaceJoystickBtn[data-joystick-shape="capsulev"]::before{
+      width:10px;
+      height:20px;
+      border-radius:999px;
+    }
+    .plannerFaceJoystickBtn[data-joystick-action="rotate-ccw"]{
+      grid-column:1;
+      grid-row:10;
+      font-size:14px;
+      font-weight:700;
+    }
+    .plannerFaceJoystickBtn[data-joystick-action="rotate-cw"]{
+      grid-column:3;
+      grid-row:10;
+      font-size:14px;
+      font-weight:700;
+    }
+    .plannerFaceJoystickBtn[data-joystick-action="front"]{
+      grid-column:1 / 4;
+      grid-row:11;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.05em;
+    }
+    .plannerFaceJoystickBtn[data-joystick-action="save"]{
+      grid-column:1 / 4;
+      grid-row:12;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.05em;
+    }
+    .plannerFaceJoystickCenter{
+      grid-column:2;
+      grid-row:3;
+      border-radius:999px;
+      border:1px solid rgba(17,18,24,.16);
+      background:rgba(17,18,24,.06);
+    }
+    .plannerFaceWarpHandle{
+      position:absolute;
+      width:12px;
+      height:12px;
+      border-radius:999px;
+      border:1.5px solid #0f5ebf;
+      background:#beddff;
+      box-shadow:0 1px 4px rgba(0,0,0,.2);
+      z-index:120;
+      cursor:grab;
+      touch-action:none;
+    }
+    .plannerFaceJoystick[hidden] ~ .plannerFaceWarpHandle,
+    .plannerFaceWarpHandle{
+      display:none !important;
+    }
+    .plannerFaceWarpHandle:active{
+      cursor:grabbing;
+    }
     .plannerMobileInfo{
       display:none;
       position:absolute;
@@ -1030,6 +1202,9 @@
     }
     .plannerFigureOverlayImage--axilla-gray{
       z-index:5;
+    }
+    .plannerFigureOverlayImage--dynamic{
+      z-index:3;
     }
     #plannerFigureOverlayAxilla{
       z-index:7;
@@ -1620,6 +1795,41 @@
       text-align:center;
       padding:0 2px;
       white-space:nowrap;
+    }
+    /* Keep figure buttons interactive but visually hidden (including mobile tap/focus states). */
+    .plannerSketch .zoneSketchBtn,
+    .plannerBackSketch .zoneSketchBtn{
+      border-color:transparent !important;
+      background:transparent !important;
+      box-shadow:none !important;
+      color:transparent !important;
+      outline:none !important;
+      -webkit-tap-highlight-color:transparent !important;
+      -webkit-touch-callout:none !important;
+      -webkit-appearance:none !important;
+      appearance:none !important;
+      touch-action:manipulation;
+    }
+    .plannerSketch .zoneSketchBtn:hover,
+    .plannerSketch .zoneSketchBtn:active,
+    .plannerSketch .zoneSketchBtn:focus,
+    .plannerSketch .zoneSketchBtn:focus-visible,
+    .plannerSketch .zoneSketchBtn.is-active,
+    .plannerBackSketch .zoneSketchBtn:hover,
+    .plannerBackSketch .zoneSketchBtn:active,
+    .plannerBackSketch .zoneSketchBtn:focus,
+    .plannerBackSketch .zoneSketchBtn:focus-visible,
+    .plannerBackSketch .zoneSketchBtn.is-active{
+      border-color:transparent !important;
+      background:transparent !important;
+      box-shadow:none !important;
+      color:transparent !important;
+      transform:none !important;
+      outline:none !important;
+    }
+    .plannerSketch .zoneSketchTag,
+    .plannerBackSketch .zoneSketchTag{
+      display:none !important;
     }
     .zoneBtn{
       border:1px solid rgba(0,0,0,.12);
@@ -3041,6 +3251,10 @@
       }
       .plannerViewArrow--prev{ left:6px; }
       .plannerViewArrow--next{ right:6px; }
+      .plannerFaceJoystick{
+        right:8px;
+        bottom:62px;
+      }
       .plannerMobileInfo{
         display:flex;
         left:22px;
@@ -3238,6 +3452,32 @@
             <button type="button" class="plannerViewBtn" data-planner-view="back" aria-pressed="false" aria-label="Back view"></button>
             <button type="button" class="plannerViewBtn" data-planner-view="face" aria-pressed="false" aria-label="Face view"></button>
           </div>
+          <div class="plannerFaceJoystick" id="plannerFaceJoystick" hidden aria-label="Face joystick">
+            <div class="plannerFaceJoystickTarget" id="plannerFaceJoystickTarget">KINN</div>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-move="up" aria-label="Move up">↑</button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-move="left" aria-label="Move left">←</button>
+            <div class="plannerFaceJoystickCenter" aria-hidden="true"></div>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-move="right" aria-label="Move right">→</button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-move="down" aria-label="Move down">↓</button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-scale="up" aria-label="Increase size">+</button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-scale="down" aria-label="Decrease size">−</button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-shape="square" aria-label="Square shape"></button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-shape="rounded" aria-label="Rounded shape"></button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-shape="circle" aria-label="Circle shape"></button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-shape="oval" aria-label="Oval shape"></button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-shape="pill" aria-label="Pill shape"></button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-shape="diamond" aria-label="Diamond shape"></button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-shape="squircle" aria-label="Squircle shape"></button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-shape="bevel" aria-label="Bevel shape"></button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-shape="hexagon" aria-label="Hexagon shape"></button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-shape="parallelogram" aria-label="Parallelogram shape"></button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-shape="trapezoid" aria-label="Trapezoid shape"></button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-shape="capsulev" aria-label="Vertical capsule shape"></button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-action="rotate-ccw" id="plannerFaceRotateCcwBtn" aria-label="Rotate counterclockwise">⟲</button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-action="rotate-cw" id="plannerFaceRotateCwBtn" aria-label="Rotate clockwise">⟳</button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-action="front" id="plannerFaceFrontBtn" aria-label="Bring selected to front">FRONT</button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-action="save" id="plannerFaceSaveBtn" aria-label="Save face adjustments">SAVE</button>
+          </div>
         </div>
       </div>
       <div class="plannerPane">
@@ -3338,6 +3578,15 @@
   const plannerViewNextBtn = document.getElementById("plannerViewNext");
   const plannerViewSwitch = document.getElementById("plannerViewSwitch");
   const plannerViewButtons = Array.from(document.querySelectorAll("[data-planner-view]"));
+  const plannerFaceJoystick = document.getElementById("plannerFaceJoystick");
+  const plannerFaceJoystickTarget = document.getElementById("plannerFaceJoystickTarget");
+  const plannerFaceJoystickButtons = Array.from(document.querySelectorAll("[data-joystick-move]"));
+  const plannerFaceJoystickScaleButtons = Array.from(document.querySelectorAll("[data-joystick-scale]"));
+  const plannerFaceJoystickShapeButtons = Array.from(document.querySelectorAll("[data-joystick-shape]"));
+  const plannerFaceRotateCcwBtn = document.getElementById("plannerFaceRotateCcwBtn");
+  const plannerFaceRotateCwBtn = document.getElementById("plannerFaceRotateCwBtn");
+  const plannerFaceFrontBtn = document.getElementById("plannerFaceFrontBtn");
+  const plannerFaceSaveBtn = document.getElementById("plannerFaceSaveBtn");
   const plannerBackSketch = document.getElementById("plannerBackSketch");
   const plannerFigureOverlayUpperlip = document.getElementById("plannerFigureOverlayUpperlip");
   const plannerFigureOverlayAxilla = document.getElementById("plannerFigureOverlayAxilla");
@@ -3400,6 +3649,112 @@
   let plannerViewSlideRaf = null;
   let plannerViewSwitchSeq = 0;
   const plannerFrauenViewOrder = ["front", "back", "face"];
+  const plannerFaceMovableZoneIds = new Set(["chin", "nacken", "kinn", "wangen", "koteletten", "glabella", "upperlip"]);
+  const plannerFaceJoystickLabels = {
+    chin:"HALS",
+    nacken:"NACKEN",
+    kinn:"KINN",
+    wangen:"WANGEN",
+    koteletten:"KOTELETTEN",
+    glabella:"ZW. BRAUEN",
+    upperlip:"OBERLIPPE"
+  };
+  const plannerFaceZoneOffsetById = {};
+  const plannerFaceZoneSizeDeltaById = {};
+  const plannerFaceZoneShapeById = {};
+  const plannerFaceZoneTransformById = {};
+  const plannerFaceZoneLayerById = {};
+  const plannerFaceZoneWarpPointsById = {};
+  const plannerFaceZoneRotateById = {};
+  const PLANNER_FACE_EMBEDDED_STATE = /*__PLANNER_FACE_STATE_START__*/{
+  "version": 1,
+  "savedAt": "2026-03-04T00:58:10.011Z",
+  "offsets": {
+    "kinn": {
+      "x": -0.4798,
+      "y": 0
+    },
+    "upperlip": {
+      "x": -0.4762,
+      "y": 0.0635
+    },
+    "chin": {
+      "x": -0.4762,
+      "y": 0.19
+    },
+    "koteletten": {
+      "x": -8.0093,
+      "y": -7.8349
+    },
+    "wangen": {
+      "x": 0.4762,
+      "y": -0.381
+    },
+    "glabella": {
+      "x": 0.1587,
+      "y": 0.3175
+    }
+  },
+  "sizes": {
+    "koteletten": -12.5
+  },
+  "shapes": {
+    "kinn": "square"
+  },
+  "transforms": {
+    "chin": {
+      "left": 0,
+      "top": 0,
+      "width": 0,
+      "height": 0.9525
+    },
+    "upperlip": {
+      "left": 0,
+      "top": -0.1304,
+      "width": 1.7462,
+      "height": 0.1304
+    },
+    "koteletten": {
+      "left": 0,
+      "top": 2.4738,
+      "width": 17.7801,
+      "height": 12.3215
+    },
+    "wangen": {
+      "left": -2.54,
+      "top": -1.143,
+      "width": 5.08,
+      "height": 1.651
+    },
+    "nacken": {
+      "left": 0,
+      "top": 0,
+      "width": 0,
+      "height": 0
+    },
+    "kinn": {
+      "left": 0,
+      "top": 0,
+      "width": 1.7594,
+      "height": 0
+    }
+  },
+  "layers": {
+    "kinn": "front",
+    "wangen": "front"
+  },
+  "warpPoints": {},
+  "rotates": {}
+}/*__PLANNER_FACE_STATE_END__*/;
+  const PLANNER_FACE_JOYSTICK_STEP = 1;
+  const PLANNER_FACE_JOYSTICK_SIZE_STEP = 0.5;
+  const PLANNER_FACE_JOYSTICK_ROTATE_STEP = 5;
+  let plannerJoystickTargetZoneId = "kinn";
+  let plannerFaceHtmlFileHandle = null;
+  let plannerFaceButtonDragState = null;
+  let plannerFaceWarpDragState = null;
+  let plannerFaceDragSuppressClickZoneId = null;
+  let plannerFaceDragSuppressClickAt = 0;
   let plannerPinchStartDistance = null;
   let plannerPinchStartZoom = 1;
   let plannerDragActive = false;
@@ -3512,6 +3867,9 @@
     frauen: [
       { id:"chin", label:{ de:"Hals", en:"Neck", ru:"Шея" }, price:25 },
       { id:"nacken", label:{ de:"Nacken", en:"Nape", ru:"Затылок" }, price:25 },
+      { id:"kinn", label:{ de:"Kinn", en:"Chin", ru:"Подбородок" }, price:25 },
+      { id:"wangen", label:{ de:"Wangenknochen", en:"Cheekbones", ru:"Скулы" }, price:25 },
+      { id:"koteletten", label:{ de:"Koteletten", en:"Sideburns", ru:"Бакенбарды" }, price:25 },
       { id:"glabella", label:{ de:"Zwischenbrauen", en:"Between brows", ru:"Межбровье" }, price:25 },
       { id:"upperlip", label:{ de:"Oberlippe", en:"Upper lip", ru:"Верхняя губа" }, price:25 },
       { id:"chest", label:{ de:"Brustbereich", en:"Chest area", ru:"Зона груди" }, price:45 },
@@ -3545,6 +3903,9 @@
     frauen: {
       chin:{ x:47.8, y:13.7, w:4.6, h:5.2 },
       nacken:{ x:47.8, y:13.7, w:4.6, h:5.2 },
+      kinn:{ x:47.8, y:22.2, w:4.6, h:5.2 },
+      wangen:{ x:42.0, y:18.0, w:16.0, h:4.2 },
+      koteletten:{ x:39.0, y:19.0, w:4.0, h:8.0 },
       glabella:{ x:47.8, y:13.7, w:4.6, h:5.2 },
       upperlip:{ x:47.8, y:13.7, w:4.6, h:5.2 },
       chest:{ x:50.6, y:24.2, w:5.4, h:6.3 },
@@ -3591,6 +3952,58 @@
     back: "img/INT/FRAUEN_BACK/FR_BACK_GR_KONTUR.svg",
     face: "img/INT/FRAUEN_FACE/FR_FACE_GR_KONTUR.svg"
   };
+  const plannerHoverOverlaySrcByView = {
+    front:{
+      OBERLIPPE:"img/INT/FRAUEN_FRONT/FR_RS_OBERLIPPE.svg",
+      HALS:"img/INT/FRAUEN_FRONT/FR_RS_HALS.svg",
+      BRUSTBEREICH:"img/INT/FRAUEN_FRONT/FR_RS_Brustbereich.svg",
+      HANDE_L:"img/INT/FRAUEN_FRONT/FR_RS_HANDE.svg",
+      HANDE_R:"img/INT/FRAUEN_FRONT/FR_RS_HANDE.svg",
+      FUSSE_L:"img/INT/FRAUEN_FRONT/FR_RS_FUSSE.svg",
+      FUSSE_R:"img/INT/FRAUEN_FRONT/FR_RS_FUSSE.svg",
+      ACHSELN_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_ACHSELN.svg",
+      OBERARME_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_OBERARME_MAIN.svg",
+      UNTERARME_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_UNTERARME_MAIN.svg",
+      BAUCH_MEDIA_LN:"img/INT/FRAUEN_FRONT/FR_RS_BAUCH_MEDIA_LN.svg",
+      BAUCH:"img/INT/FRAUEN_FRONT/FR_RS_BAUCH.svg",
+      BIKINI_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_BIKINI_MAIN.svg",
+      OBERSCH_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_OBERSCH_MAIN.svg",
+      UNTERSCH_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_UNTERSCH_MAIN.svg",
+      INTIM_KOM_POF:"img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM_POF.svg"
+    },
+    back:{
+      NACKEN:"img/INT/FRAUEN_BACK/FR_BACK_RS_Nacken.svg",
+      OBERER_RUECKEN:"img/INT/FRAUEN_BACK/FR_BACK_RS_Oberer Rücken_Schultern.svg",
+      UNTERER_RUECKEN:"img/INT/FRAUEN_BACK/FR_BACK_RS_Unter_Rücken.svg",
+      POBACKEN:"img/INT/FRAUEN_BACK/FR_BACK_RS_Pobacken.svg",
+      OBERARME_MAIN:"img/INT/FRAUEN_BACK/FR_BACK_RS_OBERARME.svg",
+      UNTERARME_MAIN:"img/INT/FRAUEN_BACK/FR_BACK_RS_UNTERARME.svg",
+      HANDE_L:"img/INT/FRAUEN_BACK/FR_BACK_RS_HANDE.svg",
+      HANDE_R:"img/INT/FRAUEN_BACK/FR_BACK_RS_HANDE.svg",
+      FUSSE_L:"img/INT/FRAUEN_BACK/FR_BACK_RS_FUSSE.svg",
+      FUSSE_R:"img/INT/FRAUEN_BACK/FR_BACK_RS_FUSSE.svg",
+      OBERSCH_MAIN:"img/INT/FRAUEN_BACK/FR_BACK_RS_OBERSHC.svg",
+      UNTERSCH_MAIN:"img/INT/FRAUEN_BACK/FR_BACK_RS_UNTERSHC.svg",
+      INTIM_KOM_POF:"img/INT/FRAUEN_BACK/FR_BACK_RS_INTIM_POF.svg"
+    },
+    face:{
+      HALS:"img/INT/FRAUEN_FACE/FR_FACE_RS_HALS.svg",
+      NACKEN:"img/INT/FRAUEN_FACE/FR_FACE_RS_Nacken.svg",
+      KINN:"img/INT/FRAUEN_FACE/FR_FACE_RS_KINN.svg",
+      WANGEN:"img/INT/FRAUEN_FACE/FR_FACE_RS_Wangen.svg",
+      KOTELETTEN:"img/INT/FRAUEN_FACE/FR_FACE_RS_Kieferlinie_Koteletten.svg",
+      ZWISCHENBRAUEN:"img/INT/FRAUEN_FACE/FR_FACE_RS_Zwischenbrauen.svg",
+      OBERLIPPE:"img/INT/FRAUEN_FACE/FR_FACE_RS_OBERLIPPE.svg"
+    }
+  };
+  const plannerDynamicOverlayElsByKey = {};
+  function plannerDynamicOverlayKey(view, partKey){
+    return `${view}::${partKey}`;
+  }
+  function plannerDynamicOverlayEntriesForView(view){
+    const srcMap = plannerHoverOverlaySrcByView[view] || {};
+    return Object.entries(srcMap);
+  }
   const plannerHoverHotspotsFrauen = [
     { key:"HALS", x1:0.445, x2:0.555, y1:0.165, y2:0.235 },
     { key:"BRUSTBEREICH", x1:0.38, x2:0.62, y1:0.235, y2:0.325 },
@@ -3610,8 +4023,12 @@
   const plannerHoverPartsByZone = {
     frauen: {
       chin:["HALS"],
-      glabella:["HALS"],
-      upperlip:["HALS"],
+      kinn:["KINN"],
+      wangen:["WANGEN"],
+      koteletten:["KOTELETTEN"],
+      glabella:["ZWISCHENBRAUEN"],
+      upperlip:["OBERLIPPE"],
+      nacken:["NACKEN"],
       chest:["BRUSTBEREICH"],
       hands:["HANDE_L", "HANDE_R"],
       feet:["FUSSE_L", "FUSSE_R"],
@@ -3619,8 +4036,9 @@
       upperarms:["OBERARME_MAIN"],
       underarms:["UNTERARME_MAIN"],
       bauchfull:["BAUCH"],
-      lowerback:["BAUCH"],
-      pobacken:["INTIM_KOM_POF"],
+      upperback:["OBERER_RUECKEN"],
+      lowerback:["UNTERER_RUECKEN"],
+      pobacken:["POBACKEN"],
       medialinebauch:["BAUCH_MEDIA_LN"],
       obersch:["OBERSCH_MAIN"],
       untersch:["UNTERSCH_MAIN"],
@@ -4516,7 +4934,489 @@
     });
     if(plannerViewPrevBtn) plannerViewPrevBtn.disabled = !hasPrev;
     if(plannerViewNextBtn) plannerViewNextBtn.disabled = !hasNext;
+    syncPlannerFaceJoystick(mode);
     requestAnimationFrame(positionPlannerViewArrows);
+  }
+  function plannerFaceZoneMovable(zoneId){
+    return isPlannerFaceJoystickActive() && typeof zoneId === "string" && zoneId.length > 0;
+  }
+  function plannerSetJoystickTarget(zoneId){
+    if(!plannerFaceZoneMovable(zoneId)) return;
+    plannerJoystickTargetZoneId = zoneId;
+    if(plannerFaceJoystickTarget){
+      plannerFaceJoystickTarget.textContent = plannerFaceJoystickLabels[zoneId] || zoneId.toUpperCase();
+    }
+  }
+  function syncPlannerFaceJoystick(mode){
+    if(!plannerFaceJoystick) return;
+    const visible = false;
+    plannerFaceJoystick.hidden = !visible;
+    plannerFaceJoystick.classList.toggle("is-visible", visible);
+    if(visible && !plannerFaceZoneMovable(plannerJoystickTargetZoneId)){
+      plannerSetJoystickTarget("kinn");
+    }
+  }
+  function isPlannerFaceJoystickActive(){
+    if(!plannerFaceJoystick) return false;
+    return !plannerFaceJoystick.hidden && plannerFaceJoystick.classList.contains("is-visible");
+  }
+  function movePlannerJoystick(dx, dy){
+    const mode = activeLaserMode();
+    if(mode !== "frauen") return;
+    if(!plannerFaceZoneMovable(plannerJoystickTargetZoneId)) return;
+    const current = plannerFaceZoneOffsetById[plannerJoystickTargetZoneId] || { x:0, y:0 };
+    plannerFaceZoneOffsetById[plannerJoystickTargetZoneId] = {
+      x:Number((current.x + dx).toFixed(4)),
+      y:Number((current.y + dy).toFixed(4))
+    };
+    schedulePlannerRender(mode);
+  }
+  function plannerFaceResizeEdgesFromPointer(btn, clientX, clientY){
+    if(!btn) return null;
+    const rect = btn.getBoundingClientRect();
+    if(rect.width <= 0 || rect.height <= 0) return null;
+    const edge = Math.max(6, Math.min(14, Math.min(rect.width, rect.height) * 0.24));
+    const localX = clientX - rect.left;
+    const localY = clientY - rect.top;
+    const left = localX <= edge;
+    const right = localX >= (rect.width - edge);
+    const top = localY <= edge;
+    const bottom = localY >= (rect.height - edge);
+    if(!(left || right || top || bottom)) return null;
+    return { left, right, top, bottom };
+  }
+  function plannerFaceResizeCursor(edges){
+    if(!edges) return "move";
+    if((edges.left && edges.top) || (edges.right && edges.bottom)) return "nwse-resize";
+    if((edges.right && edges.top) || (edges.left && edges.bottom)) return "nesw-resize";
+    if(edges.left || edges.right) return "ew-resize";
+    if(edges.top || edges.bottom) return "ns-resize";
+    return "move";
+  }
+  function plannerFaceWarpPointsForZone(zoneId){
+    if(!plannerFaceZoneWarpPointsById[zoneId]){
+      plannerFaceZoneWarpPointsById[zoneId] = [];
+    }
+    return plannerFaceZoneWarpPointsById[zoneId];
+  }
+  function plannerComputeWarpClipPath(zoneId){
+    const points = plannerFaceZoneWarpPointsById[zoneId];
+    if(!Array.isArray(points) || points.length === 0) return "";
+    const vertices = [
+      { x:0, y:0 },
+      { x:100, y:0 },
+      { x:100, y:100 },
+      { x:0, y:100 },
+      ...points.map((pt) => ({ x:pt.x, y:pt.y }))
+    ];
+    const center = vertices.reduce((acc, pt) => {
+      acc.x += pt.x;
+      acc.y += pt.y;
+      return acc;
+    }, { x:0, y:0 });
+    center.x /= vertices.length;
+    center.y /= vertices.length;
+    vertices.sort((a, b) => {
+      const aa = Math.atan2(a.y - center.y, a.x - center.x);
+      const bb = Math.atan2(b.y - center.y, b.x - center.x);
+      return aa - bb;
+    });
+    return `polygon(${vertices.map((pt) => `${pt.x}% ${pt.y}%`).join(",")})`;
+  }
+  function plannerPrimaryFaceZoneButton(zoneId){
+    const selector = `.zoneSketchBtn[data-face-primary="1"][data-zone-id="${zoneId}"]`;
+    if(plannerSketch){
+      const inFront = plannerSketch.querySelector(selector);
+      if(inFront) return inFront;
+    }
+    if(plannerBackSketch){
+      const inBack = plannerBackSketch.querySelector(selector);
+      if(inBack) return inBack;
+    }
+    return null;
+  }
+  function plannerEndFaceWarpPointDrag(){
+    if(!plannerFaceWarpDragState) return;
+    plannerFaceWarpDragState = null;
+    document.body.style.userSelect = "";
+    window.removeEventListener("mousemove", plannerHandleFaceWarpPointDragMove);
+    window.removeEventListener("mouseup", plannerEndFaceWarpPointDrag, true);
+  }
+  function plannerHandleFaceWarpPointDragMove(event){
+    if(!plannerFaceWarpDragState) return;
+    const btn = plannerPrimaryFaceZoneButton(plannerFaceWarpDragState.zoneId);
+    if(!btn) return;
+    const rect = btn.getBoundingClientRect();
+    if(rect.width <= 0 || rect.height <= 0) return;
+    const x = ((event.clientX - rect.left) / rect.width) * 100;
+    const y = ((event.clientY - rect.top) / rect.height) * 100;
+    const points = plannerFaceWarpPointsForZone(plannerFaceWarpDragState.zoneId);
+    points[plannerFaceWarpDragState.pointIndex] = {
+      x:Number(Math.max(-100, Math.min(200, x)).toFixed(3)),
+      y:Number(Math.max(-100, Math.min(200, y)).toFixed(3))
+    };
+    schedulePlannerRender(activeLaserMode());
+  }
+  function plannerStartFaceWarpPointDrag(event, zoneId, pointIndex){
+    if(event.button !== 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    plannerSetJoystickTarget(zoneId);
+    plannerFaceWarpDragState = { zoneId, pointIndex };
+    document.body.style.userSelect = "none";
+    window.addEventListener("mousemove", plannerHandleFaceWarpPointDragMove);
+    window.addEventListener("mouseup", plannerEndFaceWarpPointDrag, true);
+  }
+  function plannerAddFaceWarpPoint(event, zoneId, btn){
+    const mode = activeLaserMode();
+    if(mode !== "frauen") return;
+    if(!plannerFaceZoneMovable(zoneId) || !btn) return;
+    const rect = btn.getBoundingClientRect();
+    if(rect.width <= 0 || rect.height <= 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const x = ((event.clientX - rect.left) / rect.width) * 100;
+    const y = ((event.clientY - rect.top) / rect.height) * 100;
+    const points = plannerFaceWarpPointsForZone(zoneId);
+    points.push({
+      x:Number(Math.max(-100, Math.min(200, x)).toFixed(3)),
+      y:Number(Math.max(-100, Math.min(200, y)).toFixed(3))
+    });
+    plannerSetJoystickTarget(zoneId);
+    schedulePlannerRender(mode);
+  }
+  function renderPlannerFaceWarpHandlesForZone(zoneId){
+    const points = plannerFaceZoneWarpPointsById[zoneId];
+    if(!Array.isArray(points) || points.length === 0) return;
+    const btn = plannerPrimaryFaceZoneButton(zoneId);
+    if(!btn) return;
+    const host = btn.parentElement;
+    if(!host) return;
+    const btnRect = btn.getBoundingClientRect();
+    const sketchRect = host.getBoundingClientRect();
+    if(btnRect.width <= 0 || btnRect.height <= 0 || sketchRect.width <= 0 || sketchRect.height <= 0) return;
+    points.forEach((point, pointIndex) => {
+      const handle = document.createElement("div");
+      handle.className = "plannerFaceWarpHandle";
+      const xPx = (btnRect.left - sketchRect.left) + ((point.x / 100) * btnRect.width);
+      const yPx = (btnRect.top - sketchRect.top) + ((point.y / 100) * btnRect.height);
+      handle.style.left = `${((xPx / sketchRect.width) * 100)}%`;
+      handle.style.top = `${((yPx / sketchRect.height) * 100)}%`;
+      handle.style.transform = "translate(-50%, -50%)";
+      handle.addEventListener("mousedown", (event) => {
+        plannerStartFaceWarpPointDrag(event, zoneId, pointIndex);
+      });
+      host.appendChild(handle);
+    });
+  }
+  function plannerShouldSuppressFaceZoneClick(zoneId){
+    if(!zoneId || zoneId !== plannerFaceDragSuppressClickZoneId) return false;
+    if((Date.now() - plannerFaceDragSuppressClickAt) > 450) return false;
+    plannerFaceDragSuppressClickZoneId = null;
+    plannerFaceDragSuppressClickAt = 0;
+    return true;
+  }
+  function plannerEndFaceButtonDrag(){
+    if(!plannerFaceButtonDragState) return;
+    if(plannerFaceButtonDragState.moved){
+      plannerFaceDragSuppressClickZoneId = plannerFaceButtonDragState.zoneId;
+      plannerFaceDragSuppressClickAt = Date.now();
+    }
+    plannerFaceButtonDragState = null;
+    document.body.style.userSelect = "";
+    window.removeEventListener("mousemove", plannerHandleFaceButtonDragMove);
+    window.removeEventListener("mouseup", plannerEndFaceButtonDrag, true);
+  }
+  function plannerHandleFaceButtonDragMove(event){
+    if(!plannerFaceButtonDragState) return;
+    const dxPx = event.clientX - plannerFaceButtonDragState.startClientX;
+    const dyPx = event.clientY - plannerFaceButtonDragState.startClientY;
+    const dxPct = (dxPx / plannerFaceButtonDragState.sketchWidth) * 100;
+    const dyPct = (dyPx / plannerFaceButtonDragState.sketchHeight) * 100;
+    if(Math.abs(dxPct) > 0.02 || Math.abs(dyPct) > 0.02){
+      plannerFaceButtonDragState.moved = true;
+    }
+    if(plannerFaceButtonDragState.mode === "resize"){
+      const minW = 0.8;
+      const minH = 0.8;
+      let dLeft = 0;
+      let dTop = 0;
+      let dWidth = 0;
+      let dHeight = 0;
+      const edges = plannerFaceButtonDragState.resizeEdges;
+      if(edges.right) dWidth += dxPct;
+      if(edges.left){
+        dWidth -= dxPct;
+        dLeft += dxPct;
+      }
+      if(edges.bottom) dHeight += dyPct;
+      if(edges.top){
+        dHeight -= dyPct;
+        dTop += dyPct;
+      }
+      const proposedW = plannerFaceButtonDragState.startWidth + dWidth;
+      if(proposedW < minW){
+        const corrW = minW - proposedW;
+        dWidth += corrW;
+        if(edges.left) dLeft -= corrW;
+      }
+      const proposedH = plannerFaceButtonDragState.startHeight + dHeight;
+      if(proposedH < minH){
+        const corrH = minH - proposedH;
+        dHeight += corrH;
+        if(edges.top) dTop -= corrH;
+      }
+      plannerFaceZoneTransformById[plannerFaceButtonDragState.zoneId] = {
+        left:Number((plannerFaceButtonDragState.startTransformLeft + dLeft).toFixed(4)),
+        top:Number((plannerFaceButtonDragState.startTransformTop + dTop).toFixed(4)),
+        width:Number((plannerFaceButtonDragState.startTransformWidth + dWidth).toFixed(4)),
+        height:Number((plannerFaceButtonDragState.startTransformHeight + dHeight).toFixed(4))
+      };
+    } else {
+      plannerFaceZoneOffsetById[plannerFaceButtonDragState.zoneId] = {
+        x:Number((plannerFaceButtonDragState.startOffsetX + dxPct).toFixed(4)),
+        y:Number((plannerFaceButtonDragState.startOffsetY + dyPct).toFixed(4))
+      };
+    }
+    schedulePlannerRender(activeLaserMode());
+  }
+  function plannerStartFaceButtonDrag(event, zoneId, btn){
+    const mode = activeLaserMode();
+    if(mode !== "frauen") return;
+    if(!plannerFaceZoneMovable(zoneId)) return;
+    if(event.button !== 0) return;
+    if(!plannerSketch) return;
+    const rect = plannerSketch.getBoundingClientRect();
+    if(rect.width <= 0 || rect.height <= 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    plannerSetJoystickTarget(zoneId);
+    const offset = plannerFaceZoneOffsetById[zoneId] || { x:0, y:0 };
+    const transform = plannerFaceZoneTransformById[zoneId] || { left:0, top:0, width:0, height:0 };
+    const resizeEdges = plannerFaceResizeEdgesFromPointer(btn, event.clientX, event.clientY);
+    const modeName = resizeEdges ? "resize" : "move";
+    const startWidth = Number.parseFloat(btn && btn.style.width) || 0;
+    const startHeight = Number.parseFloat(btn && btn.style.height) || 0;
+    plannerFaceButtonDragState = {
+      zoneId,
+      mode:modeName,
+      resizeEdges,
+      startClientX:event.clientX,
+      startClientY:event.clientY,
+      startOffsetX:offset.x,
+      startOffsetY:offset.y,
+      startTransformLeft:transform.left || 0,
+      startTransformTop:transform.top || 0,
+      startTransformWidth:transform.width || 0,
+      startTransformHeight:transform.height || 0,
+      startWidth,
+      startHeight,
+      sketchWidth:rect.width,
+      sketchHeight:rect.height,
+      moved:false
+    };
+    document.body.style.userSelect = "none";
+    window.addEventListener("mousemove", plannerHandleFaceButtonDragMove);
+    window.addEventListener("mouseup", plannerEndFaceButtonDrag, true);
+  }
+  function resizePlannerJoystick(sizeDelta){
+    const mode = activeLaserMode();
+    if(mode !== "frauen") return;
+    if(!plannerFaceZoneMovable(plannerJoystickTargetZoneId)) return;
+    const current = plannerFaceZoneSizeDeltaById[plannerJoystickTargetZoneId] || 0;
+    plannerFaceZoneSizeDeltaById[plannerJoystickTargetZoneId] = Number((current + sizeDelta).toFixed(4));
+    schedulePlannerRender(mode);
+  }
+  function bringPlannerJoystickTargetToFront(){
+    const mode = activeLaserMode();
+    if(mode !== "frauen") return;
+    if(!plannerFaceZoneMovable(plannerJoystickTargetZoneId)) return;
+    plannerFaceZoneLayerById[plannerJoystickTargetZoneId] = "front";
+    schedulePlannerRender(mode);
+  }
+  function rotatePlannerJoystickTarget(deltaDeg){
+    const mode = activeLaserMode();
+    if(mode !== "frauen") return;
+    if(!plannerFaceZoneMovable(plannerJoystickTargetZoneId)) return;
+    const current = plannerFaceZoneRotateById[plannerJoystickTargetZoneId] || 0;
+    plannerFaceZoneRotateById[plannerJoystickTargetZoneId] = Number((current + deltaDeg).toFixed(3));
+    schedulePlannerRender(mode);
+  }
+  function plannerFaceAdjustmentsPayload(){
+    return {
+      version:1,
+      savedAt:new Date().toISOString(),
+      offsets:plannerFaceZoneOffsetById,
+      sizes:plannerFaceZoneSizeDeltaById,
+      shapes:plannerFaceZoneShapeById,
+      transforms:plannerFaceZoneTransformById,
+      layers:plannerFaceZoneLayerById,
+      warpPoints:plannerFaceZoneWarpPointsById,
+      rotates:plannerFaceZoneRotateById
+    };
+  }
+  function plannerSetSaveButtonText(text){
+    if(!plannerFaceSaveBtn) return;
+    plannerFaceSaveBtn.textContent = text;
+  }
+  function copyPlannerFaceAdjustmentsInto(target, source){
+    Object.keys(target).forEach((key) => delete target[key]);
+    if(!source || typeof source !== "object") return;
+    Object.keys(source).forEach((key) => {
+      target[key] = source[key];
+    });
+  }
+  function restorePlannerFaceAdjustmentsFromStorage(){
+    try{
+      const parsed = PLANNER_FACE_EMBEDDED_STATE;
+      if(!parsed || typeof parsed !== "object") return false;
+      copyPlannerFaceAdjustmentsInto(plannerFaceZoneOffsetById, parsed.offsets);
+      copyPlannerFaceAdjustmentsInto(plannerFaceZoneSizeDeltaById, parsed.sizes);
+      copyPlannerFaceAdjustmentsInto(plannerFaceZoneShapeById, parsed.shapes);
+      copyPlannerFaceAdjustmentsInto(plannerFaceZoneTransformById, parsed.transforms);
+      copyPlannerFaceAdjustmentsInto(plannerFaceZoneLayerById, parsed.layers);
+      copyPlannerFaceAdjustmentsInto(plannerFaceZoneWarpPointsById, parsed.warpPoints);
+      copyPlannerFaceAdjustmentsInto(plannerFaceZoneRotateById, parsed.rotates);
+      return true;
+    } catch(_error){
+      return false;
+    }
+  }
+  async function plannerSelectHtmlFileHandle(){
+    if(!window.showOpenFilePicker) return null;
+    const handles = await window.showOpenFilePicker({
+      multiple:false,
+      types:[{
+        description:"HTML",
+        accept:{ "text/html":[".html", ".htm"] }
+      }]
+    });
+    if(!Array.isArray(handles) || !handles[0]) return null;
+    plannerFaceHtmlFileHandle = handles[0];
+    return plannerFaceHtmlFileHandle;
+  }
+  async function writePlannerFaceAdjustmentsIntoHtmlFile(payload){
+    if(!window.showOpenFilePicker) return false;
+    const handle = plannerFaceHtmlFileHandle || (await plannerSelectHtmlFileHandle());
+    if(!handle) return false;
+    const file = await handle.getFile();
+    const sourceText = await file.text();
+    const nextStateJson = JSON.stringify(payload, null, 2);
+    const nextStateBlock = `const PLANNER_FACE_EMBEDDED_STATE = /*__PLANNER_FACE_STATE_START__*/${nextStateJson}/*__PLANNER_FACE_STATE_END__*/;`;
+    const statePattern = /const PLANNER_FACE_EMBEDDED_STATE = \/\*__PLANNER_FACE_STATE_START__\*\/[\s\S]*?\/\*__PLANNER_FACE_STATE_END__\*\/;/;
+    if(!statePattern.test(sourceText)) return false;
+    const nextText = sourceText.replace(statePattern, nextStateBlock);
+    const writable = await handle.createWritable();
+    await writable.write(nextText);
+    await writable.close();
+    return true;
+  }
+  async function savePlannerFaceAdjustmentsToFile(){
+    try{
+      const payload = plannerFaceAdjustmentsPayload();
+      const written = await writePlannerFaceAdjustmentsIntoHtmlFile(payload);
+      if(!written){
+        throw new Error("html-write-failed");
+      }
+      plannerSetSaveButtonText("SAVED");
+      setTimeout(() => {
+        plannerSetSaveButtonText("SAVE");
+      }, 1200);
+      return true;
+    } catch(_error){
+      if(_error && _error.name === "AbortError"){
+        plannerSetSaveButtonText("SAVE");
+        return false;
+      }
+      plannerSetSaveButtonText("ERR");
+      setTimeout(() => {
+        plannerSetSaveButtonText("SAVE");
+      }, 1200);
+      return false;
+    }
+  }
+  function setPlannerJoystickShape(shape){
+    const mode = activeLaserMode();
+    if(mode !== "frauen") return;
+    if(!plannerFaceZoneMovable(plannerJoystickTargetZoneId)) return;
+    plannerFaceZoneShapeById[plannerJoystickTargetZoneId] = shape;
+    schedulePlannerRender(mode);
+  }
+  function applyPlannerFaceOffsetToButton(zoneId, btn){
+    if(!btn || !plannerFaceZoneMovable(zoneId)) return;
+    const shape = plannerFaceZoneShapeById[zoneId];
+    const transform = plannerFaceZoneTransformById[zoneId] || { left:0, top:0, width:0, height:0 };
+    const layer = plannerFaceZoneLayerById[zoneId];
+    const rotateDeg = plannerFaceZoneRotateById[zoneId] || 0;
+    const baseLeft = Number.parseFloat(btn.style.left);
+    const baseTop = Number.parseFloat(btn.style.top);
+    const baseWidth = Number.parseFloat(btn.style.width);
+    const baseHeight = Number.parseFloat(btn.style.height);
+    if(Number.isFinite(baseLeft)) btn.style.left = `${baseLeft + (transform.left || 0)}%`;
+    if(Number.isFinite(baseTop)) btn.style.top = `${baseTop + (transform.top || 0)}%`;
+    if(Number.isFinite(baseWidth)) btn.style.width = `${Math.max(0.8, baseWidth + (transform.width || 0))}%`;
+    if(Number.isFinite(baseHeight)) btn.style.height = `${Math.max(0.8, baseHeight + (transform.height || 0))}%`;
+    if(rotateDeg !== 0){
+      const baseTransform = btn.style.transform ? `${btn.style.transform} ` : "";
+      btn.style.transform = `${baseTransform}rotate(${rotateDeg}deg)`;
+    }
+    if(layer === "front") btn.style.zIndex = "99";
+    btn.style.clipPath = "";
+    if(shape === "square") btn.style.borderRadius = "0";
+    if(shape === "rounded") btn.style.borderRadius = "12%";
+    if(shape === "circle") btn.style.borderRadius = "50%";
+    if(shape === "oval") btn.style.borderRadius = "50% / 35%";
+    if(shape === "pill") btn.style.borderRadius = "999px";
+    if(shape === "diamond"){
+      btn.style.borderRadius = "0";
+      btn.style.clipPath = "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)";
+    }
+    if(shape === "squircle") btn.style.borderRadius = "28%";
+    if(shape === "bevel"){
+      btn.style.borderRadius = "0";
+      btn.style.clipPath = "polygon(12% 0%, 88% 0%, 100% 12%, 100% 88%, 88% 100%, 12% 100%, 0% 88%, 0% 12%)";
+    }
+    if(shape === "hexagon"){
+      btn.style.borderRadius = "0";
+      btn.style.clipPath = "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)";
+    }
+    if(shape === "parallelogram"){
+      btn.style.borderRadius = "0";
+      btn.style.clipPath = "polygon(12% 0%, 100% 0%, 88% 100%, 0% 100%)";
+    }
+    if(shape === "trapezoid"){
+      btn.style.borderRadius = "0";
+      btn.style.clipPath = "polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%)";
+    }
+    if(shape === "capsulev") btn.style.borderRadius = "35% / 50%";
+    const warpClipPath = plannerComputeWarpClipPath(zoneId);
+    if(warpClipPath){
+      btn.style.borderRadius = "0";
+      btn.style.clipPath = warpClipPath;
+    }
+    const sizeDelta = plannerFaceZoneSizeDeltaById[zoneId] || 0;
+    if(sizeDelta !== 0){
+      const width = Number.parseFloat(btn.style.width);
+      const height = Number.parseFloat(btn.style.height);
+      const left = Number.parseFloat(btn.style.left);
+      const top = Number.parseFloat(btn.style.top);
+      const nextWidth = Number.isFinite(width) ? Math.max(0.8, width + sizeDelta) : null;
+      const nextHeight = Number.isFinite(height) ? Math.max(0.8, height + sizeDelta) : null;
+      if(nextWidth !== null && Number.isFinite(left)){
+        btn.style.left = `${left - ((nextWidth - width) * 0.5)}%`;
+        btn.style.width = `${nextWidth}%`;
+      }
+      if(nextHeight !== null && Number.isFinite(top)){
+        btn.style.top = `${top - ((nextHeight - height) * 0.5)}%`;
+        btn.style.height = `${nextHeight}%`;
+      }
+    }
+    const offset = plannerFaceZoneOffsetById[zoneId];
+    if(!offset) return;
+    const left = Number.parseFloat(btn.style.left);
+    const top = Number.parseFloat(btn.style.top);
+    if(Number.isFinite(left)) btn.style.left = `${left + offset.x}%`;
+    if(Number.isFinite(top)) btn.style.top = `${top + offset.y}%`;
   }
   function setPlannerFrauenView(view, options = {}){
     const nextView = plannerFrauenViewOrder.includes(view) ? view : "front";
@@ -4604,6 +5504,7 @@
   }
   function applyPlannerFigureMode(mode, options = {}){
     if(!plannerFigureImage) return;
+    plannerEnsureDynamicOverlaysMounted();
     const modeVisual = plannerFigureByMode[mode] || plannerFigureByMode.herren;
     const visual = mode === "frauen"
       ? ((modeVisual && modeVisual[plannerFrauenView]) || modeVisual.front || modeVisual.back)
@@ -4751,6 +5652,7 @@
     if(plannerFigureOverlayImage){
       plannerFigureOverlayImage.classList.remove("is-visible");
     }
+    plannerClearDynamicOverlayClasses({ clearVisible:true, clearGuide:true });
   }
   function clearPlannerGuideOverlay(){
     if(plannerFigureOverlayUpperlip){
@@ -4798,6 +5700,7 @@
     if(plannerFigureOverlayImage){
       plannerFigureOverlayImage.classList.remove("is-guide-visible", "is-guide-intim");
     }
+    plannerClearDynamicOverlayClasses({ clearVisible:false, clearGuide:true });
   }
   function setPlannerInactivePartsIdle(isIdle){
     void isIdle;
@@ -4808,11 +5711,51 @@
   function stopPlannerInactiveWave(){
     resetPlannerInactiveWaveClasses();
   }
+  function plannerEnsureDynamicOverlaysMounted(){
+    if(!plannerFigureInner) return;
+    const frontline = plannerFigureFrontline || null;
+    ["back", "face"].forEach((view) => {
+      plannerDynamicOverlayEntriesForView(view).forEach(([partKey, src]) => {
+        const key = plannerDynamicOverlayKey(view, partKey);
+        if(plannerDynamicOverlayElsByKey[key]) return;
+        const el = document.createElement("img");
+        el.setAttribute("src", src);
+        el.setAttribute("alt", "");
+        el.setAttribute("loading", "lazy");
+        el.setAttribute("aria-hidden", "true");
+        el.className = "plannerFigureOverlayImage plannerFigureOverlayImage--dynamic";
+        if(frontline && frontline.parentNode === plannerFigureInner){
+          plannerFigureInner.insertBefore(el, frontline);
+        } else {
+          plannerFigureInner.appendChild(el);
+        }
+        plannerDynamicOverlayElsByKey[key] = el;
+      });
+    });
+  }
+  function plannerClearDynamicOverlayClasses(options = {}){
+    const clearVisible = options.clearVisible !== false;
+    const clearGuide = options.clearGuide !== false;
+    Object.values(plannerDynamicOverlayElsByKey).forEach((el) => {
+      if(!el) return;
+      if(clearVisible) el.classList.remove("is-visible");
+      if(clearGuide) el.classList.remove("is-guide-visible");
+    });
+  }
+  function plannerDynamicOverlayElementsForPartKey(partKey){
+    if(activeLaserMode() !== "frauen") return [];
+    if(plannerFrauenView === "front") return [];
+    const key = plannerDynamicOverlayKey(plannerFrauenView, partKey);
+    const el = plannerDynamicOverlayElsByKey[key];
+    return el ? [el] : [];
+  }
   function plannerOverlayElementsForPartKey(partKey){
+    const dynamicEls = plannerDynamicOverlayElementsForPartKey(partKey);
+    if(dynamicEls.length) return dynamicEls;
     switch(partKey){
       case "OBERLIPPE": return [plannerFigureOverlayUpperlip];
       case "HALS": return [plannerFigureOverlayChin];
-      case "BRUSTBEREICH": return [plannerFigureOverlayChest];
+      case "BRUSTBEREICH": return [plannerFigureOverlayChest, plannerFigureOverlayAxillaGray];
       case "HANDE_L": return [plannerFigureOverlayHands];
       case "HANDE_R": return [plannerFigureOverlayHands];
       case "FUSSE_L": return [plannerFigureOverlayFeet];
@@ -4885,9 +5828,6 @@
     setPlannerHoverPreviewParts([partKey]);
   }
   function plannerHoverPartsForZone(mode, zoneId){
-    if(mode === "frauen" && plannerFrauenView !== "front"){
-      return [];
-    }
     const map = plannerHoverPartsByZone[mode] || {};
     return map[zoneId] || [];
   }
@@ -4897,7 +5837,7 @@
     return hit ? hit.key : null;
   }
   function canRunFrauenHoverPreview(){
-    return activeLaserMode() === "frauen" && plannerFrauenView === "front" && !plannerViewTransitionActive;
+    return activeLaserMode() === "frauen" && !plannerViewTransitionActive;
   }
   function isInteractiveSectionInView(){
     if(!interactiveSection) return true;
@@ -4946,7 +5886,9 @@
     const shouldShowHandsOverlay = isFrauenFront && selectedSet.has("hands");
     const shouldShowFeetOverlay = isFrauenFront && selectedSet.has("feet");
     const shouldShowUpperarmsOverlay = isFrauenFront && selectedSet.has("upperarms");
-    const shouldShowAxillaGrayOverlay = isFrauenFront && selectedSet.has("upperarms") && !selectedSet.has("axilla");
+    const chestKeepsAxillaGray = isFrauenFront && selectedSet.has("chest");
+    const frontUpperarmsKeepAxillaGray = isFrauenFront && !chestKeepsAxillaGray && selectedSet.has("upperarms") && !selectedSet.has("axilla");
+    const shouldShowAxillaGrayOverlay = chestKeepsAxillaGray || frontUpperarmsKeepAxillaGray;
     const shouldShowUnderarmsOverlay = isFrauenFront && selectedSet.has("underarms");
     const shouldShowBauchMediaOverlay = isFrauenFront && selectedSet.has("medialinebauch");
     const shouldShowBauchFullOverlay = isFrauenFront && selectedSet.has("bauchfull");
@@ -4996,7 +5938,24 @@
     if(plannerFigureOverlayUntersch){
       plannerFigureOverlayUntersch.classList.toggle("is-visible", shouldShowUnterschOverlay);
     }
+    if(mode === "frauen" && plannerFrauenView !== "front"){
+      plannerClearDynamicOverlayClasses();
+      const zoneMap = plannerHoverPartsByZone[mode] || {};
+      const selectedParts = new Set();
+      selectedSet.forEach((zoneId) => {
+        const parts = zoneMap[zoneId] || [];
+        parts.forEach((partKey) => selectedParts.add(partKey));
+      });
+      selectedParts.forEach((partKey) => {
+        plannerDynamicOverlayElementsForPartKey(partKey).forEach((el) => {
+          el.classList.add("is-visible");
+        });
+      });
+    }
     if(plannerFigureOverlayImage){
+      if(isFrauenFront){
+        plannerFigureOverlayImage.setAttribute("src", "img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM_POF.svg");
+      }
       plannerFigureOverlayImage.classList.toggle("is-visible", shouldShowIntimOverlay);
     }
   }
@@ -5188,11 +6147,13 @@
     plannerInertiaRaf = requestAnimationFrame(step);
   }
   function maybeSettlePlannerToHome(delayMs = 280){
+    if(isPlannerFaceJoystickActive()) return;
     if(plannerZoom <= 1.001) return;
     if(plannerZoom > 1.18) return;
     clearPlannerSettleTimer();
     plannerSettleTimer = setTimeout(() => {
       clearPlannerSettleTimer();
+      if(isPlannerFaceJoystickActive()) return;
       animatePlannerToHome(920);
     }, delayMs);
   }
@@ -5273,8 +6234,10 @@
   }
   function schedulePlannerAutoReset(){
     clearPlannerAutoResetTimer();
+    if(isPlannerFaceJoystickActive()) return;
     if(plannerZoom <= 1.001) return;
     plannerAutoResetTimer = setTimeout(() => {
+      if(isPlannerFaceJoystickActive()) return;
       animatePlannerToHome(1900);
     }, 4500);
   }
@@ -5874,6 +6837,7 @@
   }
   function togglePlannerZone(mode, zoneId){
     markPlannerInteracted();
+    if(mode === "frauen" && plannerFrauenView === "back" && zoneId === "axilla") return false;
     const selectedSet = plannerSelectedByMode[mode];
     if(!selectedSet) return false;
     const prevSelectedSet = new Set(selectedSet);
@@ -6193,17 +7157,24 @@
     const selectedSet = plannerSelectedByMode[mode] || new Set();
     plannerZoneGrid.innerHTML = "";
     zones.forEach((zone) => {
-      if(isFrauenFace && zone.id !== "chin" && zone.id !== "nacken" && zone.id !== "glabella" && zone.id !== "upperlip") return;
+      if(isFrauenFace && zone.id !== "chin" && zone.id !== "nacken" && zone.id !== "kinn" && zone.id !== "wangen" && zone.id !== "koteletten" && zone.id !== "glabella" && zone.id !== "upperlip") return;
       if(isFrauenFront && zone.id === "lowerback") return;
       if(isFrauenFront && zone.id === "pobacken") return;
       if(isFrauenFront && zone.id === "glabella") return;
       if(isFrauenFront && zone.id === "upperlip") return;
       if(isFrauenFront && zone.id === "nacken") return;
+      if(isFrauenFront && zone.id === "kinn") return;
+      if(isFrauenFront && zone.id === "wangen") return;
+      if(isFrauenFront && zone.id === "koteletten") return;
       if(isFrauenFront && zone.id === "upperback") return;
       if(isFrauenBack && zone.id === "chin") return;
+      if(isFrauenBack && zone.id === "kinn") return;
+      if(isFrauenBack && zone.id === "wangen") return;
+      if(isFrauenBack && zone.id === "koteletten") return;
       if(isFrauenBack && zone.id === "glabella") return;
       if(isFrauenBack && zone.id === "upperlip") return;
       if(isFrauenBack && zone.id === "chest") return;
+      if(isFrauenBack && zone.id === "axilla") return;
       if(isFrauenBack && zone.id === "bauchfull") return;
       if(isFrauenBack && zone.id === "medialinebauch") return;
       if(isFrauenBack && zone.id === "bikini") return;
@@ -6260,19 +7231,27 @@
     };
     plannerSketch.innerHTML = "";
     if(plannerBackSketch) plannerBackSketch.innerHTML = "";
+    const renderedFaceWarpHandles = new Set();
     zones.forEach((zone) => {
-      if(isFrauenFace && zone.id !== "chin" && zone.id !== "nacken" && zone.id !== "glabella" && zone.id !== "upperlip") return;
+      if(isFrauenFace && zone.id !== "chin" && zone.id !== "nacken" && zone.id !== "kinn" && zone.id !== "wangen" && zone.id !== "koteletten" && zone.id !== "glabella" && zone.id !== "upperlip") return;
       if(isFrauenFront && zone.id === "back") return;
       if(isFrauenFront && zone.id === "lowerback") return;
       if(isFrauenFront && zone.id === "pobacken") return;
       if(isFrauenFront && zone.id === "glabella") return;
       if(isFrauenFront && zone.id === "upperlip") return;
       if(isFrauenFront && zone.id === "nacken") return;
+      if(isFrauenFront && zone.id === "kinn") return;
+      if(isFrauenFront && zone.id === "wangen") return;
+      if(isFrauenFront && zone.id === "koteletten") return;
       if(isFrauenFront && zone.id === "upperback") return;
       if(isFrauenBack && zone.id === "chin") return;
+      if(isFrauenBack && zone.id === "kinn") return;
+      if(isFrauenBack && zone.id === "wangen") return;
+      if(isFrauenBack && zone.id === "koteletten") return;
       if(isFrauenBack && zone.id === "glabella") return;
       if(isFrauenBack && zone.id === "upperlip") return;
       if(isFrauenBack && zone.id === "chest") return;
+      if(isFrauenBack && zone.id === "axilla") return;
       if(isFrauenBack && zone.id === "bauchfull") return;
       if(isFrauenBack && zone.id === "medialinebauch") return;
       if(isFrauenBack && zone.id === "bikini") return;
@@ -6286,12 +7265,16 @@
       btn.style.top = `${area.y}%`;
       btn.style.width = `${area.w}%`;
       btn.style.height = `${area.h}%`;
+      btn.dataset.zoneId = zone.id;
       btn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
       const isIntimPofButton = mode === "frauen" && zone.id === "intim";
       const isBikiniButton = mode === "frauen" && zone.id === "bikini";
       const isUpperlipButton = mode === "frauen" && zone.id === "upperlip";
       const isChinButton = mode === "frauen" && zone.id === "chin";
       const isNackenButton = mode === "frauen" && zone.id === "nacken";
+      const isKinnButton = mode === "frauen" && zone.id === "kinn";
+      const isWangenButton = mode === "frauen" && zone.id === "wangen";
+      const isKotelettenButton = mode === "frauen" && zone.id === "koteletten";
       const isGlabellaButton = mode === "frauen" && zone.id === "glabella";
       const isChestButton = mode === "frauen" && zone.id === "chest";
       const isUpperBackButton = mode === "frauen" && zone.id === "upperback";
@@ -6318,6 +7301,9 @@
       else if(isLowerBackButton) buttonText = "UNTERER RÜCKEN";
       else if(isPobackenButton) buttonText = "POBACKEN";
       else if(isGlabellaButton) buttonText = "ZW. BRAUEN";
+      else if(isKinnButton) buttonText = "KINN";
+      else if(isWangenButton) buttonText = "WANGEN";
+      else if(isKotelettenButton) buttonText = "KOTELETTEN";
       else if(isUpperlipButton) buttonText = "OBERLIPPE";
       else if(isOberschButton) buttonText = "OBERSCH";
       else if(isUnterschButton) buttonText = "UNTERSCH + KNIE";
@@ -6417,6 +7403,43 @@
           btn.style.top = `${Math.max(0, 100 - faceNackenHeight - bottomPadding - 1)}%`;
         }
       }
+      if(isWangenButton){
+        btn.classList.add("zoneSketchBtn--chin");
+        const wangenCurrentSize = Math.max(area.w, area.h);
+        const wangenCenterX = area.x + (area.w * 0.5);
+        const wangenCenterY = (area.y + 5) + (wangenCurrentSize * 0.5);
+        const glabellaArea = stretchArea(positions.glabella);
+        const wangenSize = (glabellaArea ? ((glabellaArea.w * 0.95) * 1.5) : 6.6) * 1.01;
+        const wangenHeight = wangenSize * (2200 / 5500);
+        btn.style.left = `${(wangenCenterX - (wangenSize * 0.5)) + 8.5}%`;
+        btn.style.top = `${(wangenCenterY - (wangenHeight * 0.5)) + 5.5}%`;
+        btn.style.width = `${wangenSize}%`;
+        btn.style.height = `${wangenHeight}%`;
+        btn.style.borderRadius = "50%";
+        btn.style.zIndex = "6";
+      }
+      if(isKinnButton){
+        btn.classList.add("zoneSketchBtn--chin");
+        btn.style.left = "37.5%";
+        btn.style.top = "21.0%";
+        btn.style.width = "26.2%";
+        btn.style.height = "4.74%";
+      }
+      if(isKotelettenButton){
+        btn.classList.add("zoneSketchBtn--chin");
+        const sideW = area.w;
+        const sideH = area.h;
+        const sideLeft = 44 - (sideW * 0.5);
+        const sideTop = 49;
+        const sideWidth = 30;
+        btn.style.left = `${sideLeft}%`;
+        btn.style.top = `${sideTop}%`;
+        btn.style.width = `${sideWidth}%`;
+        btn.style.height = `${sideH}%`;
+        btn.style.zIndex = "3";
+        btn.style.transform = "rotate(25deg)";
+        btn.style.transformOrigin = "50% 50%";
+      }
       if(isFrauenFace && isGlabellaButton){
         const glabellaSize = (area.w * 0.95) * 1.5;
         const glabellaCenterX = area.x + (area.w * 0.5);
@@ -6435,11 +7458,11 @@
         const glabellaSize = (area.w * 0.95) * 1.5;
         const glabellaTop = (area.y + (area.h * 1.35)) - (glabellaSize * 0.7);
         const glabellaBottom = glabellaTop + glabellaSize;
-        const upperlipTop = (glabellaBottom + halsTop) * 0.5;
+        const upperlipTop = 17;
         btn.style.left = `${halsLeft}%`;
         btn.style.top = `${upperlipTop}%`;
         btn.style.width = `${halsWidth}%`;
-        btn.style.height = `${halsHeight}%`;
+        btn.style.height = "4.24%";
         btn.style.borderRadius = "0";
       }
       if(isChestButton || isUpperBackButton){
@@ -6480,7 +7503,31 @@
         btn.classList.add("zoneSketchBtn--axilla");
         btn.style.height = "";
       }
+      if(mode === "frauen"){
+        if(plannerFaceZoneMovable(zone.id)) btn.dataset.facePrimary = "1";
+        applyPlannerFaceOffsetToButton(zone.id, btn);
+        if(plannerFaceZoneMovable(zone.id)){
+          btn.style.cursor = "move";
+          btn.addEventListener("mousemove", (event) => {
+            const edges = plannerFaceResizeEdgesFromPointer(btn, event.clientX, event.clientY);
+            btn.style.cursor = plannerFaceResizeCursor(edges);
+          });
+          btn.addEventListener("mouseleave", () => {
+            btn.style.cursor = "move";
+          });
+          btn.addEventListener("mousedown", (event) => {
+            plannerStartFaceButtonDrag(event, zone.id, btn);
+          });
+          btn.addEventListener("dblclick", (event) => {
+            plannerAddFaceWarpPoint(event, zone.id, btn);
+          });
+        }
+      }
       btn.addEventListener("click", () => {
+        if(mode === "frauen" && plannerShouldSuppressFaceZoneClick(zone.id)) return;
+        if(mode === "frauen" && plannerFaceZoneMovable(zone.id)){
+          plannerSetJoystickTarget(zone.id);
+        }
         plannerButtonHoverPreviewActive = false;
         clearPlannerHoverPreview();
         togglePlannerZone(mode, zone.id);
@@ -6509,6 +7556,7 @@
         const dupBtn = document.createElement("button");
         dupBtn.type = "button";
         dupBtn.className = "zoneSketchBtn zoneSketchBtn--chin";
+        dupBtn.dataset.zoneId = zone.id;
         if(selectedSet.has(zone.id)) dupBtn.classList.add("is-active");
         dupBtn.style.left = `${faceChinDuplicateSpec.left}%`;
         dupBtn.style.top = `${faceChinDuplicateSpec.top}%`;
@@ -6517,9 +7565,32 @@
         dupBtn.style.transform = "rotate(25deg)";
         dupBtn.style.transformOrigin = "50% 50%";
         dupBtn.style.zIndex = "6";
+        if(mode === "frauen"){
+          applyPlannerFaceOffsetToButton(zone.id, dupBtn);
+          if(plannerFaceZoneMovable(zone.id)){
+            dupBtn.style.cursor = "move";
+            dupBtn.addEventListener("mousemove", (event) => {
+              const edges = plannerFaceResizeEdgesFromPointer(dupBtn, event.clientX, event.clientY);
+              dupBtn.style.cursor = plannerFaceResizeCursor(edges);
+            });
+            dupBtn.addEventListener("mouseleave", () => {
+              dupBtn.style.cursor = "move";
+            });
+            dupBtn.addEventListener("mousedown", (event) => {
+              plannerStartFaceButtonDrag(event, zone.id, dupBtn);
+            });
+            dupBtn.addEventListener("dblclick", (event) => {
+              plannerAddFaceWarpPoint(event, zone.id, dupBtn);
+            });
+          }
+        }
         dupBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
         dupBtn.innerHTML = `<span class="zoneSketchTag">${buttonText}</span>`;
         dupBtn.addEventListener("click", () => {
+          if(mode === "frauen" && plannerShouldSuppressFaceZoneClick(zone.id)) return;
+          if(mode === "frauen" && plannerFaceZoneMovable(zone.id)){
+            plannerSetJoystickTarget(zone.id);
+          }
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
           togglePlannerZone(mode, zone.id);
@@ -6538,6 +7609,10 @@
           clearPlannerHoverPreview();
         });
         plannerSketch.appendChild(dupBtn);
+      }
+      if(mode === "frauen" && plannerFaceZoneMovable(zone.id) && !renderedFaceWarpHandles.has(zone.id)){
+        renderPlannerFaceWarpHandlesForZone(zone.id);
+        renderedFaceWarpHandles.add(zone.id);
       }
       if(isHandsButton){
         const handsWidthScale = 1.6;
@@ -7110,6 +8185,7 @@
       schedulePlannerRender(activeLaserMode());
     });
   }
+  restorePlannerFaceAdjustmentsFromStorage();
     if(plannerViewButtons.length){
       plannerViewButtons.forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -7128,6 +8204,57 @@
     }
     setPlannerFrauenView("front", { mode:laserSwitchModeFromUrl() });
   }
+  if(plannerFaceJoystickButtons.length){
+    plannerFaceJoystickButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const move = btn.dataset.joystickMove;
+        if(move === "up") movePlannerJoystick(0, -PLANNER_FACE_JOYSTICK_STEP);
+        if(move === "down") movePlannerJoystick(0, PLANNER_FACE_JOYSTICK_STEP);
+        if(move === "left") movePlannerJoystick(-PLANNER_FACE_JOYSTICK_STEP, 0);
+        if(move === "right") movePlannerJoystick(PLANNER_FACE_JOYSTICK_STEP, 0);
+      });
+    });
+  }
+  if(plannerFaceJoystickScaleButtons.length){
+    plannerFaceJoystickScaleButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const scale = btn.dataset.joystickScale;
+        if(scale === "up") resizePlannerJoystick(PLANNER_FACE_JOYSTICK_SIZE_STEP);
+        if(scale === "down") resizePlannerJoystick(-PLANNER_FACE_JOYSTICK_SIZE_STEP);
+      });
+    });
+  }
+  if(plannerFaceJoystickShapeButtons.length){
+    plannerFaceJoystickShapeButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const shape = btn.dataset.joystickShape;
+        if(shape === "square" || shape === "rounded" || shape === "circle" || shape === "oval" || shape === "pill" || shape === "diamond" || shape === "squircle" || shape === "bevel" || shape === "hexagon" || shape === "parallelogram" || shape === "trapezoid" || shape === "capsulev"){
+          setPlannerJoystickShape(shape);
+        }
+      });
+    });
+  }
+  if(plannerFaceSaveBtn){
+    plannerFaceSaveBtn.addEventListener("click", async () => {
+      await savePlannerFaceAdjustmentsToFile();
+    });
+  }
+  if(plannerFaceFrontBtn){
+    plannerFaceFrontBtn.addEventListener("click", () => {
+      bringPlannerJoystickTargetToFront();
+    });
+  }
+  if(plannerFaceRotateCcwBtn){
+    plannerFaceRotateCcwBtn.addEventListener("click", () => {
+      rotatePlannerJoystickTarget(-PLANNER_FACE_JOYSTICK_ROTATE_STEP);
+    });
+  }
+  if(plannerFaceRotateCwBtn){
+    plannerFaceRotateCwBtn.addEventListener("click", () => {
+      rotatePlannerJoystickTarget(PLANNER_FACE_JOYSTICK_ROTATE_STEP);
+    });
+  }
+  plannerSetJoystickTarget("kinn");
   setPlannerPricingView("single");
   if(laserSwitchButtons.length){
     laserSwitchButtons.forEach((btn) => {
