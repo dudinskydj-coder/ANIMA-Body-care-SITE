@@ -1117,27 +1117,17 @@
   const INT_RASTER_BREAKPOINT = 1024;
   const intRasterMq = window.matchMedia(`(max-width: ${INT_RASTER_BREAKPOINT}px)`);
 
-  function detectIntPreferredFormat(){
-    try{
-      const canvas = document.createElement("canvas");
-      canvas.width = 1;
-      canvas.height = 1;
-      if(canvas.toDataURL("image/avif").indexOf("image/avif") === 5) return "avif";
-      if(canvas.toDataURL("image/webp").indexOf("image/webp") === 5) return "webp";
-    }catch(_err){
-      // fallback below
-    }
-    return "jpg";
-  }
-  const INT_PREFERRED_FORMAT = detectIntPreferredFormat();
-
   function normalizeIntAssetPath(path){
     if(!path) return "";
     let normalized = String(path);
-    try{
-      normalized = new URL(normalized, window.location.href).pathname;
-    }catch(_err){
-      // keep original path
+    const hasProtocol = /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(normalized);
+    const isAbsolute = normalized.startsWith("/");
+    if(hasProtocol || isAbsolute){
+      try{
+        normalized = new URL(normalized, window.location.href).pathname;
+      }catch(_err){
+        // keep original path
+      }
     }
     normalized = normalized.replace(/^\/+/, "");
     normalized = normalized.replace(/^\.\//, "");
@@ -1153,36 +1143,30 @@
     if(px <= 960) return 800;
     return 1200;
   }
-  function intRasterVariantPath(path){
-    const normalized = normalizeIntAssetPath(path);
-    if(!isIntSvgAssetPath(normalized) || !intRasterMq.matches) return normalized;
+  function intMobileWebpPath(svgPath){
+    const normalized = normalizeIntAssetPath(svgPath);
+    if(!isIntSvgAssetPath(normalized)) return normalized;
     const width = pickIntAssetWidth();
-    return normalized.replace(/\.svg(?:[?#].*)?$/i, `-${width}.${INT_PREFERRED_FORMAT}`);
+    return normalized.replace(/\.svg(?:[?#].*)?$/i, `-${width}.webp`);
   }
-  function intRasterCandidatePaths(path){
+  function inferIntSvgFromRasterPath(path){
     const normalized = normalizeIntAssetPath(path);
-    if(!isIntSvgAssetPath(normalized)) return [normalized];
-    if(!intRasterMq.matches) return [normalized];
-    const width = pickIntAssetWidth();
-    const stem = normalized.replace(/\.svg(?:[?#].*)?$/i, "");
-    const preferred = `${stem}-${width}.${INT_PREFERRED_FORMAT}`;
-    const candidates = [preferred, `${stem}-${width}.webp`, `${stem}-${width}.jpg`, normalized];
-    return candidates.filter((src, idx, arr) => !!src && arr.indexOf(src) === idx);
-  }
-  function resolveIntResponsiveSrc(path){
-    const candidates = intRasterCandidatePaths(path);
-    return candidates[0] || normalizeIntAssetPath(path);
+    if(!normalized.startsWith("img/INT/")) return "";
+    return normalized.replace(/-(400|800|1200)\.webp$/i, ".svg");
   }
   function applyIntResponsiveAssetToImage(img){
     if(!(img instanceof HTMLImageElement)) return;
-    const currentSrc = img.getAttribute("src");
+    const currentSrc = img.getAttribute("src") || "";
     if(!img.dataset.intSvgOriginal && isIntSvgAssetPath(currentSrc)){
       img.dataset.intSvgOriginal = normalizeIntAssetPath(currentSrc);
     }
+    if(!img.dataset.intSvgOriginal){
+      const inferred = inferIntSvgFromRasterPath(currentSrc);
+      if(isIntSvgAssetPath(inferred)) img.dataset.intSvgOriginal = inferred;
+    }
     const original = img.dataset.intSvgOriginal;
     if(!original) return;
-    img.dataset.intFallbackIndex = "0";
-    const nextSrc = resolveIntResponsiveSrc(original);
+    const nextSrc = intRasterMq.matches ? intMobileWebpPath(original) : original;
     if(nextSrc && currentSrc !== nextSrc){
       img.setAttribute("src", nextSrc);
     }
@@ -1231,17 +1215,12 @@
     document.addEventListener("error", (event) => {
       const img = event.target;
       if(!(img instanceof HTMLImageElement)) return;
-      const original = img.dataset.intSvgOriginal;
-      if(!original) return;
-      const candidates = intRasterCandidatePaths(original);
-      if(!candidates.length) return;
-      let idx = Number.parseInt(img.dataset.intFallbackIndex || "0", 10);
-      if(!Number.isFinite(idx) || idx < 0) idx = 0;
-      if(idx >= candidates.length - 1) return;
-      const nextIdx = idx + 1;
-      img.dataset.intFallbackIndex = String(nextIdx);
-      const nextSrc = candidates[nextIdx];
-      if(nextSrc) img.setAttribute("src", nextSrc);
+      const original = img.dataset.intSvgOriginal || inferIntSvgFromRasterPath(img.getAttribute("src"));
+      if(!isIntSvgAssetPath(original)) return;
+      const webp = intMobileWebpPath(original);
+      if(normalizeIntAssetPath(img.getAttribute("src")) === webp){
+        img.setAttribute("src", original);
+      }
     }, true);
   }
   initIntResponsiveSvgFallbacks();

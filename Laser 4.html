@@ -3529,27 +3529,17 @@
   const INT_RASTER_BREAKPOINT = 1024;
   const intRasterMq = window.matchMedia(`(max-width: ${INT_RASTER_BREAKPOINT}px)`);
 
-  function detectIntPreferredFormat(){
-    try{
-      const canvas = document.createElement("canvas");
-      canvas.width = 1;
-      canvas.height = 1;
-      if(canvas.toDataURL("image/avif").indexOf("image/avif") === 5) return "avif";
-      if(canvas.toDataURL("image/webp").indexOf("image/webp") === 5) return "webp";
-    }catch(_err){
-      // fallback below
-    }
-    return "jpg";
-  }
-  const INT_PREFERRED_FORMAT = detectIntPreferredFormat();
-
   function normalizeIntAssetPath(path){
     if(!path) return "";
     let normalized = String(path);
-    try{
-      normalized = new URL(normalized, window.location.href).pathname;
-    }catch(_err){
-      // keep original path
+    const hasProtocol = /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(normalized);
+    const isAbsolute = normalized.startsWith("/");
+    if(hasProtocol || isAbsolute){
+      try{
+        normalized = new URL(normalized, window.location.href).pathname;
+      }catch(_err){
+        // keep original path
+      }
     }
     normalized = normalized.replace(/^\/+/, "");
     normalized = normalized.replace(/^\.\//, "");
@@ -3565,39 +3555,49 @@
     if(px <= 960) return 800;
     return 1200;
   }
-  function intRasterVariantPath(path){
-    const normalized = normalizeIntAssetPath(path);
-    if(!isIntSvgAssetPath(normalized) || !intRasterMq.matches) return normalized;
+  function intMobileWebpPath(svgPath){
+    const normalized = normalizeIntAssetPath(svgPath);
+    if(!isIntSvgAssetPath(normalized)) return normalized;
     const width = pickIntAssetWidth();
-    return normalized.replace(/\.svg(?:[?#].*)?$/i, `-${width}.${INT_PREFERRED_FORMAT}`);
+    return normalized.replace(/\.svg(?:[?#].*)?$/i, `-${width}.webp`);
   }
-  function intRasterCandidatePaths(path){
+  function inferIntSvgFromRasterPath(path){
     const normalized = normalizeIntAssetPath(path);
-    if(!isIntSvgAssetPath(normalized)) return [normalized];
-    if(!intRasterMq.matches) return [normalized];
-    const width = pickIntAssetWidth();
-    const stem = normalized.replace(/\.svg(?:[?#].*)?$/i, "");
-    const preferred = `${stem}-${width}.${INT_PREFERRED_FORMAT}`;
-    const candidates = [preferred, `${stem}-${width}.webp`, `${stem}-${width}.jpg`, normalized];
-    return candidates.filter((src, idx, arr) => !!src && arr.indexOf(src) === idx);
+    if(!normalized.startsWith("img/INT/")) return "";
+    return normalized.replace(/-(400|800|1200)\.webp$/i, ".svg");
   }
-  function resolveIntResponsiveSrc(path){
-    const candidates = intRasterCandidatePaths(path);
-    return candidates[0] || normalizeIntAssetPath(path);
+  function setIntResponsiveImageSrc(img, sourcePath, options = {}){
+    if(!(img instanceof HTMLImageElement)) return;
+    void options;
+    const currentAttr = normalizeIntAssetPath(img.getAttribute("src") || "");
+    let original = normalizeIntAssetPath(sourcePath || img.getAttribute("src"));
+    if(!isIntSvgAssetPath(original)){
+      const inferred = inferIntSvgFromRasterPath(original);
+      if(isIntSvgAssetPath(inferred)) original = inferred;
+    }
+    if(!isIntSvgAssetPath(original)){
+      if(original && currentAttr !== original) img.setAttribute("src", original);
+      return;
+    }
+    img.dataset.intSvgOriginal = original;
+    const nextSrc = intRasterMq.matches ? intMobileWebpPath(original) : original;
+    if(nextSrc && currentAttr !== nextSrc) img.setAttribute("src", nextSrc);
   }
   function applyIntResponsiveAssetToImage(img){
     if(!(img instanceof HTMLImageElement)) return;
-    const currentSrc = img.getAttribute("src");
+    const currentSrc = img.getAttribute("src") || "";
     if(!img.dataset.intSvgOriginal && isIntSvgAssetPath(currentSrc)){
       img.dataset.intSvgOriginal = normalizeIntAssetPath(currentSrc);
     }
+    if(!img.dataset.intSvgOriginal){
+      const inferred = inferIntSvgFromRasterPath(currentSrc);
+      if(isIntSvgAssetPath(inferred)){
+        img.dataset.intSvgOriginal = inferred;
+      }
+    }
     const original = img.dataset.intSvgOriginal;
     if(!original) return;
-    img.dataset.intFallbackIndex = "0";
-    const nextSrc = resolveIntResponsiveSrc(original);
-    if(nextSrc && currentSrc !== nextSrc){
-      img.setAttribute("src", nextSrc);
-    }
+    setIntResponsiveImageSrc(img, original, { preserveFallbackIndex:true });
   }
   function refreshIntResponsiveAssets(root = document){
     root.querySelectorAll("img[src]").forEach(applyIntResponsiveAssetToImage);
@@ -3643,17 +3643,13 @@
     document.addEventListener("error", (event) => {
       const img = event.target;
       if(!(img instanceof HTMLImageElement)) return;
-      const original = img.dataset.intSvgOriginal;
-      if(!original) return;
-      const candidates = intRasterCandidatePaths(original);
-      if(!candidates.length) return;
-      let idx = Number.parseInt(img.dataset.intFallbackIndex || "0", 10);
-      if(!Number.isFinite(idx) || idx < 0) idx = 0;
-      if(idx >= candidates.length - 1) return;
-      const nextIdx = idx + 1;
-      img.dataset.intFallbackIndex = String(nextIdx);
-      const nextSrc = candidates[nextIdx];
-      if(nextSrc) img.setAttribute("src", nextSrc);
+      const original = img.dataset.intSvgOriginal || inferIntSvgFromRasterPath(img.getAttribute("src"));
+      if(!isIntSvgAssetPath(original)) return;
+      const normalizedCurrent = normalizeIntAssetPath(img.getAttribute("src"));
+      const mobileWebp = intMobileWebpPath(original);
+      if(normalizedCurrent === mobileWebp){
+        img.setAttribute("src", original);
+      }
     }, true);
   }
   initIntResponsiveSvgFallbacks();
@@ -3985,9 +3981,6 @@
     return /iPad/i.test(ua) || (platform === "MacIntel" && touchPoints > 1);
   }
   function plannerShouldDisableZoomOnTouch(){
-    return !!((coarsePointerMq && coarsePointerMq.matches) || isIPadTouchDevice());
-  }
-  function plannerUseTouchZoomProfile(){
     return !!((coarsePointerMq && coarsePointerMq.matches) || isIPadTouchDevice());
   }
   function plannerMaxZoom(){
@@ -5071,7 +5064,7 @@
     const visuals = laserVisualsByMode[mode] || laserVisualsByMode.frauen;
     const setImage = (el, data) => {
       if(!el || !data) return;
-      el.setAttribute("src", resolveIntResponsiveSrc(data.src));
+      setIntResponsiveImageSrc(el, data.src);
       el.setAttribute("alt", data.alt);
     };
     setImage(laserTrustImage, visuals.trust);
@@ -5701,11 +5694,9 @@
     const frontlineSrc = mode === "frauen"
       ? (plannerFrontlineByView[plannerFrauenView] || plannerFrontlineByView.front)
       : "";
-    const resolvedVisualSrc = resolveIntResponsiveSrc(visual.src);
-    const resolvedFrontlineSrc = resolveIntResponsiveSrc(frontlineSrc);
     if(plannerFigureFrontline){
       if(showFrontline && frontlineSrc){
-        plannerFigureFrontline.setAttribute("src", resolvedFrontlineSrc);
+        setIntResponsiveImageSrc(plannerFigureFrontline, frontlineSrc);
       }
       plannerFigureFrontline.classList.toggle("is-visible", !shouldAnimate && showFrontline);
     }
@@ -5730,7 +5721,7 @@
       el.style.transform = "";
     });
     if(!shouldAnimate){
-      plannerFigureImage.setAttribute("src", resolvedVisualSrc);
+      setIntResponsiveImageSrc(plannerFigureImage, visual.src);
       plannerFigureImage.setAttribute("alt", visual.alt);
       if(typeof options.onVisualSwapped === "function"){
         options.onVisualSwapped();
@@ -5757,11 +5748,11 @@
           offsetPx = directionSign * slideDistancePx * t;
         } else {
           if(!swapped){
-            plannerFigureImage.setAttribute("src", resolvedVisualSrc);
+            setIntResponsiveImageSrc(plannerFigureImage, visual.src);
             plannerFigureImage.setAttribute("alt", visual.alt);
             if(plannerFigureFrontline){
               if(showFrontline && frontlineSrc){
-                plannerFigureFrontline.setAttribute("src", resolvedFrontlineSrc);
+                setIntResponsiveImageSrc(plannerFigureFrontline, frontlineSrc);
               }
               plannerFigureFrontline.classList.toggle("is-visible", showFrontline);
             }
@@ -5905,7 +5896,7 @@
         const key = plannerDynamicOverlayKey(view, partKey);
         if(plannerDynamicOverlayElsByKey[key]) return;
         const el = document.createElement("img");
-        el.setAttribute("src", resolveIntResponsiveSrc(src));
+        setIntResponsiveImageSrc(el, src);
         el.setAttribute("alt", "");
         el.setAttribute("loading", "lazy");
         el.setAttribute("aria-hidden", "true");
@@ -6140,7 +6131,7 @@
     }
     if(plannerFigureOverlayImage){
       if(isFrauenFront){
-        plannerFigureOverlayImage.setAttribute("src", resolveIntResponsiveSrc("img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM_POF.svg"));
+        setIntResponsiveImageSrc(plannerFigureOverlayImage, "img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM_POF.svg");
       }
       plannerFigureOverlayImage.classList.toggle("is-visible", shouldShowIntimOverlay);
     }
@@ -6442,7 +6433,7 @@
     const oldScrollTop = plannerFigure ? plannerFigure.scrollTop : 0;
     const maxZoom = plannerMaxZoom();
     const clamped = Math.max(PLANNER_MIN_ZOOM, Math.min(maxZoom, nextZoom));
-    plannerZoom = clamped;
+    plannerZoom = Math.round(clamped * 1000) / 1000;
     if(plannerZoom > PLANNER_MIN_ZOOM + 0.06 && plannerZoom < maxZoom - 0.06){
       plannerZoomEdgeLock = 0;
     }
@@ -6613,9 +6604,7 @@
     plannerPinchRaf = requestAnimationFrame(() => {
       plannerPinchRaf = null;
       const delta = plannerPinchTargetZoom - plannerZoom;
-      const follow = plannerUseTouchZoomProfile()
-        ? Math.min(0.42, Math.max(0.18, Math.abs(delta) * 0.95))
-        : Math.min(0.7, Math.max(0.34, Math.abs(delta) * 1.55));
+      const follow = Math.min(0.7, Math.max(0.34, Math.abs(delta) * 1.55));
       const nextZoom = plannerZoom + (delta * follow);
       applyPlannerZoom(nextZoom, plannerPinchFocusX, plannerPinchFocusY, "none");
     });
@@ -8390,9 +8379,9 @@
         movePlannerFrauenView(1);
       });
     }
+    warmupPlannerResponsiveAssets();
     setPlannerFrauenView("front", { mode:laserSwitchModeFromUrl() });
   }
-  warmupPlannerResponsiveAssets();
   if(plannerFaceJoystickButtons.length){
     plannerFaceJoystickButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -8699,6 +8688,11 @@
         plannerSwipeTracking = false;
       }
       if(e.touches.length === 2){
+        if(plannerShouldDisableZoomOnTouch()){
+          plannerPinchActive = false;
+          plannerPinchStartDistance = null;
+          return;
+        }
         plannerPinchActive = true;
         cancelPlannerPinchRaf();
         cancelPlannerInertia();
@@ -8742,7 +8736,7 @@
     }, { passive:true });
     plannerFigure.addEventListener("touchmove", (e) => {
       if(!e.touches) return;
-      if(e.touches.length === 2 && plannerPinchStartDistance){
+      if(e.touches.length === 2 && plannerPinchStartDistance && !plannerShouldDisableZoomOnTouch()){
         e.preventDefault();
         plannerPinchActive = true;
         plannerSwipeTracking = false;
@@ -8807,6 +8801,7 @@
       const touch = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
       const touchEndX = touch ? touch.clientX : 0;
       const touchEndY = touch ? touch.clientY : 0;
+      const touchTargetIsZoneBtn = !!(e.target && typeof e.target.closest === "function" && e.target.closest(".zoneSketchBtn"));
       if(plannerSwipeTracking){
         const endX = touch ? touch.clientX : plannerSwipeStartX;
         const endY = touch ? touch.clientY : plannerSwipeStartY;
@@ -8827,7 +8822,7 @@
       const wasPinching = plannerPinchActive;
       plannerPinchActive = false;
       plannerTouchPanActive = false;
-      const canUseDoubleTapZoom = false;
+      const canUseDoubleTapZoom = plannerShouldDisableZoomOnTouch() && !wasPinching && !!touch && !touchTargetIsZoneBtn;
       if(canUseDoubleTapZoom){
         const now = Date.now();
         const tapDeltaMs = now - plannerLastTapAt;
@@ -8846,23 +8841,16 @@
         plannerLastTapAt = 0;
       }
       if(!wasPinching){
-        if(plannerUseTouchZoomProfile()){
-          setPlannerEdgeOffsetY(0);
-          clampPlannerPan(activeLaserMode());
-        } else {
-          bouncePlannerEdgeToRest();
-          snapPlannerVerticalExtremes(activeLaserMode(), 0.2);
-          maybeSettlePlannerToHome(260);
-        }
+        bouncePlannerEdgeToRest();
+        snapPlannerVerticalExtremes(activeLaserMode(), 0.2);
+        maybeSettlePlannerToHome(260);
       } else {
         setPlannerEdgeOffsetY(0);
         clampPlannerPan(activeLaserMode());
-        if(!plannerUseTouchZoomProfile() && (plannerZoom <= PLANNER_MIN_ZOOM + 0.01 || plannerZoom >= plannerMaxZoom() - 0.01)){
+        if(plannerZoom <= PLANNER_MIN_ZOOM + 0.01 || plannerZoom >= plannerMaxZoom() - 0.01){
           bouncePlannerZoomEdge(260, 1.014);
         }
-        if(!plannerUseTouchZoomProfile()){
-          maybeSettlePlannerToHome(220);
-        }
+        maybeSettlePlannerToHome(220);
       }
       schedulePlannerAutoReset();
     }, { passive:true });
@@ -8872,14 +8860,9 @@
       cancelPlannerPinchRaf();
       plannerPinchActive = false;
       plannerTouchPanActive = false;
-      if(plannerUseTouchZoomProfile()){
-        setPlannerEdgeOffsetY(0);
-        clampPlannerPan(activeLaserMode());
-      } else {
-        bouncePlannerEdgeToRest();
-        snapPlannerVerticalExtremes(activeLaserMode(), 0.2);
-        maybeSettlePlannerToHome(260);
-      }
+      bouncePlannerEdgeToRest();
+      snapPlannerVerticalExtremes(activeLaserMode(), 0.2);
+      maybeSettlePlannerToHome(260);
       schedulePlannerAutoReset();
     }, { passive:true });
   }
