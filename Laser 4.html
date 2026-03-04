@@ -3844,10 +3844,17 @@
   const coarsePointerMq = window.matchMedia("(pointer: coarse)");
   const instantMenuMq = window.matchMedia("(max-width: 1024px)");
   const mobileVideoMq = window.matchMedia("(max-width: 767px)");
+  function isIPadTouchDevice(){
+    const ua = navigator.userAgent || "";
+    const platform = navigator.platform || "";
+    const touchPoints = navigator.maxTouchPoints || 0;
+    return /iPad/i.test(ua) || (platform === "MacIntel" && touchPoints > 1);
+  }
+  function plannerShouldDisableZoomOnTouch(){
+    return !!((coarsePointerMq && coarsePointerMq.matches) || isIPadTouchDevice());
+  }
   function plannerMaxZoom(){
-    return (mobileVideoMq && mobileVideoMq.matches) || (coarsePointerMq && coarsePointerMq.matches)
-      ? PLANNER_MOBILE_MAX_ZOOM
-      : PLANNER_MAX_ZOOM;
+    return plannerShouldDisableZoomOnTouch() ? PLANNER_MIN_ZOOM : PLANNER_MAX_ZOOM;
   }
   const LASER_VIDEO_DESKTOP_SRC = "img/VIDEO/DEKA Epilation.mp4";
   const LASER_VIDEO_MOBILE_SRC = "img/VIDEO/DEKA Epilation Mob.mp4";
@@ -8453,6 +8460,7 @@
       }
     }, true);
     plannerFigure.addEventListener("wheel", (e) => {
+      if(plannerShouldDisableZoomOnTouch()) return;
       e.preventDefault();
       ensureInteractiveInViewForInteraction();
       const now = performance.now();
@@ -8509,6 +8517,11 @@
         plannerSwipeTracking = false;
       }
       if(e.touches.length === 2){
+        if(plannerShouldDisableZoomOnTouch()){
+          plannerPinchActive = false;
+          plannerPinchStartDistance = null;
+          return;
+        }
         plannerPinchActive = true;
         cancelPlannerPinchRaf();
         cancelPlannerInertia();
@@ -8552,7 +8565,7 @@
     }, { passive:true });
     plannerFigure.addEventListener("touchmove", (e) => {
       if(!e.touches) return;
-      if(e.touches.length === 2 && plannerPinchStartDistance){
+      if(e.touches.length === 2 && plannerPinchStartDistance && !plannerShouldDisableZoomOnTouch()){
         e.preventDefault();
         plannerPinchActive = true;
         plannerSwipeTracking = false;
