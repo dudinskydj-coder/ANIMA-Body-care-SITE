@@ -1851,6 +1851,20 @@
       cursor:pointer;
       transition:background-color .2s ease, border-color .2s ease, transform .18s ease;
     }
+    /* Temporary QA mode: hide planner controls for phone visual checks. */
+    #plannerFaceJoystick{
+      display:none !important;
+      pointer-events:none !important;
+    }
+    #plannerSketch .zoneSketchBtn,
+    #plannerBackSketch .zoneSketchBtn{
+      opacity:0 !important;
+      pointer-events:none !important;
+    }
+    #plannerZoneGrid .zoneBtn{
+      display:none !important;
+      pointer-events:none !important;
+    }
     .zoneBtn:hover{
       background:#f0f1f6;
       border-color:rgba(0,0,0,.2);
