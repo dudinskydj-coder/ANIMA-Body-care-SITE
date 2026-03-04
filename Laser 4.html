@@ -3031,6 +3031,17 @@
     /* Scroll reveal */
     .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease, transform .7s ease;will-change:opacity,transform}
     .reveal.is-visible{opacity:1;transform:translateY(0);}
+    /* Interactive planner must render instantly without reveal/fade-in states. */
+    #interactive-placeholder,
+    #interactive-placeholder .laserPlanner{
+      opacity:1 !important;
+      transform:none !important;
+      transition:none !important;
+    }
+    #interactive-placeholder .plannerFigureOverlayImage,
+    #interactive-placeholder .plannerFigureFrontline{
+      transition:none !important;
+    }
 
     @media (max-width:920px){
       .heroPromoStrip{
@@ -3407,7 +3418,7 @@
   </section>
 
   <section class="section" id="interactive-placeholder">
-    <div class="laserPlanner reveal" aria-label="Interaktiver Zonenplaner">
+    <div class="laserPlanner" aria-label="Interaktiver Zonenplaner">
       <div class="plannerPane plannerPane--zones">
         <div class="plannerFigureWrap">
           <button type="button" class="plannerViewArrow plannerViewArrow--prev" id="plannerViewPrev" aria-label="Previous view">
