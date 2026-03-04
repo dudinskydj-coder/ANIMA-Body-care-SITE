@@ -1141,7 +1141,8 @@
     const px = Math.ceil(window.innerWidth * (window.devicePixelRatio || 1));
     if(px <= 520) return 400;
     if(px <= 960) return 800;
-    return 1200;
+    if(px <= 1400) return 1200;
+    return 1600;
   }
   function intMobileWebpPath(svgPath){
     const normalized = normalizeIntAssetPath(svgPath);
