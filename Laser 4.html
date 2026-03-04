@@ -3731,6 +3731,32 @@
   const plannerFigureOverlayUntersch = document.getElementById("plannerFigureOverlayUntersch");
   const plannerFigureOverlayImage = document.getElementById("plannerFigureOverlayImage");
   const plannerFigureFrontline = document.getElementById("plannerFigureFrontline");
+  function plannerPrimeFigureAssets(){
+    [
+      plannerFigureImage,
+      plannerFigureOverlayUpperlip,
+      plannerFigureOverlayAxilla,
+      plannerFigureOverlayChin,
+      plannerFigureOverlayChest,
+      plannerFigureOverlayHands,
+      plannerFigureOverlayFeet,
+      plannerFigureOverlayUpperarms,
+      plannerFigureOverlayAxillaGray,
+      plannerFigureOverlayUnderarms,
+      plannerFigureOverlayBauchMedia,
+      plannerFigureOverlayBauchFull,
+      plannerFigureOverlayBikini,
+      plannerFigureOverlayObersch,
+      plannerFigureOverlayUntersch,
+      plannerFigureOverlayImage,
+      plannerFigureFrontline
+    ].forEach((img) => {
+      if(!(img instanceof HTMLImageElement)) return;
+      img.loading = "eager";
+      img.decoding = "sync";
+    });
+  }
+  plannerPrimeFigureAssets();
   const plannerSketch = document.getElementById("plannerSketch");
   const plannerZoneGrid = document.getElementById("plannerZoneGrid");
   const plannerOrderList = document.getElementById("plannerOrderList");
@@ -5784,52 +5810,9 @@
     }
     syncPlannerViewSwitch(mode);
     requestAnimationFrame(positionPlannerViewArrows);
-    if(plannerFigureOverlayUpperlip){
-      plannerFigureOverlayUpperlip.classList.remove("is-visible");
-    }
-    if(plannerFigureOverlayAxilla){
-      plannerFigureOverlayAxilla.classList.remove("is-visible");
-    }
-    if(plannerFigureOverlayChin){
-      plannerFigureOverlayChin.classList.remove("is-visible");
-    }
-    if(plannerFigureOverlayChest){
-      plannerFigureOverlayChest.classList.remove("is-visible");
-    }
-    if(plannerFigureOverlayHands){
-      plannerFigureOverlayHands.classList.remove("is-visible");
-    }
-    if(plannerFigureOverlayFeet){
-      plannerFigureOverlayFeet.classList.remove("is-visible");
-    }
-    if(plannerFigureOverlayUpperarms){
-      plannerFigureOverlayUpperarms.classList.remove("is-visible");
-    }
-    if(plannerFigureOverlayAxillaGray){
-      plannerFigureOverlayAxillaGray.classList.remove("is-visible");
-    }
-    if(plannerFigureOverlayUnderarms){
-      plannerFigureOverlayUnderarms.classList.remove("is-visible");
-    }
-    if(plannerFigureOverlayBauchMedia){
-      plannerFigureOverlayBauchMedia.classList.remove("is-visible");
-    }
-    if(plannerFigureOverlayBauchFull){
-      plannerFigureOverlayBauchFull.classList.remove("is-visible");
-    }
-    if(plannerFigureOverlayBikini){
-      plannerFigureOverlayBikini.classList.remove("is-visible");
-    }
-    if(plannerFigureOverlayObersch){
-      plannerFigureOverlayObersch.classList.remove("is-visible");
-    }
-    if(plannerFigureOverlayUntersch){
-      plannerFigureOverlayUntersch.classList.remove("is-visible");
-    }
-    if(plannerFigureOverlayImage){
-      plannerFigureOverlayImage.classList.remove("is-visible");
-    }
-    plannerClearDynamicOverlayClasses({ clearVisible:true, clearGuide:true });
+    // Keep selected overlay visibility intact during view switch to avoid
+    // gray->pink->outline flash on mobile. We only clear guide/hover state.
+    clearPlannerGuideOverlay();
   }
   function clearPlannerGuideOverlay(){
     if(plannerFigureOverlayUpperlip){
@@ -5898,7 +5881,8 @@
         const el = document.createElement("img");
         setIntResponsiveImageSrc(el, src);
         el.setAttribute("alt", "");
-        el.setAttribute("loading", "lazy");
+        el.setAttribute("loading", "eager");
+        el.setAttribute("decoding", "sync");
         el.setAttribute("aria-hidden", "true");
         el.className = "plannerFigureOverlayImage plannerFigureOverlayImage--dynamic";
         if(frontline && frontline.parentNode === plannerFigureInner){
