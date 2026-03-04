@@ -3571,6 +3571,9 @@
     const width = pickIntAssetWidth();
     return normalized.replace(/\.svg(?:[?#].*)?$/i, `-${width}.${INT_PREFERRED_FORMAT}`);
   }
+  function resolveIntResponsiveSrc(path){
+    return intRasterVariantPath(path);
+  }
   function applyIntResponsiveAssetToImage(img){
     if(!(img instanceof HTMLImageElement)) return;
     const currentSrc = img.getAttribute("src");
@@ -4107,6 +4110,44 @@
       OBERLIPPE:"img/INT/FRAUEN_FACE/FR_FACE_RS_OBERLIPPE.svg"
     }
   };
+  const plannerPreloadedImagePromises = new Map();
+  function preloadImageSrc(src){
+    const normalized = normalizeIntAssetPath(src);
+    if(!normalized) return Promise.resolve();
+    if(plannerPreloadedImagePromises.has(normalized)){
+      return plannerPreloadedImagePromises.get(normalized);
+    }
+    const p = new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve();
+      img.onerror = () => resolve();
+      img.src = normalized;
+      if(typeof img.decode === "function"){
+        img.decode().then(resolve).catch(() => resolve());
+      }
+    });
+    plannerPreloadedImagePromises.set(normalized, p);
+    return p;
+  }
+  function warmupPlannerResponsiveAssets(){
+    if(!intRasterMq.matches) return;
+    const queue = new Set();
+    const pushSrc = (src) => {
+      if(!src) return;
+      queue.add(resolveIntResponsiveSrc(src));
+    };
+    const frauenModes = plannerFigureByMode.frauen || {};
+    Object.values(frauenModes).forEach((entry) => {
+      if(entry && entry.src) pushSrc(entry.src);
+    });
+    const herrenMode = plannerFigureByMode.herren || {};
+    if(herrenMode && herrenMode.src) pushSrc(herrenMode.src);
+    Object.values(plannerFrontlineByView || {}).forEach((src) => pushSrc(src));
+    Object.values(plannerHoverOverlaySrcByView || {}).forEach((map) => {
+      Object.values(map || {}).forEach((src) => pushSrc(src));
+    });
+    queue.forEach((src) => { preloadImageSrc(src); });
+  }
   const plannerDynamicOverlayElsByKey = {};
   function plannerDynamicOverlayKey(view, partKey){
     return `${view}::${partKey}`;
@@ -4998,7 +5039,7 @@
     const visuals = laserVisualsByMode[mode] || laserVisualsByMode.frauen;
     const setImage = (el, data) => {
       if(!el || !data) return;
-      el.setAttribute("src", data.src);
+      el.setAttribute("src", resolveIntResponsiveSrc(data.src));
       el.setAttribute("alt", data.alt);
     };
     setImage(laserTrustImage, visuals.trust);
@@ -5628,9 +5669,11 @@
     const frontlineSrc = mode === "frauen"
       ? (plannerFrontlineByView[plannerFrauenView] || plannerFrontlineByView.front)
       : "";
+    const resolvedVisualSrc = resolveIntResponsiveSrc(visual.src);
+    const resolvedFrontlineSrc = resolveIntResponsiveSrc(frontlineSrc);
     if(plannerFigureFrontline){
       if(showFrontline && frontlineSrc){
-        plannerFigureFrontline.setAttribute("src", frontlineSrc);
+        plannerFigureFrontline.setAttribute("src", resolvedFrontlineSrc);
       }
       plannerFigureFrontline.classList.toggle("is-visible", !shouldAnimate && showFrontline);
     }
@@ -5655,7 +5698,7 @@
       el.style.transform = "";
     });
     if(!shouldAnimate){
-      plannerFigureImage.setAttribute("src", visual.src);
+      plannerFigureImage.setAttribute("src", resolvedVisualSrc);
       plannerFigureImage.setAttribute("alt", visual.alt);
       if(typeof options.onVisualSwapped === "function"){
         options.onVisualSwapped();
@@ -5682,11 +5725,11 @@
           offsetPx = directionSign * slideDistancePx * t;
         } else {
           if(!swapped){
-            plannerFigureImage.setAttribute("src", visual.src);
+            plannerFigureImage.setAttribute("src", resolvedVisualSrc);
             plannerFigureImage.setAttribute("alt", visual.alt);
             if(plannerFigureFrontline){
               if(showFrontline && frontlineSrc){
-                plannerFigureFrontline.setAttribute("src", frontlineSrc);
+                plannerFigureFrontline.setAttribute("src", resolvedFrontlineSrc);
               }
               plannerFigureFrontline.classList.toggle("is-visible", showFrontline);
             }
@@ -5830,7 +5873,7 @@
         const key = plannerDynamicOverlayKey(view, partKey);
         if(plannerDynamicOverlayElsByKey[key]) return;
         const el = document.createElement("img");
-        el.setAttribute("src", src);
+        el.setAttribute("src", resolveIntResponsiveSrc(src));
         el.setAttribute("alt", "");
         el.setAttribute("loading", "lazy");
         el.setAttribute("aria-hidden", "true");
@@ -6065,7 +6108,7 @@
     }
     if(plannerFigureOverlayImage){
       if(isFrauenFront){
-        plannerFigureOverlayImage.setAttribute("src", "img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM_POF.svg");
+        plannerFigureOverlayImage.setAttribute("src", resolveIntResponsiveSrc("img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM_POF.svg"));
       }
       plannerFigureOverlayImage.classList.toggle("is-visible", shouldShowIntimOverlay);
     }
@@ -8315,6 +8358,7 @@
     }
     setPlannerFrauenView("front", { mode:laserSwitchModeFromUrl() });
   }
+  warmupPlannerResponsiveAssets();
   if(plannerFaceJoystickButtons.length){
     plannerFaceJoystickButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
