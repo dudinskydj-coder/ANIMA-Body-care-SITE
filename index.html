@@ -1829,6 +1829,20 @@
     const width = pickIntAssetWidth();
     return normalized.replace(/\.svg(?:[?#].*)?$/i, `-${width}.${INT_PREFERRED_FORMAT}`);
   }
+  function intRasterCandidatePaths(path){
+    const normalized = normalizeIntAssetPath(path);
+    if(!isIntSvgAssetPath(normalized)) return [normalized];
+    if(!intRasterMq.matches) return [normalized];
+    const width = pickIntAssetWidth();
+    const stem = normalized.replace(/\.svg(?:[?#].*)?$/i, "");
+    const preferred = `${stem}-${width}.${INT_PREFERRED_FORMAT}`;
+    const candidates = [preferred, `${stem}-${width}.webp`, `${stem}-${width}.jpg`, normalized];
+    return candidates.filter((src, idx, arr) => !!src && arr.indexOf(src) === idx);
+  }
+  function resolveIntResponsiveSrc(path){
+    const candidates = intRasterCandidatePaths(path);
+    return candidates[0] || normalizeIntAssetPath(path);
+  }
   function applyIntResponsiveAssetToImage(img){
     if(!(img instanceof HTMLImageElement)) return;
     const currentSrc = img.getAttribute("src");
@@ -1837,7 +1851,8 @@
     }
     const original = img.dataset.intSvgOriginal;
     if(!original) return;
-    const nextSrc = intRasterMq.matches ? intRasterVariantPath(original) : original;
+    img.dataset.intFallbackIndex = "0";
+    const nextSrc = resolveIntResponsiveSrc(original);
     if(nextSrc && currentSrc !== nextSrc){
       img.setAttribute("src", nextSrc);
     }
@@ -1883,6 +1898,21 @@
     }else if(typeof intRasterMq.addListener === "function"){
       intRasterMq.addListener(onBreakpointChange);
     }
+    document.addEventListener("error", (event) => {
+      const img = event.target;
+      if(!(img instanceof HTMLImageElement)) return;
+      const original = img.dataset.intSvgOriginal;
+      if(!original) return;
+      const candidates = intRasterCandidatePaths(original);
+      if(!candidates.length) return;
+      let idx = Number.parseInt(img.dataset.intFallbackIndex || "0", 10);
+      if(!Number.isFinite(idx) || idx < 0) idx = 0;
+      if(idx >= candidates.length - 1) return;
+      const nextIdx = idx + 1;
+      img.dataset.intFallbackIndex = String(nextIdx);
+      const nextSrc = candidates[nextIdx];
+      if(nextSrc) img.setAttribute("src", nextSrc);
+    }, true);
   }
   initIntResponsiveSvgFallbacks();
 
