@@ -827,10 +827,10 @@
       position:absolute;
       right:14px;
       bottom:56px;
-      z-index:9;
+      z-index:30;
       display:grid;
       grid-template-columns:34px 34px 34px;
-      grid-template-rows:auto 34px 34px 34px 34px 34px 34px 34px 34px 34px 34px 34px;
+      grid-template-rows:auto 34px 34px 34px 34px 34px 34px 34px 34px 34px 34px 34px 34px;
       gap:6px;
       padding:8px;
       border-radius:14px;
@@ -968,6 +968,27 @@
       font-size:11px;
       font-weight:700;
       letter-spacing:.05em;
+    }
+    .plannerFaceJoystickBtn[data-joystick-action="delete"]{
+      grid-column:1;
+      grid-row:13;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:.04em;
+    }
+    .plannerFaceJoystickBtn[data-joystick-action="duplicate"]{
+      grid-column:2;
+      grid-row:13;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:.04em;
+    }
+    .plannerFaceJoystickBtn[data-joystick-action="new"]{
+      grid-column:3;
+      grid-row:13;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:.04em;
     }
     .plannerFaceJoystickCenter{
       grid-column:2;
@@ -1796,14 +1817,9 @@
       padding:0 2px;
       white-space:nowrap;
     }
-    /* Keep figure buttons interactive but visually hidden (including mobile tap/focus states). */
+    /* Keep figure buttons interactive and visible. */
     .plannerSketch .zoneSketchBtn,
     .plannerBackSketch .zoneSketchBtn{
-      border-color:transparent !important;
-      background:transparent !important;
-      box-shadow:none !important;
-      color:transparent !important;
-      outline:none !important;
       -webkit-tap-highlight-color:transparent !important;
       -webkit-touch-callout:none !important;
       -webkit-appearance:none !important;
@@ -1820,16 +1836,11 @@
     .plannerBackSketch .zoneSketchBtn:focus,
     .plannerBackSketch .zoneSketchBtn:focus-visible,
     .plannerBackSketch .zoneSketchBtn.is-active{
-      border-color:transparent !important;
-      background:transparent !important;
-      box-shadow:none !important;
-      color:transparent !important;
-      transform:none !important;
       outline:none !important;
     }
     .plannerSketch .zoneSketchTag,
     .plannerBackSketch .zoneSketchTag{
-      display:none !important;
+      display:block !important;
     }
     .zoneBtn{
       border:1px solid rgba(0,0,0,.12);
@@ -3488,6 +3499,9 @@
             <button type="button" class="plannerFaceJoystickBtn" data-joystick-action="rotate-cw" id="plannerFaceRotateCwBtn" aria-label="Rotate clockwise">⟳</button>
             <button type="button" class="plannerFaceJoystickBtn" data-joystick-action="front" id="plannerFaceFrontBtn" aria-label="Bring selected to front">FRONT</button>
             <button type="button" class="plannerFaceJoystickBtn" data-joystick-action="save" id="plannerFaceSaveBtn" aria-label="Save face adjustments">SAVE</button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-action="delete" id="plannerFaceDeleteBtn" aria-label="Delete selected button">DEL</button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-action="duplicate" id="plannerFaceDuplicateBtn" aria-label="Duplicate selected button">DUP</button>
+            <button type="button" class="plannerFaceJoystickBtn" data-joystick-action="new" id="plannerFaceNewBtn" aria-label="Create a new button">NEW</button>
           </div>
         </div>
       </div>
@@ -3576,7 +3590,7 @@
   function inferIntSvgFromRasterPath(path){
     const normalized = normalizeIntAssetPath(path);
     if(!normalized.startsWith("img/INT/")) return "";
-    return normalized.replace(/-(400|800|1200)\.webp$/i, ".svg");
+    return normalized.replace(/-(400|800|1200|1600)\.webp$/i, ".svg");
   }
   function setIntResponsiveImageSrc(img, sourcePath, options = {}){
     if(!(img instanceof HTMLImageElement)) return;
@@ -3726,6 +3740,9 @@
   const plannerFaceRotateCwBtn = document.getElementById("plannerFaceRotateCwBtn");
   const plannerFaceFrontBtn = document.getElementById("plannerFaceFrontBtn");
   const plannerFaceSaveBtn = document.getElementById("plannerFaceSaveBtn");
+  const plannerFaceDeleteBtn = document.getElementById("plannerFaceDeleteBtn");
+  const plannerFaceDuplicateBtn = document.getElementById("plannerFaceDuplicateBtn");
+  const plannerFaceNewBtn = document.getElementById("plannerFaceNewBtn");
   const plannerBackSketch = document.getElementById("plannerBackSketch");
   const plannerFigureOverlayUpperlip = document.getElementById("plannerFigureOverlayUpperlip");
   const plannerFigureOverlayAxilla = document.getElementById("plannerFigureOverlayAxilla");
@@ -3815,7 +3832,16 @@
   let plannerViewSlideRaf = null;
   let plannerViewSwitchSeq = 0;
   const plannerFrauenViewOrder = ["front", "back", "face"];
-  const plannerFaceMovableZoneIds = new Set(["chin", "nacken", "kinn", "wangen", "koteletten", "glabella", "upperlip"]);
+  const plannerFaceMovableZoneIdsByModeAndView = {
+    frauen:{
+      face:new Set(["chin", "nacken", "kinn", "wangen", "koteletten", "glabella", "upperlip"])
+    },
+    herren:{
+      front:new Set(["axilla", "chest", "bauchfull", "medialinebauch", "upperarms", "underarms", "bikini", "intim", "obersch", "untersch", "hands", "feet"]),
+      back:new Set(["nacken", "upperback", "back", "lowerback", "pobacken", "upperarms", "underarms", "hands", "feet", "obersch", "untersch"]),
+      face:new Set(["glabella", "beard"])
+    }
+  };
   const plannerFaceJoystickLabels = {
     chin:"HALS",
     nacken:"NACKEN",
@@ -3823,7 +3849,8 @@
     wangen:"WANGEN",
     koteletten:"KOTELETTEN",
     glabella:"ZW. BRAUEN",
-    upperlip:"OBERLIPPE"
+    upperlip:"OBERLIPPE",
+    beard:"BARTKONTUR"
   };
   const plannerFaceZoneOffsetById = {};
   const plannerFaceZoneSizeDeltaById = {};
@@ -3832,9 +3859,18 @@
   const plannerFaceZoneLayerById = {};
   const plannerFaceZoneWarpPointsById = {};
   const plannerFaceZoneRotateById = {};
+  const plannerCustomButtonsByModeAndView = {
+    frauen:{ front:[], back:[], face:[] },
+    herren:{ front:[], back:[], face:[] }
+  };
+  const plannerHiddenBuiltinZonesByModeAndView = {
+    frauen:{ front:new Set(), back:new Set(), face:new Set() },
+    herren:{ front:new Set(), back:new Set(), face:new Set() }
+  };
+  let plannerCustomButtonSeq = 1;
   const PLANNER_FACE_EMBEDDED_STATE = /*__PLANNER_FACE_STATE_START__*/{
   "version": 1,
-  "savedAt": "2026-03-04T00:58:10.011Z",
+  "savedAt": "2026-03-04T20:22:36.635Z",
   "offsets": {
     "kinn": {
       "x": -0.4798,
@@ -3858,14 +3894,20 @@
     },
     "glabella": {
       "x": 0.1587,
-      "y": 0.3175
+      "y": 1.0287
+    },
+    "beard": {
+      "x": 10.2236,
+      "y": 31.2924
     }
   },
   "sizes": {
-    "koteletten": -12.5
+    "koteletten": -12.5,
+    "beard": 3.5
   },
   "shapes": {
-    "kinn": "square"
+    "kinn": "square",
+    "beard": "oval"
   },
   "transforms": {
     "chin": {
@@ -3903,6 +3945,12 @@
       "top": 0,
       "width": 1.7594,
       "height": 0
+    },
+    "beard": {
+      "left": 0,
+      "top": 0,
+      "width": -24.8923,
+      "height": 1.0668
     }
   },
   "layers": {
@@ -4049,7 +4097,7 @@
       { id:"glabella", label:{ de:"Zwischenbrauen", en:"Between brows", ru:"Межбровье" }, price:25 },
       { id:"upperlip", label:{ de:"Oberlippe", en:"Upper lip", ru:"Верхняя губа" }, price:25 },
       { id:"chest", label:{ de:"Brustbereich", en:"Chest area", ru:"Зона груди" }, price:45 },
-      { id:"upperback", label:{ de:"Oberer Rücken + Schultern", en:"Upper back + shoulders", ru:"Верхняя часть спины + плечи" }, price:45 },
+      { id:"upperback", label:{ de:"Oberrücken + Schultern", en:"Upper back + shoulders", ru:"Верхняя часть спины + плечи" }, price:45 },
       { id:"hands", label:{ de:"Hände", en:"Hands", ru:"Кисти рук" }, price:35 },
       { id:"feet", label:{ de:"Füße", en:"Feet", ru:"Ступни" }, price:35 },
       { id:"axilla", label:{ de:"Achseln", en:"Underarms", ru:"Подмышки" }, price:45 },
@@ -4065,14 +4113,21 @@
       { id:"intim", label:{ de:"Intim komplett (inkl pofale)", en:"Intimate full (incl gluteal)", ru:"Интим полностью (вкл. межъягодичную зону)" }, price:85 }
     ],
     herren: [
-      { id:"brows", label:{ de:"Augenbrauen", en:"Eyebrows", ru:"Брови" }, price:60 },
+      { id:"glabella", label:{ de:"Augenbrauen", en:"Eyebrows", ru:"Брови" }, price:60 },
       { id:"beard", label:{ de:"Bartkontur", en:"Beard line", ru:"Контур бороды" }, price:80 },
       { id:"axilla", label:{ de:"Achseln", en:"Underarms", ru:"Подмышки" }, price:75 },
+      { id:"intim", label:{ de:"Intimzone (inkl. Pofalte)", en:"Intimate zone (incl. gluteal fold)", ru:"Интимная зона (вкл. межъягодичную складку)" }, price:185 },
+      { id:"pobacken", label:{ de:"Pobacken", en:"Buttocks", ru:"Ягодицы" }, price:55 },
+      { id:"bikini", label:{ de:"Bikini (Slip außerhalb)", en:"Bikini (outside slip)", ru:"Бикини (вне белья)" }, price:75 },
+      { id:"upperarms", label:{ de:"Oberarme", en:"Upper arms", ru:"Верхняя часть рук" }, price:85 },
+      { id:"underarms", label:{ de:"Unterarme", en:"Forearms", ru:"Предплечья" }, price:85 },
+      { id:"obersch", label:{ de:"Oberschenkel", en:"Upper legs", ru:"Верхняя часть ног" }, price:125 },
+      { id:"untersch", label:{ de:"Unterschenkel", en:"Lower legs", ru:"Нижняя часть ног" }, price:125 },
       { id:"chest", label:{ de:"Brust", en:"Chest", ru:"Грудь" }, price:95 },
+      { id:"bauchfull", label:{ de:"Bauch", en:"Belly", ru:"Живот" }, price:95 },
+      { id:"medialinebauch", label:{ de:"Medianlinie Bauch", en:"Median belly line", ru:"Средняя линия живота" }, price:35 },
       { id:"back", label:{ de:"Rücken", en:"Back", ru:"Спина" }, price:150 },
-      { id:"legs", label:{ de:"Beine komplett", en:"Full legs", ru:"Ноги полностью" }, price:210 },
-      { id:"intim", label:{ de:"Intim + Pobacken", en:"Intimate + gluteal", ru:"Интим + ягодицы" }, price:230 },
-      { id:"all", label:{ de:"Alle Zonen", en:"All zones", ru:"Все зоны" }, price:495 }
+      { id:"upperback", label:{ de:"Schultern", en:"Shoulders", ru:"Плечи" }, price:75 }
     ]
   };
   const plannerSketchByMode = {
@@ -4104,72 +4159,159 @@
       arms:{ x:22, y:39, w:56, h:7.5 },
       all:{ x:70, y:6, w:20, h:7 }
     },
-    herren: {
-      brows:{ x:45, y:12, w:16, h:4.8 },
-      beard:{ x:45, y:17, w:16, h:5.5 },
-      axilla:{ x:35, y:30, w:30, h:7 },
-      chest:{ x:41, y:35, w:20, h:8 },
-      back:{ x:67, y:34, w:18, h:10 },
-      legs:{ x:39, y:73, w:24, h:23 },
-      intim:{ x:43, y:60, w:18, h:8.5 },
-      all:{ x:70, y:6, w:20, h:7 }
-    }
+    herren: {}
   };
+  plannerSketchByMode.herren = Object.fromEntries(
+    Object.entries(plannerSketchByMode.frauen).map(([key, area]) => [key, { ...area }])
+  );
+  plannerSketchByMode.herren.beard = { x:45, y:17, w:16, h:5.5 };
   const plannerFigureByMode = {
     frauen:{
       front:{ src:"img/INT/FRAUEN_FRONT/FR_FRONT_GR.svg", alt:"Interaktive Körperzonen Frauen Front", aspect:"2200 / 5500" },
       back:{ src:"img/INT/FRAUEN_BACK/FR_BACK_GR.svg", alt:"Interaktive Körperzonen Frauen Back", aspect:"2200 / 5500" },
       face:{ src:"img/INT/FRAUEN_FACE/FR_FACE_GR.svg", alt:"Interaktive Körperzonen Frauen Gesicht", aspect:"2200 / 5500" }
     },
-    herren:{ src:"img/INT/HERREN_FRONT/HERREN_FRONT.svg", alt:"Interaktive Körperzonen Herren", aspect:"2300 / 5500" }
+    herren:{
+      front:{ src:"img/INT/HERREN_FRONT/HR_FRONT_GR.svg", alt:"Interaktive Körperzonen Herren Front", aspect:"2200 / 5500" },
+      back:{ src:"img/INT/HERREN_BACK/HERREN_BACK_GR.svg", alt:"Interaktive Körperzonen Herren Back", aspect:"2200 / 5500" },
+      face:{ src:"img/INT/HERREN_FACE/HERREN_FACE_GR.svg", alt:"Interaktive Körperzonen Herren Gesicht", aspect:"2200 / 5500" }
+    }
   };
-  const plannerFrontlineByView = {
-    front: "img/INT/FRAUEN_FRONT/FR_FRONT_GR_KONTUR.svg",
-    back: "img/INT/FRAUEN_BACK/FR_BACK_GR_KONTUR.svg",
-    face: "img/INT/FRAUEN_FACE/FR_FACE_GR_KONTUR.svg"
+  const plannerFrontlineByModeAndView = {
+    frauen:{
+      front:"img/INT/FRAUEN_FRONT/FR_FRONT_GR_KONTUR.svg",
+      back:"img/INT/FRAUEN_BACK/FR_BACK_GR_KONTUR.svg",
+      face:"img/INT/FRAUEN_FACE/FR_FACE_GR_KONTUR.svg"
+    },
+    herren:{
+      front:"img/INT/HERREN_FRONT/HERREN_FRONT_KONTUR.svg",
+      back:"img/INT/HERREN_BACK/HERREN_BACK_GR_KONTUR.svg",
+      face:"img/INT/HERREN_FACE/HERREN_FACE_GR_KONTUR.svg"
+    }
   };
-  const plannerHoverOverlaySrcByView = {
-    front:{
-      OBERLIPPE:"img/INT/FRAUEN_FRONT/FR_RS_OBERLIPPE.svg",
-      HALS:"img/INT/FRAUEN_FRONT/FR_RS_HALS.svg",
-      BRUSTBEREICH:"img/INT/FRAUEN_FRONT/FR_RS_Brustbereich.svg",
-      HANDE_L:"img/INT/FRAUEN_FRONT/FR_RS_HANDE.svg",
-      HANDE_R:"img/INT/FRAUEN_FRONT/FR_RS_HANDE.svg",
-      FUSSE_L:"img/INT/FRAUEN_FRONT/FR_RS_FUSSE.svg",
-      FUSSE_R:"img/INT/FRAUEN_FRONT/FR_RS_FUSSE.svg",
-      ACHSELN_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_ACHSELN.svg",
-      OBERARME_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_OBERARME_MAIN.svg",
-      UNTERARME_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_UNTERARME_MAIN.svg",
-      BAUCH_MEDIA_LN:"img/INT/FRAUEN_FRONT/FR_RS_BAUCH_MEDIA_LN.svg",
-      BAUCH:"img/INT/FRAUEN_FRONT/FR_RS_BAUCH.svg",
-      BIKINI_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_BIKINI_MAIN.svg",
-      OBERSCH_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_OBERSCH_MAIN.svg",
-      UNTERSCH_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_UNTERSCH_MAIN.svg",
-      INTIM_KOM_POF:"img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM_POF.svg"
+  const plannerHoverOverlaySrcByModeAndView = {
+    frauen:{
+      front:{
+        OBERLIPPE:"img/INT/FRAUEN_FRONT/FR_RS_OBERLIPPE.svg",
+        HALS:"img/INT/FRAUEN_FRONT/FR_RS_HALS.svg",
+        BRUSTBEREICH:"img/INT/FRAUEN_FRONT/FR_RS_Brustbereich.svg",
+        HANDE_L:"img/INT/FRAUEN_FRONT/FR_RS_HANDE.svg",
+        HANDE_R:"img/INT/FRAUEN_FRONT/FR_RS_HANDE.svg",
+        FUSSE_L:"img/INT/FRAUEN_FRONT/FR_RS_FUSSE.svg",
+        FUSSE_R:"img/INT/FRAUEN_FRONT/FR_RS_FUSSE.svg",
+        ACHSELN_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_ACHSELN.svg",
+        OBERARME_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_OBERARME_MAIN.svg",
+        UNTERARME_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_UNTERARME_MAIN.svg",
+        BAUCH_MEDIA_LN:"img/INT/FRAUEN_FRONT/FR_RS_BAUCH_MEDIA_LN.svg",
+        BAUCH:"img/INT/FRAUEN_FRONT/FR_RS_BAUCH.svg",
+        BIKINI_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_BIKINI_MAIN.svg",
+        OBERSCH_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_OBERSCH_MAIN.svg",
+        UNTERSCH_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_UNTERSCH_MAIN.svg",
+        INTIM_KOM_POF:"img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM_POF.svg"
+      },
+      back:{
+        NACKEN:"img/INT/FRAUEN_BACK/FR_BACK_RS_Nacken.svg",
+        OBERER_RUECKEN:"img/INT/FRAUEN_BACK/FR_BACK_RS_OBERRUCK_SHULTERN.svg",
+        UNTERER_RUECKEN:"img/INT/FRAUEN_BACK/FR_BACK_RS_UNTERRUCK.svg",
+        POBACKEN:"img/INT/FRAUEN_BACK/FR_BACK_RS_Pobacken.svg",
+        OBERARME_MAIN:"img/INT/FRAUEN_BACK/FR_BACK_RS_OBERARME.svg",
+        UNTERARME_MAIN:"img/INT/FRAUEN_BACK/FR_BACK_RS_UNTERARME.svg",
+        HANDE_L:"img/INT/FRAUEN_BACK/FR_BACK_RS_HANDE.svg",
+        HANDE_R:"img/INT/FRAUEN_BACK/FR_BACK_RS_HANDE.svg",
+        FUSSE_L:"img/INT/FRAUEN_BACK/FR_BACK_RS_FUSSE.svg",
+        FUSSE_R:"img/INT/FRAUEN_BACK/FR_BACK_RS_FUSSE.svg",
+        OBERSCH_MAIN:"img/INT/FRAUEN_BACK/FR_BACK_RS_OBERSHC.svg",
+        UNTERSCH_MAIN:"img/INT/FRAUEN_BACK/FR_BACK_RS_UNTERSHC.svg",
+        INTIM_KOM_POF:"img/INT/FRAUEN_BACK/FR_BACK_RS_INTIM_POF.svg"
+      },
+      face:{
+        HALS:"img/INT/FRAUEN_FACE/FR_FACE_RS_HALS.svg",
+        NACKEN:"img/INT/FRAUEN_FACE/FR_FACE_RS_Nacken.svg",
+        KINN:"img/INT/FRAUEN_FACE/FR_FACE_RS_KINN.svg",
+        WANGEN:"img/INT/FRAUEN_FACE/FR_FACE_RS_Wangen.svg",
+        KOTELETTEN:"img/INT/FRAUEN_FACE/FR_FACE_RS_Kieferlinie_Koteletten.svg",
+        ZWISCHENBRAUEN:"img/INT/FRAUEN_FACE/FR_FACE_RS_Zwischenbrauen.svg",
+        OBERLIPPE:"img/INT/FRAUEN_FACE/FR_FACE_RS_OBERLIPPE.svg"
+      }
     },
-    back:{
-      NACKEN:"img/INT/FRAUEN_BACK/FR_BACK_RS_Nacken.svg",
-      OBERER_RUECKEN:"img/INT/FRAUEN_BACK/FR_BACK_RS_OBERRUCK.svg",
-      UNTERER_RUECKEN:"img/INT/FRAUEN_BACK/FR_BACK_RS_UNTERRUCK.svg",
-      POBACKEN:"img/INT/FRAUEN_BACK/FR_BACK_RS_Pobacken.svg",
-      OBERARME_MAIN:"img/INT/FRAUEN_BACK/FR_BACK_RS_OBERARME.svg",
-      UNTERARME_MAIN:"img/INT/FRAUEN_BACK/FR_BACK_RS_UNTERARME.svg",
-      HANDE_L:"img/INT/FRAUEN_BACK/FR_BACK_RS_HANDE.svg",
-      HANDE_R:"img/INT/FRAUEN_BACK/FR_BACK_RS_HANDE.svg",
-      FUSSE_L:"img/INT/FRAUEN_BACK/FR_BACK_RS_FUSSE.svg",
-      FUSSE_R:"img/INT/FRAUEN_BACK/FR_BACK_RS_FUSSE.svg",
-      OBERSCH_MAIN:"img/INT/FRAUEN_BACK/FR_BACK_RS_OBERSHC.svg",
-      UNTERSCH_MAIN:"img/INT/FRAUEN_BACK/FR_BACK_RS_UNTERSHC.svg",
-      INTIM_KOM_POF:"img/INT/FRAUEN_BACK/FR_BACK_RS_INTIM_POF.svg"
+    herren:{
+      front:{
+        HALS:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_HALS.svg",
+        BRUSTBEREICH:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_BRUST.svg",
+        HANDE_L:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_HANDEN.svg",
+        HANDE_R:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_HANDEN.svg",
+        FUSSE_L:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_FUSSE.svg",
+        FUSSE_R:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_FUSSE.svg",
+        ACHSELN_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASCHELN.svg",
+        OBERARME_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_OBERARME.svg",
+        UNTERARME_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_UNTERARME.svg",
+        BAUCH_MEDIA_LN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_BAUCH_MEDELINE.svg",
+        BAUCH:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_BAUCH.svg",
+        BIKINI_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_BIKINI.svg",
+        OBERSCH_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_OBERSCH.svg",
+        UNTERSCH_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_UNTERSCH.svg",
+        INTIM_KOM_POF:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_INTIM_POF.svg"
+      },
+      back:{
+        NACKEN:"img/INT/HERREN_BACK/HERREN_BACK_BR_NACKEN.svg",
+        OBERER_RUECKEN:"img/INT/HERREN_BACK/HERREN_BACK_BR_FR_BACK_RS_OBERRUCK_SHULTERN.svg",
+        UNTERER_RUECKEN:"img/INT/HERREN_BACK/HERREN_BACK_BR_FR_BACK_RS_UNTERRUCK.svg",
+        POBACKEN:"img/INT/HERREN_BACK/HERREN_BACK_BR_POBAKEN.svg",
+        OBERARME_MAIN:"img/INT/HERREN_BACK/HERREN_BACK_BR_OBERARME.svg",
+        UNTERARME_MAIN:"img/INT/HERREN_BACK/HERREN_BACK_BR_UNTERARME.svg",
+        HANDE_L:"img/INT/HERREN_BACK/HERREN_BACK_BR_HANDE.svg",
+        HANDE_R:"img/INT/HERREN_BACK/HERREN_BACK_BR_HANDE.svg",
+        FUSSE_L:"img/INT/HERREN_BACK/HERREN_BACK_BR_FUSSE.svg",
+        FUSSE_R:"img/INT/HERREN_BACK/HERREN_BACK_BR_FUSSE.svg",
+        OBERSCH_MAIN:"img/INT/HERREN_BACK/HERREN_BACK_BR_OBERSCH.svg",
+        UNTERSCH_MAIN:"img/INT/HERREN_BACK/HERREN_BACK_BR_UNTERSCH.svg",
+        INTIM_KOM_POF:"img/INT/HERREN_BACK/HERREN_BACK_BR_INTIM_PROF.svg",
+        ACHSELN_MAIN:"img/INT/HERREN_BACK/HERREN_BACK_BR_ASCHELN.svg"
+      },
+      face:{
+        HALS:"img/INT/HERREN_FACE/HERREN%20-%20FACE_BR_HALS.svg",
+        NACKEN:"img/INT/HERREN_FACE/HERREN%20-%20FACE_BR_NACKEN.svg",
+        KINN:"img/INT/HERREN_FACE/HERREN%20-%20FACE_BR_KINN.svg",
+        WANGEN:"img/INT/HERREN_FACE/HERREN%20-%20FACE_BR_BARKONTUR_WANGEN.svg",
+        KOTELETTEN:"img/INT/HERREN_FACE/HERREN%20-%20FACE_BR_FR_FACE_RS_Kieferlinie_Koteletten.svg",
+        ZWISCHENBRAUEN:"img/INT/HERREN_FACE/HERREN%20-%20FACE_BR_Zwischenbrauen.svg",
+        OBERLIPPE:"img/INT/HERREN_FACE/HERREN%20-%20FACE_BR_OBERLIPPE.svg"
+      }
+    }
+  };
+  const plannerStaticFrontOverlaySrcByMode = {
+    frauen:{
+      upperlip:"img/INT/FRAUEN_FRONT/FR_RS_OBERLIPPE.svg",
+      axilla:"img/INT/FRAUEN_FRONT/FR_RS_ACHSELN.svg",
+      chin:"img/INT/FRAUEN_FRONT/FR_RS_HALS.svg",
+      chest:"img/INT/FRAUEN_FRONT/FR_RS_Brustbereich.svg",
+      hands:"img/INT/FRAUEN_FRONT/FR_RS_HANDE.svg",
+      feet:"img/INT/FRAUEN_FRONT/FR_RS_FUSSE.svg",
+      upperarms:"img/INT/FRAUEN_FRONT/FR_RS_OBERARME_MAIN.svg",
+      axillaGray:"img/INT/FRAUEN_FRONT/FR_GR_ACHSELN_MAIN.svg",
+      underarms:"img/INT/FRAUEN_FRONT/FR_RS_UNTERARME_MAIN.svg",
+      bauchMedia:"img/INT/FRAUEN_FRONT/FR_RS_BAUCH_MEDIA_LN.svg",
+      bauchFull:"img/INT/FRAUEN_FRONT/FR_RS_BAUCH.svg",
+      bikini:"img/INT/FRAUEN_FRONT/FR_RS_BIKINI_MAIN.svg",
+      obersch:"img/INT/FRAUEN_FRONT/FR_RS_OBERSCH_MAIN.svg",
+      untersch:"img/INT/FRAUEN_FRONT/FR_RS_UNTERSCH_MAIN.svg",
+      intim:"img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM_POF.svg"
     },
-    face:{
-      HALS:"img/INT/FRAUEN_FACE/FR_FACE_RS_HALS.svg",
-      NACKEN:"img/INT/FRAUEN_FACE/FR_FACE_RS_Nacken.svg",
-      KINN:"img/INT/FRAUEN_FACE/FR_FACE_RS_KINN.svg",
-      WANGEN:"img/INT/FRAUEN_FACE/FR_FACE_RS_Wangen.svg",
-      KOTELETTEN:"img/INT/FRAUEN_FACE/FR_FACE_RS_Kieferlinie_Koteletten.svg",
-      ZWISCHENBRAUEN:"img/INT/FRAUEN_FACE/FR_FACE_RS_Zwischenbrauen.svg",
-      OBERLIPPE:"img/INT/FRAUEN_FACE/FR_FACE_RS_OBERLIPPE.svg"
+    herren:{
+      axilla:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASCHELN.svg",
+      axillaGray:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_GR_ASHELN_NEW.svg",
+      chin:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_HALS.svg",
+      chest:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_BRUST.svg",
+      hands:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_HANDEN.svg",
+      feet:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_FUSSE.svg",
+      upperarms:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_OBERARME.svg",
+      underarms:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_UNTERARME.svg",
+      bauchMedia:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_BAUCH_MEDELINE.svg",
+      bauchFull:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_BAUCH.svg",
+      bikini:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_BIKINI.svg",
+      obersch:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_OBERSCH.svg",
+      untersch:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_UNTERSCH.svg",
+      intim:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_INTIM_POF.svg"
     }
   };
   const plannerPreloadedImagePromises = new Map();
@@ -4209,24 +4351,28 @@
       // Keep SVG hot as fallback even on mobile.
       if(isIntSvgAssetPath(normalized)) queue.add(normalized);
     };
-    const frauenModes = plannerFigureByMode.frauen || {};
-    Object.values(frauenModes).forEach((entry) => {
-      if(entry && entry.src) pushSrc(entry.src);
+    Object.values(plannerFigureByMode || {}).forEach((views) => {
+      Object.values(views || {}).forEach((entry) => {
+        if(entry && entry.src) pushSrc(entry.src);
+      });
     });
-    const herrenMode = plannerFigureByMode.herren || {};
-    if(herrenMode && herrenMode.src) pushSrc(herrenMode.src);
-    Object.values(plannerFrontlineByView || {}).forEach((src) => pushSrc(src));
-    Object.values(plannerHoverOverlaySrcByView || {}).forEach((map) => {
-      Object.values(map || {}).forEach((src) => pushSrc(src));
+    Object.values(plannerFrontlineByModeAndView || {}).forEach((views) => {
+      Object.values(views || {}).forEach((src) => pushSrc(src));
+    });
+    Object.values(plannerHoverOverlaySrcByModeAndView || {}).forEach((views) => {
+      Object.values(views || {}).forEach((map) => {
+        Object.values(map || {}).forEach((src) => pushSrc(src));
+      });
     });
     queue.forEach((src) => { preloadImageSrc(src); });
   }
   const plannerDynamicOverlayElsByKey = {};
-  function plannerDynamicOverlayKey(view, partKey){
-    return `${view}::${partKey}`;
+  function plannerDynamicOverlayKey(mode, view, partKey){
+    return `${mode}::${view}::${partKey}`;
   }
-  function plannerDynamicOverlayEntriesForView(view){
-    const srcMap = plannerHoverOverlaySrcByView[view] || {};
+  function plannerDynamicOverlayEntriesForView(mode, view){
+    const modeMap = plannerHoverOverlaySrcByModeAndView[mode] || {};
+    const srcMap = modeMap[view] || {};
     return Object.entries(srcMap);
   }
   const plannerHoverHotspotsFrauen = [
@@ -4273,8 +4419,47 @@
       arms:["OBERARME_MAIN", "UNTERARME_MAIN"],
       all:["BODY"]
     },
-    herren: {}
+    herren: {
+      glabella:["ZWISCHENBRAUEN"],
+      beard:["HALS", "KINN", "WANGEN", "KOTELETTEN", "OBERLIPPE"],
+      axilla:["ACHSELN_MAIN"],
+      intim:["INTIM_KOM_POF"],
+      pobacken:["POBACKEN"],
+      bikini:["BIKINI_MAIN"],
+      upperarms:["OBERARME_MAIN"],
+      underarms:["UNTERARME_MAIN"],
+      obersch:["OBERSCH_MAIN"],
+      untersch:["UNTERSCH_MAIN"],
+      chest:["BRUSTBEREICH"],
+      bauchfull:["BAUCH"],
+      medialinebauch:["BAUCH_MEDIA_LN"],
+      back:["OBERER_RUECKEN", "UNTERER_RUECKEN"],
+      upperback:["OBERER_RUECKEN"]
+    }
   };
+  const plannerFaceZoneIdsByMode = {
+    frauen:new Set(["chin", "nacken", "kinn", "wangen", "koteletten", "glabella", "upperlip"]),
+    herren:new Set(["glabella", "beard"])
+  };
+  const plannerFrontHiddenZoneIdsByMode = {
+    frauen:new Set(["back", "lowerback", "pobacken", "glabella", "upperlip", "nacken", "kinn", "wangen", "koteletten", "upperback"]),
+    herren:new Set(["back", "upperback", "glabella", "beard"])
+  };
+  const plannerBackHiddenZoneIdsByMode = {
+    frauen:new Set(["chin", "kinn", "wangen", "koteletten", "glabella", "upperlip", "chest", "axilla", "bauchfull", "medialinebauch", "bikini"]),
+    herren:new Set(["glabella", "beard", "chest", "bauchfull", "medialinebauch", "bikini", "intim"])
+  };
+  function plannerZoneVisibleInCurrentView(mode, zoneId){
+    if(!zoneId) return false;
+    const currentMode = mode || activeLaserMode();
+    const faceSet = plannerFaceZoneIdsByMode[currentMode] || plannerFaceZoneIdsByMode.frauen;
+    const frontHiddenSet = plannerFrontHiddenZoneIdsByMode[currentMode] || plannerFrontHiddenZoneIdsByMode.frauen;
+    const backHiddenSet = plannerBackHiddenZoneIdsByMode[currentMode] || plannerBackHiddenZoneIdsByMode.frauen;
+    if(plannerFrauenView === "face") return faceSet.has(zoneId);
+    if(plannerFrauenView === "front") return !frontHiddenSet.has(zoneId);
+    if(plannerFrauenView === "back") return !backHiddenSet.has(zoneId);
+    return true;
+  }
   const plannerBodyBoundsByMode = {
     // Side clamp for arms + generous vertical range so head/feet stay reachable at zoom.
     frauen:{ left:0.13, right:0.87, top:-0.04, bottom:1.04, middleHandsY:0.71, middleHandsViewportY:0.94 },
@@ -4312,7 +4497,64 @@
         fx:{ de:"Um 60 € günstiger", en:"Better value by €60", ru:"Выгоднее на 60 €" }
       }
     ],
-    herren:[]
+    herren:[
+      {
+        id:"arms_bundle",
+        zoneIds:["upperarms", "underarms"],
+        price:155,
+        label:{ de:"Arme komplett", en:"Full arms", ru:"Руки полностью" },
+        fx:{ de:"Um 15 € günstiger", en:"Save €15", ru:"Выгоднее на 15 €" }
+      },
+      {
+        id:"legs_bundle",
+        zoneIds:["obersch", "untersch"],
+        price:210,
+        label:{ de:"Beine komplett", en:"Full legs", ru:"Ноги полностью" },
+        fx:{ de:"Um 40 € günstiger", en:"Save €40", ru:"Выгоднее на 40 €" }
+      },
+      {
+        id:"upperbody_bundle",
+        zoneIds:["chest", "bauchfull", "medialinebauch", "back", "upperback"],
+        price:260,
+        label:{ de:"Oberkörper komplett", en:"Upper body full", ru:"Верхняя часть тела полностью" },
+        fx:{ de:"Um 190 € günstiger", en:"Save €190", ru:"Выгоднее на 190 €" }
+      },
+      {
+        id:"intim_pobacken_bundle",
+        zoneIds:["intim", "pobacken"],
+        price:230,
+        label:{ de:"Intim + Pobacken", en:"Intimate + buttocks", ru:"Интим + ягодицы" },
+        fx:{ de:"Um 10 € günstiger", en:"Save €10", ru:"Выгоднее на 10 €" }
+      },
+      {
+        id:"intim_pobacken_axilla_bundle",
+        zoneIds:["intim", "pobacken", "axilla"],
+        price:265,
+        label:{ de:"Intim + Pobacken + Achseln", en:"Intimate + buttocks + underarms", ru:"Интим + ягодицы + подмышки" },
+        fx:{ de:"Um 50 € günstiger", en:"Save €50", ru:"Выгоднее на 50 €" }
+      },
+      {
+        id:"upperbody_axilla_bundle",
+        zoneIds:["chest", "bauchfull", "medialinebauch", "back", "upperback", "axilla"],
+        price:285,
+        label:{ de:"Oberkörper + Achseln", en:"Upper body + underarms", ru:"Верхняя часть тела + подмышки" },
+        fx:{ de:"Um 240 € günstiger", en:"Save €240", ru:"Выгоднее на 240 €" }
+      },
+      {
+        id:"premium_bundle",
+        zoneIds:["chest", "bauchfull", "medialinebauch", "back", "upperback", "axilla", "intim", "pobacken"],
+        price:420,
+        label:{ de:"Oberkörper + Achseln + Intim (inkl. Pobacken)", en:"Upper body + underarms + intimate (incl. buttocks)", ru:"Верхняя часть тела + подмышки + интим (вкл. ягодицы)" },
+        fx:{ de:"Um 345 € günstiger", en:"Save €345", ru:"Выгоднее на 345 €" }
+      },
+      {
+        id:"all_zones_bundle",
+        zoneIds:["glabella", "beard", "axilla", "intim", "pobacken", "bikini", "upperarms", "underarms", "obersch", "untersch", "chest", "bauchfull", "medialinebauch", "back", "upperback"],
+        price:495,
+        label:{ de:"Alle Zonen", en:"All zones", ru:"Все зоны" },
+        fx:{ de:"Um 905 € günstiger", en:"Save €905", ru:"Выгоднее на 905 €" }
+      }
+    ]
   };
   const plannerCopy = {
     de:{
@@ -4331,7 +4573,7 @@
       courseTagPremium:"Premium 6er Kur Paket",
       buyCourse:"Kurs kaufen",
       savedWord:"günstiger",
-      premiumBadge:"Premium Paket -60 €",
+      premiumBadge:"Premium Paket",
       premiumTag:"Premium Paket",
       mergeArms:"Arme komplett",
       mergeLegs:"Beine komplett",
@@ -4353,7 +4595,7 @@
       courseTagPremium:"Premium 6-session course pack",
       buyCourse:"Buy course",
       savedWord:"better value",
-      premiumBadge:"Premium package -60 €",
+      premiumBadge:"Premium package",
       premiumTag:"Premium Package",
       mergeArms:"Arms pack",
       mergeLegs:"Legs pack",
@@ -4375,7 +4617,7 @@
       courseTagPremium:"Премиум курс 6 визитов",
       buyCourse:"Купить курс",
       savedWord:"выгоднее",
-      premiumBadge:"Премиум пакет -60 €",
+      premiumBadge:"Премиум пакет",
       premiumTag:"Премиум пакет",
       mergeArms:"Руки комплект",
       mergeLegs:"Ноги комплект",
@@ -5147,38 +5389,96 @@
     }
   }
   function syncPlannerViewSwitch(mode){
-    const frauenMode = mode === "frauen";
-    if(plannerViewSwitch) plannerViewSwitch.hidden = !frauenMode;
+    const multiViewMode = !!mode;
+    if(plannerViewSwitch) plannerViewSwitch.hidden = !multiViewMode;
     const idx = plannerFrauenViewIndex();
-    const hasPrev = frauenMode && idx > 0;
-    const hasNext = frauenMode && idx < (plannerFrauenViewOrder.length - 1);
-    if(plannerViewPrevBtn) plannerViewPrevBtn.hidden = !frauenMode;
-    if(plannerViewNextBtn) plannerViewNextBtn.hidden = !frauenMode;
+    const hasPrev = multiViewMode && idx > 0;
+    const hasNext = multiViewMode && idx < (plannerFrauenViewOrder.length - 1);
+    if(plannerViewPrevBtn) plannerViewPrevBtn.hidden = !multiViewMode;
+    if(plannerViewNextBtn) plannerViewNextBtn.hidden = !multiViewMode;
     plannerViewButtons.forEach((btn) => {
-      btn.disabled = !frauenMode;
+      btn.disabled = !multiViewMode;
     });
     if(plannerViewPrevBtn) plannerViewPrevBtn.disabled = !hasPrev;
     if(plannerViewNextBtn) plannerViewNextBtn.disabled = !hasNext;
     syncPlannerFaceJoystick(mode);
     requestAnimationFrame(positionPlannerViewArrows);
   }
-  function plannerFaceZoneMovable(zoneId){
-    return isPlannerFaceJoystickActive() && typeof zoneId === "string" && zoneId.length > 0;
+  function plannerFaceMovableZoneSet(mode, view = plannerFrauenView){
+    const byMode = plannerFaceMovableZoneIdsByModeAndView[mode] || plannerFaceMovableZoneIdsByModeAndView.frauen;
+    const base = byMode[view] || new Set();
+    const merged = new Set(base);
+    const customList = plannerCustomButtonsByModeAndView[mode] && plannerCustomButtonsByModeAndView[mode][view];
+    if(Array.isArray(customList)){
+      customList.forEach((entry) => {
+        if(entry && typeof entry.id === "string" && entry.id) merged.add(entry.id);
+      });
+    }
+    return merged;
+  }
+  function plannerHiddenBuiltinZoneSet(mode, view = plannerFrauenView){
+    const byMode = plannerHiddenBuiltinZonesByModeAndView[mode] || plannerHiddenBuiltinZonesByModeAndView.frauen;
+    return byMode[view] || new Set();
+  }
+  function plannerCustomButtons(mode, view = plannerFrauenView){
+    const byMode = plannerCustomButtonsByModeAndView[mode] || plannerCustomButtonsByModeAndView.frauen;
+    return byMode[view] || [];
+  }
+  function plannerFindCustomButtonById(zoneId, mode = activeLaserMode(), view = plannerFrauenView){
+    if(typeof zoneId !== "string" || !zoneId) return null;
+    const list = plannerCustomButtons(mode, view);
+    return list.find((entry) => entry && entry.id === zoneId) || null;
+  }
+  function plannerZoneLabelById(mode, zoneId){
+    const zones = plannerZonesByMode[mode] || [];
+    const zone = zones.find((entry) => entry && entry.id === zoneId);
+    if(!zone) return "";
+    return plannerLabel(zone.label);
+  }
+  function plannerJoystickLabelForZone(zoneId, mode = activeLaserMode(), view = plannerFrauenView){
+    const custom = plannerFindCustomButtonById(zoneId, mode, view);
+    if(custom && custom.label) return String(custom.label).toUpperCase();
+    const mapped = plannerFaceJoystickLabels[zoneId];
+    if(mapped) return mapped;
+    const baseLabel = plannerZoneLabelById(mode, zoneId);
+    if(baseLabel) return baseLabel.toUpperCase();
+    return zoneId.toUpperCase();
+  }
+  function plannerDefaultJoystickZoneId(mode, view = plannerFrauenView){
+    const set = plannerFaceMovableZoneSet(mode, view);
+    if(set.has("kinn")) return "kinn";
+    if(set.has("beard")) return "beard";
+    return set.values().next().value || "";
+  }
+  function plannerFaceZoneMovable(zoneId, mode = activeLaserMode(), view = plannerFrauenView){
+    if(typeof zoneId !== "string" || !zoneId.length) return false;
+    // Herren: no strict lock to predefined movable sets; allow full manual layout tuning.
+    if(mode === "herren") return true;
+    return plannerFaceMovableZoneSet(mode, view).has(zoneId);
+  }
+  function ensurePlannerJoystickTarget(mode = activeLaserMode(), view = plannerFrauenView){
+    if(plannerFaceZoneMovable(plannerJoystickTargetZoneId, mode, view)) return true;
+    const fallbackZoneId = plannerDefaultJoystickZoneId(mode, view);
+    if(!fallbackZoneId) return false;
+    plannerSetJoystickTarget(fallbackZoneId);
+    return true;
   }
   function plannerSetJoystickTarget(zoneId){
-    if(!plannerFaceZoneMovable(zoneId)) return;
+    const mode = activeLaserMode();
+    if(!plannerFaceZoneMovable(zoneId, mode)) return;
     plannerJoystickTargetZoneId = zoneId;
     if(plannerFaceJoystickTarget){
-      plannerFaceJoystickTarget.textContent = plannerFaceJoystickLabels[zoneId] || zoneId.toUpperCase();
+      plannerFaceJoystickTarget.textContent = plannerJoystickLabelForZone(zoneId, mode);
     }
   }
   function syncPlannerFaceJoystick(mode){
     if(!plannerFaceJoystick) return;
-    const visible = false;
+    const visible = mode === "herren" || plannerFrauenView === "face";
     plannerFaceJoystick.hidden = !visible;
     plannerFaceJoystick.classList.toggle("is-visible", visible);
-    if(visible && !plannerFaceZoneMovable(plannerJoystickTargetZoneId)){
-      plannerSetJoystickTarget("kinn");
+    if(visible && !plannerFaceZoneMovable(plannerJoystickTargetZoneId, mode, plannerFrauenView)){
+      const fallbackZoneId = plannerDefaultJoystickZoneId(mode, plannerFrauenView);
+      if(fallbackZoneId) plannerSetJoystickTarget(fallbackZoneId);
     }
   }
   function isPlannerFaceJoystickActive(){
@@ -5187,8 +5487,8 @@
   }
   function movePlannerJoystick(dx, dy){
     const mode = activeLaserMode();
-    if(mode !== "frauen") return;
-    if(!plannerFaceZoneMovable(plannerJoystickTargetZoneId)) return;
+    if(!isPlannerFaceJoystickActive()) return;
+    if(!ensurePlannerJoystickTarget(mode)) return;
     const current = plannerFaceZoneOffsetById[plannerJoystickTargetZoneId] || { x:0, y:0 };
     plannerFaceZoneOffsetById[plannerJoystickTargetZoneId] = {
       x:Number((current.x + dx).toFixed(4)),
@@ -5294,8 +5594,8 @@
   }
   function plannerAddFaceWarpPoint(event, zoneId, btn){
     const mode = activeLaserMode();
-    if(mode !== "frauen") return;
-    if(!plannerFaceZoneMovable(zoneId) || !btn) return;
+    if(!isPlannerFaceJoystickActive()) return;
+    if(!plannerFaceZoneMovable(zoneId, mode) || !btn) return;
     const rect = btn.getBoundingClientRect();
     if(rect.width <= 0 || rect.height <= 0) return;
     event.preventDefault();
@@ -5407,8 +5707,8 @@
   }
   function plannerStartFaceButtonDrag(event, zoneId, btn){
     const mode = activeLaserMode();
-    if(mode !== "frauen") return;
-    if(!plannerFaceZoneMovable(zoneId)) return;
+    if(!isPlannerFaceJoystickActive()) return;
+    if(!plannerFaceZoneMovable(zoneId, mode)) return;
     if(event.button !== 0) return;
     if(!plannerSketch) return;
     const rect = plannerSketch.getBoundingClientRect();
@@ -5446,26 +5746,123 @@
   }
   function resizePlannerJoystick(sizeDelta){
     const mode = activeLaserMode();
-    if(mode !== "frauen") return;
-    if(!plannerFaceZoneMovable(plannerJoystickTargetZoneId)) return;
+    if(!isPlannerFaceJoystickActive()) return;
+    if(!ensurePlannerJoystickTarget(mode)) return;
     const current = plannerFaceZoneSizeDeltaById[plannerJoystickTargetZoneId] || 0;
     plannerFaceZoneSizeDeltaById[plannerJoystickTargetZoneId] = Number((current + sizeDelta).toFixed(4));
     schedulePlannerRender(mode);
   }
   function bringPlannerJoystickTargetToFront(){
     const mode = activeLaserMode();
-    if(mode !== "frauen") return;
-    if(!plannerFaceZoneMovable(plannerJoystickTargetZoneId)) return;
+    if(!isPlannerFaceJoystickActive()) return;
+    if(!ensurePlannerJoystickTarget(mode)) return;
     plannerFaceZoneLayerById[plannerJoystickTargetZoneId] = "front";
     schedulePlannerRender(mode);
   }
   function rotatePlannerJoystickTarget(deltaDeg){
     const mode = activeLaserMode();
-    if(mode !== "frauen") return;
-    if(!plannerFaceZoneMovable(plannerJoystickTargetZoneId)) return;
+    if(!isPlannerFaceJoystickActive()) return;
+    if(!ensurePlannerJoystickTarget(mode)) return;
     const current = plannerFaceZoneRotateById[plannerJoystickTargetZoneId] || 0;
     plannerFaceZoneRotateById[plannerJoystickTargetZoneId] = Number((current + deltaDeg).toFixed(3));
     schedulePlannerRender(mode);
+  }
+  function plannerCleanupFaceStateForZone(zoneId){
+    delete plannerFaceZoneOffsetById[zoneId];
+    delete plannerFaceZoneSizeDeltaById[zoneId];
+    delete plannerFaceZoneShapeById[zoneId];
+    delete plannerFaceZoneTransformById[zoneId];
+    delete plannerFaceZoneLayerById[zoneId];
+    delete plannerFaceZoneWarpPointsById[zoneId];
+    delete plannerFaceZoneRotateById[zoneId];
+  }
+  function plannerReadRenderedZoneRect(zoneId){
+    const safeId = String(zoneId).replace(/"/g, '\\"');
+    const selector = `.zoneSketchBtn[data-zone-id="${safeId}"]`;
+    const btn = (plannerSketch && plannerSketch.querySelector(selector)) || (plannerBackSketch && plannerBackSketch.querySelector(selector));
+    if(!(btn instanceof HTMLElement)) return null;
+    const left = Number.parseFloat(btn.style.left);
+    const top = Number.parseFloat(btn.style.top);
+    const width = Number.parseFloat(btn.style.width);
+    const height = Number.parseFloat(btn.style.height);
+    if(!Number.isFinite(left) || !Number.isFinite(top) || !Number.isFinite(width) || !Number.isFinite(height)) return null;
+    return { x:left, y:top, w:Math.max(0.8, width), h:Math.max(0.8, height) };
+  }
+  function plannerPromptButtonLabel(defaultValue){
+    const fallback = (defaultValue || "NEW BTN").toString().trim() || "NEW BTN";
+    const entered = window.prompt("Название кнопки", fallback);
+    if(entered === null) return null;
+    const text = entered.trim();
+    return text.length ? text : fallback;
+  }
+  function plannerCreateCustomButton({ label, sourceZoneId = null, area = null }){
+    const mode = activeLaserMode();
+    const view = plannerFrauenView;
+    const list = plannerCustomButtons(mode, view);
+    const nextId = `custom_btn_${Date.now()}_${plannerCustomButtonSeq++}`;
+    const fallbackArea = { x:46, y:42, w:8, h:5 };
+    const baseArea = area && Number.isFinite(area.x) ? area : fallbackArea;
+    const item = {
+      id:nextId,
+      label:String(label || "NEW BTN").trim() || "NEW BTN",
+      sourceZoneId:(typeof sourceZoneId === "string" && sourceZoneId.length) ? sourceZoneId : null,
+      x:Number(baseArea.x.toFixed(4)),
+      y:Number(baseArea.y.toFixed(4)),
+      w:Number(Math.max(0.8, baseArea.w).toFixed(4)),
+      h:Number(Math.max(0.8, baseArea.h).toFixed(4))
+    };
+    list.push(item);
+    plannerSetJoystickTarget(item.id);
+    schedulePlannerRender(mode);
+    plannerPersistState();
+    return item;
+  }
+  function plannerDuplicateJoystickTarget(){
+    const mode = activeLaserMode();
+    if(!isPlannerFaceJoystickActive()) return;
+    if(!ensurePlannerJoystickTarget(mode)) return;
+    const sourceId = plannerJoystickTargetZoneId;
+    const custom = plannerFindCustomButtonById(sourceId, mode, plannerFrauenView);
+    const sourceZoneId = custom ? (custom.sourceZoneId || null) : sourceId;
+    const baseLabel = custom ? custom.label : (plannerZoneLabelById(mode, sourceId) || plannerJoystickLabelForZone(sourceId, mode));
+    const label = plannerPromptButtonLabel(baseLabel);
+    if(label === null) return;
+    const rect = plannerReadRenderedZoneRect(sourceId) || (custom ? { x:custom.x, y:custom.y, w:custom.w, h:custom.h } : null);
+    const area = rect ? { x:rect.x + 1, y:rect.y + 1, w:rect.w, h:rect.h } : null;
+    plannerCreateCustomButton({ label, sourceZoneId, area });
+  }
+  function plannerCreateNewJoystickButton(){
+    const mode = activeLaserMode();
+    if(!isPlannerFaceJoystickActive()) return;
+    if(!ensurePlannerJoystickTarget(mode)) return;
+    const sourceId = plannerJoystickTargetZoneId;
+    const custom = plannerFindCustomButtonById(sourceId, mode, plannerFrauenView);
+    const sourceZoneId = custom ? (custom.sourceZoneId || null) : sourceId;
+    const baseLabel = custom ? custom.label : (plannerZoneLabelById(mode, sourceId) || "NEW BTN");
+    const label = plannerPromptButtonLabel(baseLabel);
+    if(label === null) return;
+    const rect = plannerReadRenderedZoneRect(sourceId) || (custom ? { x:custom.x, y:custom.y, w:custom.w, h:custom.h } : null);
+    plannerCreateCustomButton({ label, sourceZoneId, area:rect });
+  }
+  function plannerDeleteJoystickTarget(){
+    const mode = activeLaserMode();
+    const view = plannerFrauenView;
+    if(!isPlannerFaceJoystickActive()) return;
+    if(!ensurePlannerJoystickTarget(mode, view)) return;
+    const targetId = plannerJoystickTargetZoneId;
+    const list = plannerCustomButtons(mode, view);
+    const customIndex = list.findIndex((entry) => entry && entry.id === targetId);
+    if(customIndex >= 0){
+      list.splice(customIndex, 1);
+      plannerCleanupFaceStateForZone(targetId);
+    } else {
+      plannerHiddenBuiltinZoneSet(mode, view).add(targetId);
+      const selectedSet = plannerSelectedByMode[mode];
+      if(selectedSet && selectedSet.has(targetId)) selectedSet.delete(targetId);
+    }
+    ensurePlannerJoystickTarget(mode, view);
+    schedulePlannerRender(mode);
+    plannerPersistState();
   }
   function plannerFaceAdjustmentsPayload(){
     return {
@@ -5477,7 +5874,31 @@
       transforms:plannerFaceZoneTransformById,
       layers:plannerFaceZoneLayerById,
       warpPoints:plannerFaceZoneWarpPointsById,
-      rotates:plannerFaceZoneRotateById
+      rotates:plannerFaceZoneRotateById,
+      customButtons:{
+        frauen:{
+          front:plannerCustomButtonsByModeAndView.frauen.front,
+          back:plannerCustomButtonsByModeAndView.frauen.back,
+          face:plannerCustomButtonsByModeAndView.frauen.face
+        },
+        herren:{
+          front:plannerCustomButtonsByModeAndView.herren.front,
+          back:plannerCustomButtonsByModeAndView.herren.back,
+          face:plannerCustomButtonsByModeAndView.herren.face
+        }
+      },
+      hiddenButtons:{
+        frauen:{
+          front:Array.from(plannerHiddenBuiltinZonesByModeAndView.frauen.front),
+          back:Array.from(plannerHiddenBuiltinZonesByModeAndView.frauen.back),
+          face:Array.from(plannerHiddenBuiltinZonesByModeAndView.frauen.face)
+        },
+        herren:{
+          front:Array.from(plannerHiddenBuiltinZonesByModeAndView.herren.front),
+          back:Array.from(plannerHiddenBuiltinZonesByModeAndView.herren.back),
+          face:Array.from(plannerHiddenBuiltinZonesByModeAndView.herren.face)
+        }
+      }
     };
   }
   function plannerSetSaveButtonText(text){
@@ -5502,6 +5923,42 @@
       copyPlannerFaceAdjustmentsInto(plannerFaceZoneLayerById, parsed.layers);
       copyPlannerFaceAdjustmentsInto(plannerFaceZoneWarpPointsById, parsed.warpPoints);
       copyPlannerFaceAdjustmentsInto(plannerFaceZoneRotateById, parsed.rotates);
+      ["frauen", "herren"].forEach((mode) => {
+        ["front", "back", "face"].forEach((view) => {
+          const savedCustom = parsed.customButtons && parsed.customButtons[mode] && parsed.customButtons[mode][view];
+          const targetCustom = plannerCustomButtonsByModeAndView[mode][view];
+          targetCustom.length = 0;
+          if(Array.isArray(savedCustom)){
+            savedCustom.forEach((entry) => {
+              if(!entry || typeof entry !== "object") return;
+              if(typeof entry.id !== "string" || !entry.id) return;
+              if(!Number.isFinite(entry.x) || !Number.isFinite(entry.y) || !Number.isFinite(entry.w) || !Number.isFinite(entry.h)) return;
+              targetCustom.push({
+                id:entry.id,
+                label:String(entry.label || "NEW BTN"),
+                sourceZoneId:(typeof entry.sourceZoneId === "string" && entry.sourceZoneId.length) ? entry.sourceZoneId : null,
+                x:Number(entry.x),
+                y:Number(entry.y),
+                w:Number(Math.max(0.8, entry.w)),
+                h:Number(Math.max(0.8, entry.h))
+              });
+              const seqMatch = entry.id.match(/custom_btn_\d+_(\d+)$/);
+              if(seqMatch){
+                const seq = Number.parseInt(seqMatch[1], 10);
+                if(Number.isFinite(seq)) plannerCustomButtonSeq = Math.max(plannerCustomButtonSeq, seq + 1);
+              }
+            });
+          }
+          const savedHidden = parsed.hiddenButtons && parsed.hiddenButtons[mode] && parsed.hiddenButtons[mode][view];
+          const targetHidden = plannerHiddenBuiltinZonesByModeAndView[mode][view];
+          targetHidden.clear();
+          if(Array.isArray(savedHidden)){
+            savedHidden.forEach((id) => {
+              if(typeof id === "string" && id) targetHidden.add(id);
+            });
+          }
+        });
+      });
       return true;
     } catch(_error){
       return false;
@@ -5562,8 +6019,8 @@
   }
   function setPlannerJoystickShape(shape){
     const mode = activeLaserMode();
-    if(mode !== "frauen") return;
-    if(!plannerFaceZoneMovable(plannerJoystickTargetZoneId)) return;
+    if(!isPlannerFaceJoystickActive()) return;
+    if(!ensurePlannerJoystickTarget(mode)) return;
     plannerFaceZoneShapeById[plannerJoystickTargetZoneId] = shape;
     schedulePlannerRender(mode);
   }
@@ -5655,7 +6112,7 @@
     });
     const mode = options.mode || activeLaserMode();
     syncPlannerViewSwitch(mode);
-    if(changed && mode === "frauen"){
+    if(changed){
       plannerViewTransitionActive = true;
       plannerButtonHoverPreviewActive = false;
       plannerHoverPreviewActive = false;
@@ -5722,6 +6179,26 @@
       plannerFigureFrontline
     ].filter(Boolean);
   }
+  function plannerSyncFrontStaticOverlaySources(mode){
+    if(plannerFrauenView !== "front") return;
+    const srcMap = plannerStaticFrontOverlaySrcByMode[mode] || plannerStaticFrontOverlaySrcByMode.frauen;
+    if(!srcMap) return;
+    if(plannerFigureOverlayUpperlip && srcMap.upperlip) setIntResponsiveImageSrc(plannerFigureOverlayUpperlip, srcMap.upperlip);
+    if(plannerFigureOverlayAxilla && srcMap.axilla) setIntResponsiveImageSrc(plannerFigureOverlayAxilla, srcMap.axilla);
+    if(plannerFigureOverlayChin && srcMap.chin) setIntResponsiveImageSrc(plannerFigureOverlayChin, srcMap.chin);
+    if(plannerFigureOverlayChest && srcMap.chest) setIntResponsiveImageSrc(plannerFigureOverlayChest, srcMap.chest);
+    if(plannerFigureOverlayHands && srcMap.hands) setIntResponsiveImageSrc(plannerFigureOverlayHands, srcMap.hands);
+    if(plannerFigureOverlayFeet && srcMap.feet) setIntResponsiveImageSrc(plannerFigureOverlayFeet, srcMap.feet);
+    if(plannerFigureOverlayUpperarms && srcMap.upperarms) setIntResponsiveImageSrc(plannerFigureOverlayUpperarms, srcMap.upperarms);
+    if(plannerFigureOverlayAxillaGray && srcMap.axillaGray) setIntResponsiveImageSrc(plannerFigureOverlayAxillaGray, srcMap.axillaGray);
+    if(plannerFigureOverlayUnderarms && srcMap.underarms) setIntResponsiveImageSrc(plannerFigureOverlayUnderarms, srcMap.underarms);
+    if(plannerFigureOverlayBauchMedia && srcMap.bauchMedia) setIntResponsiveImageSrc(plannerFigureOverlayBauchMedia, srcMap.bauchMedia);
+    if(plannerFigureOverlayBauchFull && srcMap.bauchFull) setIntResponsiveImageSrc(plannerFigureOverlayBauchFull, srcMap.bauchFull);
+    if(plannerFigureOverlayBikini && srcMap.bikini) setIntResponsiveImageSrc(plannerFigureOverlayBikini, srcMap.bikini);
+    if(plannerFigureOverlayObersch && srcMap.obersch) setIntResponsiveImageSrc(plannerFigureOverlayObersch, srcMap.obersch);
+    if(plannerFigureOverlayUntersch && srcMap.untersch) setIntResponsiveImageSrc(plannerFigureOverlayUntersch, srcMap.untersch);
+    if(plannerFigureOverlayImage && srcMap.intim) setIntResponsiveImageSrc(plannerFigureOverlayImage, srcMap.intim);
+  }
   function cancelPlannerViewSlideAnimation(){
     if(!plannerViewSlideRaf) return;
     cancelAnimationFrame(plannerViewSlideRaf);
@@ -5730,18 +6207,15 @@
   function applyPlannerFigureMode(mode, options = {}){
     if(!plannerFigureImage) return;
     plannerEnsureDynamicOverlaysMounted();
-    const modeVisual = plannerFigureByMode[mode] || plannerFigureByMode.herren;
-    const visual = mode === "frauen"
-      ? ((modeVisual && modeVisual[plannerFrauenView]) || modeVisual.front || modeVisual.back)
-      : modeVisual;
+    const modeVisual = plannerFigureByMode[mode] || plannerFigureByMode.frauen;
+    const visual = (modeVisual && modeVisual[plannerFrauenView]) || modeVisual.front || modeVisual.back || modeVisual.face;
     if(plannerFigureInner){
       plannerFigureInner.style.aspectRatio = visual.aspect || "2200 / 5500";
     }
-    const shouldAnimate = !!options.animate && mode === "frauen";
-    const showFrontline = mode === "frauen";
-    const frontlineSrc = mode === "frauen"
-      ? (plannerFrontlineByView[plannerFrauenView] || plannerFrontlineByView.front)
-      : "";
+    const shouldAnimate = !!options.animate;
+    const frontlineByView = plannerFrontlineByModeAndView[mode] || {};
+    const frontlineSrc = frontlineByView[plannerFrauenView] || frontlineByView.front || "";
+    const showFrontline = !!frontlineSrc;
     if(plannerFigureFrontline){
       if(showFrontline && frontlineSrc){
         setIntResponsiveImageSrc(plannerFigureFrontline, frontlineSrc);
@@ -5771,6 +6245,7 @@
     if(!shouldAnimate){
       setIntResponsiveImageSrc(plannerFigureImage, visual.src);
       plannerFigureImage.setAttribute("alt", visual.alt);
+      plannerSyncFrontStaticOverlaySources(mode);
       if(typeof options.onVisualSwapped === "function"){
         options.onVisualSwapped();
       }
@@ -5804,6 +6279,7 @@
               }
               plannerFigureFrontline.classList.toggle("is-visible", showFrontline);
             }
+            plannerSyncFrontStaticOverlaySources(mode);
             if(typeof options.onVisualSwapped === "function"){
               options.onVisualSwapped();
             }
@@ -5896,23 +6372,25 @@
   function plannerEnsureDynamicOverlaysMounted(){
     if(!plannerFigureInner) return;
     const frontline = plannerFigureFrontline || null;
-    ["back", "face"].forEach((view) => {
-      plannerDynamicOverlayEntriesForView(view).forEach(([partKey, src]) => {
-        const key = plannerDynamicOverlayKey(view, partKey);
-        if(plannerDynamicOverlayElsByKey[key]) return;
-        const el = document.createElement("img");
-        setIntResponsiveImageSrc(el, src);
-        el.setAttribute("alt", "");
-        el.setAttribute("loading", "eager");
-        el.setAttribute("decoding", "sync");
-        el.setAttribute("aria-hidden", "true");
-        el.className = "plannerFigureOverlayImage plannerFigureOverlayImage--dynamic";
-        if(frontline && frontline.parentNode === plannerFigureInner){
-          plannerFigureInner.insertBefore(el, frontline);
-        } else {
-          plannerFigureInner.appendChild(el);
-        }
-        plannerDynamicOverlayElsByKey[key] = el;
+    Object.entries(plannerHoverOverlaySrcByModeAndView || {}).forEach(([mode, views]) => {
+      Object.keys(views || {}).forEach((view) => {
+        plannerDynamicOverlayEntriesForView(mode, view).forEach(([partKey, src]) => {
+          const key = plannerDynamicOverlayKey(mode, view, partKey);
+          if(plannerDynamicOverlayElsByKey[key]) return;
+          const el = document.createElement("img");
+          setIntResponsiveImageSrc(el, src);
+          el.setAttribute("alt", "");
+          el.setAttribute("loading", "eager");
+          el.setAttribute("decoding", "sync");
+          el.setAttribute("aria-hidden", "true");
+          el.className = "plannerFigureOverlayImage plannerFigureOverlayImage--dynamic";
+          if(frontline && frontline.parentNode === plannerFigureInner){
+            plannerFigureInner.insertBefore(el, frontline);
+          } else {
+            plannerFigureInner.appendChild(el);
+          }
+          plannerDynamicOverlayElsByKey[key] = el;
+        });
       });
     });
   }
@@ -5926,9 +6404,8 @@
     });
   }
   function plannerDynamicOverlayElementsForPartKey(partKey){
-    if(activeLaserMode() !== "frauen") return [];
     if(plannerFrauenView === "front") return [];
-    const key = plannerDynamicOverlayKey(plannerFrauenView, partKey);
+    const key = plannerDynamicOverlayKey(activeLaserMode(), plannerFrauenView, partKey);
     const el = plannerDynamicOverlayElsByKey[key];
     return el ? [el] : [];
   }
@@ -6057,28 +6534,27 @@
     plannerGuideDisabled = true;
   }
   function updatePlannerFigureOverlay(mode){
-    if(mode !== "frauen"){
-      stopPlannerGuideEffect();
-    }
+    if(mode !== "frauen" && plannerFrauenView === "front") stopPlannerGuideEffect();
+    plannerSyncFrontStaticOverlaySources(mode);
     const selectedSet = plannerSelectedByMode[mode] || new Set();
-    const isFrauenFront = mode === "frauen" && plannerFrauenView === "front";
+    const isFrontView = plannerFrauenView === "front";
     const shouldShowUpperlipOverlay = false;
-    const shouldShowAxillaOverlay = isFrauenFront && selectedSet.has("axilla");
-    const shouldShowChinOverlay = isFrauenFront && selectedSet.has("chin");
-    const shouldShowChestOverlay = isFrauenFront && selectedSet.has("chest");
-    const shouldShowHandsOverlay = isFrauenFront && selectedSet.has("hands");
-    const shouldShowFeetOverlay = isFrauenFront && selectedSet.has("feet");
-    const shouldShowUpperarmsOverlay = isFrauenFront && selectedSet.has("upperarms");
-    const chestKeepsAxillaGray = isFrauenFront && selectedSet.has("chest");
-    const frontUpperarmsKeepAxillaGray = isFrauenFront && !chestKeepsAxillaGray && selectedSet.has("upperarms") && !selectedSet.has("axilla");
+    const shouldShowAxillaOverlay = isFrontView && selectedSet.has("axilla");
+    const shouldShowChinOverlay = isFrontView && selectedSet.has("chin");
+    const shouldShowChestOverlay = isFrontView && selectedSet.has("chest");
+    const shouldShowHandsOverlay = isFrontView && selectedSet.has("hands");
+    const shouldShowFeetOverlay = isFrontView && selectedSet.has("feet");
+    const shouldShowUpperarmsOverlay = isFrontView && selectedSet.has("upperarms");
+    const chestKeepsAxillaGray = isFrontView && selectedSet.has("chest");
+    const frontUpperarmsKeepAxillaGray = isFrontView && !chestKeepsAxillaGray && selectedSet.has("upperarms") && !selectedSet.has("axilla");
     const shouldShowAxillaGrayOverlay = chestKeepsAxillaGray || frontUpperarmsKeepAxillaGray;
-    const shouldShowUnderarmsOverlay = isFrauenFront && selectedSet.has("underarms");
-    const shouldShowBauchMediaOverlay = isFrauenFront && selectedSet.has("medialinebauch");
-    const shouldShowBauchFullOverlay = isFrauenFront && selectedSet.has("bauchfull");
-    const shouldShowOberschOverlay = isFrauenFront && selectedSet.has("obersch");
-    const shouldShowUnterschOverlay = isFrauenFront && selectedSet.has("untersch");
-    const shouldShowBikiniOverlay = isFrauenFront && selectedSet.has("bikini");
-    const shouldShowIntimOverlay = isFrauenFront && selectedSet.has("intim");
+    const shouldShowUnderarmsOverlay = isFrontView && selectedSet.has("underarms");
+    const shouldShowBauchMediaOverlay = isFrontView && selectedSet.has("medialinebauch");
+    const shouldShowBauchFullOverlay = isFrontView && selectedSet.has("bauchfull");
+    const shouldShowOberschOverlay = isFrontView && selectedSet.has("obersch");
+    const shouldShowUnterschOverlay = isFrontView && selectedSet.has("untersch");
+    const shouldShowBikiniOverlay = isFrontView && selectedSet.has("bikini");
+    const shouldShowIntimOverlay = isFrontView && selectedSet.has("intim");
     if(plannerFigureOverlayUpperlip){
       plannerFigureOverlayUpperlip.classList.toggle("is-visible", shouldShowUpperlipOverlay);
     }
@@ -6121,8 +6597,9 @@
     if(plannerFigureOverlayUntersch){
       plannerFigureOverlayUntersch.classList.toggle("is-visible", shouldShowUnterschOverlay);
     }
-    if(mode === "frauen" && plannerFrauenView !== "front"){
-      plannerClearDynamicOverlayClasses();
+    // Dynamic overlays must never leak between views: clear first, then paint only current view.
+    plannerClearDynamicOverlayClasses();
+    if(plannerFrauenView !== "front"){
       const zoneMap = plannerHoverPartsByZone[mode] || {};
       const selectedParts = new Set();
       selectedSet.forEach((zoneId) => {
@@ -6136,9 +6613,6 @@
       });
     }
     if(plannerFigureOverlayImage){
-      if(isFrauenFront){
-        setIntResponsiveImageSrc(plannerFigureOverlayImage, "img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM_POF.svg");
-      }
       plannerFigureOverlayImage.classList.toggle("is-visible", shouldShowIntimOverlay);
     }
   }
@@ -6659,13 +7133,6 @@
   function plannerOrderItems(mode, selectedSet){
     const zones = plannerZonesByMode[mode] || [];
     const effectiveSet = selectedSet || new Set();
-    if(mode !== "frauen"){
-      return zones.filter((zone) => effectiveSet.has(zone.id)).map((zone) => ({
-        id:zone.id,
-        label:zone.label,
-        price:zone.price
-      }));
-    }
     const zonesById = new Map(zones.map((zone) => [zone.id, zone]));
     const activeBundles = plannerSelectedBundles(mode, effectiveSet);
     const activeBundleByFirstZone = new Map();
@@ -7020,7 +7487,7 @@
   }
   function togglePlannerZone(mode, zoneId){
     markPlannerInteracted();
-    if(mode === "frauen" && plannerFrauenView === "back" && zoneId === "axilla") return false;
+    if(!plannerZoneVisibleInCurrentView(mode, zoneId)) return false;
     const selectedSet = plannerSelectedByMode[mode];
     if(!selectedSet) return false;
     const prevSelectedSet = new Set(selectedSet);
@@ -7333,34 +7800,11 @@
   }
   function renderPlannerZones(mode){
     if(!plannerZoneGrid) return;
-    const isFrauenFace = mode === "frauen" && plannerFrauenView === "face";
-    const isFrauenFront = mode === "frauen" && plannerFrauenView === "front";
-    const isFrauenBack = mode === "frauen" && plannerFrauenView === "back";
     const zones = plannerZonesByMode[mode] || [];
     const selectedSet = plannerSelectedByMode[mode] || new Set();
     plannerZoneGrid.innerHTML = "";
     zones.forEach((zone) => {
-      if(isFrauenFace && zone.id !== "chin" && zone.id !== "nacken" && zone.id !== "kinn" && zone.id !== "wangen" && zone.id !== "koteletten" && zone.id !== "glabella" && zone.id !== "upperlip") return;
-      if(isFrauenFront && zone.id === "lowerback") return;
-      if(isFrauenFront && zone.id === "pobacken") return;
-      if(isFrauenFront && zone.id === "glabella") return;
-      if(isFrauenFront && zone.id === "upperlip") return;
-      if(isFrauenFront && zone.id === "nacken") return;
-      if(isFrauenFront && zone.id === "kinn") return;
-      if(isFrauenFront && zone.id === "wangen") return;
-      if(isFrauenFront && zone.id === "koteletten") return;
-      if(isFrauenFront && zone.id === "upperback") return;
-      if(isFrauenBack && zone.id === "chin") return;
-      if(isFrauenBack && zone.id === "kinn") return;
-      if(isFrauenBack && zone.id === "wangen") return;
-      if(isFrauenBack && zone.id === "koteletten") return;
-      if(isFrauenBack && zone.id === "glabella") return;
-      if(isFrauenBack && zone.id === "upperlip") return;
-      if(isFrauenBack && zone.id === "chest") return;
-      if(isFrauenBack && zone.id === "axilla") return;
-      if(isFrauenBack && zone.id === "bauchfull") return;
-      if(isFrauenBack && zone.id === "medialinebauch") return;
-      if(isFrauenBack && zone.id === "bikini") return;
+      if(!plannerZoneVisibleInCurrentView(mode, zone.id)) return;
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "zoneBtn";
@@ -7391,12 +7835,13 @@
   }
   function renderPlannerSketch(mode){
     if(!plannerSketch) return;
-    const isFrauenFace = mode === "frauen" && plannerFrauenView === "face";
-    const zones = plannerZonesByMode[mode] || [];
+    const isFrauenFace = plannerFrauenView === "face";
+    const baseZones = plannerZonesByMode[mode] || [];
     const selectedSet = plannerSelectedByMode[mode] || new Set();
     const positions = plannerSketchByMode[mode] || {};
-    const isFrauenFront = mode === "frauen" && plannerFrauenView === "front";
-    const isFrauenBack = mode === "frauen" && plannerFrauenView === "back";
+    const isFrauenFront = plannerFrauenView === "front";
+    const isFrauenBack = plannerFrauenView === "back";
+    const hiddenBuiltinZones = plannerHiddenBuiltinZoneSet(mode, plannerFrauenView);
     const stretchX = plannerSketchStretchXByMode[mode] || 1;
     const stretchArea = (rawArea) => {
       if(!rawArea) return rawArea;
@@ -7415,66 +7860,66 @@
     plannerSketch.innerHTML = "";
     if(plannerBackSketch) plannerBackSketch.innerHTML = "";
     const renderedFaceWarpHandles = new Set();
+    const zones = [
+      ...baseZones
+        .filter((zone) => plannerZoneVisibleInCurrentView(mode, zone.id))
+        .filter((zone) => !hiddenBuiltinZones.has(zone.id)),
+      ...plannerCustomButtons(mode, plannerFrauenView).map((entry) => ({
+        id:entry.id,
+        label:entry.label,
+        price:0,
+        __custom:true,
+        __sourceZoneId:entry.sourceZoneId || null,
+        __area:{ x:entry.x, y:entry.y, w:entry.w, h:entry.h }
+      }))
+    ];
     zones.forEach((zone) => {
-      if(isFrauenFace && zone.id !== "chin" && zone.id !== "nacken" && zone.id !== "kinn" && zone.id !== "wangen" && zone.id !== "koteletten" && zone.id !== "glabella" && zone.id !== "upperlip") return;
-      if(isFrauenFront && zone.id === "back") return;
-      if(isFrauenFront && zone.id === "lowerback") return;
-      if(isFrauenFront && zone.id === "pobacken") return;
-      if(isFrauenFront && zone.id === "glabella") return;
-      if(isFrauenFront && zone.id === "upperlip") return;
-      if(isFrauenFront && zone.id === "nacken") return;
-      if(isFrauenFront && zone.id === "kinn") return;
-      if(isFrauenFront && zone.id === "wangen") return;
-      if(isFrauenFront && zone.id === "koteletten") return;
-      if(isFrauenFront && zone.id === "upperback") return;
-      if(isFrauenBack && zone.id === "chin") return;
-      if(isFrauenBack && zone.id === "kinn") return;
-      if(isFrauenBack && zone.id === "wangen") return;
-      if(isFrauenBack && zone.id === "koteletten") return;
-      if(isFrauenBack && zone.id === "glabella") return;
-      if(isFrauenBack && zone.id === "upperlip") return;
-      if(isFrauenBack && zone.id === "chest") return;
-      if(isFrauenBack && zone.id === "axilla") return;
-      if(isFrauenBack && zone.id === "bauchfull") return;
-      if(isFrauenBack && zone.id === "medialinebauch") return;
-      if(isFrauenBack && zone.id === "bikini") return;
-      const area = stretchArea(positions[zone.id]);
+      const area = zone.__custom ? zone.__area : stretchArea(positions[zone.id]);
       if(!area) return;
+      const actionZoneId = zone.__sourceZoneId || zone.id;
+      const styleZoneId = actionZoneId;
+      const canToggleZone = !!actionZoneId && (plannerZonesByMode[mode] || []).some((entry) => entry.id === actionZoneId);
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "zoneSketchBtn";
-      if(selectedSet.has(zone.id)) btn.classList.add("is-active");
+      if(actionZoneId && selectedSet.has(actionZoneId)) btn.classList.add("is-active");
       btn.style.left = `${area.x}%`;
       btn.style.top = `${area.y}%`;
       btn.style.width = `${area.w}%`;
       btn.style.height = `${area.h}%`;
       btn.dataset.zoneId = zone.id;
-      btn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
-      const isIntimPofButton = mode === "frauen" && zone.id === "intim";
-      const isBikiniButton = mode === "frauen" && zone.id === "bikini";
-      const isUpperlipButton = mode === "frauen" && zone.id === "upperlip";
-      const isChinButton = mode === "frauen" && zone.id === "chin";
-      const isNackenButton = mode === "frauen" && zone.id === "nacken";
-      const isKinnButton = mode === "frauen" && zone.id === "kinn";
-      const isWangenButton = mode === "frauen" && zone.id === "wangen";
-      const isKotelettenButton = mode === "frauen" && zone.id === "koteletten";
-      const isGlabellaButton = mode === "frauen" && zone.id === "glabella";
-      const isChestButton = mode === "frauen" && zone.id === "chest";
-      const isUpperBackButton = mode === "frauen" && zone.id === "upperback";
-      const isFeetButton = mode === "frauen" && zone.id === "feet";
-      const isHandsButton = mode === "frauen" && zone.id === "hands";
-      const isAxillaButton = mode === "frauen" && zone.id === "axilla";
-      const isUpperarmsButton = mode === "frauen" && zone.id === "upperarms";
-      const isUnderarmsButton = mode === "frauen" && zone.id === "underarms";
-      const isBauchFullButton = mode === "frauen" && zone.id === "bauchfull";
-      const isLowerBackButton = mode === "frauen" && zone.id === "lowerback";
-      const isPobackenButton = mode === "frauen" && zone.id === "pobacken";
-      const isMediaLineBauchButton = mode === "frauen" && zone.id === "medialinebauch";
-      const isOberschButton = mode === "frauen" && zone.id === "obersch";
-      const isUnterschButton = mode === "frauen" && zone.id === "untersch";
-      const isBackButton = mode === "frauen" && zone.id === "back";
+      if(zone.__sourceZoneId) btn.dataset.sourceZoneId = zone.__sourceZoneId;
+      const zoneLabel = zone.__custom ? String(zone.label || "NEW BTN") : plannerLabel(zone.label);
+      if(zone.price > 0){
+        btn.setAttribute("aria-label", `${zoneLabel} ${formatEuro(zone.price)}`);
+      } else {
+        btn.setAttribute("aria-label", zoneLabel);
+      }
+      const isIntimPofButton = styleZoneId === "intim";
+      const isBikiniButton = styleZoneId === "bikini";
+      const isUpperlipButton = styleZoneId === "upperlip";
+      const isChinButton = styleZoneId === "chin";
+      const isNackenButton = styleZoneId === "nacken";
+      const isKinnButton = styleZoneId === "kinn";
+      const isWangenButton = styleZoneId === "wangen";
+      const isKotelettenButton = styleZoneId === "koteletten";
+      const isGlabellaButton = styleZoneId === "glabella";
+      const isChestButton = styleZoneId === "chest";
+      const isUpperBackButton = styleZoneId === "upperback";
+      const isFeetButton = styleZoneId === "feet";
+      const isHandsButton = styleZoneId === "hands";
+      const isAxillaButton = styleZoneId === "axilla";
+      const isUpperarmsButton = styleZoneId === "upperarms";
+      const isUnderarmsButton = styleZoneId === "underarms";
+      const isBauchFullButton = styleZoneId === "bauchfull";
+      const isLowerBackButton = styleZoneId === "lowerback";
+      const isPobackenButton = styleZoneId === "pobacken";
+      const isMediaLineBauchButton = styleZoneId === "medialinebauch";
+      const isOberschButton = styleZoneId === "obersch";
+      const isUnterschButton = styleZoneId === "untersch";
+      const isBackButton = styleZoneId === "back";
       let faceChinDuplicateSpec = null;
-      let buttonText = plannerLabel(zone.label);
+      let buttonText = zoneLabel;
       if(isIntimPofButton) buttonText = "INT.FR.INTIM_POF";
       else if(isBikiniButton) buttonText = "BIKINI";
       else if(isUpperarmsButton) buttonText = "OBERARME";
@@ -7482,6 +7927,7 @@
       else if(isMediaLineBauchButton) buttonText = "BAUCH LN";
       else if(isBauchFullButton) buttonText = "BAUCH";
       else if(isLowerBackButton) buttonText = "UNTERER RÜCKEN";
+      else if(isUpperBackButton) buttonText = "OBERRÜCKEN + SCHULTERN";
       else if(isPobackenButton) buttonText = "POBACKEN";
       else if(isGlabellaButton) buttonText = "ZW. BRAUEN";
       else if(isKinnButton) buttonText = "KINN";
@@ -7686,41 +8132,39 @@
         btn.classList.add("zoneSketchBtn--axilla");
         btn.style.height = "";
       }
-      if(mode === "frauen"){
-        if(plannerFaceZoneMovable(zone.id)) btn.dataset.facePrimary = "1";
+      if(plannerFaceZoneMovable(zone.id, mode)){
+        btn.dataset.facePrimary = "1";
         applyPlannerFaceOffsetToButton(zone.id, btn);
-        if(plannerFaceZoneMovable(zone.id)){
+        btn.style.cursor = "move";
+        btn.addEventListener("mousemove", (event) => {
+          const edges = plannerFaceResizeEdgesFromPointer(btn, event.clientX, event.clientY);
+          btn.style.cursor = plannerFaceResizeCursor(edges);
+        });
+        btn.addEventListener("mouseleave", () => {
           btn.style.cursor = "move";
-          btn.addEventListener("mousemove", (event) => {
-            const edges = plannerFaceResizeEdgesFromPointer(btn, event.clientX, event.clientY);
-            btn.style.cursor = plannerFaceResizeCursor(edges);
-          });
-          btn.addEventListener("mouseleave", () => {
-            btn.style.cursor = "move";
-          });
-          btn.addEventListener("mousedown", (event) => {
-            plannerStartFaceButtonDrag(event, zone.id, btn);
-          });
-          btn.addEventListener("dblclick", (event) => {
-            plannerAddFaceWarpPoint(event, zone.id, btn);
-          });
-        }
+        });
+        btn.addEventListener("mousedown", (event) => {
+          plannerStartFaceButtonDrag(event, zone.id, btn);
+        });
+        btn.addEventListener("dblclick", (event) => {
+          plannerAddFaceWarpPoint(event, zone.id, btn);
+        });
       }
       btn.addEventListener("click", () => {
-        if(mode === "frauen" && plannerShouldSuppressFaceZoneClick(zone.id)) return;
-        if(mode === "frauen" && plannerFaceZoneMovable(zone.id)){
+        if(plannerFaceZoneMovable(zone.id, mode) && plannerShouldSuppressFaceZoneClick(zone.id)) return;
+        if(plannerFaceZoneMovable(zone.id, mode)){
           plannerSetJoystickTarget(zone.id);
         }
         plannerButtonHoverPreviewActive = false;
         clearPlannerHoverPreview();
-        togglePlannerZone(mode, zone.id);
+        if(canToggleZone) togglePlannerZone(mode, actionZoneId);
         schedulePlannerRender(mode);
         requestAnimationFrame(() => {
           ensureInteractiveInViewForInteraction();
         });
       });
       btn.addEventListener("mouseenter", () => {
-        const hoverParts = plannerHoverPartsForZone(mode, zone.id);
+        const hoverParts = canToggleZone ? plannerHoverPartsForZone(mode, actionZoneId) : [];
         plannerButtonHoverPreviewActive = hoverParts.length > 0;
         setPlannerHoverPreviewParts(hoverParts);
       });
@@ -7740,7 +8184,7 @@
         dupBtn.type = "button";
         dupBtn.className = "zoneSketchBtn zoneSketchBtn--chin";
         dupBtn.dataset.zoneId = zone.id;
-        if(selectedSet.has(zone.id)) dupBtn.classList.add("is-active");
+        if(actionZoneId && selectedSet.has(actionZoneId)) dupBtn.classList.add("is-active");
         dupBtn.style.left = `${faceChinDuplicateSpec.left}%`;
         dupBtn.style.top = `${faceChinDuplicateSpec.top}%`;
         dupBtn.style.width = `${faceChinDuplicateSpec.width + 1}%`;
@@ -7748,42 +8192,40 @@
         dupBtn.style.transform = "rotate(25deg)";
         dupBtn.style.transformOrigin = "50% 50%";
         dupBtn.style.zIndex = "6";
-        if(mode === "frauen"){
+        if(plannerFaceZoneMovable(zone.id, mode)){
           applyPlannerFaceOffsetToButton(zone.id, dupBtn);
-          if(plannerFaceZoneMovable(zone.id)){
+          dupBtn.style.cursor = "move";
+          dupBtn.addEventListener("mousemove", (event) => {
+            const edges = plannerFaceResizeEdgesFromPointer(dupBtn, event.clientX, event.clientY);
+            dupBtn.style.cursor = plannerFaceResizeCursor(edges);
+          });
+          dupBtn.addEventListener("mouseleave", () => {
             dupBtn.style.cursor = "move";
-            dupBtn.addEventListener("mousemove", (event) => {
-              const edges = plannerFaceResizeEdgesFromPointer(dupBtn, event.clientX, event.clientY);
-              dupBtn.style.cursor = plannerFaceResizeCursor(edges);
-            });
-            dupBtn.addEventListener("mouseleave", () => {
-              dupBtn.style.cursor = "move";
-            });
-            dupBtn.addEventListener("mousedown", (event) => {
-              plannerStartFaceButtonDrag(event, zone.id, dupBtn);
-            });
-            dupBtn.addEventListener("dblclick", (event) => {
-              plannerAddFaceWarpPoint(event, zone.id, dupBtn);
-            });
-          }
+          });
+          dupBtn.addEventListener("mousedown", (event) => {
+            plannerStartFaceButtonDrag(event, zone.id, dupBtn);
+          });
+          dupBtn.addEventListener("dblclick", (event) => {
+            plannerAddFaceWarpPoint(event, zone.id, dupBtn);
+          });
         }
         dupBtn.setAttribute("aria-label", `${plannerLabel(zone.label)} ${formatEuro(zone.price)}`);
         dupBtn.innerHTML = `<span class="zoneSketchTag">${buttonText}</span>`;
         dupBtn.addEventListener("click", () => {
-          if(mode === "frauen" && plannerShouldSuppressFaceZoneClick(zone.id)) return;
-          if(mode === "frauen" && plannerFaceZoneMovable(zone.id)){
+          if(plannerFaceZoneMovable(zone.id, mode) && plannerShouldSuppressFaceZoneClick(zone.id)) return;
+          if(plannerFaceZoneMovable(zone.id, mode)){
             plannerSetJoystickTarget(zone.id);
           }
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
+          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
           schedulePlannerRender(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
         });
         dupBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
+          const hoverParts = canToggleZone ? plannerHoverPartsForZone(mode, actionZoneId) : [];
           plannerButtonHoverPreviewActive = hoverParts.length > 0;
           setPlannerHoverPreviewParts(hoverParts);
         });
@@ -7793,7 +8235,7 @@
         });
         plannerSketch.appendChild(dupBtn);
       }
-      if(mode === "frauen" && plannerFaceZoneMovable(zone.id) && !renderedFaceWarpHandles.has(zone.id)){
+      if(plannerFaceZoneMovable(zone.id, mode) && !renderedFaceWarpHandles.has(zone.id)){
         renderPlannerFaceWarpHandlesForZone(zone.id);
         renderedFaceWarpHandles.add(zone.id);
       }
@@ -7835,7 +8277,7 @@
         const mirrorBtn = document.createElement("button");
         mirrorBtn.type = "button";
         mirrorBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms";
-        if(selectedSet.has(zone.id)) mirrorBtn.classList.add("is-active");
+        if(canToggleZone && selectedSet.has(actionZoneId)) mirrorBtn.classList.add("is-active");
         mirrorBtn.style.left = `calc(${leftHandLeft} - ${handsExtra}% - ${handsOutwardShift}%)`;
         mirrorBtn.style.top = `${anchorTop - handsUpShift}%`;
         mirrorBtn.style.width = `${handsWidthReduced}%`;
@@ -7845,14 +8287,14 @@
         mirrorBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
+          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
           schedulePlannerRender(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
         });
         mirrorBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
+          const hoverParts = canToggleZone ? plannerHoverPartsForZone(mode, actionZoneId) : [];
           plannerButtonHoverPreviewActive = hoverParts.length > 0;
           setPlannerHoverPreviewParts(hoverParts);
         });
@@ -7868,7 +8310,7 @@
         const mergedTopBtn = document.createElement("button");
         mergedTopBtn.type = "button";
         mergedTopBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms";
-        if(selectedSet.has(zone.id)) mergedTopBtn.classList.add("is-active");
+        if(canToggleZone && selectedSet.has(actionZoneId)) mergedTopBtn.classList.add("is-active");
         mergedTopBtn.style.left = `${mirroredX + mergedInset}%`;
         mergedTopBtn.style.top = `${area.y}%`;
         mergedTopBtn.style.width = `${(area.x + area.w) - (mirroredX + mergedInset * 2)}%`;
@@ -7878,14 +8320,14 @@
         mergedTopBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
+          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
           schedulePlannerRender(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
         });
         mergedTopBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
+          const hoverParts = canToggleZone ? plannerHoverPartsForZone(mode, actionZoneId) : [];
           plannerButtonHoverPreviewActive = hoverParts.length > 0;
           setPlannerHoverPreviewParts(hoverParts);
         });
@@ -7901,7 +8343,7 @@
         const lowerBtn = document.createElement("button");
         lowerBtn.type = "button";
         lowerBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms zoneSketchBtn--upperarms-lower";
-        if(selectedSet.has(zone.id)) lowerBtn.classList.add("is-active");
+        if(canToggleZone && selectedSet.has(actionZoneId)) lowerBtn.classList.add("is-active");
         lowerBtn.style.left = `${area.x + lowerOutwardOffset + 0.73}%`;
         lowerBtn.style.top = `${area.y + lowerOffset}%`;
         lowerBtn.style.width = `${area.w * 1.30}%`;
@@ -7911,14 +8353,14 @@
         lowerBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
+          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
           schedulePlannerRender(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
         });
         lowerBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
+          const hoverParts = canToggleZone ? plannerHoverPartsForZone(mode, actionZoneId) : [];
           plannerButtonHoverPreviewActive = hoverParts.length > 0;
           setPlannerHoverPreviewParts(hoverParts);
         });
@@ -7933,7 +8375,7 @@
         const mirrorBtn = document.createElement("button");
         mirrorBtn.type = "button";
         mirrorBtn.className = "zoneSketchBtn zoneSketchBtn--axilla";
-        if(selectedSet.has(zone.id)) mirrorBtn.classList.add("is-active");
+        if(canToggleZone && selectedSet.has(actionZoneId)) mirrorBtn.classList.add("is-active");
         mirrorBtn.style.left = `${mirroredX}%`;
         mirrorBtn.style.top = `${area.y}%`;
         mirrorBtn.style.width = `${area.w}%`;
@@ -7943,14 +8385,14 @@
         mirrorBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
+          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
           schedulePlannerRender(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
         });
         mirrorBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
+          const hoverParts = canToggleZone ? plannerHoverPartsForZone(mode, actionZoneId) : [];
           plannerButtonHoverPreviewActive = hoverParts.length > 0;
           setPlannerHoverPreviewParts(hoverParts);
         });
@@ -7971,7 +8413,7 @@
         const mergedBtn = document.createElement("button");
         mergedBtn.type = "button";
         mergedBtn.className = "zoneSketchBtn zoneSketchBtn--bauchfull";
-        if(selectedSet.has(zone.id)) mergedBtn.classList.add("is-active");
+        if(canToggleZone && selectedSet.has(actionZoneId)) mergedBtn.classList.add("is-active");
         const intimRaw = positions.intim;
         const intimArea = stretchArea(intimRaw);
         const intimTop = intimArea ? intimArea.y : (area.y + area.h);
@@ -7988,14 +8430,14 @@
         mergedBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
+          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
           schedulePlannerRender(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
         });
         mergedBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
+          const hoverParts = canToggleZone ? plannerHoverPartsForZone(mode, actionZoneId) : [];
           plannerButtonHoverPreviewActive = hoverParts.length > 0;
           setPlannerHoverPreviewParts(hoverParts);
         });
@@ -8059,7 +8501,7 @@
         const mergedBtn = document.createElement("button");
         mergedBtn.type = "button";
         mergedBtn.className = "zoneSketchBtn zoneSketchBtn--bauchfull";
-        if(selectedSet.has(zone.id)) mergedBtn.classList.add("is-active");
+        if(canToggleZone && selectedSet.has(actionZoneId)) mergedBtn.classList.add("is-active");
         mergedBtn.style.left = `${finalLeft}%`;
         mergedBtn.style.top = `${finalTop}%`;
         mergedBtn.style.width = `${finalWidth}%`;
@@ -8070,14 +8512,14 @@
         mergedBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
+          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
           schedulePlannerRender(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
         });
         mergedBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
+          const hoverParts = canToggleZone ? plannerHoverPartsForZone(mode, actionZoneId) : [];
           plannerButtonHoverPreviewActive = hoverParts.length > 0;
           setPlannerHoverPreviewParts(hoverParts);
         });
@@ -8112,7 +8554,7 @@
         const bikiniBtn = document.createElement("button");
         bikiniBtn.type = "button";
         bikiniBtn.className = "zoneSketchBtn zoneSketchBtn--intim-pof zoneSketchBtn--bikini-intim";
-        if(selectedSet.has(zone.id)) bikiniBtn.classList.add("is-active");
+        if(canToggleZone && selectedSet.has(actionZoneId)) bikiniBtn.classList.add("is-active");
         bikiniBtn.style.left = `${scaledLeft}%`;
         bikiniBtn.style.top = `${bikiniTop}%`;
         bikiniBtn.style.width = `${scaledWidth}%`;
@@ -8122,14 +8564,14 @@
         bikiniBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
+          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
           schedulePlannerRender(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
         });
         bikiniBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
+          const hoverParts = canToggleZone ? plannerHoverPartsForZone(mode, actionZoneId) : [];
           plannerButtonHoverPreviewActive = hoverParts.length > 0;
           setPlannerHoverPreviewParts(hoverParts);
         });
@@ -8146,7 +8588,7 @@
         const lowerMirrorBtn = document.createElement("button");
         lowerMirrorBtn.type = "button";
         lowerMirrorBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms zoneSketchBtn--upperarms-mirror zoneSketchBtn--upperarms-lower";
-        if(selectedSet.has(zone.id)) lowerMirrorBtn.classList.add("is-active");
+        if(canToggleZone && selectedSet.has(actionZoneId)) lowerMirrorBtn.classList.add("is-active");
         lowerMirrorBtn.style.left = `${mirroredX - lowerOutwardOffset - (area.w * 0.30) - 0.70}%`;
         lowerMirrorBtn.style.top = `${area.y + lowerOffset}%`;
         lowerMirrorBtn.style.width = `${area.w * 1.30}%`;
@@ -8156,14 +8598,14 @@
         lowerMirrorBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
+          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
           schedulePlannerRender(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
         });
         lowerMirrorBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
+          const hoverParts = canToggleZone ? plannerHoverPartsForZone(mode, actionZoneId) : [];
           plannerButtonHoverPreviewActive = hoverParts.length > 0;
           setPlannerHoverPreviewParts(hoverParts);
         });
@@ -8195,7 +8637,7 @@
         const mergedBtn = document.createElement("button");
         mergedBtn.type = "button";
         mergedBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms zoneSketchBtn--obersch";
-        if(selectedSet.has(zone.id)) mergedBtn.classList.add("is-active");
+        if(canToggleZone && selectedSet.has(actionZoneId)) mergedBtn.classList.add("is-active");
         mergedBtn.style.left = `${widenedLeft}%`;
         mergedBtn.style.top = `${mergedTop}%`;
         mergedBtn.style.width = `${widenedWidth}%`;
@@ -8205,14 +8647,14 @@
         mergedBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
+          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
           schedulePlannerRender(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
         });
         mergedBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
+          const hoverParts = canToggleZone ? plannerHoverPartsForZone(mode, actionZoneId) : [];
           plannerButtonHoverPreviewActive = hoverParts.length > 0;
           setPlannerHoverPreviewParts(hoverParts);
         });
@@ -8231,7 +8673,7 @@
         const mergedBtn = document.createElement("button");
         mergedBtn.type = "button";
         mergedBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms";
-        if(selectedSet.has(zone.id)) mergedBtn.classList.add("is-active");
+        if(canToggleZone && selectedSet.has(actionZoneId)) mergedBtn.classList.add("is-active");
         mergedBtn.style.left = `${mergedLeft}%`;
         mergedBtn.style.top = `${area.y}%`;
         mergedBtn.style.width = `${mergedWidthExpanded}%`;
@@ -8241,14 +8683,14 @@
         mergedBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
+          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
           schedulePlannerRender(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
         });
         mergedBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
+          const hoverParts = canToggleZone ? plannerHoverPartsForZone(mode, actionZoneId) : [];
           plannerButtonHoverPreviewActive = hoverParts.length > 0;
           setPlannerHoverPreviewParts(hoverParts);
         });
@@ -8273,7 +8715,7 @@
         const mirrorBtn = document.createElement("button");
         mirrorBtn.type = "button";
         mirrorBtn.className = "zoneSketchBtn zoneSketchBtn--underarms zoneSketchBtn--underarms-mirror";
-        if(selectedSet.has(zone.id)) mirrorBtn.classList.add("is-active");
+        if(canToggleZone && selectedSet.has(actionZoneId)) mirrorBtn.classList.add("is-active");
         mirrorBtn.style.left = `${mirroredX - underarmsOutwardOffset + underarmsLeftNudge - underarmsOutwardWidth - underarmsWidthExtraHalf}%`;
         mirrorBtn.style.top = `${area.y - underarmsUpOffset - leftUnderarmExtend}%`;
         mirrorBtn.style.width = `${underarmsWidth}%`;
@@ -8283,14 +8725,14 @@
         mirrorBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          togglePlannerZone(mode, zone.id);
+          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
           schedulePlannerRender(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
         });
         mirrorBtn.addEventListener("mouseenter", () => {
-          const hoverParts = plannerHoverPartsForZone(mode, zone.id);
+          const hoverParts = canToggleZone ? plannerHoverPartsForZone(mode, actionZoneId) : [];
           plannerButtonHoverPreviewActive = hoverParts.length > 0;
           setPlannerHoverPreviewParts(hoverParts);
         });
@@ -8305,7 +8747,7 @@
         btn.style.height = `${area.h + underarmsDownExtend}%`;
       }
     });
-    if(mode === "frauen" && plannerBackSketch){
+    if(plannerBackSketch){
       const backDeadZone = document.createElement("div");
       backDeadZone.className = "plannerBackDeadZone";
       plannerBackSketch.appendChild(backDeadZone);
@@ -8333,7 +8775,7 @@
   function setActiveLaserSwitch(mode, options = {}){
     const force = !!options.force;
     const currentMode = activeLaserMode();
-    if(!force && currentMode === mode){
+    if(!force && currentMode === mode && plannerFrauenView === "front"){
       return false;
     }
     clearPlannerPremiumSequence();
@@ -8342,8 +8784,15 @@
     laserSwitchButtons.forEach((btn) => {
       btn.classList.toggle("is-active", btn.dataset.laserSwitch === mode);
     });
+    const shouldResetViewToFront = plannerFrauenView !== "front";
+    if(shouldResetViewToFront){
+      setPlannerFrauenView("front", { mode });
+    }
     applyLaserVisualMode(mode);
-    applyPlannerFigureMode(mode);
+    syncPlannerViewSwitch(mode);
+    if(!shouldResetViewToFront){
+      applyPlannerFigureMode(mode);
+    }
     applyModePricing(mode);
     schedulePlannerRender(mode);
     clampPlannerPan(mode);
@@ -8436,6 +8885,28 @@
   if(plannerFaceRotateCwBtn){
     plannerFaceRotateCwBtn.addEventListener("click", () => {
       rotatePlannerJoystickTarget(PLANNER_FACE_JOYSTICK_ROTATE_STEP);
+    });
+  }
+  if(plannerFaceDeleteBtn){
+    plannerFaceDeleteBtn.addEventListener("click", () => {
+      plannerDeleteJoystickTarget();
+    });
+  }
+  if(plannerFaceDuplicateBtn){
+    plannerFaceDuplicateBtn.addEventListener("click", () => {
+      plannerDuplicateJoystickTarget();
+    });
+  }
+  if(plannerFaceNewBtn){
+    plannerFaceNewBtn.addEventListener("click", () => {
+      plannerCreateNewJoystickButton();
+    });
+  }
+  if(plannerFaceJoystick){
+    ["mousedown", "touchstart", "click"].forEach((eventName) => {
+      plannerFaceJoystick.addEventListener(eventName, (event) => {
+        event.stopPropagation();
+      });
     });
   }
   plannerSetJoystickTarget("kinn");
