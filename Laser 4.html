@@ -5303,78 +5303,76 @@
     if(!isIntSvgAssetPath(normalized)) return normalized;
     return intRasterMq.matches ? intMobileWebpPath(normalized) : normalized;
   }
+  function plannerTheoreticalTargets(mode = activeLaserMode(), view = plannerFrauenView){
+    const normalizedMode = mode === "herren" ? "herren" : "frauen";
+    const normalizedView = plannerFrauenViewOrder.includes(view) ? view : "front";
+    const idx = plannerFrauenViewOrder.indexOf(normalizedView);
+    const nextView = idx >= 0 ? plannerFrauenViewOrder[idx + 1] : null;
+    const otherMode = normalizedMode === "frauen" ? "herren" : "frauen";
+    const out = [
+      { mode:normalizedMode, view:normalizedView, overlays:true },
+      { mode:otherMode, view:"front", overlays:false }
+    ];
+    if(nextView){
+      out.push({ mode:normalizedMode, view:nextView, overlays:false });
+    }
+    const seen = new Set();
+    return out.filter((entry) => {
+      const key = `${entry.mode}:${entry.view}`;
+      if(seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+  function plannerCollectPrefetchSourcesForTarget(target){
+    const result = [];
+    if(!target || !target.mode || !target.view) return result;
+    const byMode = plannerFigureByMode[target.mode] || plannerFigureByMode.frauen || {};
+    const visual = byMode[target.view];
+    if(visual && visual.src) result.push(visual.src);
+    const frontlineByView = plannerFrontlineByModeAndView[target.mode] || {};
+    if(frontlineByView[target.view]) result.push(frontlineByView[target.view]);
+    if(target.overlays){
+      if(target.view === "front"){
+        const staticFront = plannerStaticFrontOverlaySrcByMode[target.mode] || {};
+        Object.values(staticFront).forEach((src) => { if(src) result.push(src); });
+      } else {
+        const hoverByView = plannerHoverOverlaySrcByModeAndView[target.mode] || {};
+        const hoverMap = hoverByView[target.view] || {};
+        Object.values(hoverMap).forEach((src) => { if(src) result.push(src); });
+      }
+    }
+    return result;
+  }
+  function plannerPrunePrefetchCacheToWanted(wanted){
+    if(!(wanted instanceof Set) || !wanted.size) return;
+    for(let i = plannerPreloadedImageOrder.length - 1; i >= 0; i -= 1){
+      const key = plannerPreloadedImageOrder[i];
+      if(wanted.has(key)) continue;
+      plannerPreloadedImageOrder.splice(i, 1);
+      plannerPreloadedImagePromises.delete(key);
+    }
+  }
   function warmupPlannerResponsiveAssets(options = {}){
-    const queue = new Set();
-    const pushSrc = (src) => {
-      if(!src) return;
-      const normalized = normalizeIntAssetPath(src);
-      const primary = plannerResolveAssetForPreload(normalized);
-      if(primary) queue.add(primary);
-      // Keep SVG hot as fallback even on mobile.
-      if(isIntSvgAssetPath(normalized)) queue.add(normalized);
-    };
     const mode = options.mode || activeLaserMode();
-    const profile = options.profile || "default";
-    const mobileWarmup = intRasterMq.matches;
-    const modeVisual = plannerFigureByMode[mode] || plannerFigureByMode.frauen || {};
-    const modeFrontline = plannerFrontlineByModeAndView[mode] || {};
-    const modeHoverByView = plannerHoverOverlaySrcByModeAndView[mode] || {};
-    const staticFront = plannerStaticFrontOverlaySrcByMode[mode] || {};
-
-    // Always split by mode: preload only currently active sex.
-    Object.values(modeVisual || {}).forEach((entry) => {
-      if(entry && entry.src) pushSrc(entry.src);
+    const view = options.view || plannerFrauenView;
+    const targets = plannerTheoreticalTargets(mode, view);
+    const queue = new Set();
+    targets.forEach((target) => {
+      plannerCollectPrefetchSourcesForTarget(target).forEach((src) => {
+        const normalized = normalizeIntAssetPath(src);
+        const resolved = plannerResolveAssetForPreload(normalized);
+        if(resolved) queue.add(resolved);
+      });
     });
-    Object.values(modeFrontline || {}).forEach((src) => pushSrc(src));
-
-    if(profile === "switch"){
-      // Fastest profile for frauen/herren switch: front only, no heavy overlays.
-      queue.clear();
-      const frontVisual = modeVisual.front || modeVisual.back || modeVisual.face;
-      if(frontVisual && frontVisual.src) pushSrc(frontVisual.src);
-      if(modeFrontline.front) pushSrc(modeFrontline.front);
-      queue.forEach((src) => { preloadImageSrc(src, { fetchPriority:"low", decoding:"async" }); });
-      return;
-    }
-
-    if(mobileWarmup){
-      // Mobile safe profile: only base front figure + front contour.
-      queue.clear();
-      const frontVisual = modeVisual.front || modeVisual.back || modeVisual.face;
-      if(frontVisual && frontVisual.src) pushSrc(frontVisual.src);
-      if(modeFrontline.front) pushSrc(modeFrontline.front);
-      queue.forEach((src) => { preloadImageSrc(src, { fetchPriority:"low", decoding:"async" }); });
-      return;
-    }
-
-    // Desktop: preload active mode hover overlays too.
-    Object.values(modeHoverByView || {}).forEach((map) => {
-      Object.values(map || {}).forEach((src) => pushSrc(src));
+    if(!queue.size) return;
+    queue.forEach((src) => {
+      preloadImageSrc(src, { fetchPriority:"low", decoding:"async" });
     });
-    queue.forEach((src) => { preloadImageSrc(src, { fetchPriority:"low", decoding:"async" }); });
+    plannerPrunePrefetchCacheToWanted(queue);
   }
   function plannerWarmupNeighborViews(mode = activeLaserMode(), view = plannerFrauenView){
-    const idx = plannerFrauenViewOrder.indexOf(view);
-    const byMode = plannerFigureByMode[mode] || plannerFigureByMode.frauen || {};
-    const frontlineByView = plannerFrontlineByModeAndView[mode] || {};
-    const hoverByView = plannerHoverOverlaySrcByModeAndView[mode] || {};
-    const warmView = (v) => {
-      if(!v) return;
-      const visual = byMode[v];
-      if(visual && visual.src){
-        preloadImageSrc(plannerResolveAssetForPreload(visual.src), { fetchPriority:"low", decoding:"async" });
-      }
-      const frontline = frontlineByView[v];
-      if(frontline){
-        preloadImageSrc(plannerResolveAssetForPreload(frontline), { fetchPriority:"low", decoding:"async" });
-      }
-      const hoverMap = hoverByView[v] || {};
-      Object.values(hoverMap).forEach((src) => {
-        preloadImageSrc(plannerResolveAssetForPreload(src), { fetchPriority:"low", decoding:"async" });
-      });
-    };
-    warmView(plannerFrauenViewOrder[idx - 1]);
-    warmView(plannerFrauenViewOrder[idx + 1]);
+    warmupPlannerResponsiveAssets({ mode, view });
   }
   const plannerDynamicOverlayElsByKey = {};
   function plannerDynamicOverlayKey(mode, view, partKey){
@@ -11475,11 +11473,7 @@
     applyPlannerFigureMode(mode);
     }
     applyModePricing(mode);
-    warmupPlannerResponsiveAssets({ mode, profile:"switch" });
-    // Defer heavier next/prev warmup until switch is completed.
-    setTimeout(() => {
-      plannerWarmupNeighborViews(mode, plannerFrauenView);
-    }, 220);
+    warmupPlannerResponsiveAssets({ mode, view:plannerFrauenView });
     schedulePlannerRender(mode);
     plannerPruneDynamicOverlays(mode, plannerFrauenView);
     clampPlannerPan(mode);
