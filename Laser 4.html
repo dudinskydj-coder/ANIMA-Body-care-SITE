@@ -5232,6 +5232,7 @@
     const loading = options.loading || "eager";
     const decoding = options.decoding || "async";
     const fetchPriority = options.fetchPriority || "low";
+    const shouldDecode = options.decode === true;
     const p = new Promise((resolve) => {
       const img = new Image();
       img.onload = () => resolve();
@@ -5240,7 +5241,7 @@
       img.decoding = decoding;
       img.fetchPriority = fetchPriority;
       img.src = normalized;
-      if(typeof img.decode === "function"){
+      if(shouldDecode && typeof img.decode === "function"){
         img.decode().then(resolve).catch(() => resolve());
       }
     });
@@ -5252,7 +5253,7 @@
     if(!isIntSvgAssetPath(normalized)) return normalized;
     return intRasterMq.matches ? intMobileWebpPath(normalized) : normalized;
   }
-  function warmupPlannerResponsiveAssets(){
+  function warmupPlannerResponsiveAssets(options = {}){
     const queue = new Set();
     const pushSrc = (src) => {
       if(!src) return;
@@ -5262,7 +5263,8 @@
       // Keep SVG hot as fallback even on mobile.
       if(isIntSvgAssetPath(normalized)) queue.add(normalized);
     };
-    const mode = activeLaserMode();
+    const mode = options.mode || activeLaserMode();
+    const profile = options.profile || "default";
     const mobileWarmup = intRasterMq.matches;
     const modeVisual = plannerFigureByMode[mode] || plannerFigureByMode.frauen || {};
     const modeFrontline = plannerFrontlineByModeAndView[mode] || {};
@@ -5274,6 +5276,16 @@
       if(entry && entry.src) pushSrc(entry.src);
     });
     Object.values(modeFrontline || {}).forEach((src) => pushSrc(src));
+
+    if(profile === "switch"){
+      // Fastest profile for frauen/herren switch: front only, no heavy overlays.
+      queue.clear();
+      const frontVisual = modeVisual.front || modeVisual.back || modeVisual.face;
+      if(frontVisual && frontVisual.src) pushSrc(frontVisual.src);
+      if(modeFrontline.front) pushSrc(modeFrontline.front);
+      queue.forEach((src) => { preloadImageSrc(src, { fetchPriority:"low", decoding:"async" }); });
+      return;
+    }
 
     if(mobileWarmup){
       // Mobile safe profile: only front static overlays for active mode.
@@ -8213,6 +8225,7 @@
     });
     const mode = options.mode || activeLaserMode();
     syncPlannerViewSwitch(mode);
+    const skipNeighborWarmup = !!options.skipNeighborWarmup;
     if(changed){
       plannerViewTransitionActive = true;
       plannerButtonHoverPreviewActive = false;
@@ -8259,7 +8272,9 @@
       plannerPersistState();
     }
     // Keep next/prev view assets warm so switching is instant.
-    plannerWarmupNeighborViews(mode, plannerFrauenView);
+    if(!skipNeighborWarmup){
+      plannerWarmupNeighborViews(mode, plannerFrauenView);
+    }
   }
   function plannerSwitchAnimatedLayers(){
     return [
@@ -11309,7 +11324,7 @@
     });
     const shouldResetViewToFront = plannerFrauenView !== "front";
     if(shouldResetViewToFront){
-      setPlannerFrauenView("front", { mode });
+      setPlannerFrauenView("front", { mode, skipNeighborWarmup:true });
     }
     applyLaserVisualMode(mode);
     syncPlannerViewSwitch(mode);
@@ -11317,7 +11332,11 @@
     applyPlannerFigureMode(mode);
     }
     applyModePricing(mode);
-    warmupPlannerResponsiveAssets();
+    warmupPlannerResponsiveAssets({ mode, profile:"switch" });
+    // Defer heavier next/prev warmup until switch is completed.
+    setTimeout(() => {
+      plannerWarmupNeighborViews(mode, plannerFrauenView);
+    }, 220);
     schedulePlannerRender(mode);
     clampPlannerPan(mode);
     document.documentElement.dataset.laserMode = mode;
