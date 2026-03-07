@@ -5259,6 +5259,19 @@
       // Keep SVG hot as fallback even on mobile.
       if(isIntSvgAssetPath(normalized)) queue.add(normalized);
     };
+    const mobileWarmup = intRasterMq.matches;
+    if(mobileWarmup){
+      const mode = activeLaserMode();
+      const modeVisual = plannerFigureByMode[mode] || plannerFigureByMode.frauen || {};
+      const frontVisual = modeVisual.front || modeVisual.back || modeVisual.face;
+      if(frontVisual && frontVisual.src) pushSrc(frontVisual.src);
+      const frontlineViews = plannerFrontlineByModeAndView[mode] || {};
+      if(frontlineViews.front) pushSrc(frontlineViews.front);
+      const staticFront = plannerStaticFrontOverlaySrcByMode[mode] || {};
+      Object.values(staticFront).forEach((src) => pushSrc(src));
+      queue.forEach((src) => { preloadImageSrc(src); });
+      return;
+    }
     Object.values(plannerFigureByMode || {}).forEach((views) => {
       Object.values(views || {}).forEach((entry) => {
         if(entry && entry.src) pushSrc(entry.src);
@@ -8434,36 +8447,32 @@
   function stopPlannerInactiveWave(){
     resetPlannerInactiveWaveClasses();
   }
-  function plannerEnsureDynamicOverlaysMounted(){
+  function plannerEnsureDynamicOverlaysMounted(mode = activeLaserMode(), view = plannerFrauenView){
     if(!plannerFigureInner) return;
     const frontline = plannerFigureFrontline || null;
-    Object.entries(plannerHoverOverlaySrcByModeAndView || {}).forEach(([mode, views]) => {
-      Object.keys(views || {}).forEach((view) => {
-        plannerDynamicOverlayEntriesForView(mode, view).forEach(([partKey, src]) => {
-          const key = plannerDynamicOverlayKey(mode, view, partKey);
-          if(plannerDynamicOverlayElsByKey[key]) return;
-          const el = document.createElement("img");
-          setIntResponsiveImageSrc(el, src);
-          el.setAttribute("alt", "");
-          el.setAttribute("loading", "lazy");
-          el.setAttribute("decoding", "async");
-          el.setAttribute("fetchpriority", "low");
-          el.setAttribute("aria-hidden", "true");
-          el.className = "plannerFigureOverlayImage plannerFigureOverlayImage--dynamic";
-          if(partKey === "ACHSELN_MAIN"){
-            el.classList.add("plannerFigureOverlayImage--axilla-main");
-          }
-          if(partKey === "ACHSELN_GRAY"){
-            el.classList.add("plannerFigureOverlayImage--axilla-gray-dynamic");
-          }
-          if(frontline && frontline.parentNode === plannerFigureInner){
-            plannerFigureInner.insertBefore(el, frontline);
-          } else {
-            plannerFigureInner.appendChild(el);
-          }
-          plannerDynamicOverlayElsByKey[key] = el;
-        });
-      });
+    plannerDynamicOverlayEntriesForView(mode, view).forEach(([partKey, src]) => {
+      const key = plannerDynamicOverlayKey(mode, view, partKey);
+      if(plannerDynamicOverlayElsByKey[key]) return;
+      const el = document.createElement("img");
+      setIntResponsiveImageSrc(el, src);
+      el.setAttribute("alt", "");
+      el.setAttribute("loading", "lazy");
+      el.setAttribute("decoding", "async");
+      el.setAttribute("fetchpriority", "low");
+      el.setAttribute("aria-hidden", "true");
+      el.className = "plannerFigureOverlayImage plannerFigureOverlayImage--dynamic";
+      if(partKey === "ACHSELN_MAIN"){
+        el.classList.add("plannerFigureOverlayImage--axilla-main");
+      }
+      if(partKey === "ACHSELN_GRAY"){
+        el.classList.add("plannerFigureOverlayImage--axilla-gray-dynamic");
+      }
+      if(frontline && frontline.parentNode === plannerFigureInner){
+        plannerFigureInner.insertBefore(el, frontline);
+      } else {
+        plannerFigureInner.appendChild(el);
+      }
+      plannerDynamicOverlayElsByKey[key] = el;
     });
   }
   function plannerClearDynamicOverlayClasses(options = {}){
