@@ -5310,11 +5310,11 @@
     const nextView = idx >= 0 ? plannerFrauenViewOrder[idx + 1] : null;
     const otherMode = normalizedMode === "frauen" ? "herren" : "frauen";
     const out = [
-      { mode:normalizedMode, view:normalizedView, overlays:true },
-      { mode:otherMode, view:"front", overlays:false }
+      { mode:normalizedMode, view:normalizedView, overlays:true, selectedOverlays:true },
+      { mode:otherMode, view:"front", overlays:false, selectedOverlays:false }
     ];
     if(nextView){
-      out.push({ mode:normalizedMode, view:nextView, overlays:false });
+      out.push({ mode:normalizedMode, view:nextView, overlays:false, selectedOverlays:true });
     }
     const seen = new Set();
     return out.filter((entry) => {
@@ -5323,6 +5323,34 @@
       seen.add(key);
       return true;
     });
+  }
+  function plannerSelectedPartsForView(mode, view, selectedSet){
+    const parts = new Set();
+    const zoneMap = plannerHoverPartsByZone[mode] || {};
+    const safeSelected = selectedSet || plannerSelectedByMode[mode] || new Set();
+    safeSelected.forEach((zoneId) => {
+      const zoneParts = zoneMap[zoneId] || [];
+      zoneParts.forEach((partKey) => parts.add(partKey));
+    });
+    if(view === "back"){
+      const backKeepsAxilla = safeSelected.has("upperback");
+      const backUpperarmsKeepAxilla = !backKeepsAxilla && safeSelected.has("upperarms") && !safeSelected.has("axilla");
+      if(backKeepsAxilla || backUpperarmsKeepAxilla){
+        parts.add("ACHSELN_GRAY");
+      }
+    }
+    return parts;
+  }
+  function plannerSelectedOverlaySourcesForView(mode, view, selectedSet){
+    const result = [];
+    const hoverByView = plannerHoverOverlaySrcByModeAndView[mode] || {};
+    const srcMap = hoverByView[view] || {};
+    const partSet = plannerSelectedPartsForView(mode, view, selectedSet);
+    partSet.forEach((partKey) => {
+      const src = srcMap[partKey];
+      if(src) result.push(src);
+    });
+    return result;
   }
   function plannerCollectPrefetchSourcesForTarget(target){
     const result = [];
@@ -5341,6 +5369,12 @@
         const hoverMap = hoverByView[target.view] || {};
         Object.values(hoverMap).forEach((src) => { if(src) result.push(src); });
       }
+    }
+    if(target.selectedOverlays){
+      const selectedSet = plannerSelectedByMode[target.mode] || new Set();
+      plannerSelectedOverlaySourcesForView(target.mode, target.view, selectedSet).forEach((src) => {
+        if(src) result.push(src);
+      });
     }
     return result;
   }
