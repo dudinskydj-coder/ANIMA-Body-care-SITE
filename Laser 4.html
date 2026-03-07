@@ -5259,31 +5259,29 @@
       // Keep SVG hot as fallback even on mobile.
       if(isIntSvgAssetPath(normalized)) queue.add(normalized);
     };
+    const mode = activeLaserMode();
     const mobileWarmup = intRasterMq.matches;
+    const modeVisual = plannerFigureByMode[mode] || plannerFigureByMode.frauen || {};
+    const modeFrontline = plannerFrontlineByModeAndView[mode] || {};
+    const modeHoverByView = plannerHoverOverlaySrcByModeAndView[mode] || {};
+    const staticFront = plannerStaticFrontOverlaySrcByMode[mode] || {};
+
+    // Always split by mode: preload only currently active sex.
+    Object.values(modeVisual || {}).forEach((entry) => {
+      if(entry && entry.src) pushSrc(entry.src);
+    });
+    Object.values(modeFrontline || {}).forEach((src) => pushSrc(src));
+
     if(mobileWarmup){
-      const mode = activeLaserMode();
-      const modeVisual = plannerFigureByMode[mode] || plannerFigureByMode.frauen || {};
-      const frontVisual = modeVisual.front || modeVisual.back || modeVisual.face;
-      if(frontVisual && frontVisual.src) pushSrc(frontVisual.src);
-      const frontlineViews = plannerFrontlineByModeAndView[mode] || {};
-      if(frontlineViews.front) pushSrc(frontlineViews.front);
-      const staticFront = plannerStaticFrontOverlaySrcByMode[mode] || {};
+      // Mobile safe profile: only front static overlays for active mode.
       Object.values(staticFront).forEach((src) => pushSrc(src));
       queue.forEach((src) => { preloadImageSrc(src); });
       return;
     }
-    Object.values(plannerFigureByMode || {}).forEach((views) => {
-      Object.values(views || {}).forEach((entry) => {
-        if(entry && entry.src) pushSrc(entry.src);
-      });
-    });
-    Object.values(plannerFrontlineByModeAndView || {}).forEach((views) => {
-      Object.values(views || {}).forEach((src) => pushSrc(src));
-    });
-    Object.values(plannerHoverOverlaySrcByModeAndView || {}).forEach((views) => {
-      Object.values(views || {}).forEach((map) => {
-        Object.values(map || {}).forEach((src) => pushSrc(src));
-      });
+
+    // Desktop: preload active mode hover overlays too.
+    Object.values(modeHoverByView || {}).forEach((map) => {
+      Object.values(map || {}).forEach((src) => pushSrc(src));
     });
     queue.forEach((src) => { preloadImageSrc(src); });
   }
@@ -11288,9 +11286,10 @@
     applyLaserVisualMode(mode);
     syncPlannerViewSwitch(mode);
     if(!shouldResetViewToFront){
-      applyPlannerFigureMode(mode);
+    applyPlannerFigureMode(mode);
     }
     applyModePricing(mode);
+    warmupPlannerResponsiveAssets();
     schedulePlannerRender(mode);
     clampPlannerPan(mode);
     document.documentElement.dataset.laserMode = mode;
