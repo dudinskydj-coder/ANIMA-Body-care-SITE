@@ -1,1 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?><svg id="_Слой_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2200 5500"><defs><style>.cls-1{fill:#9baa97;stroke:#9baa97;stroke-miterlimit:10;stroke-width:4px;}</style></defs><path class="cls-1" d="M1116.48,768.11h0c-38.55,0-84.64-153.4-82.15-158.47,18.54-37.7,140.12-42.78,161.26,4.32,2.82,6.29-40.56,154.15-79.11,154.15Z"/></svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_Слой_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 2200 5500">
+  <!-- Generator: Adobe Illustrator 29.1.0, SVG Export Plug-In . SVG Version: 2.1.0 Build 142)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: #9bc8ec;
+        stroke: #9bc8ec;
+        stroke-miterlimit: 10;
+        stroke-width: 4px;
+      }
+    </style>
+  </defs>
+  <path class="st0" d="M1116.5,768.1h0c-38.6,0-84.6-153.4-82.2-158.5,18.5-37.7,140.1-42.8,161.3,4.3,2.8,6.3-40.6,154.1-79.1,154.1h0Z"/>
+</svg>
