@@ -4205,10 +4205,10 @@
   function plannerSceneGapPx(view = plannerFrauenView){
     if(!(plannerFigureViewport instanceof HTMLElement) || !plannerViewScenes[view]) return 0;
     const isSlideMode = window.matchMedia("(max-width: 1024px)").matches;
-    const viewportWidth = plannerFigureViewport.clientWidth || 0;
     if(isSlideMode){
-      return Math.round(viewportWidth * 0.035);
+      return 0;
     }
+    const viewportWidth = plannerFigureViewport.clientWidth || 0;
     return Math.max(24, Math.round(viewportWidth * 0.035));
   }
   function plannerSyncSceneGap(view = plannerFrauenView){
