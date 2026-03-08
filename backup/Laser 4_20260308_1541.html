@@ -3624,8 +3624,8 @@
         --planner-scene-gap:28px;
       }
       .plannerFigureTrack{
-        transition-duration:.52s;
-        transition-timing-function:cubic-bezier(.32, 0, .2, 1);
+        transition-duration:.46s;
+        transition-timing-function:cubic-bezier(.16, 1, .3, 1);
       }
       .plannerFigureScene{
         padding-inline:0;
@@ -4217,22 +4217,12 @@
     plannerFigureInner.style.setProperty("--planner-scene-gap", `${gapPx}px`);
     return gapPx;
   }
-  function plannerTrackTransitionConfig(){
-    const isMobileSlide = window.matchMedia("(max-width: 1024px)").matches;
-    return isMobileSlide
-      ? { duration:PLANNER_VIEW_SLIDE_MOBILE_MS, easing:PLANNER_VIEW_SLIDE_MOBILE_EASING }
-      : { duration:PLANNER_VIEW_SLIDE_MS, easing:"ease" };
-  }
-  function plannerTrackTransitionCss(){
-    const transition = plannerTrackTransitionConfig();
-    return `transform ${transition.duration}ms ${transition.easing}`;
-  }
   function plannerSetTrackPosition(view, options = {}){
     if(!(plannerFigureTrack instanceof HTMLElement)) return;
     const gapPx = plannerSyncSceneGap(view);
     const viewportWidth = plannerFigureViewport ? plannerFigureViewport.clientWidth : 0;
     const offsetX = (plannerViewIndex(view) * viewportWidth) + (plannerViewIndex(view) * gapPx);
-    plannerFigureTrack.style.transition = options.animate === false ? "none" : plannerTrackTransitionCss();
+    plannerFigureTrack.style.transition = options.animate === false ? "none" : `transform ${PLANNER_VIEW_SLIDE_MS}ms ease`;
     plannerFigureTrack.style.transform = `translate3d(${-offsetX}px, 0, 0)`;
   }
   function plannerCreateSceneImage(className){
@@ -4309,8 +4299,7 @@
     const viewportWidth = plannerFigureViewport.clientWidth || 0;
     const targetIndex = plannerFigureTrack.children.length - 1;
     const offsetX = (targetIndex * viewportWidth) + (targetIndex * gapPx);
-    const transition = plannerTrackTransitionConfig();
-    plannerFigureTrack.style.transition = `transform ${transition.duration}ms ${transition.easing}`;
+    plannerFigureTrack.style.transition = `transform ${PLANNER_VIEW_SLIDE_MS}ms ease`;
     requestAnimationFrame(() => {
       plannerFigureTrack.style.transform = `translate3d(${-offsetX}px, 0, 0)`;
     });
@@ -4318,7 +4307,7 @@
       plannerModeSwitchTimer = null;
       plannerRemoveModeSwitchGhostScene();
       if(typeof onDone === "function") onDone();
-    }, transition.duration + 30);
+    }, PLANNER_VIEW_SLIDE_MS + 30);
   }
   function plannerInitFigureScenes(){
     if(!plannerFigureInner || plannerViewScenes.front) return;
@@ -5361,8 +5350,6 @@
   const PLANNER_COURSE_PAYABLE_SESSIONS = 5;
   const PLANNER_VIEW_SLIDE_ANIMATION = true;
   const PLANNER_VIEW_SLIDE_MS = 420;
-  const PLANNER_VIEW_SLIDE_MOBILE_MS = 520;
-  const PLANNER_VIEW_SLIDE_MOBILE_EASING = "cubic-bezier(.32, 0, .2, 1)";
   const PLANNER_BASE_FIGURE_SCALE_DESKTOP = 1.02;
   const PLANNER_BASE_FIGURE_SCALE_MOBILE = 1;
   const PLANNER_STATE_SESSION_KEY = "anima_laser_planner_state_v3";
@@ -8960,7 +8947,6 @@
         options.onVisualSwapped();
       }
     } else {
-      const transition = plannerTrackTransitionConfig();
       plannerSetActiveScene(plannerFrauenView, { animate:true, deferCommit:true });
       if(typeof options.onVisualSwapped === "function"){
         options.onVisualSwapped();
@@ -8971,7 +8957,7 @@
         if(typeof options.onVisualSettled === "function"){
           options.onVisualSettled();
         }
-      }, transition.duration);
+      }, PLANNER_VIEW_SLIDE_MS);
     }
     syncPlannerViewSwitch(mode);
     requestAnimationFrame(positionPlannerViewArrows);
