@@ -3801,6 +3801,8 @@
   const yEl = document.getElementById("y");
   if(yEl) yEl.textContent = new Date().getFullYear();
   const INT_RASTER_BREAKPOINT = 1024;
+  const INT_TABLET_BREAKPOINT = 1366;
+  const INT_DESKTOP_RASTER_BREAKPOINT = 1919;
   const intRasterMq = window.matchMedia(`(max-width: ${INT_RASTER_BREAKPOINT}px)`);
 
   function normalizeIntAssetPath(path){
@@ -3824,20 +3826,21 @@
     return normalized.startsWith("img/INT/") && /\.svg(?:[?#].*)?$/i.test(normalized);
   }
   function pickIntAssetWidth(){
-    const px = Math.ceil(window.innerWidth * (window.devicePixelRatio || 1));
-    if(intRasterMq.matches){
-      if(px <= 520) return 400;
-      return 800;
-    }
-    if(px <= 520) return 400;
-    if(px <= 960) return 800;
-    if(px <= 1400) return 1200;
-    return 1600;
+    const viewportWidth = Math.max(
+      window.innerWidth || 0,
+      document.documentElement ? (document.documentElement.clientWidth || 0) : 0
+    );
+    if(viewportWidth <= 520) return 400;
+    if(viewportWidth <= INT_RASTER_BREAKPOINT) return 800;
+    if(viewportWidth <= INT_TABLET_BREAKPOINT) return 1200;
+    if(viewportWidth <= INT_DESKTOP_RASTER_BREAKPOINT) return 1600;
+    return 0;
   }
   function intMobileWebpPath(svgPath){
     const normalized = normalizeIntAssetPath(svgPath);
     if(!isIntSvgAssetPath(normalized)) return normalized;
     const width = pickIntAssetWidth();
+    if(!width) return normalized;
     const cleanSvg = normalized.replace(/[?#].*$/, "");
     const slashIndex = cleanSvg.lastIndexOf("/");
     const dir = slashIndex >= 0 ? cleanSvg.slice(0, slashIndex) : "";
@@ -3868,7 +3871,7 @@
       return;
     }
     img.dataset.intSvgOriginal = original;
-    const nextSrc = intRasterMq.matches ? intMobileWebpPath(original) : original;
+    const nextSrc = intMobileWebpPath(original);
     if(nextSrc && currentAttr !== nextSrc) img.setAttribute("src", nextSrc);
   }
   function applyIntResponsiveAssetToImage(img){
