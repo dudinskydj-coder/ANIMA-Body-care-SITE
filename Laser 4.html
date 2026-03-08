@@ -1306,13 +1306,13 @@
       width:100%;
       height:100%;
       max-width:none;
-      aspect-ratio:2200/5500;
       overflow:visible;
       flex:0 0 auto;
       margin:0 auto;
       will-change:width, height;
       contain:layout paint;
       transform:translateZ(0);
+      --planner-active-aspect:2200 / 5500;
     }
     .plannerFigureViewport{
       position:absolute;
@@ -1378,7 +1378,13 @@
     }
     .plannerBackSketch{
       position:absolute;
-      inset:0;
+      left:50%;
+      top:0;
+      width:auto;
+      height:100%;
+      max-width:100%;
+      aspect-ratio:var(--planner-active-aspect, 2200 / 5500);
+      transform:translateX(-50%);
       pointer-events:none;
       z-index:4;
     }
@@ -1389,6 +1395,16 @@
       height:100%;
       pointer-events:none;
       z-index:0;
+      padding-inline:clamp(18px, 5vw, 48px);
+      box-sizing:border-box;
+    }
+    .plannerFigureSceneFrame{
+      position:relative;
+      height:100%;
+      width:auto;
+      max-width:100%;
+      margin:0 auto;
+      aspect-ratio:var(--planner-scene-aspect, 2200 / 5500);
     }
     .plannerBackDeadZone{
       position:absolute;
@@ -1469,7 +1485,13 @@
     }
     .plannerSketch{
       position:absolute;
-      inset:0;
+      left:50%;
+      top:0;
+      width:auto;
+      height:100%;
+      max-width:100%;
+      aspect-ratio:var(--planner-active-aspect, 2200 / 5500);
+      transform:translateX(-50%);
       pointer-events:none;
       z-index:4;
     }
@@ -4141,12 +4163,19 @@
     img.setAttribute("src", "data:,");
     return img;
   }
+  function plannerCreateSceneFrame(){
+    const frame = document.createElement("div");
+    frame.className = "plannerFigureSceneFrame";
+    return frame;
+  }
   function plannerInitFigureScenes(){
     if(!plannerFigureInner || plannerViewScenes.front) return;
     plannerEnsureFigureTrack();
     const frontScene = document.createElement("div");
     frontScene.className = "plannerFigureScene is-active";
     frontScene.dataset.view = "front";
+    const frontFrame = plannerCreateSceneFrame();
+    frontScene.appendChild(frontFrame);
     const frontOverlayEls = {};
     Object.entries(plannerFrontOverlayElsByPartKey).forEach(([partKey, el]) => {
       if(el) frontOverlayEls[partKey] = el;
@@ -4171,11 +4200,12 @@
       plannerFigureOverlayCustom,
       plannerFigureFrontline
     ].forEach((node) => {
-      if(node) frontScene.appendChild(node);
+      if(node) frontFrame.appendChild(node);
     });
     plannerFigureTrack.appendChild(frontScene);
     plannerViewScenes.front = {
       container:frontScene,
+      frame:frontFrame,
       base:plannerFigureImage,
       frontline:plannerFigureFrontline,
       custom:plannerFigureOverlayCustom,
@@ -4185,23 +4215,26 @@
       const scene = document.createElement("div");
       scene.className = "plannerFigureScene";
       scene.dataset.view = view;
+      const frame = plannerCreateSceneFrame();
+      scene.appendChild(frame);
       const base = plannerCreateSceneImage("plannerFigureBase");
       const overlayElsByPartKey = {};
-      scene.appendChild(base);
+      frame.appendChild(base);
       plannerScenePartKeysForView(view).forEach((partKey) => {
         const overlay = plannerCreateSceneImage("plannerFigureOverlayImage");
         if(partKey === "ACHSELN_MAIN") overlay.classList.add("plannerFigureOverlayImage--axilla-main");
         if(partKey === "ACHSELN_GRAY") overlay.classList.add("plannerFigureOverlayImage--axilla-gray-dynamic");
         overlayElsByPartKey[partKey] = overlay;
-        scene.appendChild(overlay);
+        frame.appendChild(overlay);
       });
       const custom = plannerCreateSceneImage("plannerFigureOverlayImage");
-      scene.appendChild(custom);
+      frame.appendChild(custom);
       const frontline = plannerCreateSceneImage("plannerFigureFrontline");
-      scene.appendChild(frontline);
+      frame.appendChild(frontline);
       plannerFigureTrack.appendChild(scene);
       plannerViewScenes[view] = {
         container:scene,
+        frame,
         base,
         frontline,
         custom,
@@ -5174,6 +5207,8 @@
   const PLANNER_COURSE_PAYABLE_SESSIONS = 5;
   const PLANNER_VIEW_SLIDE_ANIMATION = true;
   const PLANNER_VIEW_SLIDE_MS = 340;
+  const PLANNER_BASE_FIGURE_SCALE_DESKTOP = 1.02;
+  const PLANNER_BASE_FIGURE_SCALE_MOBILE = 1;
   const PLANNER_STATE_SESSION_KEY = "anima_laser_planner_state_v3";
   const SALONKEE_BOOKING_FALLBACK_URL = "https://salonkee.de/salon/anima-body-care-salon";
   const plannerSalonkeeUrlByMode = {
@@ -5564,6 +5599,9 @@
       const scene = plannerViewScenes[view];
       if(!scene) return;
       const visual = ((plannerFigureByMode[mode] || plannerFigureByMode.frauen || {})[view]) || null;
+      if(scene.frame){
+        scene.frame.style.setProperty("--planner-scene-aspect", (visual && visual.aspect) || "2200 / 5500");
+      }
       if(scene.base && visual && visual.src){
         setIntResponsiveImageSrc(scene.base, visual.src);
         scene.base.setAttribute("alt", visual.alt || "");
@@ -8702,7 +8740,7 @@
     const modeVisual = plannerFigureByMode[mode] || plannerFigureByMode.frauen;
     const visual = (modeVisual && modeVisual[plannerFrauenView]) || modeVisual.front || modeVisual.back || modeVisual.face;
     if(plannerFigureInner){
-      plannerFigureInner.style.aspectRatio = visual.aspect || "2200 / 5500";
+      plannerFigureInner.style.setProperty("--planner-active-aspect", visual.aspect || "2200 / 5500");
     }
     const shouldAnimate = !!options.animate;
     plannerSyncAllViewScenes(mode);
@@ -8980,9 +9018,12 @@
   }
   function updatePlannerZoom(){
     if(!plannerFigureInner) return;
+    const baseScale = window.innerWidth <= 767
+      ? PLANNER_BASE_FIGURE_SCALE_MOBILE
+      : PLANNER_BASE_FIGURE_SCALE_DESKTOP;
     applyPlannerInnerTransform();
-    plannerFigureInner.style.width = "auto";
-    plannerFigureInner.style.height = `${plannerZoom * 100}%`;
+    plannerFigureInner.style.width = "100%";
+    plannerFigureInner.style.height = `${plannerZoom * baseScale * 100}%`;
   }
   function clearPlannerAutoResetTimer(){
     if(!plannerAutoResetTimer) return;
