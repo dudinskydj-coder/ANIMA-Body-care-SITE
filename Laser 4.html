@@ -1322,6 +1322,8 @@
     .plannerFigureViewport{
       position:absolute;
       inset:0;
+      width:100%;
+      height:100%;
       overflow:hidden;
       z-index:0;
     }
@@ -3478,6 +3480,10 @@
       }
       .plannerFigure{
         height:min(78vh, 740px);
+        padding-inline:0;
+      }
+      .plannerFigureScene{
+        padding-inline:0;
       }
       .zoneSketchTag{
         font-size:11px;
@@ -4182,8 +4188,8 @@
   }
   function plannerSceneGapPx(view = plannerFrauenView){
     if(!(plannerFigureViewport instanceof HTMLElement) || !plannerViewScenes[view]) return 0;
-    const isMobile = window.innerWidth <= 767;
-    if(isMobile){
+    const isSlideMode = window.matchMedia("(max-width: 1024px)").matches;
+    if(isSlideMode){
       return 0;
     }
     const viewportWidth = plannerFigureViewport.clientWidth || 0;
