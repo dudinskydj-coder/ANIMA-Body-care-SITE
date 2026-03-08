@@ -3350,14 +3350,12 @@
       #menuOverlay.is-closing .overlayInner{
         animation:none;
       }
-      html.ua-ios-safari #menuTint,
-      html.ua-android-chrome #menuTint{
+      #menuTint{
         height:100dvh;
         bottom:0;
         transition:opacity .16s ease;
       }
-      html.ua-ios-safari #menuFocusBlur,
-      html.ua-android-chrome #menuFocusBlur{
+      #menuFocusBlur{
         display:none;
         transition:none;
         backdrop-filter:none;
@@ -3528,34 +3526,19 @@
       body.menu-open{
         overscroll-behavior:none;
       }
-      html.ua-ios-safari body.menu-open #menuOverlay,
-      html.ua-android-chrome body.menu-open #menuOverlay{
+      body.menu-open #menuOverlay{
         overflow-y:auto;
         overflow-x:hidden;
         overscroll-behavior:contain;
         -webkit-overflow-scrolling:touch;
       }
-      html.ua-ios-safari #menuOverlay,
-      html.ua-android-chrome #menuOverlay{
+      #menuOverlay{
         min-height:100svh;
         max-height:100svh;
         overflow-y:auto;
         overflow-x:hidden;
         overscroll-behavior:contain;
         -webkit-overflow-scrolling:touch;
-      }
-      html.ua-ios-safari .menuGrid,
-      html.ua-android-chrome .menuGrid{
-        gap:0;
-      }
-      html.ua-ios-safari .menuCol,
-      html.ua-android-chrome .menuCol{
-        gap:0;
-      }
-      html.ua-ios-safari .menuGrid a,
-      html.ua-android-chrome .menuGrid a{
-        display:block;
-        margin:0 0 12px;
       }
       #menuOverlay .overlayInner{
         padding:calc(var(--headerH) + 10px) 22px 16px;
@@ -5378,14 +5361,6 @@
   const coarsePointerMq = window.matchMedia("(pointer: coarse)");
   const instantMenuMq = window.matchMedia("(max-width: 1024px)");
   const mobileVideoMq = window.matchMedia("(max-width: 767px)");
-  const menuPerfUa = navigator.userAgent || "";
-  const menuPerfTouchPoints = navigator.maxTouchPoints || 0;
-  const menuPerfIsIOS = /iPhone|iPad|iPod/i.test(menuPerfUa) || (/Macintosh/i.test(menuPerfUa) && menuPerfTouchPoints > 1);
-  const menuPerfIsSafari = menuPerfIsIOS && /Safari/i.test(menuPerfUa) && !/(CriOS|FxiOS|EdgiOS)/i.test(menuPerfUa);
-  const menuPerfIsAndroidChrome = /Android/i.test(menuPerfUa) && /Chrome/i.test(menuPerfUa) && !/EdgA|OPR|SamsungBrowser/i.test(menuPerfUa);
-  const menuUseLightMobileMode = () => instantMenuMq.matches && (menuPerfIsSafari || menuPerfIsAndroidChrome);
-  document.documentElement.classList.toggle("ua-ios-safari", menuPerfIsSafari);
-  document.documentElement.classList.toggle("ua-android-chrome", menuPerfIsAndroidChrome);
   function isIPadTouchDevice(){
     const ua = navigator.userAgent || "";
     const platform = navigator.platform || "";
@@ -6371,7 +6346,7 @@
       if(menuFocusBlur) menuFocusBlur.style.top = "100vh";
       return;
     }
-    if(menuUseLightMobileMode()){
+    if(instantMenuMq.matches){
       menuTint.style.height = "100dvh";
       if(menuFocusBlur) menuFocusBlur.style.top = "100vh";
       return;
@@ -6385,7 +6360,7 @@
   }
 
   function startMenuSync(){
-    if(menuUseLightMobileMode()) return;
+    if(instantMenuMq.matches) return;
     if(menuSyncRaf) return;
     const loop = () => {
       if(menuOverlay.hidden){
@@ -6444,7 +6419,7 @@
 
   function activateMenuTint(){
     body.classList.add("menu-open");
-    if(menuUseLightMobileMode()){
+    if(instantMenuMq.matches){
       stopMenuSync();
       syncMenuTintHeight();
       return;
@@ -6515,9 +6490,9 @@
       activateMenuTint();
       menuOverlay.style.setProperty("--menuOpenDelay", "0ms");
       setMenuButtonOpen(true);
-      if(menuUseLightMobileMode()) syncMenuTintHeight();
+      if(instantMenuMq.matches) syncMenuTintHeight();
       else requestAnimationFrame(syncMenuTintHeight);
-      if(menuUseLightMobileMode() && isMenu){
+      if(instantMenuMq.matches && isMenu){
         activeOverlay.classList.remove("is-opening");
       } else {
         activeOverlay.classList.add("is-opening");

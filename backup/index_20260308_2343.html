@@ -1291,38 +1291,26 @@
     }
 
     @media (max-width:920px){
-      html.ua-ios-safari #menuTint,
-      html.ua-android-chrome #menuTint{
+      #menuTint{
         height:100dvh;
         bottom:0;
         transition:opacity var(--overlayAppearDur) ease;
       }
-      html.ua-ios-safari #menuFocusBlur,
-      html.ua-android-chrome #menuFocusBlur{
+      #menuFocusBlur{
         display:none;
         backdrop-filter:none;
         -webkit-backdrop-filter:none;
       }
-      html.ua-ios-safari #menuOverlay.is-opening,
-      html.ua-ios-safari #menuOverlay.is-closing,
-      html.ua-ios-safari #searchOverlay.is-opening,
-      html.ua-ios-safari #searchOverlay.is-closing,
-      html.ua-ios-safari #menuOverlay.is-opening .overlayInner,
-      html.ua-ios-safari #menuOverlay.is-closing .overlayInner,
-      html.ua-ios-safari #searchOverlay.is-opening .overlayInner,
-      html.ua-ios-safari #searchOverlay.is-closing .overlayInner,
-      html.ua-ios-safari #menuOverlay.is-opening .menuGrid a,
-      html.ua-ios-safari #menuOverlay.is-closing .menuGrid a,
-      html.ua-android-chrome #menuOverlay.is-opening,
-      html.ua-android-chrome #menuOverlay.is-closing,
-      html.ua-android-chrome #searchOverlay.is-opening,
-      html.ua-android-chrome #searchOverlay.is-closing,
-      html.ua-android-chrome #menuOverlay.is-opening .overlayInner,
-      html.ua-android-chrome #menuOverlay.is-closing .overlayInner,
-      html.ua-android-chrome #searchOverlay.is-opening .overlayInner,
-      html.ua-android-chrome #searchOverlay.is-closing .overlayInner,
-      html.ua-android-chrome #menuOverlay.is-opening .menuGrid a,
-      html.ua-android-chrome #menuOverlay.is-closing .menuGrid a{
+      #menuOverlay.is-opening,
+      #menuOverlay.is-closing,
+      #searchOverlay.is-opening,
+      #searchOverlay.is-closing,
+      #menuOverlay.is-opening .overlayInner,
+      #menuOverlay.is-closing .overlayInner,
+      #searchOverlay.is-opening .overlayInner,
+      #searchOverlay.is-closing .overlayInner,
+      #menuOverlay.is-opening .menuGrid a,
+      #menuOverlay.is-closing .menuGrid a{
         animation:none;
       }
       .iconBtn{
@@ -1418,38 +1406,21 @@
       body:is(.menu-open,.search-open){
         overscroll-behavior:none;
       }
-      html.ua-ios-safari body.menu-open #menuOverlay,
-      html.ua-ios-safari body.search-open #searchOverlay,
-      html.ua-android-chrome body.menu-open #menuOverlay,
-      html.ua-android-chrome body.search-open #searchOverlay{
+      body.menu-open #menuOverlay,
+      body.search-open #searchOverlay{
         overflow-y:auto;
         overflow-x:hidden;
         overscroll-behavior:contain;
         -webkit-overflow-scrolling:touch;
       }
-      html.ua-ios-safari #menuOverlay,
-      html.ua-ios-safari #searchOverlay,
-      html.ua-android-chrome #menuOverlay,
-      html.ua-android-chrome #searchOverlay{
+      #menuOverlay,
+      #searchOverlay{
         min-height:100dvh;
         max-height:100dvh;
         overflow-y:auto;
         overflow-x:hidden;
         overscroll-behavior:contain;
         -webkit-overflow-scrolling:touch;
-      }
-      html.ua-ios-safari .menuGrid,
-      html.ua-android-chrome .menuGrid{
-        gap:0;
-      }
-      html.ua-ios-safari .menuCol,
-      html.ua-android-chrome .menuCol{
-        gap:0;
-      }
-      html.ua-ios-safari .menuGrid a,
-      html.ua-android-chrome .menuGrid a{
-        display:block;
-        margin:0 0 12px;
       }
       #menuOverlay .overlayInner,
       #searchOverlay .overlayInner{
@@ -1992,14 +1963,6 @@
   const desktopHover = window.matchMedia("(hover: hover) and (pointer: fine)");
   const instantMenuMq = window.matchMedia("(max-width: 1024px)");
   const OVERLAY_ANIM_MS = 160;
-  const menuPerfUa = navigator.userAgent || "";
-  const menuPerfTouchPoints = navigator.maxTouchPoints || 0;
-  const menuPerfIsIOS = /iPhone|iPad|iPod/i.test(menuPerfUa) || (/Macintosh/i.test(menuPerfUa) && menuPerfTouchPoints > 1);
-  const menuPerfIsSafari = menuPerfIsIOS && /Safari/i.test(menuPerfUa) && !/(CriOS|FxiOS|EdgiOS)/i.test(menuPerfUa);
-  const menuPerfIsAndroidChrome = /Android/i.test(menuPerfUa) && /Chrome/i.test(menuPerfUa) && !/EdgA|OPR|SamsungBrowser/i.test(menuPerfUa);
-  const menuUseLightMobileMode = () => instantMenuMq.matches && (menuPerfIsSafari || menuPerfIsAndroidChrome);
-  document.documentElement.classList.toggle("ua-ios-safari", menuPerfIsSafari);
-  document.documentElement.classList.toggle("ua-android-chrome", menuPerfIsAndroidChrome);
 
   function setHeaderHeightVar(){
     const h = headerEl ? headerEl.offsetHeight : 62;
@@ -2044,7 +2007,7 @@
       if(menuFocusBlur) menuFocusBlur.style.top = "100vh";
       return;
     }
-    if(menuUseLightMobileMode()){
+    if(instantMenuMq.matches){
       menuTint.style.height = "100dvh";
       if(menuFocusBlur) menuFocusBlur.style.top = "100vh";
       return;
@@ -2058,7 +2021,7 @@
   }
 
   function menuNeedsDynamicTintSync(){
-    return !menuUseLightMobileMode();
+    return !instantMenuMq.matches;
   }
 
   function startMenuSync(){
