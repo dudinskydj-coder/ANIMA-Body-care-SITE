@@ -7294,7 +7294,7 @@
     );
   }
   function plannerKonvaAvailable(){
-    return plannerIsEditMode() && !!(window.Konva && plannerKonvaStageEl instanceof HTMLElement && plannerFaceJoystick instanceof HTMLElement);
+    return !!(window.Konva && plannerKonvaStageEl instanceof HTMLElement && plannerFaceJoystick instanceof HTMLElement);
   }
   function plannerEnsureKonvaStage(){
     if(!plannerKonvaAvailable()) return false;
@@ -7356,7 +7356,6 @@
     schedulePlannerRender(mode);
   }
   function plannerSyncKonvaEditor(mode = activeLaserMode()){
-    if(!plannerIsEditMode()) return;
     if(!plannerEnsureKonvaStage() || !plannerKonvaLayer || !plannerKonvaTransformer) return;
     const width = plannerKonvaStage.width();
     const height = plannerKonvaStage.height();
@@ -8607,11 +8606,7 @@
       }
     };
   }
-  function plannerShouldTrackHistory(){
-    return plannerIsEditMode();
-  }
   function plannerHistoryPush(_reason = ""){
-    if(!plannerShouldTrackHistory()) return;
     if(plannerHistoryRestoring) return;
     const snapshot = plannerHistorySnapshot();
     const serialized = JSON.stringify(snapshot);
@@ -8681,7 +8676,6 @@
     }
   }
   function plannerUndoLastAction(){
-    if(!plannerShouldTrackHistory()) return false;
     if(!plannerUndoStack.length) return false;
     const currentSnapshot = plannerHistorySnapshot();
     const snapshot = plannerUndoStack.pop();
@@ -8695,7 +8689,6 @@
     return applied;
   }
   function plannerRedoLastAction(){
-    if(!plannerShouldTrackHistory()) return false;
     if(!plannerRedoStack.length) return false;
     const currentSnapshot = plannerHistorySnapshot();
     const snapshot = plannerRedoStack.pop();
