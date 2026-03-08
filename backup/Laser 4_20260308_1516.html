@@ -8838,7 +8838,6 @@
         },
         onVisualSettled:() => {
           plannerViewTransitionActive = false;
-          plannerReleaseFrontStaticOverlaySources();
           // Do full interactive re-render only after slide completes.
           schedulePlannerRender(mode);
           plannerFocusInteractiveForSwitch(mode);
@@ -8846,7 +8845,6 @@
       });
       if(!PLANNER_VIEW_SLIDE_ANIMATION){
         plannerViewTransitionActive = false;
-        plannerReleaseFrontStaticOverlaySources();
         renderPlannerViewState(mode);
         schedulePlannerRender(mode);
         plannerFocusInteractiveForSwitch(mode);
@@ -9187,9 +9185,7 @@
   }
   function updatePlannerFigureOverlay(mode){
     if(mode !== "frauen" && plannerFrauenView === "front") stopPlannerGuideEffect();
-    plannerSyncAllViewScenes(mode, plannerViewTransitionActive
-      ? { animateTrack:true, deferActiveSceneCommit:true }
-      : undefined);
+    plannerSyncAllViewScenes(mode);
     const activeScene = plannerViewScenes[plannerFrauenView];
     if(activeScene && activeScene.custom){
       const activeSet = plannerCustomActiveSet(mode, plannerFrauenView);
