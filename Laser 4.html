@@ -2122,6 +2122,24 @@
       border-color:#111218;
       color:#fff;
     }
+    @media (hover:none), (pointer:coarse){
+      .zoneSketchBtn,
+      .zoneBtn{
+        transition:background-color .12s ease, border-color .12s ease, color .12s ease !important;
+      }
+      .zoneSketchBtn:hover,
+      .zoneSketchBtn:active,
+      .zoneSketchBtn:focus,
+      .zoneSketchBtn:focus-visible,
+      .zoneSketchBtn.is-active,
+      .zoneBtn:hover,
+      .zoneBtn:active,
+      .zoneBtn:focus,
+      .zoneBtn:focus-visible,
+      .zoneBtn.is-active{
+        transform:none !important;
+      }
+    }
     .zoneBtnName{
       display:block;
       font-size:15px;
@@ -4977,6 +4995,7 @@
   const PLANNER_TOGGLE_GUARD_MS = 220;
   let lastLegalTrigger = null;
   const PLANNER_MIN_ZOOM = 1;
+  const PLANNER_ZOOM_ENABLED = false;
   const PLANNER_MAX_ZOOM = 2.8;
   const PLANNER_MOBILE_MAX_ZOOM = 1.35;
   const PLANNER_PRELOAD_CACHE_LIMIT_DESKTOP = 140;
@@ -4998,12 +5017,13 @@
     return /iPad/i.test(ua) || (platform === "MacIntel" && touchPoints > 1);
   }
   function plannerShouldDisableZoomOnTouch(){
-    return !!((coarsePointerMq && coarsePointerMq.matches) || isIPadTouchDevice());
+    return !PLANNER_ZOOM_ENABLED || !!((coarsePointerMq && coarsePointerMq.matches) || isIPadTouchDevice());
   }
   function plannerIsLowPerfMode(){
     return plannerIsMobilePerfMode() && plannerLowPerfMode;
   }
   function plannerMaxZoom(){
+    if(!PLANNER_ZOOM_ENABLED) return PLANNER_MIN_ZOOM;
     return plannerShouldDisableZoomOnTouch() ? PLANNER_MOBILE_MAX_ZOOM : PLANNER_MAX_ZOOM;
   }
   const LASER_VIDEO_DESKTOP_SRC = "img/VIDEO/DEKA Epilation.mp4";
@@ -9432,7 +9452,7 @@
     return { min:minY, max:maxY };
   }
   function canPanPlannerFigure(){
-    return plannerZoom > 1.08;
+    return PLANNER_ZOOM_ENABLED && plannerZoom > 1.08;
   }
   function plannerPanSpeedFactor(){
     // Higher zoom = faster pan to reduce repeated dragging.
@@ -12125,6 +12145,7 @@
       }
     }, true);
     plannerFigure.addEventListener("wheel", (e) => {
+      if(!PLANNER_ZOOM_ENABLED) return;
       if(plannerShouldDisableZoomOnTouch()) return;
       e.preventDefault();
       ensureInteractiveInViewForInteraction();
@@ -12343,7 +12364,8 @@
       plannerPinchActive = false;
       plannerTouchPanActive = false;
       const canUseDoubleTapZoom = plannerShouldDisableZoomOnTouch() && !wasPinching && !!touch && !touchTargetIsZoneBtn;
-      if(canUseDoubleTapZoom){
+      const canUseDoubleTapZoomFinal = PLANNER_ZOOM_ENABLED && canUseDoubleTapZoom;
+      if(canUseDoubleTapZoomFinal){
         const now = Date.now();
         const tapDeltaMs = now - plannerLastTapAt;
         const tapDistance = Math.hypot(touchEndX - plannerLastTapX, touchEndY - plannerLastTapY);
