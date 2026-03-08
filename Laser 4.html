@@ -5315,10 +5315,10 @@
       { mode:normalizedMode, view:normalizedView, overlays:true, selectedOverlays:true }
     ];
     if(nextView){
-      out.push({ mode:normalizedMode, view:nextView, overlays:false, selectedOverlays:false });
+      out.push({ mode:normalizedMode, view:nextView, overlays:false, selectedOverlays:true });
     }
     if(prevView){
-      out.push({ mode:normalizedMode, view:prevView, overlays:false, selectedOverlays:false });
+      out.push({ mode:normalizedMode, view:prevView, overlays:false, selectedOverlays:true });
     }
     const seen = new Set();
     return out.filter((entry) => {
