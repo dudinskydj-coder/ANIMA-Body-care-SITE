@@ -1324,6 +1324,7 @@
       display:flex;
       width:100%;
       height:100%;
+      column-gap:var(--planner-scene-gap, 28px);
       transform:translate3d(0, 0, 0);
       transition:transform .34s cubic-bezier(.22, 1, .36, 1);
       will-change:transform;
@@ -1395,7 +1396,7 @@
       height:100%;
       pointer-events:none;
       z-index:0;
-      padding-inline:clamp(18px, 5vw, 48px);
+      padding-inline:clamp(8px, 2vw, 18px);
       box-sizing:border-box;
     }
     .plannerFigureSceneFrame{
@@ -3461,6 +3462,9 @@
       .plannerFigureWrap{
         overflow-x:hidden;
       }
+      .plannerFigureInner{
+        --planner-scene-gap:20px;
+      }
       .plannerTitle{
         font-size:28px;
       }
@@ -3575,6 +3579,12 @@
       .plannerFigure{
         height:calc(100svh - 6px);
         padding:14px 0 0;
+      }
+      .plannerFigureInner{
+        --planner-scene-gap:28px;
+      }
+      .plannerFigureScene{
+        padding-inline:0;
       }
       .plannerViewSwitch{
         margin:6px auto 0;
@@ -4127,10 +4137,9 @@
   function plannerScenePartKeysForView(view){
     return Array.isArray(plannerScenePartKeysByView[view]) ? [...plannerScenePartKeysByView[view]] : [];
   }
-  function plannerViewTranslatePercent(view){
-    if(view === "back") return -100;
-    if(view === "face") return -200;
-    return 0;
+  function plannerViewIndex(view){
+    const idx = plannerFrauenViewOrder.indexOf(view);
+    return idx >= 0 ? idx : 0;
   }
   function plannerEnsureFigureTrack(){
     if(!plannerFigureInner) return;
@@ -4149,8 +4158,12 @@
   }
   function plannerSetTrackPosition(view, options = {}){
     if(!(plannerFigureTrack instanceof HTMLElement)) return;
+    const viewportWidth = plannerFigureViewport ? plannerFigureViewport.clientWidth : 0;
+    const trackStyles = window.getComputedStyle(plannerFigureTrack);
+    const gapValue = Number.parseFloat(trackStyles.columnGap || trackStyles.gap || "0");
+    const offsetX = (plannerViewIndex(view) * viewportWidth) + (plannerViewIndex(view) * (Number.isFinite(gapValue) ? gapValue : 0));
     plannerFigureTrack.style.transition = options.animate === false ? "none" : `transform ${PLANNER_VIEW_SLIDE_MS}ms ease`;
-    plannerFigureTrack.style.transform = `translate3d(${plannerViewTranslatePercent(view)}%, 0, 0)`;
+    plannerFigureTrack.style.transform = `translate3d(${-offsetX}px, 0, 0)`;
   }
   function plannerCreateSceneImage(className){
     const img = document.createElement("img");
@@ -5310,8 +5323,8 @@
       face:{ src:"img/INT/FRAUEN_FACE/FR_FACE_GR.svg", alt:"Interaktive Körperzonen Frauen Gesicht", aspect:"2200 / 5500" }
     },
     herren:{
-      front:{ src:"img/INT/HERREN_FRONT/HERREN_FRONT_GR.svg", alt:"Interaktive Körperzonen Herren Front", aspect:"2300 / 5500" },
-      back:{ src:"img/INT/HERREN_BACK/HERREN_BACK_GR.svg", alt:"Interaktive Körperzonen Herren Back", aspect:"2300 / 5500" },
+      front:{ src:"img/INT/HERREN_FRONT/HERREN_FRONT_GR.svg", alt:"Interaktive Körperzonen Herren Front", aspect:"2200 / 5500" },
+      back:{ src:"img/INT/HERREN_BACK/HERREN_BACK_GR.svg", alt:"Interaktive Körperzonen Herren Back", aspect:"2200 / 5500" },
       face:{ src:"img/INT/HERREN_FACE/HERREN_FACE_GR.svg", alt:"Interaktive Körperzonen Herren Gesicht", aspect:"2200 / 5500" }
     }
   };
@@ -5509,7 +5522,7 @@
     const idx = plannerFrauenViewOrder.indexOf(normalizedView);
     const nextView = idx >= 0 ? plannerFrauenViewOrder[idx + 1] : null;
     const prevView = idx > 0 ? plannerFrauenViewOrder[idx - 1] : null;
-    const eagerNeighborSelections = normalizedMode !== "herren";
+    const eagerNeighborSelections = true;
     const out = [
       { mode:normalizedMode, view:normalizedView, overlays:true, selectedOverlays:true }
     ];
@@ -6180,6 +6193,7 @@
   window.addEventListener("resize", () => {
     setHeaderHeightVar();
     syncMenuTintHeight();
+    plannerSetTrackPosition(plannerFrauenView, { animate:false });
   });
 
   function updateMenuButton(){
@@ -12219,7 +12233,7 @@
       if(e.touches.length === 1){
         plannerPinchActive = false;
         const touch = e.touches[0];
-        plannerSwipeTracking = activeLaserMode() === "frauen" && plannerZoom <= 1.02;
+        plannerSwipeTracking = plannerZoom <= 1.02;
         plannerSwipeStartX = touch.clientX;
         plannerSwipeStartY = touch.clientY;
         plannerSwipeStartAt = Date.now();
