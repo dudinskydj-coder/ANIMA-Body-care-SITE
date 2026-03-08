@@ -25,27 +25,47 @@
     body{
       -webkit-tap-highlight-color:transparent;
     }
-    a,
-    button,
-    [role="button"],
-    input[type="button"],
-    input[type="submit"],
-    input[type="reset"]{
+    :where(
+      a,
+      button,
+      [role="button"],
+      input[type="button"],
+      input[type="submit"],
+      input[type="reset"],
+      .btn,
+      .iconBtn,
+      .brand,
+      .menuToggle
+    ){
       -webkit-tap-highlight-color:transparent;
+      tap-highlight-color:transparent;
+    }
+    :where(
+      button,
+      [role="button"],
+      input[type="button"],
+      input[type="submit"],
+      input[type="reset"],
+      .btn,
+      .iconBtn
+    ){
+      -webkit-appearance:none;
+      appearance:none;
+      background-clip:padding-box;
     }
     @media (hover:none), (pointer:coarse){
-      a:focus,
-      a:focus-visible,
-      button:focus,
-      button:focus-visible,
-      [role="button"]:focus,
-      [role="button"]:focus-visible,
-      input[type="button"]:focus,
-      input[type="button"]:focus-visible,
-      input[type="submit"]:focus,
-      input[type="submit"]:focus-visible,
-      input[type="reset"]:focus,
-      input[type="reset"]:focus-visible{
+      :where(
+        a,
+        button,
+        [role="button"],
+        input[type="button"],
+        input[type="submit"],
+        input[type="reset"],
+        .btn,
+        .iconBtn,
+        .brand,
+        .menuToggle
+      ):is(:focus, :focus-visible, :active){
         outline:none !important;
         box-shadow:none !important;
       }
@@ -3154,7 +3174,29 @@
       color:#1b1b1f;
       white-space:nowrap;
       transition:color .16s ease;
+      opacity:0;
+      transform:translateY(-18px);
+      filter:blur(10px);
+      will-change:transform, opacity, filter;
     }
+    #menuOverlay.is-opening .menuGrid a{
+      animation:menuTextCascade .72s cubic-bezier(.16,1,.3,1) both;
+    }
+    #menuOverlay.is-closing .menuGrid a{
+      animation:menuTextCascadeOut .18s ease both;
+    }
+    .menuCol:nth-child(1) a:nth-child(1){animation-delay:calc(var(--menuOpenDelay,0ms) + 40ms)}
+    .menuCol:nth-child(1) a:nth-child(2){animation-delay:calc(var(--menuOpenDelay,0ms) + 82ms)}
+    .menuCol:nth-child(1) a:nth-child(3){animation-delay:calc(var(--menuOpenDelay,0ms) + 124ms)}
+    .menuCol:nth-child(2) a:nth-child(1){animation-delay:calc(var(--menuOpenDelay,0ms) + 168ms)}
+    .menuCol:nth-child(2) a:nth-child(2){animation-delay:calc(var(--menuOpenDelay,0ms) + 210ms)}
+    .menuCol:nth-child(2) a:nth-child(3){animation-delay:calc(var(--menuOpenDelay,0ms) + 252ms)}
+    .menuCol:nth-child(3) a:nth-child(1){animation-delay:calc(var(--menuOpenDelay,0ms) + 296ms)}
+    .menuCol:nth-child(3) a:nth-child(2){animation-delay:calc(var(--menuOpenDelay,0ms) + 338ms)}
+    .menuCol:nth-child(3) a:nth-child(3){animation-delay:calc(var(--menuOpenDelay,0ms) + 380ms)}
+    .menuCol:nth-child(4) a:nth-child(1){animation-delay:calc(var(--menuOpenDelay,0ms) + 424ms)}
+    .menuCol:nth-child(4) a:nth-child(2){animation-delay:calc(var(--menuOpenDelay,0ms) + 466ms)}
+    .menuCol:nth-child(4) a:nth-child(3){animation-delay:calc(var(--menuOpenDelay,0ms) + 508ms)}
     .menuGrid a:hover,
     .menuGrid a:focus-visible{
       color:rgba(27,27,31,.58);
@@ -3236,6 +3278,33 @@
     @keyframes menuContentSlide{
       from{opacity:0;transform:translateY(-12px)}
       to{opacity:1;transform:translateY(0)}
+    }
+    @keyframes menuTextCascade{
+      0%{
+        opacity:0;
+        transform:translateY(-18px);
+        filter:blur(10px);
+      }
+      55%{
+        opacity:1;
+      }
+      100%{
+        opacity:1;
+        transform:translateY(0);
+        filter:blur(0);
+      }
+    }
+    @keyframes menuTextCascadeOut{
+      from{
+        opacity:1;
+        transform:translateY(0);
+        filter:blur(0);
+      }
+      to{
+        opacity:0;
+        transform:translateY(-8px);
+        filter:blur(6px);
+      }
     }
     @keyframes plannerComboRise{
       0%{
@@ -3350,9 +3419,18 @@
       #menuOverlay.is-closing .overlayInner{
         animation:none;
       }
-      #menuTint,
-      #menuFocusBlur{
+      html.ua-ios-safari #menuTint,
+      html.ua-android-chrome #menuTint{
+        height:100dvh;
+        bottom:0;
+        transition:opacity .16s ease;
+      }
+      html.ua-ios-safari #menuFocusBlur,
+      html.ua-android-chrome #menuFocusBlur{
+        display:none;
         transition:none;
+        backdrop-filter:none;
+        -webkit-backdrop-filter:none;
       }
     }
     @media (hover:hover) and (pointer:fine){
@@ -3519,14 +3597,30 @@
       body.menu-open{
         overscroll-behavior:none;
       }
-      body.menu-open #menuOverlay{
-        overflow:hidden;
-        overscroll-behavior:none;
-        -webkit-overflow-scrolling:auto;
+      html.ua-ios-safari body.menu-open #menuOverlay,
+      html.ua-android-chrome body.menu-open #menuOverlay{
+        overflow-y:auto;
+        overflow-x:hidden;
+        overscroll-behavior:contain;
+        -webkit-overflow-scrolling:touch;
       }
-      #menuOverlay{
+      html.ua-ios-safari #menuOverlay,
+      html.ua-android-chrome #menuOverlay{
         min-height:100svh;
         max-height:100svh;
+      }
+      html.ua-ios-safari .menuGrid,
+      html.ua-android-chrome .menuGrid{
+        gap:0;
+      }
+      html.ua-ios-safari .menuCol,
+      html.ua-android-chrome .menuCol{
+        gap:0;
+      }
+      html.ua-ios-safari .menuGrid a,
+      html.ua-android-chrome .menuGrid a{
+        display:block;
+        margin:0 0 12px;
       }
       #menuOverlay .overlayInner{
         padding:calc(var(--headerH) + 10px) 22px 16px;
@@ -3622,13 +3716,23 @@
       }
       .plannerFigureInner{
         --planner-scene-gap:28px;
+        contain:none;
+        transform:none;
       }
       .plannerFigureTrack{
         transition-duration:.52s;
         transition-timing-function:cubic-bezier(.32, 0, .2, 1);
+        will-change:auto;
       }
       .plannerFigureScene{
         padding-inline:0;
+      }
+      .plannerFigureBase,
+      .plannerFigureOverlayImage,
+      .plannerFigureFrontline{
+        will-change:auto;
+        backface-visibility:visible;
+        transform:none;
       }
       .plannerViewSwitch{
         margin:6px auto 0;
@@ -4445,16 +4549,12 @@
   const laserGalleryImage3 = document.getElementById("laser-gallery-image-3");
   const laserGalleryImage4 = document.getElementById("laser-gallery-image-4");
   let searchIndex = [];
-  let searchIndexReady = false;
-  let searchIndexBuildQueued = false;
   let menuLastScrollY = window.scrollY;
   let searchLastScrollY = window.scrollY;
   let menuButtonTimer = null;
   let menuCloseTimer = null;
   let searchCloseTimer = null;
   let menuSyncRaf = null;
-  let menuTintSyncQueued = false;
-  let menuSyncUntil = 0;
   let legalScrollLockY = 0;
   let legalTouchStartX = null;
   let legalTouchStartY = null;
@@ -5343,6 +5443,14 @@
   const coarsePointerMq = window.matchMedia("(pointer: coarse)");
   const instantMenuMq = window.matchMedia("(max-width: 1024px)");
   const mobileVideoMq = window.matchMedia("(max-width: 767px)");
+  const menuPerfUa = navigator.userAgent || "";
+  const menuPerfTouchPoints = navigator.maxTouchPoints || 0;
+  const menuPerfIsIOS = /iPhone|iPad|iPod/i.test(menuPerfUa) || (/Macintosh/i.test(menuPerfUa) && menuPerfTouchPoints > 1);
+  const menuPerfIsSafari = menuPerfIsIOS && /Safari/i.test(menuPerfUa) && !/(CriOS|FxiOS|EdgiOS)/i.test(menuPerfUa);
+  const menuPerfIsAndroidChrome = /Android/i.test(menuPerfUa) && /Chrome/i.test(menuPerfUa) && !/EdgA|OPR|SamsungBrowser/i.test(menuPerfUa);
+  const menuUseLightMobileMode = () => instantMenuMq.matches && (menuPerfIsSafari || menuPerfIsAndroidChrome);
+  document.documentElement.classList.toggle("ua-ios-safari", menuPerfIsSafari);
+  document.documentElement.classList.toggle("ua-android-chrome", menuPerfIsAndroidChrome);
   function isIPadTouchDevice(){
     const ua = navigator.userAgent || "";
     const platform = navigator.platform || "";
@@ -6328,6 +6436,11 @@
       if(menuFocusBlur) menuFocusBlur.style.top = "100vh";
       return;
     }
+    if(menuUseLightMobileMode()){
+      menuTint.style.height = "100dvh";
+      if(menuFocusBlur) menuFocusBlur.style.top = "100vh";
+      return;
+    }
     const menuHeight = Math.max(0, menuOverlay.getBoundingClientRect().bottom);
     menuTint.style.height = `${menuHeight}px`;
     if(menuFocusBlur){
@@ -6336,28 +6449,15 @@
     }
   }
 
-  function scheduleMenuTintHeightSync(){
-    if(menuTintSyncQueued) return;
-    menuTintSyncQueued = true;
-    requestAnimationFrame(() => {
-      menuTintSyncQueued = false;
-      syncMenuTintHeight();
-    });
-  }
-
-  function startMenuSync(duration = 240){
-    menuSyncUntil = Math.max(menuSyncUntil, performance.now() + duration);
+  function startMenuSync(){
+    if(menuUseLightMobileMode()) return;
     if(menuSyncRaf) return;
-    const loop = (ts) => {
+    const loop = () => {
       if(menuOverlay.hidden){
         menuSyncRaf = null;
         return;
       }
       syncMenuTintHeight();
-      if(ts >= menuSyncUntil){
-        menuSyncRaf = null;
-        return;
-      }
       menuSyncRaf = requestAnimationFrame(loop);
     };
     menuSyncRaf = requestAnimationFrame(loop);
@@ -6372,35 +6472,11 @@
   setHeaderHeightVar();
   window.addEventListener("resize", () => {
     setHeaderHeightVar();
-    scheduleMenuTintHeightSync();
+    syncMenuTintHeight();
     syncPlannerInteractivePaneWidth();
     plannerSyncSceneGap(plannerFrauenView);
     plannerSetTrackPosition(plannerFrauenView, { animate:false });
   });
-  window.addEventListener("orientationchange", () => {
-    setHeaderHeightVar();
-    startMenuSync(260);
-    scheduleMenuTintHeightSync();
-  });
-  if(window.visualViewport){
-    const syncViewportOverlay = () => {
-      if(menuOverlay.hidden) return;
-      startMenuSync(220);
-      scheduleMenuTintHeightSync();
-    };
-    window.visualViewport.addEventListener("resize", syncViewportOverlay, { passive:true });
-    window.visualViewport.addEventListener("scroll", syncViewportOverlay, { passive:true });
-  }
-  if(typeof ResizeObserver === "function"){
-    const overlayResizeObserver = new ResizeObserver(() => {
-      if(menuOverlay.hidden) return;
-      startMenuSync(200);
-      scheduleMenuTintHeightSync();
-    });
-    [menuOverlay, headerEl].forEach((el) => {
-      if(el) overlayResizeObserver.observe(el);
-    });
-  }
 
   function updateMenuButton(){
     const menuOpen = !menuOverlay.hidden;
@@ -6433,8 +6509,13 @@
 
   function activateMenuTint(){
     body.classList.add("menu-open");
+    if(menuUseLightMobileMode()){
+      stopMenuSync();
+      syncMenuTintHeight();
+      return;
+    }
+    requestAnimationFrame(syncMenuTintHeight);
     startMenuSync();
-    scheduleMenuTintHeightSync();
   }
 
   function deactivateMenuTint(){
@@ -6457,7 +6538,6 @@
     menuOverlay.classList.remove("is-opening");
     menuOverlay.classList.add("is-closing");
     setMenuButtonOpen(false);
-    startMenuSync();
     const closeDelay = instantMenuMq.matches ? 0 : 160;
     menuCloseTimer = setTimeout(() => {
       menuOverlay.hidden = true;
@@ -6500,9 +6580,9 @@
       activateMenuTint();
       menuOverlay.style.setProperty("--menuOpenDelay", "0ms");
       setMenuButtonOpen(true);
-      startMenuSync();
-      scheduleMenuTintHeightSync();
-      if(instantMenuMq.matches && isMenu){
+      if(menuUseLightMobileMode()) syncMenuTintHeight();
+      else requestAnimationFrame(syncMenuTintHeight);
+      if(menuUseLightMobileMode() && isMenu){
         activeOverlay.classList.remove("is-opening");
       } else {
         activeOverlay.classList.add("is-opening");
@@ -7328,7 +7408,7 @@
     );
   }
   function plannerKonvaAvailable(){
-    return !!(window.Konva && plannerKonvaStageEl instanceof HTMLElement && plannerFaceJoystick instanceof HTMLElement);
+    return plannerIsEditMode() && !!(window.Konva && plannerKonvaStageEl instanceof HTMLElement && plannerFaceJoystick instanceof HTMLElement);
   }
   function plannerEnsureKonvaStage(){
     if(!plannerKonvaAvailable()) return false;
@@ -7390,6 +7470,7 @@
     schedulePlannerRender(mode);
   }
   function plannerSyncKonvaEditor(mode = activeLaserMode()){
+    if(!plannerIsEditMode()) return;
     if(!plannerEnsureKonvaStage() || !plannerKonvaLayer || !plannerKonvaTransformer) return;
     const width = plannerKonvaStage.width();
     const height = plannerKonvaStage.height();
@@ -8640,7 +8721,11 @@
       }
     };
   }
+  function plannerShouldTrackHistory(){
+    return plannerIsEditMode();
+  }
   function plannerHistoryPush(_reason = ""){
+    if(!plannerShouldTrackHistory()) return;
     if(plannerHistoryRestoring) return;
     const snapshot = plannerHistorySnapshot();
     const serialized = JSON.stringify(snapshot);
@@ -8710,6 +8795,7 @@
     }
   }
   function plannerUndoLastAction(){
+    if(!plannerShouldTrackHistory()) return false;
     if(!plannerUndoStack.length) return false;
     const currentSnapshot = plannerHistorySnapshot();
     const snapshot = plannerUndoStack.pop();
@@ -8723,6 +8809,7 @@
     return applied;
   }
   function plannerRedoLastAction(){
+    if(!plannerShouldTrackHistory()) return false;
     if(!plannerRedoStack.length) return false;
     const currentSnapshot = plannerHistorySnapshot();
     const snapshot = plannerRedoStack.pop();
@@ -12755,18 +12842,6 @@
   function preferredLaserVideoSrc(){
     return mobileVideoMq.matches ? LASER_VIDEO_MOBILE_SRC : LASER_VIDEO_DESKTOP_SRC;
   }
-  function warmLaserVideoSource(){
-    const src = preferredLaserVideoSrc();
-    if(!src) return;
-    const existing = document.head.querySelector(`link[data-laser-video-preload="${src}"]`);
-    if(existing) return;
-    const preload = document.createElement("link");
-    preload.rel = "preload";
-    preload.as = "video";
-    preload.href = src;
-    preload.setAttribute("data-laser-video-preload", src);
-    document.head.appendChild(preload);
-  }
   function syncLaserVideoPreview(){
     if(!laserVideoPreview) return;
     const src = preferredLaserVideoSrc();
@@ -12835,21 +12910,10 @@
     }, 220);
   }
   syncLaserVideoPreview();
-  if("requestIdleCallback" in window){
-    window.requestIdleCallback(warmLaserVideoSource, { timeout:450 });
-  } else {
-    setTimeout(warmLaserVideoSource, 180);
-  }
   if(mobileVideoMq && typeof mobileVideoMq.addEventListener === "function"){
-    mobileVideoMq.addEventListener("change", () => {
-      syncLaserVideoPreview();
-      warmLaserVideoSource();
-    });
+    mobileVideoMq.addEventListener("change", syncLaserVideoPreview);
   } else if(mobileVideoMq && typeof mobileVideoMq.addListener === "function"){
-    mobileVideoMq.addListener(() => {
-      syncLaserVideoPreview();
-      warmLaserVideoSource();
-    });
+    mobileVideoMq.addListener(syncLaserVideoPreview);
   }
   if(laserVideoFrame){
     laserVideoFrame.addEventListener("click", openVideoModal);
@@ -12921,33 +12985,6 @@
       });
     });
     searchIndex = Array.from(map.values());
-    searchIndexReady = true;
-  }
-
-  function ensureSearchIndex(force = false){
-    if(searchIndexReady) return;
-    if(force){
-      searchIndexBuildQueued = false;
-      buildSearchIndex();
-      return;
-    }
-    if(searchIndexBuildQueued) return;
-    searchIndexBuildQueued = true;
-    const run = () => {
-      searchIndexBuildQueued = false;
-      buildSearchIndex();
-    };
-    if("requestIdleCallback" in window){
-      window.requestIdleCallback(run, { timeout:320 });
-      return;
-    }
-    setTimeout(run, 120);
-  }
-
-  function invalidateSearchIndex(){
-    searchIndex = [];
-    searchIndexReady = false;
-    ensureSearchIndex();
   }
 
   function updateSearchLineIndexes(){
@@ -13025,7 +13062,6 @@
       renderQuickLinks();
       return;
     }
-    ensureSearchIndex(true);
 
     const matches = searchIndex
       .filter((item) => item.label.includes(query))
@@ -13055,7 +13091,7 @@
   }
 
   searchInput.addEventListener("input", (e) => renderSearch(e.target.value));
-  ensureSearchIndex();
+  buildSearchIndex();
   deactivateMenuTint();
 
   // i18n
@@ -13317,7 +13353,7 @@
     if(searchEmpty) searchEmpty.textContent = m.search_empty;
     applyModePricing(activeLaserMode());
     renderPlanner(activeLaserMode());
-    invalidateSearchIndex();
+    buildSearchIndex();
     renderSearch(searchInput ? searchInput.value : "");
 
     const sel = document.getElementById("langSelect");

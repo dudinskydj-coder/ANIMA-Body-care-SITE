@@ -1467,6 +1467,7 @@
       body:is(.menu-open,.search-open){
         overscroll-behavior:none;
       }
+<<<<<<< ours
       html.ua-ios-safari body.menu-open #menuOverlay,
       html.ua-ios-safari body.search-open #searchOverlay,
       html.ua-android-chrome body.menu-open #menuOverlay,
@@ -1475,6 +1476,13 @@
         overflow-x:hidden;
         overscroll-behavior:contain;
         -webkit-overflow-scrolling:touch;
+=======
+      body.menu-open #menuOverlay,
+      body.search-open #searchOverlay{
+        overflow:hidden;
+        overscroll-behavior:none;
+        -webkit-overflow-scrolling:auto;
+>>>>>>> theirs
       }
       html.ua-ios-safari #menuOverlay,
       html.ua-ios-safari #searchOverlay,
@@ -2021,16 +2029,12 @@
   const searchInput = document.getElementById("searchInput");
   const searchSuggest = document.getElementById("searchSuggest");
   let searchIndex = [];
-  let searchIndexReady = false;
-  let searchIndexBuildQueued = false;
   let menuLastScrollY = window.scrollY;
   let searchLastScrollY = window.scrollY;
   let menuButtonTimer = null;
   let menuCloseTimer = null;
   let searchCloseTimer = null;
   let menuSyncRaf = null;
-  let menuTintSyncQueued = false;
-  let menuSyncUntil = 0;
   let searchTouchStartY = null;
   let legalScrollLockY = 0;
   let legalTouchStartX = null;
@@ -2110,29 +2114,15 @@
     return !menuUseLightMobileMode();
   }
 
-  function scheduleMenuTintHeightSync(){
-    if(menuTintSyncQueued) return;
-    menuTintSyncQueued = true;
-    requestAnimationFrame(() => {
-      menuTintSyncQueued = false;
-      syncMenuTintHeight();
-    });
-  }
-
-  function startMenuSync(duration = OVERLAY_ANIM_MS + 80){
+  function startMenuSync(){
     if(!menuNeedsDynamicTintSync()) return;
-    menuSyncUntil = Math.max(menuSyncUntil, performance.now() + duration);
     if(menuSyncRaf) return;
-    const loop = (ts) => {
+    const loop = () => {
       if(!getActiveOverlay()){
         menuSyncRaf = null;
         return;
       }
       syncMenuTintHeight();
-      if(ts >= menuSyncUntil){
-        menuSyncRaf = null;
-        return;
-      }
       menuSyncRaf = requestAnimationFrame(loop);
     };
     menuSyncRaf = requestAnimationFrame(loop);
@@ -2147,32 +2137,8 @@
   setHeaderHeightVar();
   window.addEventListener("resize", () => {
     setHeaderHeightVar();
-    scheduleMenuTintHeightSync();
+    syncMenuTintHeight();
   });
-  window.addEventListener("orientationchange", () => {
-    setHeaderHeightVar();
-    startMenuSync(260);
-    scheduleMenuTintHeightSync();
-  });
-  if(window.visualViewport){
-    const syncViewportOverlay = () => {
-      if(!getActiveOverlay()) return;
-      startMenuSync(220);
-      scheduleMenuTintHeightSync();
-    };
-    window.visualViewport.addEventListener("resize", syncViewportOverlay, { passive:true });
-    window.visualViewport.addEventListener("scroll", syncViewportOverlay, { passive:true });
-  }
-  if(typeof ResizeObserver === "function"){
-    const overlayResizeObserver = new ResizeObserver(() => {
-      if(!getActiveOverlay()) return;
-      startMenuSync(200);
-      scheduleMenuTintHeightSync();
-    });
-    [menuOverlay, searchOverlay, headerEl].forEach((el) => {
-      if(el) overlayResizeObserver.observe(el);
-    });
-  }
 
   function updateMenuButton(){
     const menuOpen = !menuOverlay.hidden;
@@ -2208,8 +2174,8 @@
     body.classList.toggle("menu-open", type === "menu");
     body.classList.toggle("search-open", type === "search");
     if(menuNeedsDynamicTintSync()){
+      requestAnimationFrame(syncMenuTintHeight);
       startMenuSync();
-      scheduleMenuTintHeightSync();
       return;
     }
     stopMenuSync();
@@ -2227,8 +2193,8 @@
   function syncOverlayScrollLock(){
     if(getActiveOverlay()){
       if(menuNeedsDynamicTintSync()){
+        requestAnimationFrame(syncMenuTintHeight);
         startMenuSync();
-        scheduleMenuTintHeightSync();
       }else{
         stopMenuSync();
         syncMenuTintHeight();
@@ -2246,7 +2212,6 @@
     menuOverlay.classList.remove("is-opening");
     menuOverlay.classList.add("is-closing");
     setMenuButtonOpen(false);
-    startMenuSync();
     const closeDelay = OVERLAY_ANIM_MS;
     menuCloseTimer = setTimeout(() => {
       menuOverlay.hidden = true;
@@ -2262,7 +2227,6 @@
     clearMenuCloseTimer();
     searchOverlay.classList.remove("is-opening");
     searchOverlay.classList.add("is-closing");
-    startMenuSync();
     const closeDelay = OVERLAY_ANIM_MS;
     searchCloseTimer = setTimeout(() => {
       searchOverlay.hidden = true;
@@ -2290,10 +2254,8 @@
     if(isMenu){
       setMenuButtonOpen(true);
     }
-    if(menuNeedsDynamicTintSync()){
-      startMenuSync();
-      scheduleMenuTintHeightSync();
-    } else syncMenuTintHeight();
+    if(menuNeedsDynamicTintSync()) requestAnimationFrame(syncMenuTintHeight);
+    else syncMenuTintHeight();
     activeOverlay.classList.add("is-opening");
     const onOpenAnimEnd = () => {
       activeOverlay.classList.remove("is-opening");
@@ -2831,33 +2793,6 @@
       });
     });
     searchIndex = Array.from(map.values());
-    searchIndexReady = true;
-  }
-
-  function ensureSearchIndex(force = false){
-    if(searchIndexReady) return;
-    if(force){
-      searchIndexBuildQueued = false;
-      buildSearchIndex();
-      return;
-    }
-    if(searchIndexBuildQueued) return;
-    searchIndexBuildQueued = true;
-    const run = () => {
-      searchIndexBuildQueued = false;
-      buildSearchIndex();
-    };
-    if("requestIdleCallback" in window){
-      window.requestIdleCallback(run, { timeout:320 });
-      return;
-    }
-    setTimeout(run, 120);
-  }
-
-  function invalidateSearchIndex(){
-    searchIndex = [];
-    searchIndexReady = false;
-    ensureSearchIndex();
   }
 
   function renderSearch(q){
@@ -2867,7 +2802,6 @@
       renderQuickLinks();
       return;
     }
-    ensureSearchIndex(true);
 
     const matches = searchIndex
       .filter((item) => item.label.includes(query))
@@ -2960,7 +2894,7 @@
 
   searchInput.addEventListener("input", (e) => renderSearch(e.target.value));
   updateMenuLineIndexes();
-  ensureSearchIndex();
+  buildSearchIndex();
   deactivateOverlayTint();
 
   // i18n
@@ -3231,7 +3165,7 @@
     set("faq_3", m.faq_3);
 
     if(searchInput) searchInput.placeholder = m.search_placeholder;
-    invalidateSearchIndex();
+    buildSearchIndex();
     renderSearch(searchInput ? searchInput.value : "");
 
     const sel = document.getElementById("langSelect");

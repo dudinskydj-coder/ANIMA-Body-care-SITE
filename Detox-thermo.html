@@ -21,6 +21,55 @@
       --headerIconStroke:2;
     }
     *{box-sizing:border-box}
+    html,
+    body{
+      -webkit-tap-highlight-color:transparent;
+    }
+    :where(
+      a,
+      button,
+      [role="button"],
+      input[type="button"],
+      input[type="submit"],
+      input[type="reset"],
+      .btn,
+      .iconBtn,
+      .brand,
+      .menuToggle
+    ){
+      -webkit-tap-highlight-color:transparent;
+      tap-highlight-color:transparent;
+    }
+    :where(
+      button,
+      [role="button"],
+      input[type="button"],
+      input[type="submit"],
+      input[type="reset"],
+      .btn,
+      .iconBtn
+    ){
+      -webkit-appearance:none;
+      appearance:none;
+      background-clip:padding-box;
+    }
+    @media (hover:none), (pointer:coarse){
+      :where(
+        a,
+        button,
+        [role="button"],
+        input[type="button"],
+        input[type="submit"],
+        input[type="reset"],
+        .btn,
+        .iconBtn,
+        .brand,
+        .menuToggle
+      ):is(:focus, :focus-visible, :active){
+        outline:none !important;
+        box-shadow:none !important;
+      }
+    }
     html{scroll-behavior:smooth}
     body{
       margin:0;
@@ -868,10 +917,6 @@
       html.ua-android-chrome #menuOverlay{
         min-height:100dvh;
         max-height:100dvh;
-        overflow-y:auto;
-        overflow-x:hidden;
-        overscroll-behavior:contain;
-        -webkit-overflow-scrolling:touch;
       }
       html.ua-ios-safari .menuGrid,
       html.ua-android-chrome .menuGrid{
@@ -1284,12 +1329,16 @@
   const legalClose = document.getElementById("legalClose");
   const menuFaqLink = document.getElementById("menu_faq");
   let searchIndex = [];
+  let searchIndexReady = false;
+  let searchIndexBuildQueued = false;
   let menuLastScrollY = window.scrollY;
   let searchLastScrollY = window.scrollY;
   let menuButtonTimer = null;
   let menuCloseTimer = null;
   let searchCloseTimer = null;
   let menuSyncRaf = null;
+  let menuTintSyncQueued = false;
+  let menuSyncUntil = 0;
   let legalScrollLockY = 0;
   let legalTouchStartX = null;
   let legalTouchStartY = null;
@@ -1358,15 +1407,29 @@
     }
   }
 
-  function startMenuSync(){
+  function scheduleMenuTintHeightSync(){
+    if(menuTintSyncQueued) return;
+    menuTintSyncQueued = true;
+    requestAnimationFrame(() => {
+      menuTintSyncQueued = false;
+      syncMenuTintHeight();
+    });
+  }
+
+  function startMenuSync(duration = 240){
     if(menuUseLightMobileMode()) return;
+    menuSyncUntil = Math.max(menuSyncUntil, performance.now() + duration);
     if(menuSyncRaf) return;
-    const loop = () => {
+    const loop = (ts) => {
       if(menuOverlay.hidden){
         menuSyncRaf = null;
         return;
       }
       syncMenuTintHeight();
+      if(ts >= menuSyncUntil){
+        menuSyncRaf = null;
+        return;
+      }
       menuSyncRaf = requestAnimationFrame(loop);
     };
     menuSyncRaf = requestAnimationFrame(loop);
@@ -1381,8 +1444,32 @@
   setHeaderHeightVar();
   window.addEventListener("resize", () => {
     setHeaderHeightVar();
-    syncMenuTintHeight();
+    scheduleMenuTintHeightSync();
   });
+  window.addEventListener("orientationchange", () => {
+    setHeaderHeightVar();
+    startMenuSync(260);
+    scheduleMenuTintHeightSync();
+  });
+  if(window.visualViewport){
+    const syncViewportOverlay = () => {
+      if(menuOverlay.hidden) return;
+      startMenuSync(220);
+      scheduleMenuTintHeightSync();
+    };
+    window.visualViewport.addEventListener("resize", syncViewportOverlay, { passive:true });
+    window.visualViewport.addEventListener("scroll", syncViewportOverlay, { passive:true });
+  }
+  if(typeof ResizeObserver === "function"){
+    const overlayResizeObserver = new ResizeObserver(() => {
+      if(menuOverlay.hidden) return;
+      startMenuSync(200);
+      scheduleMenuTintHeightSync();
+    });
+    [menuOverlay, headerEl].forEach((el) => {
+      if(el) overlayResizeObserver.observe(el);
+    });
+  }
 
   function updateMenuButton(){
     const menuOpen = !menuOverlay.hidden;
@@ -1420,8 +1507,8 @@
       syncMenuTintHeight();
       return;
     }
-    requestAnimationFrame(syncMenuTintHeight);
     startMenuSync();
+    scheduleMenuTintHeightSync();
   }
 
   function deactivateMenuTint(){
@@ -1444,6 +1531,7 @@
     menuOverlay.classList.remove("is-opening");
     menuOverlay.classList.add("is-closing");
     setMenuButtonOpen(false);
+    startMenuSync();
     const closeDelay = instantMenuMq.matches ? 0 : 160;
     menuCloseTimer = setTimeout(() => {
       menuOverlay.hidden = true;
@@ -1487,7 +1575,10 @@
       menuOverlay.style.setProperty("--menuOpenDelay", "0ms");
       setMenuButtonOpen(true);
       if(menuUseLightMobileMode()) syncMenuTintHeight();
-      else requestAnimationFrame(syncMenuTintHeight);
+      else {
+        startMenuSync();
+        scheduleMenuTintHeightSync();
+      }
       if(menuUseLightMobileMode() && isMenu){
         activeOverlay.classList.remove("is-opening");
       } else {
@@ -1882,6 +1973,33 @@
       });
     });
     searchIndex = Array.from(map.values());
+    searchIndexReady = true;
+  }
+
+  function ensureSearchIndex(force = false){
+    if(searchIndexReady) return;
+    if(force){
+      searchIndexBuildQueued = false;
+      buildSearchIndex();
+      return;
+    }
+    if(searchIndexBuildQueued) return;
+    searchIndexBuildQueued = true;
+    const run = () => {
+      searchIndexBuildQueued = false;
+      buildSearchIndex();
+    };
+    if("requestIdleCallback" in window){
+      window.requestIdleCallback(run, { timeout:320 });
+      return;
+    }
+    setTimeout(run, 120);
+  }
+
+  function invalidateSearchIndex(){
+    searchIndex = [];
+    searchIndexReady = false;
+    ensureSearchIndex();
   }
 
   function updateSearchLineIndexes(){
@@ -1959,6 +2077,7 @@
       renderQuickLinks();
       return;
     }
+    ensureSearchIndex(true);
 
     const matches = searchIndex
       .filter((item) => item.label.includes(query))
@@ -1988,7 +2107,7 @@
   }
 
   searchInput.addEventListener("input", (e) => renderSearch(e.target.value));
-  buildSearchIndex();
+  ensureSearchIndex();
   deactivateMenuTint();
 
   // i18n
@@ -2184,7 +2303,7 @@
 
     if(searchInput) searchInput.placeholder = m.search_placeholder;
     if(searchEmpty) searchEmpty.textContent = m.search_empty;
-    buildSearchIndex();
+    invalidateSearchIndex();
     renderSearch(searchInput ? searchInput.value : "");
 
     const sel = document.getElementById("langSelect");

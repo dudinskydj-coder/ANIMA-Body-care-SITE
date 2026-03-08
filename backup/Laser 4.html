@@ -4445,16 +4445,12 @@
   const laserGalleryImage3 = document.getElementById("laser-gallery-image-3");
   const laserGalleryImage4 = document.getElementById("laser-gallery-image-4");
   let searchIndex = [];
-  let searchIndexReady = false;
-  let searchIndexBuildQueued = false;
   let menuLastScrollY = window.scrollY;
   let searchLastScrollY = window.scrollY;
   let menuButtonTimer = null;
   let menuCloseTimer = null;
   let searchCloseTimer = null;
   let menuSyncRaf = null;
-  let menuTintSyncQueued = false;
-  let menuSyncUntil = 0;
   let legalScrollLockY = 0;
   let legalTouchStartX = null;
   let legalTouchStartY = null;
@@ -6336,28 +6332,14 @@
     }
   }
 
-  function scheduleMenuTintHeightSync(){
-    if(menuTintSyncQueued) return;
-    menuTintSyncQueued = true;
-    requestAnimationFrame(() => {
-      menuTintSyncQueued = false;
-      syncMenuTintHeight();
-    });
-  }
-
-  function startMenuSync(duration = 240){
-    menuSyncUntil = Math.max(menuSyncUntil, performance.now() + duration);
+  function startMenuSync(){
     if(menuSyncRaf) return;
-    const loop = (ts) => {
+    const loop = () => {
       if(menuOverlay.hidden){
         menuSyncRaf = null;
         return;
       }
       syncMenuTintHeight();
-      if(ts >= menuSyncUntil){
-        menuSyncRaf = null;
-        return;
-      }
       menuSyncRaf = requestAnimationFrame(loop);
     };
     menuSyncRaf = requestAnimationFrame(loop);
@@ -6372,35 +6354,11 @@
   setHeaderHeightVar();
   window.addEventListener("resize", () => {
     setHeaderHeightVar();
-    scheduleMenuTintHeightSync();
+    syncMenuTintHeight();
     syncPlannerInteractivePaneWidth();
     plannerSyncSceneGap(plannerFrauenView);
     plannerSetTrackPosition(plannerFrauenView, { animate:false });
   });
-  window.addEventListener("orientationchange", () => {
-    setHeaderHeightVar();
-    startMenuSync(260);
-    scheduleMenuTintHeightSync();
-  });
-  if(window.visualViewport){
-    const syncViewportOverlay = () => {
-      if(menuOverlay.hidden) return;
-      startMenuSync(220);
-      scheduleMenuTintHeightSync();
-    };
-    window.visualViewport.addEventListener("resize", syncViewportOverlay, { passive:true });
-    window.visualViewport.addEventListener("scroll", syncViewportOverlay, { passive:true });
-  }
-  if(typeof ResizeObserver === "function"){
-    const overlayResizeObserver = new ResizeObserver(() => {
-      if(menuOverlay.hidden) return;
-      startMenuSync(200);
-      scheduleMenuTintHeightSync();
-    });
-    [menuOverlay, headerEl].forEach((el) => {
-      if(el) overlayResizeObserver.observe(el);
-    });
-  }
 
   function updateMenuButton(){
     const menuOpen = !menuOverlay.hidden;
@@ -6433,8 +6391,8 @@
 
   function activateMenuTint(){
     body.classList.add("menu-open");
+    requestAnimationFrame(syncMenuTintHeight);
     startMenuSync();
-    scheduleMenuTintHeightSync();
   }
 
   function deactivateMenuTint(){
@@ -6457,7 +6415,6 @@
     menuOverlay.classList.remove("is-opening");
     menuOverlay.classList.add("is-closing");
     setMenuButtonOpen(false);
-    startMenuSync();
     const closeDelay = instantMenuMq.matches ? 0 : 160;
     menuCloseTimer = setTimeout(() => {
       menuOverlay.hidden = true;
@@ -6500,8 +6457,7 @@
       activateMenuTint();
       menuOverlay.style.setProperty("--menuOpenDelay", "0ms");
       setMenuButtonOpen(true);
-      startMenuSync();
-      scheduleMenuTintHeightSync();
+      requestAnimationFrame(syncMenuTintHeight);
       if(instantMenuMq.matches && isMenu){
         activeOverlay.classList.remove("is-opening");
       } else {
@@ -12755,18 +12711,6 @@
   function preferredLaserVideoSrc(){
     return mobileVideoMq.matches ? LASER_VIDEO_MOBILE_SRC : LASER_VIDEO_DESKTOP_SRC;
   }
-  function warmLaserVideoSource(){
-    const src = preferredLaserVideoSrc();
-    if(!src) return;
-    const existing = document.head.querySelector(`link[data-laser-video-preload="${src}"]`);
-    if(existing) return;
-    const preload = document.createElement("link");
-    preload.rel = "preload";
-    preload.as = "video";
-    preload.href = src;
-    preload.setAttribute("data-laser-video-preload", src);
-    document.head.appendChild(preload);
-  }
   function syncLaserVideoPreview(){
     if(!laserVideoPreview) return;
     const src = preferredLaserVideoSrc();
@@ -12835,21 +12779,10 @@
     }, 220);
   }
   syncLaserVideoPreview();
-  if("requestIdleCallback" in window){
-    window.requestIdleCallback(warmLaserVideoSource, { timeout:450 });
-  } else {
-    setTimeout(warmLaserVideoSource, 180);
-  }
   if(mobileVideoMq && typeof mobileVideoMq.addEventListener === "function"){
-    mobileVideoMq.addEventListener("change", () => {
-      syncLaserVideoPreview();
-      warmLaserVideoSource();
-    });
+    mobileVideoMq.addEventListener("change", syncLaserVideoPreview);
   } else if(mobileVideoMq && typeof mobileVideoMq.addListener === "function"){
-    mobileVideoMq.addListener(() => {
-      syncLaserVideoPreview();
-      warmLaserVideoSource();
-    });
+    mobileVideoMq.addListener(syncLaserVideoPreview);
   }
   if(laserVideoFrame){
     laserVideoFrame.addEventListener("click", openVideoModal);
@@ -12921,33 +12854,6 @@
       });
     });
     searchIndex = Array.from(map.values());
-    searchIndexReady = true;
-  }
-
-  function ensureSearchIndex(force = false){
-    if(searchIndexReady) return;
-    if(force){
-      searchIndexBuildQueued = false;
-      buildSearchIndex();
-      return;
-    }
-    if(searchIndexBuildQueued) return;
-    searchIndexBuildQueued = true;
-    const run = () => {
-      searchIndexBuildQueued = false;
-      buildSearchIndex();
-    };
-    if("requestIdleCallback" in window){
-      window.requestIdleCallback(run, { timeout:320 });
-      return;
-    }
-    setTimeout(run, 120);
-  }
-
-  function invalidateSearchIndex(){
-    searchIndex = [];
-    searchIndexReady = false;
-    ensureSearchIndex();
   }
 
   function updateSearchLineIndexes(){
@@ -13025,7 +12931,6 @@
       renderQuickLinks();
       return;
     }
-    ensureSearchIndex(true);
 
     const matches = searchIndex
       .filter((item) => item.label.includes(query))
@@ -13055,7 +12960,7 @@
   }
 
   searchInput.addEventListener("input", (e) => renderSearch(e.target.value));
-  ensureSearchIndex();
+  buildSearchIndex();
   deactivateMenuTint();
 
   // i18n
@@ -13317,7 +13222,7 @@
     if(searchEmpty) searchEmpty.textContent = m.search_empty;
     applyModePricing(activeLaserMode());
     renderPlanner(activeLaserMode());
-    invalidateSearchIndex();
+    buildSearchIndex();
     renderSearch(searchInput ? searchInput.value : "");
 
     const sel = document.getElementById("langSelect");
