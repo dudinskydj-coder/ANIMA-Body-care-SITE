@@ -4207,7 +4207,7 @@
     const isSlideMode = window.matchMedia("(max-width: 1024px)").matches;
     const viewportWidth = plannerFigureViewport.clientWidth || 0;
     if(isSlideMode){
-      return Math.max(108, Math.min(168, Math.round(viewportWidth * 0.36)));
+      return Math.max(36, Math.min(56, Math.round(viewportWidth * 0.12)));
     }
     return Math.max(24, Math.round(viewportWidth * 0.035));
   }
