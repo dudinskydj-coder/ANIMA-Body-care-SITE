@@ -664,12 +664,6 @@
       gap:18px;
       min-height:min(86vh, 920px);
     }
-    #interactive-placeholder > .laserPlanner{
-      width:100vw;
-      margin-left:calc(50% - 50vw);
-      padding-right:max(22px, calc((100vw - 1120px) / 2 + 22px));
-      box-sizing:border-box;
-    }
     .plannerPane{
       border:1px solid rgba(0,0,0,.08);
       border-radius:30px;
@@ -687,9 +681,14 @@
       padding:0;
       box-shadow:none;
       min-width:0;
+      overflow:visible;
     }
     .plannerPane--zones .plannerFigureWrap{
       margin-top:0;
+      width:var(--planner-interactive-width, 100%);
+      max-width:none;
+      margin-left:var(--planner-interactive-shift, 0px);
+      margin-right:0;
     }
     .plannerTitle{
       margin:0;
@@ -3456,11 +3455,6 @@
         min-height:auto;
         overflow-x:hidden;
       }
-      #interactive-placeholder > .laserPlanner{
-        width:100%;
-        margin-left:0;
-        padding-right:0;
-      }
       .plannerPane{
         border-radius:24px;
         padding:18px;
@@ -3590,6 +3584,19 @@
       .plannerFigure{
         height:calc(100svh - 6px);
         padding:14px 0 0;
+      }
+      .plannerFigureSceneFrame{
+        width:100%;
+        max-width:none;
+        aspect-ratio:auto;
+      }
+      .plannerSketch,
+      .plannerBackSketch{
+        left:0;
+        width:100%;
+        max-width:none;
+        aspect-ratio:auto;
+        transform:none;
       }
       .plannerFigureInner{
         --planner-scene-gap:28px;
@@ -4059,6 +4066,8 @@
   const laserVideoPlayer = document.getElementById("laserVideoPlayer");
   const laserVideoFrame = document.getElementById("laserVideoFrame");
   const laserPlanner = document.querySelector(".laserPlanner");
+  const plannerZonesPane = document.querySelector(".plannerPane--zones");
+  const plannerPricePane = document.querySelector(".plannerPane:not(.plannerPane--zones)");
   const plannerFigureWrap = document.querySelector(".plannerFigureWrap");
   const plannerFigure = document.querySelector(".plannerFigure");
   const plannerFigureInner = document.querySelector(".plannerFigureInner");
@@ -6218,6 +6227,7 @@
   window.addEventListener("resize", () => {
     setHeaderHeightVar();
     syncMenuTintHeight();
+    syncPlannerInteractivePaneWidth();
     plannerSyncSceneGap(plannerFrauenView);
     plannerSetTrackPosition(plannerFrauenView, { animate:false });
   });
@@ -6776,6 +6786,23 @@
     }catch(err){
       console.error("[planner] move view failed", err);
     }
+  }
+  function syncPlannerInteractivePaneWidth(){
+    if(!(plannerZonesPane instanceof HTMLElement)) return;
+    if(window.innerWidth <= 920 || !(plannerPricePane instanceof HTMLElement)){
+      plannerZonesPane.style.setProperty("--planner-interactive-width", "100%");
+      plannerZonesPane.style.setProperty("--planner-interactive-shift", "0px");
+      return;
+    }
+    const zonesRect = plannerZonesPane.getBoundingClientRect();
+    const priceRect = plannerPricePane.getBoundingClientRect();
+    if(!Number.isFinite(zonesRect.left) || !Number.isFinite(priceRect.left)) return;
+    const targetLeft = 0;
+    const targetRight = Math.max(targetLeft, priceRect.left - 18);
+    const width = Math.max(zonesRect.width, targetRight - targetLeft);
+    const shift = targetLeft - zonesRect.left;
+    plannerZonesPane.style.setProperty("--planner-interactive-width", `${Math.round(width)}px`);
+    plannerZonesPane.style.setProperty("--planner-interactive-shift", `${Math.round(shift)}px`);
   }
   function positionPlannerViewArrows(){
     if(!plannerFigureWrap) return;
@@ -11710,6 +11737,7 @@
     });
   }
   restorePlannerFaceAdjustmentsFromStorage();
+    syncPlannerInteractivePaneWidth();
     if(plannerViewButtons.length){
       plannerViewButtons.forEach((btn) => {
         btn.addEventListener("click", () => {
