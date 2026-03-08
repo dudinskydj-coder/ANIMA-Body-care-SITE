@@ -3867,14 +3867,7 @@
   function intMobileWebpPath(svgPath){
     const normalized = normalizeIntAssetPath(svgPath);
     if(!isIntSvgAssetPath(normalized)) return normalized;
-    const width = pickIntAssetWidth();
-    if(!width) return normalized;
-    const cleanSvg = normalized.replace(/[?#].*$/, "");
-    const slashIndex = cleanSvg.lastIndexOf("/");
-    const dir = slashIndex >= 0 ? cleanSvg.slice(0, slashIndex) : "";
-    const file = slashIndex >= 0 ? cleanSvg.slice(slashIndex + 1) : cleanSvg;
-    const base = file.replace(/\.svg$/i, "");
-    return `${dir}/webp/${base}-${width}.webp`;
+    return normalized;
   }
   function inferIntSvgFromRasterPath(path){
     const normalized = normalizeIntAssetPath(path);
