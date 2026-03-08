@@ -21,6 +21,7 @@
       --headerIconStroke:1.65;
       --panelGap:14px;
       --overlayAppearDur:.16s;
+      --appVh:100dvh;
     }
     *{box-sizing:border-box}
     html,
@@ -1342,7 +1343,7 @@
     @media (max-width:920px){
       html.ua-ios-safari #menuTint,
       html.ua-android-chrome #menuTint{
-        height:100dvh;
+        height:var(--appVh);
         bottom:0;
         transition:opacity var(--overlayAppearDur) ease;
       }
@@ -1480,8 +1481,8 @@
       html.ua-ios-safari #searchOverlay,
       html.ua-android-chrome #menuOverlay,
       html.ua-android-chrome #searchOverlay{
-        min-height:100dvh;
-        max-height:100dvh;
+        min-height:var(--appVh);
+        max-height:var(--appVh);
       }
       html.ua-ios-safari .menuGrid,
       html.ua-android-chrome .menuGrid{
@@ -2055,6 +2056,16 @@
     document.documentElement.style.setProperty("--headerH", `${h}px`);
   }
 
+  function currentViewportHeight(){
+    const viewport = window.visualViewport;
+    const height = viewport && viewport.height ? viewport.height : window.innerHeight;
+    return Math.max(1, Math.round(height || 0));
+  }
+
+  function setViewportHeightVar(){
+    document.documentElement.style.setProperty("--appVh", `${currentViewportHeight()}px`);
+  }
+
   function lockBodyForLegal(){
     legalScrollLockY = window.scrollY || window.pageYOffset || 0;
     body.style.position = "fixed";
@@ -2094,7 +2105,7 @@
       return;
     }
     if(menuUseLightMobileMode()){
-      menuTint.style.height = "100dvh";
+      menuTint.style.height = `${currentViewportHeight()}px`;
       if(menuFocusBlur) menuFocusBlur.style.top = "100vh";
       return;
     }
@@ -2145,17 +2156,21 @@
   }
 
   setHeaderHeightVar();
+  setViewportHeightVar();
   window.addEventListener("resize", () => {
     setHeaderHeightVar();
+    setViewportHeightVar();
     scheduleMenuTintHeightSync();
   });
   window.addEventListener("orientationchange", () => {
     setHeaderHeightVar();
+    setViewportHeightVar();
     startMenuSync(260);
     scheduleMenuTintHeightSync();
   });
   if(window.visualViewport){
     const syncViewportOverlay = () => {
+      setViewportHeightVar();
       if(!getActiveOverlay()) return;
       startMenuSync(220);
       scheduleMenuTintHeightSync();

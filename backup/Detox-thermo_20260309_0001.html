@@ -19,7 +19,6 @@
       --accentText:#ffffff;
       --headerH:62px;
       --headerIconStroke:2;
-      --appVh:100dvh;
     }
     *{box-sizing:border-box}
     html,
@@ -857,7 +856,7 @@
       }
       html.ua-ios-safari #menuTint,
       html.ua-android-chrome #menuTint{
-        height:var(--appVh);
+        height:100dvh;
         bottom:0;
         transition:opacity .16s ease;
       }
@@ -916,8 +915,8 @@
       }
       html.ua-ios-safari #menuOverlay,
       html.ua-android-chrome #menuOverlay{
-        min-height:var(--appVh);
-        max-height:var(--appVh);
+        min-height:100dvh;
+        max-height:100dvh;
       }
       html.ua-ios-safari .menuGrid,
       html.ua-android-chrome .menuGrid{
@@ -936,23 +935,17 @@
         padding:calc(var(--headerH) + 10px) 22px 16px;
       }
       .menuGrid{
-        display:flex;
-        flex-direction:column;
-        justify-content:flex-start;
+        grid-template-columns:1fr;
         max-width:none;
         width:100%;
-        height:auto;
-        min-height:0;
-        gap:12px;
+        gap:clamp(24px, 2.9vh, 32px);
       }
       .menuCol{
-        display:flex;
-        flex-direction:column;
-        gap:12px;
+        gap:clamp(6px, .95vh, 10px);
       }
-      .menuGrid a{white-space:nowrap}
+      .menuGrid a{white-space:normal}
       .menuGrid a{
-        font-size:25px;
+        font-size:clamp(25px, 3.65vh, 28px);
         line-height:1.14;
       }
       .legalModal{
@@ -1394,16 +1387,6 @@
     document.documentElement.style.setProperty("--headerH", `${h}px`);
   }
 
-  function currentViewportHeight(){
-    const viewport = window.visualViewport;
-    const height = viewport && viewport.height ? viewport.height : window.innerHeight;
-    return Math.max(1, Math.round(height || 0));
-  }
-
-  function setViewportHeightVar(){
-    document.documentElement.style.setProperty("--appVh", `${currentViewportHeight()}px`);
-  }
-
   function syncMenuTintHeight(){
     if(!menuTint) return;
     if(menuOverlay.hidden){
@@ -1412,7 +1395,7 @@
       return;
     }
     if(menuUseLightMobileMode()){
-      menuTint.style.height = `${currentViewportHeight()}px`;
+      menuTint.style.height = "100dvh";
       if(menuFocusBlur) menuFocusBlur.style.top = "100vh";
       return;
     }
@@ -1459,21 +1442,17 @@
   }
 
   setHeaderHeightVar();
-  setViewportHeightVar();
   window.addEventListener("resize", () => {
     setHeaderHeightVar();
-    setViewportHeightVar();
     scheduleMenuTintHeightSync();
   });
   window.addEventListener("orientationchange", () => {
     setHeaderHeightVar();
-    setViewportHeightVar();
     startMenuSync(260);
     scheduleMenuTintHeightSync();
   });
   if(window.visualViewport){
     const syncViewportOverlay = () => {
-      setViewportHeightVar();
       if(menuOverlay.hidden) return;
       startMenuSync(220);
       scheduleMenuTintHeightSync();
