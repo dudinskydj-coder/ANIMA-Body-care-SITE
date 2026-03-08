@@ -4207,7 +4207,7 @@
     const isSlideMode = window.matchMedia("(max-width: 1024px)").matches;
     const viewportWidth = plannerFigureViewport.clientWidth || 0;
     if(isSlideMode){
-      return Math.max(36, Math.min(56, Math.round(viewportWidth * 0.12)));
+      return Math.max(18, Math.min(28, Math.round(viewportWidth * 0.06)));
     }
     return Math.max(24, Math.round(viewportWidth * 0.035));
   }
@@ -5349,7 +5349,7 @@
   const PLANNER_COURSE_SESSIONS = 6;
   const PLANNER_COURSE_PAYABLE_SESSIONS = 5;
   const PLANNER_VIEW_SLIDE_ANIMATION = true;
-  const PLANNER_VIEW_SLIDE_MS = 420;
+  const PLANNER_VIEW_SLIDE_MS = 340;
   const PLANNER_BASE_FIGURE_SCALE_DESKTOP = 1.02;
   const PLANNER_BASE_FIGURE_SCALE_MOBILE = 1;
   const PLANNER_STATE_SESSION_KEY = "anima_laser_planner_state_v3";
