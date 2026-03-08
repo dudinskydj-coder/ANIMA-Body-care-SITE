@@ -1368,6 +1368,16 @@
       pointer-events:none;
       z-index:0;
     }
+    .plannerFigureScene{
+      position:absolute;
+      inset:0;
+      opacity:0;
+      pointer-events:none;
+      z-index:0;
+    }
+    .plannerFigureScene.is-active{
+      opacity:1;
+    }
     .plannerBackDeadZone{
       position:absolute;
       left:50%;
@@ -4059,10 +4069,57 @@
   const plannerFigureOverlayImage = document.getElementById("plannerFigureOverlayImage");
   const plannerFigureOverlayCustom = document.getElementById("plannerFigureOverlayCustom");
   const plannerFigureFrontline = document.getElementById("plannerFigureFrontline");
-  function plannerPrimeFigureAssets(){
-    const mobile = window.matchMedia("(max-width: 1024px)").matches;
-    const critical = [plannerFigureImage, plannerFigureFrontline];
-    const overlays = [
+  const plannerFigureSceneViews = ["front", "back", "face"];
+  const plannerFrontOverlayElsByPartKey = {
+    OBERLIPPE:plannerFigureOverlayUpperlip,
+    HALS:plannerFigureOverlayChin,
+    BRUSTBEREICH:plannerFigureOverlayChest,
+    HANDE_L:plannerFigureOverlayHands,
+    HANDE_R:plannerFigureOverlayHands,
+    FUSSE_L:plannerFigureOverlayFeet,
+    FUSSE_R:plannerFigureOverlayFeet,
+    ACHSELN_MAIN:plannerFigureOverlayAxilla,
+    OBERARME_MAIN:plannerFigureOverlayUpperarms,
+    UNTERARME_MAIN:plannerFigureOverlayUnderarms,
+    BAUCH_MEDIA_LN:plannerFigureOverlayBauchMedia,
+    BAUCH:plannerFigureOverlayBauchFull,
+    BIKINI_MAIN:plannerFigureOverlayBikini,
+    OBERSCH_MAIN:plannerFigureOverlayObersch,
+    UNTERSCH_MAIN:plannerFigureOverlayUntersch,
+    INTIM_KOM_POF:plannerFigureOverlayImage,
+    ACHSELN_GRAY:plannerFigureOverlayAxillaGray
+  };
+  const plannerScenePartKeysByView = {
+    front:["OBERLIPPE", "HALS", "BRUSTBEREICH", "HANDE_L", "HANDE_R", "FUSSE_L", "FUSSE_R", "ACHSELN_MAIN", "ACHSELN_GRAY", "OBERARME_MAIN", "UNTERARME_MAIN", "BAUCH_MEDIA_LN", "BAUCH", "BIKINI_MAIN", "OBERSCH_MAIN", "UNTERSCH_MAIN", "INTIM_KOM_POF"],
+    back:["NACKEN", "OBERER_RUECKEN", "UNTERER_RUECKEN", "POBACKEN", "OBERARME_MAIN", "UNTERARME_MAIN", "HANDE_L", "HANDE_R", "FUSSE_L", "FUSSE_R", "OBERSCH_MAIN", "UNTERSCH_MAIN", "INTIM_KOM_POF", "ACHSELN_MAIN", "ACHSELN_GRAY"],
+    face:["HALS", "NACKEN", "KINN", "WANGEN", "KOTELETTEN", "ZWISCHENBRAUEN", "OBERLIPPE"]
+  };
+  const plannerViewScenes = { front:null, back:null, face:null };
+  function plannerScenePartKeysForView(view){
+    return Array.isArray(plannerScenePartKeysByView[view]) ? [...plannerScenePartKeysByView[view]] : [];
+  }
+  function plannerCreateSceneImage(className){
+    const img = document.createElement("img");
+    img.setAttribute("alt", "");
+    img.setAttribute("loading", "lazy");
+    img.setAttribute("decoding", "async");
+    img.setAttribute("fetchpriority", "low");
+    img.setAttribute("aria-hidden", "true");
+    img.className = className;
+    img.setAttribute("src", "data:,");
+    return img;
+  }
+  function plannerInitFigureScenes(){
+    if(!plannerFigureInner || plannerViewScenes.front) return;
+    const frontScene = document.createElement("div");
+    frontScene.className = "plannerFigureScene is-active";
+    frontScene.dataset.view = "front";
+    const frontOverlayEls = {};
+    Object.entries(plannerFrontOverlayElsByPartKey).forEach(([partKey, el]) => {
+      if(el) frontOverlayEls[partKey] = el;
+    });
+    [
+      plannerFigureImage,
       plannerFigureOverlayUpperlip,
       plannerFigureOverlayAxilla,
       plannerFigureOverlayChin,
@@ -4078,8 +4135,59 @@
       plannerFigureOverlayObersch,
       plannerFigureOverlayUntersch,
       plannerFigureOverlayImage,
-      plannerFigureOverlayCustom
-    ];
+      plannerFigureOverlayCustom,
+      plannerFigureFrontline
+    ].forEach((node) => {
+      if(node) frontScene.appendChild(node);
+    });
+    plannerFigureInner.insertBefore(frontScene, plannerBackSketch || plannerSketch || null);
+    plannerViewScenes.front = {
+      container:frontScene,
+      base:plannerFigureImage,
+      frontline:plannerFigureFrontline,
+      custom:plannerFigureOverlayCustom,
+      overlayElsByPartKey:frontOverlayEls
+    };
+    ["back", "face"].forEach((view) => {
+      const scene = document.createElement("div");
+      scene.className = "plannerFigureScene";
+      scene.dataset.view = view;
+      const base = plannerCreateSceneImage("plannerFigureBase");
+      const overlayElsByPartKey = {};
+      scene.appendChild(base);
+      plannerScenePartKeysForView(view).forEach((partKey) => {
+        const overlay = plannerCreateSceneImage("plannerFigureOverlayImage");
+        if(partKey === "ACHSELN_MAIN") overlay.classList.add("plannerFigureOverlayImage--axilla-main");
+        if(partKey === "ACHSELN_GRAY") overlay.classList.add("plannerFigureOverlayImage--axilla-gray-dynamic");
+        overlayElsByPartKey[partKey] = overlay;
+        scene.appendChild(overlay);
+      });
+      const custom = plannerCreateSceneImage("plannerFigureOverlayImage");
+      scene.appendChild(custom);
+      const frontline = plannerCreateSceneImage("plannerFigureFrontline");
+      scene.appendChild(frontline);
+      plannerFigureInner.insertBefore(scene, plannerBackSketch || plannerSketch || null);
+      plannerViewScenes[view] = {
+        container:scene,
+        base,
+        frontline,
+        custom,
+        overlayElsByPartKey
+      };
+    });
+  }
+  function plannerPrimeFigureAssets(){
+    const mobile = window.matchMedia("(max-width: 1024px)").matches;
+    const critical = [];
+    const overlays = [];
+    plannerFigureSceneViews.forEach((view) => {
+      const scene = plannerViewScenes[view];
+      if(!scene) return;
+      if(scene.base) critical.push(scene.base);
+      if(scene.frontline) critical.push(scene.frontline);
+      Object.values(scene.overlayElsByPartKey || {}).forEach((img) => overlays.push(img));
+      if(scene.custom) overlays.push(scene.custom);
+    });
     critical.forEach((img) => {
       if(!(img instanceof HTMLImageElement)) return;
       img.loading = "eager";
@@ -4093,6 +4201,7 @@
       img.fetchPriority = mobile ? "low" : "low";
     });
   }
+  plannerInitFigureScenes();
   plannerPrimeFigureAssets();
   const plannerSketch = document.getElementById("plannerSketch");
   const plannerZoneGrid = document.getElementById("plannerZoneGrid");
@@ -5376,6 +5485,112 @@
       if(src) result.push(src);
     });
     return result;
+  }
+  function plannerActivePartKeysForView(mode, view, selectedSet){
+    const activeParts = new Set();
+    const safeSelected = selectedSet || plannerSelectedByMode[mode] || new Set();
+    if(view === "front"){
+      if(safeSelected.has("axilla")) activeParts.add("ACHSELN_MAIN");
+      if(safeSelected.has("chin")) activeParts.add("HALS");
+      if(safeSelected.has("chest")) activeParts.add("BRUSTBEREICH");
+      if(safeSelected.has("hands")){
+        activeParts.add("HANDE_L");
+        activeParts.add("HANDE_R");
+      }
+      if(safeSelected.has("feet")){
+        activeParts.add("FUSSE_L");
+        activeParts.add("FUSSE_R");
+      }
+      if(safeSelected.has("upperarms")) activeParts.add("OBERARME_MAIN");
+      if(safeSelected.has("underarms")) activeParts.add("UNTERARME_MAIN");
+      if(safeSelected.has("medialinebauch")) activeParts.add("BAUCH_MEDIA_LN");
+      if(safeSelected.has("bauchfull")) activeParts.add("BAUCH");
+      if(safeSelected.has("obersch")) activeParts.add("OBERSCH_MAIN");
+      if(safeSelected.has("untersch")) activeParts.add("UNTERSCH_MAIN");
+      if(safeSelected.has("bikini")) activeParts.add("BIKINI_MAIN");
+      if(safeSelected.has("intim")) activeParts.add("INTIM_KOM_POF");
+      const chestKeepsAxillaGray = safeSelected.has("chest");
+      const frontUpperarmsKeepAxillaGray = !chestKeepsAxillaGray && safeSelected.has("upperarms") && !safeSelected.has("axilla");
+      if(chestKeepsAxillaGray || frontUpperarmsKeepAxillaGray){
+        activeParts.add("ACHSELN_GRAY");
+      }
+      return activeParts;
+    }
+    plannerSelectedPartsForView(mode, view, safeSelected).forEach((partKey) => activeParts.add(partKey));
+    return activeParts;
+  }
+  function plannerSceneOverlayElementsForPartKey(view, partKey){
+    const scene = plannerViewScenes[view];
+    if(!scene || !scene.overlayElsByPartKey) return [];
+    const el = scene.overlayElsByPartKey[partKey];
+    return el ? [el] : [];
+  }
+  function plannerSyncSceneSources(mode){
+    plannerFigureSceneViews.forEach((view) => {
+      const scene = plannerViewScenes[view];
+      if(!scene) return;
+      const visual = ((plannerFigureByMode[mode] || plannerFigureByMode.frauen || {})[view]) || null;
+      if(scene.base && visual && visual.src){
+        setIntResponsiveImageSrc(scene.base, visual.src);
+        scene.base.setAttribute("alt", visual.alt || "");
+      }
+      const frontlineSrc = ((plannerFrontlineByModeAndView[mode] || {})[view]) || "";
+      if(scene.frontline){
+        if(frontlineSrc){
+          setIntResponsiveImageSrc(scene.frontline, frontlineSrc);
+        } else {
+          scene.frontline.setAttribute("src", "data:,");
+        }
+      }
+      const overlaySrcMap = ((plannerHoverOverlaySrcByModeAndView[mode] || {})[view]) || {};
+      Object.entries(scene.overlayElsByPartKey || {}).forEach(([partKey, el]) => {
+        const src = overlaySrcMap[partKey] || "";
+        if(src) setIntResponsiveImageSrc(el, src);
+        else el.setAttribute("src", "data:,");
+      });
+    });
+  }
+  function plannerSetActiveScene(view){
+    plannerFigureSceneViews.forEach((sceneView) => {
+      const scene = plannerViewScenes[sceneView];
+      if(!scene || !scene.container) return;
+      scene.container.classList.toggle("is-active", sceneView === view);
+    });
+  }
+  function plannerSyncAllViewScenes(mode){
+    plannerSyncSceneSources(mode);
+    const selectedSet = plannerSelectedByMode[mode] || new Set();
+    plannerFigureSceneViews.forEach((view) => {
+      const scene = plannerViewScenes[view];
+      if(!scene) return;
+      Object.values(scene.overlayElsByPartKey || {}).forEach((el) => {
+        if(!el) return;
+        el.classList.remove("is-visible", "is-guide-visible");
+      });
+      const activeParts = plannerActivePartKeysForView(mode, view, selectedSet);
+      activeParts.forEach((partKey) => {
+        plannerSceneOverlayElementsForPartKey(view, partKey).forEach((el) => {
+          plannerSetOverlayVisible(el, true);
+        });
+      });
+      if(scene.frontline){
+        scene.frontline.classList.add("is-visible");
+      }
+      if(scene.custom){
+        const activeSet = plannerCustomActiveSet(mode, view);
+        const visibleCustomId = plannerCustomButtonVisibleOverlayId(mode, view);
+        const custom = plannerFindCustomButtonById(visibleCustomId, mode, view);
+        const customSrc = custom && typeof custom.assetDataUrl === "string" ? custom.assetDataUrl : "";
+        if(customSrc){
+          scene.custom.setAttribute("src", customSrc);
+        } else {
+          scene.custom.setAttribute("src", "data:,");
+        }
+        scene.custom.classList.remove("is-guide-visible");
+        scene.custom.classList.toggle("is-visible", !!(customSrc && visibleCustomId && activeSet.has(visibleCustomId)));
+      }
+    });
+    plannerSetActiveScene(plannerFrauenView);
   }
   function plannerCollectPrefetchSourcesForTarget(target){
     const result = [];
@@ -8390,25 +8605,13 @@
     }
   }
   function plannerSwitchAnimatedLayers(){
+    const activeScene = plannerViewScenes[plannerFrauenView];
+    if(!activeScene) return [];
     return [
-      plannerFigureImage,
-      plannerFigureOverlayUpperlip,
-      plannerFigureOverlayAxilla,
-      plannerFigureOverlayChin,
-      plannerFigureOverlayChest,
-      plannerFigureOverlayHands,
-      plannerFigureOverlayFeet,
-      plannerFigureOverlayUpperarms,
-      plannerFigureOverlayAxillaGray,
-      plannerFigureOverlayUnderarms,
-      plannerFigureOverlayBauchMedia,
-      plannerFigureOverlayBauchFull,
-      plannerFigureOverlayBikini,
-      plannerFigureOverlayObersch,
-      plannerFigureOverlayUntersch,
-      plannerFigureOverlayImage,
-      plannerFigureOverlayCustom,
-      plannerFigureFrontline
+      activeScene.base,
+      ...Object.values(activeScene.overlayElsByPartKey || {}),
+      activeScene.custom,
+      activeScene.frontline
     ].filter(Boolean);
   }
   function plannerIsMobilePerfMode(){
@@ -8437,23 +8640,9 @@
     el.classList.toggle("is-visible", !!visible);
   }
   function plannerFrontStaticOverlayElements(){
-    return [
-      plannerFigureOverlayUpperlip,
-      plannerFigureOverlayAxilla,
-      plannerFigureOverlayChin,
-      plannerFigureOverlayChest,
-      plannerFigureOverlayHands,
-      plannerFigureOverlayFeet,
-      plannerFigureOverlayUpperarms,
-      plannerFigureOverlayAxillaGray,
-      plannerFigureOverlayUnderarms,
-      plannerFigureOverlayBauchMedia,
-      plannerFigureOverlayBauchFull,
-      plannerFigureOverlayBikini,
-      plannerFigureOverlayObersch,
-      plannerFigureOverlayUntersch,
-      plannerFigureOverlayImage
-    ].filter(Boolean);
+    const frontScene = plannerViewScenes.front;
+    if(!frontScene) return [];
+    return Object.values(frontScene.overlayElsByPartKey || {}).filter(Boolean);
   }
   function plannerReleaseFrontStaticOverlaySources(){
     if(!plannerIsMobilePerfMode()) return;
@@ -8464,27 +8653,7 @@
     });
   }
   function plannerSyncFrontStaticOverlaySources(mode){
-    if(plannerFrauenView !== "front"){
-      plannerReleaseFrontStaticOverlaySources();
-      return;
-    }
-    const srcMap = plannerStaticFrontOverlaySrcByMode[mode] || plannerStaticFrontOverlaySrcByMode.frauen;
-    if(!srcMap) return;
-    if(plannerFigureOverlayUpperlip && srcMap.upperlip) plannerBindFrontOverlaySource(plannerFigureOverlayUpperlip, srcMap.upperlip);
-    if(plannerFigureOverlayAxilla && srcMap.axilla) plannerBindFrontOverlaySource(plannerFigureOverlayAxilla, srcMap.axilla);
-    if(plannerFigureOverlayChin && srcMap.chin) plannerBindFrontOverlaySource(plannerFigureOverlayChin, srcMap.chin);
-    if(plannerFigureOverlayChest && srcMap.chest) plannerBindFrontOverlaySource(plannerFigureOverlayChest, srcMap.chest);
-    if(plannerFigureOverlayHands && srcMap.hands) plannerBindFrontOverlaySource(plannerFigureOverlayHands, srcMap.hands);
-    if(plannerFigureOverlayFeet && srcMap.feet) plannerBindFrontOverlaySource(plannerFigureOverlayFeet, srcMap.feet);
-    if(plannerFigureOverlayUpperarms && srcMap.upperarms) plannerBindFrontOverlaySource(plannerFigureOverlayUpperarms, srcMap.upperarms);
-    if(plannerFigureOverlayAxillaGray && srcMap.axillaGray) plannerBindFrontOverlaySource(plannerFigureOverlayAxillaGray, srcMap.axillaGray);
-    if(plannerFigureOverlayUnderarms && srcMap.underarms) plannerBindFrontOverlaySource(plannerFigureOverlayUnderarms, srcMap.underarms);
-    if(plannerFigureOverlayBauchMedia && srcMap.bauchMedia) plannerBindFrontOverlaySource(plannerFigureOverlayBauchMedia, srcMap.bauchMedia);
-    if(plannerFigureOverlayBauchFull && srcMap.bauchFull) plannerBindFrontOverlaySource(plannerFigureOverlayBauchFull, srcMap.bauchFull);
-    if(plannerFigureOverlayBikini && srcMap.bikini) plannerBindFrontOverlaySource(plannerFigureOverlayBikini, srcMap.bikini);
-    if(plannerFigureOverlayObersch && srcMap.obersch) plannerBindFrontOverlaySource(plannerFigureOverlayObersch, srcMap.obersch);
-    if(plannerFigureOverlayUntersch && srcMap.untersch) plannerBindFrontOverlaySource(plannerFigureOverlayUntersch, srcMap.untersch);
-    if(plannerFigureOverlayImage && srcMap.intim) plannerBindFrontOverlaySource(plannerFigureOverlayImage, srcMap.intim);
+    void mode;
   }
   function cancelPlannerViewSlideAnimation(){
     if(!plannerViewSlideRaf) return;
@@ -8500,15 +8669,7 @@
       plannerFigureInner.style.aspectRatio = visual.aspect || "2200 / 5500";
     }
     const shouldAnimate = !!options.animate;
-    const frontlineByView = plannerFrontlineByModeAndView[mode] || {};
-    const frontlineSrc = frontlineByView[plannerFrauenView] || frontlineByView.front || "";
-    const showFrontline = !!frontlineSrc;
-    if(plannerFigureFrontline){
-      if(showFrontline && frontlineSrc){
-        setIntResponsiveImageSrc(plannerFigureFrontline, frontlineSrc);
-      }
-      plannerFigureFrontline.classList.toggle("is-visible", !shouldAnimate && showFrontline);
-    }
+    plannerSyncAllViewScenes(mode);
     if(plannerViewSwitchOutTimer){
       clearTimeout(plannerViewSwitchOutTimer);
       plannerViewSwitchOutTimer = null;
@@ -8518,80 +8679,19 @@
       plannerViewSwitchInTimer = null;
     }
     cancelPlannerViewSlideAnimation();
-    const animatedLayers = plannerSwitchAnimatedLayers();
-    animatedLayers.forEach((el) => {
-      el.classList.remove(
-        "is-view-switching",
-        "is-switch-out-left",
-        "is-switch-out-right",
-        "is-switch-in-left",
-        "is-switch-in-right"
-      );
-      el.style.transform = "";
-    });
     if(!shouldAnimate){
-      setIntResponsiveImageSrc(plannerFigureImage, visual.src);
-      plannerFigureImage.setAttribute("alt", visual.alt);
-      plannerSyncFrontStaticOverlaySources(mode);
+      plannerSetActiveScene(plannerFrauenView);
       if(typeof options.onVisualSwapped === "function"){
         options.onVisualSwapped();
       }
     } else {
-      const seq = ++plannerViewSwitchSeq;
-      const directionSign = options.direction === "to-back" ? -1 : 1;
-      const slideDistancePx = plannerFigure
-        ? Math.max(240, plannerFigure.clientWidth * 1.7)
-        : 760;
-      const durationMs = 320;
-      let swapped = false;
-      const ease = (t) => 0.5 - (Math.cos(Math.PI * t) * 0.5);
-      animatedLayers.forEach((el) => {
-        el.classList.add("is-view-switching");
-      });
-      const start = performance.now();
-      const frame = (now) => {
-        if(seq !== plannerViewSwitchSeq) return;
-        const p = Math.min(1, (now - start) / durationMs);
-        let offsetPx = 0;
-        if(p < 0.5){
-          const t = ease(p / 0.5);
-          offsetPx = directionSign * slideDistancePx * t;
-        } else {
-          if(!swapped){
-            setIntResponsiveImageSrc(plannerFigureImage, visual.src);
-            plannerFigureImage.setAttribute("alt", visual.alt);
-            if(plannerFigureFrontline){
-              if(showFrontline && frontlineSrc){
-                setIntResponsiveImageSrc(plannerFigureFrontline, frontlineSrc);
-              }
-              plannerFigureFrontline.classList.toggle("is-visible", showFrontline);
-            }
-            plannerSyncFrontStaticOverlaySources(mode);
-            if(typeof options.onVisualSwapped === "function"){
-              options.onVisualSwapped();
-            }
-            swapped = true;
-          }
-          const t = ease((p - 0.5) / 0.5);
-          offsetPx = (-directionSign * slideDistancePx) * (1 - t);
-        }
-        animatedLayers.forEach((el) => {
-          el.style.transform = `translate3d(${Math.round(offsetPx)}px, 0, 0)`;
-        });
-        if(p < 1){
-          plannerViewSlideRaf = requestAnimationFrame(frame);
-        } else {
-          plannerViewSlideRaf = null;
-          animatedLayers.forEach((el) => {
-            el.classList.remove("is-view-switching");
-            el.style.transform = "";
-          });
-          if(typeof options.onVisualSettled === "function"){
-            options.onVisualSettled();
-          }
-        }
-      };
-      plannerViewSlideRaf = requestAnimationFrame(frame);
+      plannerSetActiveScene(plannerFrauenView);
+      if(typeof options.onVisualSwapped === "function"){
+        options.onVisualSwapped();
+      }
+      if(typeof options.onVisualSettled === "function"){
+        options.onVisualSettled();
+      }
     }
     syncPlannerViewSwitch(mode);
     requestAnimationFrame(positionPlannerViewArrows);
@@ -8600,51 +8700,17 @@
     clearPlannerGuideOverlay();
   }
   function clearPlannerGuideOverlay(){
-    if(plannerFigureOverlayUpperlip){
-      plannerFigureOverlayUpperlip.classList.remove("is-guide-visible");
-    }
-    if(plannerFigureOverlayAxilla){
-      plannerFigureOverlayAxilla.classList.remove("is-guide-visible");
-    }
-    if(plannerFigureOverlayChin){
-      plannerFigureOverlayChin.classList.remove("is-guide-visible");
-    }
-    if(plannerFigureOverlayChest){
-      plannerFigureOverlayChest.classList.remove("is-guide-visible");
-    }
-    if(plannerFigureOverlayHands){
-      plannerFigureOverlayHands.classList.remove("is-guide-visible");
-    }
-    if(plannerFigureOverlayFeet){
-      plannerFigureOverlayFeet.classList.remove("is-guide-visible");
-    }
-    if(plannerFigureOverlayUpperarms){
-      plannerFigureOverlayUpperarms.classList.remove("is-guide-visible");
-    }
-    if(plannerFigureOverlayAxillaGray){
-      plannerFigureOverlayAxillaGray.classList.remove("is-guide-visible");
-    }
-    if(plannerFigureOverlayUnderarms){
-      plannerFigureOverlayUnderarms.classList.remove("is-guide-visible");
-    }
-    if(plannerFigureOverlayBauchMedia){
-      plannerFigureOverlayBauchMedia.classList.remove("is-guide-visible");
-    }
-    if(plannerFigureOverlayBauchFull){
-      plannerFigureOverlayBauchFull.classList.remove("is-guide-visible");
-    }
-    if(plannerFigureOverlayBikini){
-      plannerFigureOverlayBikini.classList.remove("is-guide-visible", "is-guide-bikini");
-    }
-    if(plannerFigureOverlayObersch){
-      plannerFigureOverlayObersch.classList.remove("is-guide-visible");
-    }
-    if(plannerFigureOverlayUntersch){
-      plannerFigureOverlayUntersch.classList.remove("is-guide-visible");
-    }
-    if(plannerFigureOverlayImage){
-      plannerFigureOverlayImage.classList.remove("is-guide-visible", "is-guide-intim");
-    }
+    plannerFigureSceneViews.forEach((view) => {
+      const scene = plannerViewScenes[view];
+      if(!scene) return;
+      Object.values(scene.overlayElsByPartKey || {}).forEach((el) => {
+        if(!el) return;
+        el.classList.remove("is-guide-visible", "is-guide-bikini", "is-guide-intim");
+      });
+      if(scene.custom){
+        scene.custom.classList.remove("is-guide-visible");
+      }
+    });
     plannerClearDynamicOverlayClasses({ clearVisible:false, clearGuide:true });
   }
   function setPlannerInactivePartsIdle(isIdle){
@@ -8657,48 +8723,12 @@
     resetPlannerInactiveWaveClasses();
   }
   function plannerEnsureDynamicOverlaysMounted(mode = activeLaserMode(), view = plannerFrauenView){
-    if(!plannerFigureInner) return;
-    const frontline = plannerFigureFrontline || null;
-    plannerDynamicOverlayEntriesForView(mode, view).forEach(([partKey, src]) => {
-      const key = plannerDynamicOverlayKey(mode, view, partKey);
-      let el = plannerDynamicOverlayElsByKey[key];
-      if(!el){
-        el = document.createElement("img");
-        el.setAttribute("alt", "");
-        el.setAttribute("loading", "lazy");
-        el.setAttribute("decoding", "async");
-        el.setAttribute("fetchpriority", "low");
-        el.setAttribute("aria-hidden", "true");
-        el.className = "plannerFigureOverlayImage plannerFigureOverlayImage--dynamic";
-        if(partKey === "ACHSELN_MAIN"){
-          el.classList.add("plannerFigureOverlayImage--axilla-main");
-        }
-        if(partKey === "ACHSELN_GRAY"){
-          el.classList.add("plannerFigureOverlayImage--axilla-gray-dynamic");
-        }
-        if(frontline && frontline.parentNode === plannerFigureInner){
-          plannerFigureInner.insertBefore(el, frontline);
-        } else {
-          plannerFigureInner.appendChild(el);
-        }
-        plannerDynamicOverlayElsByKey[key] = el;
-      }
-      setIntResponsiveImageSrc(el, src);
-    });
+    void mode;
+    void view;
   }
   function plannerPruneDynamicOverlays(mode = activeLaserMode(), view = plannerFrauenView){
-    const keepPrefix = `${mode}::`;
-    const keepExactPrefix = `${mode}::${view}::`;
-    Object.entries(plannerDynamicOverlayElsByKey).forEach(([key, el]) => {
-      const shouldKeep = plannerIsLowPerfMode()
-        ? key.startsWith(keepExactPrefix)
-        : key.startsWith(keepPrefix);
-      if(shouldKeep) return;
-      if(el && el.parentNode){
-        el.parentNode.removeChild(el);
-      }
-      delete plannerDynamicOverlayElsByKey[key];
-    });
+    void mode;
+    void view;
   }
   function plannerEnsurePreparedDynamicOverlays(mode = activeLaserMode(), view = plannerFrauenView){
     const normalizedMode = mode === "herren" ? "herren" : "frauen";
@@ -8709,58 +8739,21 @@
   function plannerClearDynamicOverlayClasses(options = {}){
     const clearVisible = options.clearVisible !== false;
     const clearGuide = options.clearGuide !== false;
-    Object.values(plannerDynamicOverlayElsByKey).forEach((el) => {
-      if(!el) return;
-      if(clearVisible) el.classList.remove("is-visible");
-      if(clearGuide) el.classList.remove("is-guide-visible");
+    plannerFigureSceneViews.forEach((view) => {
+      const scene = plannerViewScenes[view];
+      if(!scene) return;
+      Object.values(scene.overlayElsByPartKey || {}).forEach((el) => {
+        if(!el) return;
+        if(clearVisible) el.classList.remove("is-visible");
+        if(clearGuide) el.classList.remove("is-guide-visible");
+      });
     });
   }
   function plannerDynamicOverlayElementsForPartKey(partKey){
-    if(plannerFrauenView === "front") return [];
-    const key = plannerDynamicOverlayKey(activeLaserMode(), plannerFrauenView, partKey);
-    const el = plannerDynamicOverlayElsByKey[key];
-    return el ? [el] : [];
+    return plannerSceneOverlayElementsForPartKey(plannerFrauenView, partKey);
   }
   function plannerOverlayElementsForPartKey(partKey){
-    const dynamicEls = plannerDynamicOverlayElementsForPartKey(partKey);
-    if(dynamicEls.length) return dynamicEls;
-    switch(partKey){
-      case "OBERLIPPE": return [plannerFigureOverlayUpperlip];
-      case "HALS": return [plannerFigureOverlayChin];
-      case "BRUSTBEREICH": return [plannerFigureOverlayChest, plannerFigureOverlayAxillaGray];
-      case "HANDE_L": return [plannerFigureOverlayHands];
-      case "HANDE_R": return [plannerFigureOverlayHands];
-      case "FUSSE_L": return [plannerFigureOverlayFeet];
-      case "FUSSE_R": return [plannerFigureOverlayFeet];
-      case "ACHSELN_MAIN": return [plannerFigureOverlayAxilla];
-      case "OBERARME_MAIN": return [plannerFigureOverlayUpperarms, plannerFigureOverlayAxillaGray];
-      case "UNTERARME_MAIN": return [plannerFigureOverlayUnderarms];
-      case "BAUCH_MEDIA_LN": return [plannerFigureOverlayBauchMedia];
-      case "BAUCH": return [plannerFigureOverlayBauchFull];
-      case "BIKINI_MAIN": return [plannerFigureOverlayBikini];
-      case "OBERSCH_MAIN": return [plannerFigureOverlayObersch];
-      case "UNTERSCH_MAIN": return [plannerFigureOverlayUntersch];
-      case "INTIM_KOM_POF": return [plannerFigureOverlayImage];
-      case "BODY":
-        return [
-          plannerFigureOverlayUpperlip,
-          plannerFigureOverlayChin,
-          plannerFigureOverlayChest,
-          plannerFigureOverlayHands,
-          plannerFigureOverlayFeet,
-          plannerFigureOverlayAxilla,
-          plannerFigureOverlayUpperarms,
-          plannerFigureOverlayUnderarms,
-          plannerFigureOverlayBauchMedia,
-          plannerFigureOverlayBauchFull,
-          plannerFigureOverlayBikini,
-          plannerFigureOverlayObersch,
-          plannerFigureOverlayUntersch,
-          plannerFigureOverlayImage
-        ];
-      default:
-        return [];
-    }
+    return plannerSceneOverlayElementsForPartKey(plannerFrauenView, partKey);
   }
   function clearPlannerHoverPreview(){
     plannerHoverPartKey = null;
@@ -8928,70 +8921,9 @@
   }
   function updatePlannerFigureOverlay(mode){
     if(mode !== "frauen" && plannerFrauenView === "front") stopPlannerGuideEffect();
-    plannerSyncFrontStaticOverlaySources(mode);
-    const selectedSet = plannerSelectedByMode[mode] || new Set();
-    const isFrontView = plannerFrauenView === "front";
-    const shouldShowUpperlipOverlay = false;
-    const shouldShowAxillaOverlay = isFrontView && selectedSet.has("axilla");
-    const shouldShowChinOverlay = isFrontView && selectedSet.has("chin");
-    const shouldShowChestOverlay = isFrontView && selectedSet.has("chest");
-    const shouldShowHandsOverlay = isFrontView && selectedSet.has("hands");
-    const shouldShowFeetOverlay = isFrontView && selectedSet.has("feet");
-    const shouldShowUpperarmsOverlay = isFrontView && selectedSet.has("upperarms");
-    const chestKeepsAxillaGray = isFrontView && selectedSet.has("chest");
-    const frontUpperarmsKeepAxillaGray = isFrontView && !chestKeepsAxillaGray && selectedSet.has("upperarms") && !selectedSet.has("axilla");
-    const shouldShowAxillaGrayOverlay = chestKeepsAxillaGray || frontUpperarmsKeepAxillaGray;
-    const shouldShowUnderarmsOverlay = isFrontView && selectedSet.has("underarms");
-    const shouldShowBauchMediaOverlay = isFrontView && selectedSet.has("medialinebauch");
-    const shouldShowBauchFullOverlay = isFrontView && selectedSet.has("bauchfull");
-    const shouldShowOberschOverlay = isFrontView && selectedSet.has("obersch");
-    const shouldShowUnterschOverlay = isFrontView && selectedSet.has("untersch");
-    const shouldShowBikiniOverlay = isFrontView && selectedSet.has("bikini");
-    const shouldShowIntimOverlay = isFrontView && selectedSet.has("intim");
-    if(plannerFigureOverlayUpperlip) plannerSetOverlayVisible(plannerFigureOverlayUpperlip, shouldShowUpperlipOverlay);
-    if(plannerFigureOverlayAxilla) plannerSetOverlayVisible(plannerFigureOverlayAxilla, shouldShowAxillaOverlay);
-    if(plannerFigureOverlayChin) plannerSetOverlayVisible(plannerFigureOverlayChin, shouldShowChinOverlay);
-    if(plannerFigureOverlayChest) plannerSetOverlayVisible(plannerFigureOverlayChest, shouldShowChestOverlay);
-    if(plannerFigureOverlayHands) plannerSetOverlayVisible(plannerFigureOverlayHands, shouldShowHandsOverlay);
-    if(plannerFigureOverlayFeet) plannerSetOverlayVisible(plannerFigureOverlayFeet, shouldShowFeetOverlay);
-    if(plannerFigureOverlayUpperarms) plannerSetOverlayVisible(plannerFigureOverlayUpperarms, shouldShowUpperarmsOverlay);
-    if(plannerFigureOverlayAxillaGray) plannerSetOverlayVisible(plannerFigureOverlayAxillaGray, shouldShowAxillaGrayOverlay);
-    if(plannerFigureOverlayUnderarms) plannerSetOverlayVisible(plannerFigureOverlayUnderarms, shouldShowUnderarmsOverlay);
-    if(plannerFigureOverlayBauchMedia) plannerSetOverlayVisible(plannerFigureOverlayBauchMedia, shouldShowBauchMediaOverlay);
-    if(plannerFigureOverlayBauchFull) plannerSetOverlayVisible(plannerFigureOverlayBauchFull, shouldShowBauchFullOverlay);
-    if(plannerFigureOverlayBikini) plannerSetOverlayVisible(plannerFigureOverlayBikini, shouldShowBikiniOverlay);
-    if(plannerFigureOverlayObersch) plannerSetOverlayVisible(plannerFigureOverlayObersch, shouldShowOberschOverlay);
-    if(plannerFigureOverlayUntersch) plannerSetOverlayVisible(plannerFigureOverlayUntersch, shouldShowUnterschOverlay);
-    // Dynamic overlays must never leak between views: clear first, then paint only current view.
-    plannerClearDynamicOverlayClasses();
-    if(plannerFrauenView !== "front"){
-      const zoneMap = plannerHoverPartsByZone[mode] || {};
-      const selectedParts = new Set();
-      selectedSet.forEach((zoneId) => {
-        const parts = zoneMap[zoneId] || [];
-        parts.forEach((partKey) => selectedParts.add(partKey));
-      });
-      if(plannerFrauenView === "back"){
-        const backKeepsAxilla = selectedSet.has("upperback");
-        const backUpperarmsKeepAxilla = !backKeepsAxilla && selectedSet.has("upperarms") && !selectedSet.has("axilla");
-        if(mode === "frauen"){
-          if(backKeepsAxilla || backUpperarmsKeepAxilla){
-            selectedParts.add("ACHSELN_GRAY");
-          }
-        } else if(mode === "herren"){
-          if(backKeepsAxilla || backUpperarmsKeepAxilla){
-            selectedParts.add("ACHSELN_GRAY");
-          }
-        }
-      }
-      selectedParts.forEach((partKey) => {
-        plannerDynamicOverlayElementsForPartKey(partKey).forEach((el) => {
-          plannerSetOverlayVisible(el, true);
-        });
-      });
-    }
-    if(plannerFigureOverlayImage) plannerSetOverlayVisible(plannerFigureOverlayImage, shouldShowIntimOverlay);
-    if(plannerFigureOverlayCustom){
+    plannerSyncAllViewScenes(mode);
+    const activeScene = plannerViewScenes[plannerFrauenView];
+    if(activeScene && activeScene.custom){
       const activeSet = plannerCustomActiveSet(mode, plannerFrauenView);
       const visibleCustomId = plannerCustomButtonVisibleOverlayId(mode, plannerFrauenView);
       const custom = plannerFindCustomButtonById(visibleCustomId, mode, plannerFrauenView);
@@ -8999,12 +8931,12 @@
       const isActive = !!(visibleCustomId && activeSet.has(visibleCustomId));
       const isHoverOnly = !!(visibleCustomId && !isActive && plannerCustomHoveredButtonId === visibleCustomId && plannerCustomHoverSuppressedId !== visibleCustomId);
       if(customSrc){
-        plannerFigureOverlayCustom.setAttribute("src", customSrc);
+        activeScene.custom.setAttribute("src", customSrc);
       } else {
-        plannerFigureOverlayCustom.setAttribute("src", "data:,");
+        activeScene.custom.setAttribute("src", "data:,");
       }
-      plannerFigureOverlayCustom.classList.toggle("is-visible", !!customSrc && (isActive || isHoverOnly));
-      plannerFigureOverlayCustom.classList.toggle("is-guide-visible", !!customSrc && isHoverOnly);
+      activeScene.custom.classList.toggle("is-visible", !!customSrc && (isActive || isHoverOnly));
+      activeScene.custom.classList.toggle("is-guide-visible", !!customSrc && isHoverOnly);
     }
   }
   function updatePlannerZoom(){
@@ -12436,12 +12368,17 @@
   });
   updatePlannerZoom();
   positionPlannerViewArrows();
-  if(plannerFigureImage){
-    plannerFigureImage.addEventListener("load", () => {
-      schedulePlannerRender(activeLaserMode());
-      positionPlannerViewArrows();
+  plannerFigureSceneViews.forEach((view) => {
+    const scene = plannerViewScenes[view];
+    if(!scene) return;
+    [scene.base, scene.frontline].forEach((img) => {
+      if(!(img instanceof HTMLImageElement)) return;
+      img.addEventListener("load", () => {
+        schedulePlannerRender(activeLaserMode());
+        positionPlannerViewArrows();
+      });
     });
-  }
+  });
 
   if(heroBottomDock){
     heroBottomDock.classList.remove("is-hidden");
