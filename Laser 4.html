@@ -5331,14 +5331,15 @@
     const idx = plannerFrauenViewOrder.indexOf(normalizedView);
     const nextView = idx >= 0 ? plannerFrauenViewOrder[idx + 1] : null;
     const prevView = idx > 0 ? plannerFrauenViewOrder[idx - 1] : null;
+    const eagerNeighborSelections = normalizedMode !== "herren";
     const out = [
       { mode:normalizedMode, view:normalizedView, overlays:true, selectedOverlays:true }
     ];
     if(nextView){
-      out.push({ mode:normalizedMode, view:nextView, overlays:false, selectedOverlays:true });
+      out.push({ mode:normalizedMode, view:nextView, overlays:false, selectedOverlays:eagerNeighborSelections });
     }
     if(prevView){
-      out.push({ mode:normalizedMode, view:prevView, overlays:false, selectedOverlays:true });
+      out.push({ mode:normalizedMode, view:prevView, overlays:false, selectedOverlays:eagerNeighborSelections });
     }
     const seen = new Set();
     return out.filter((entry) => {
@@ -5430,6 +5431,7 @@
     plannerPrunePrefetchCacheToWanted(queue);
   }
   function plannerWarmupNeighborViews(mode = activeLaserMode(), view = plannerFrauenView){
+    if(mode === "herren") return;
     warmupPlannerResponsiveAssets({ mode, view });
   }
   const plannerDynamicOverlayElsByKey = {};
