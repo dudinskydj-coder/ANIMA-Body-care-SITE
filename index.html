@@ -1291,6 +1291,28 @@
     }
 
     @media (max-width:920px){
+      #menuTint{
+        height:100dvh;
+        bottom:0;
+        transition:opacity var(--overlayAppearDur) ease;
+      }
+      #menuFocusBlur{
+        display:none;
+        backdrop-filter:none;
+        -webkit-backdrop-filter:none;
+      }
+      #menuOverlay.is-opening,
+      #menuOverlay.is-closing,
+      #searchOverlay.is-opening,
+      #searchOverlay.is-closing,
+      #menuOverlay.is-opening .overlayInner,
+      #menuOverlay.is-closing .overlayInner,
+      #searchOverlay.is-opening .overlayInner,
+      #searchOverlay.is-closing .overlayInner,
+      #menuOverlay.is-opening .menuGrid a,
+      #menuOverlay.is-closing .menuGrid a{
+        animation:none;
+      }
       .iconBtn{
         width:42px;
         height:42px;
@@ -1386,14 +1408,19 @@
       }
       body.menu-open #menuOverlay,
       body.search-open #searchOverlay{
-        overflow:hidden;
-        overscroll-behavior:none;
-        -webkit-overflow-scrolling:auto;
+        overflow-y:auto;
+        overflow-x:hidden;
+        overscroll-behavior:contain;
+        -webkit-overflow-scrolling:touch;
       }
       #menuOverlay,
       #searchOverlay{
         min-height:100dvh;
         max-height:100dvh;
+        overflow-y:auto;
+        overflow-x:hidden;
+        overscroll-behavior:contain;
+        -webkit-overflow-scrolling:touch;
       }
       #menuOverlay .overlayInner,
       #searchOverlay .overlayInner{
@@ -1980,6 +2007,11 @@
       if(menuFocusBlur) menuFocusBlur.style.top = "100vh";
       return;
     }
+    if(instantMenuMq.matches){
+      menuTint.style.height = "100dvh";
+      if(menuFocusBlur) menuFocusBlur.style.top = "100vh";
+      return;
+    }
     const menuHeight = Math.max(0, activeOverlay.getBoundingClientRect().bottom);
     const seamOverlap = instantMenuMq.matches ? 34 : 56;
     menuTint.style.height = `${menuHeight + seamOverlap}px`;
@@ -1988,7 +2020,12 @@
     }
   }
 
+  function menuNeedsDynamicTintSync(){
+    return !instantMenuMq.matches;
+  }
+
   function startMenuSync(){
+    if(!menuNeedsDynamicTintSync()) return;
     if(menuSyncRaf) return;
     const loop = () => {
       if(!getActiveOverlay()){
@@ -2046,8 +2083,13 @@
   function activateOverlayTint(type){
     body.classList.toggle("menu-open", type === "menu");
     body.classList.toggle("search-open", type === "search");
-    requestAnimationFrame(syncMenuTintHeight);
-    startMenuSync();
+    if(menuNeedsDynamicTintSync()){
+      requestAnimationFrame(syncMenuTintHeight);
+      startMenuSync();
+      return;
+    }
+    stopMenuSync();
+    syncMenuTintHeight();
   }
 
   function deactivateOverlayTint(){
@@ -2060,8 +2102,13 @@
 
   function syncOverlayScrollLock(){
     if(getActiveOverlay()){
-      requestAnimationFrame(syncMenuTintHeight);
-      startMenuSync();
+      if(menuNeedsDynamicTintSync()){
+        requestAnimationFrame(syncMenuTintHeight);
+        startMenuSync();
+      }else{
+        stopMenuSync();
+        syncMenuTintHeight();
+      }
       return;
     }
     deactivateOverlayTint();
@@ -2117,7 +2164,8 @@
     if(isMenu){
       setMenuButtonOpen(true);
     }
-    requestAnimationFrame(syncMenuTintHeight);
+    if(menuNeedsDynamicTintSync()) requestAnimationFrame(syncMenuTintHeight);
+    else syncMenuTintHeight();
     activeOverlay.classList.add("is-opening");
     const onOpenAnimEnd = () => {
       activeOverlay.classList.remove("is-opening");

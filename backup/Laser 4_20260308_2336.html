@@ -3350,16 +3350,9 @@
       #menuOverlay.is-closing .overlayInner{
         animation:none;
       }
-      #menuTint{
-        height:100dvh;
-        bottom:0;
-        transition:opacity .16s ease;
-      }
+      #menuTint,
       #menuFocusBlur{
-        display:none;
         transition:none;
-        backdrop-filter:none;
-        -webkit-backdrop-filter:none;
       }
     }
     @media (hover:hover) and (pointer:fine){
@@ -3527,18 +3520,13 @@
         overscroll-behavior:none;
       }
       body.menu-open #menuOverlay{
-        overflow-y:auto;
-        overflow-x:hidden;
-        overscroll-behavior:contain;
-        -webkit-overflow-scrolling:touch;
+        overflow:hidden;
+        overscroll-behavior:none;
+        -webkit-overflow-scrolling:auto;
       }
       #menuOverlay{
         min-height:100svh;
         max-height:100svh;
-        overflow-y:auto;
-        overflow-x:hidden;
-        overscroll-behavior:contain;
-        -webkit-overflow-scrolling:touch;
       }
       #menuOverlay .overlayInner{
         padding:calc(var(--headerH) + 10px) 22px 16px;
@@ -6346,11 +6334,6 @@
       if(menuFocusBlur) menuFocusBlur.style.top = "100vh";
       return;
     }
-    if(instantMenuMq.matches){
-      menuTint.style.height = "100dvh";
-      if(menuFocusBlur) menuFocusBlur.style.top = "100vh";
-      return;
-    }
     const menuHeight = Math.max(0, menuOverlay.getBoundingClientRect().bottom);
     menuTint.style.height = `${menuHeight}px`;
     if(menuFocusBlur){
@@ -6360,7 +6343,6 @@
   }
 
   function startMenuSync(){
-    if(instantMenuMq.matches) return;
     if(menuSyncRaf) return;
     const loop = () => {
       if(menuOverlay.hidden){
@@ -6419,11 +6401,6 @@
 
   function activateMenuTint(){
     body.classList.add("menu-open");
-    if(instantMenuMq.matches){
-      stopMenuSync();
-      syncMenuTintHeight();
-      return;
-    }
     requestAnimationFrame(syncMenuTintHeight);
     startMenuSync();
   }
@@ -6490,8 +6467,7 @@
       activateMenuTint();
       menuOverlay.style.setProperty("--menuOpenDelay", "0ms");
       setMenuButtonOpen(true);
-      if(instantMenuMq.matches) syncMenuTintHeight();
-      else requestAnimationFrame(syncMenuTintHeight);
+      requestAnimationFrame(syncMenuTintHeight);
       if(instantMenuMq.matches && isMenu){
         activeOverlay.classList.remove("is-opening");
       } else {
