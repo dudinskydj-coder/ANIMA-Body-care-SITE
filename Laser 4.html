@@ -8351,6 +8351,7 @@
       });
       if(!PLANNER_VIEW_SLIDE_ANIMATION){
         plannerViewTransitionActive = false;
+        renderPlannerViewState(mode);
         schedulePlannerRender(mode);
       }
       requestAnimationFrame(positionPlannerViewArrows);
@@ -11545,6 +11546,11 @@
     updatePlannerOrder(mode);
     updatePlannerFigureOverlay(mode);
     maybeStartPlannerGuideEffect();
+  }
+  function renderPlannerViewState(mode){
+    renderPlannerSketch(mode);
+    renderPlannerZones(mode);
+    updatePlannerFigureOverlay(mode);
   }
   function schedulePlannerRender(mode){
     if(plannerRenderRaf){
