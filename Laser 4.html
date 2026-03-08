@@ -4450,6 +4450,7 @@
   let videoScrollLockY = 0;
   let plannerZoom = 1;
   let plannerFrauenView = "front";
+  let plannerCommittedSceneView = "front";
   let plannerViewSwitchOutTimer = null;
   let plannerViewSwitchInTimer = null;
   let plannerViewSlideRaf = null;
@@ -5765,15 +5766,29 @@
     });
   }
   function plannerSetActiveScene(view, options = {}){
+    const nextView = plannerFrauenViewOrder.includes(view) ? view : "front";
+    const committedView = plannerFrauenViewOrder.includes(plannerCommittedSceneView) ? plannerCommittedSceneView : "front";
+    const deferCommit = options.deferCommit !== undefined
+      ? !!options.deferCommit
+      : (!!options.animate && plannerViewTransitionActive && committedView !== nextView);
     plannerFigureSceneViews.forEach((sceneView) => {
       const scene = plannerViewScenes[sceneView];
       if(!scene || !scene.container) return;
-      scene.container.classList.toggle("is-active", sceneView === view);
-      scene.container.setAttribute("aria-hidden", sceneView === view ? "false" : "true");
+      const isVisibleDuringTransition = deferCommit
+        ? (sceneView === committedView || sceneView === nextView)
+        : sceneView === nextView;
+      scene.container.classList.toggle("is-active", isVisibleDuringTransition);
+      scene.container.setAttribute("aria-hidden", isVisibleDuringTransition ? "false" : "true");
     });
-    plannerSetTrackPosition(view, options);
+    if(!deferCommit){
+      plannerCommittedSceneView = nextView;
+    }
+    plannerSetTrackPosition(nextView, options);
   }
-  function plannerSyncAllViewScenes(mode){
+  function plannerCommitActiveScene(view, options = {}){
+    plannerSetActiveScene(view, { ...options, animate:false, deferCommit:false });
+  }
+  function plannerSyncAllViewScenes(mode, options = {}){
     plannerSyncSceneSources(mode);
     const selectedSet = plannerSelectedByMode[mode] || new Set();
     plannerFigureSceneViews.forEach((view) => {
@@ -5806,7 +5821,12 @@
         scene.custom.classList.toggle("is-visible", !!(customSrc && visibleCustomId && activeSet.has(visibleCustomId)));
       }
     });
-    plannerSetActiveScene(plannerFrauenView);
+    if(options.syncActiveScene !== false){
+      plannerSetActiveScene(plannerFrauenView, {
+        animate:options.animateTrack,
+        deferCommit:options.deferActiveSceneCommit
+      });
+    }
   }
   function plannerCollectPrefetchSourcesForTarget(target){
     const result = [];
@@ -8883,7 +8903,8 @@
     return Object.values(frontScene.overlayElsByPartKey || {}).filter(Boolean);
   }
   function plannerReleaseFrontStaticOverlaySources(){
-    if(!plannerIsMobilePerfMode()) return;
+    if(!plannerIsMobilePerfMode() || plannerViewTransitionActive) return;
+    if(plannerCommittedSceneView === "front" || plannerFrauenView === "front") return;
     plannerFrontStaticOverlayElements().forEach((img) => {
       if(!(img instanceof HTMLImageElement)) return;
       img.classList.remove("is-visible", "is-guide-visible");
@@ -8907,7 +8928,7 @@
       plannerFigureInner.style.setProperty("--planner-active-aspect", visual.aspect || "2200 / 5500");
     }
     const shouldAnimate = !!options.animate;
-    plannerSyncAllViewScenes(mode);
+    plannerSyncAllViewScenes(mode, { syncActiveScene:false });
     plannerSyncSceneGap(plannerFrauenView);
     if(plannerViewSwitchOutTimer){
       clearTimeout(plannerViewSwitchOutTimer);
@@ -8919,21 +8940,22 @@
     }
     cancelPlannerViewSlideAnimation();
     if(!shouldAnimate){
-      plannerSetActiveScene(plannerFrauenView, { animate:false });
+      plannerCommitActiveScene(plannerFrauenView);
       if(typeof options.onVisualSwapped === "function"){
         options.onVisualSwapped();
       }
     } else {
-      plannerSetActiveScene(plannerFrauenView, { animate:true });
+      plannerSetActiveScene(plannerFrauenView, { animate:true, deferCommit:true });
       if(typeof options.onVisualSwapped === "function"){
         options.onVisualSwapped();
       }
-      if(typeof options.onVisualSettled === "function"){
-        plannerViewSwitchInTimer = setTimeout(() => {
-          plannerViewSwitchInTimer = null;
+      plannerViewSwitchInTimer = setTimeout(() => {
+        plannerViewSwitchInTimer = null;
+        plannerCommitActiveScene(plannerFrauenView);
+        if(typeof options.onVisualSettled === "function"){
           options.onVisualSettled();
-        }, PLANNER_VIEW_SLIDE_MS);
-      }
+        }
+      }, PLANNER_VIEW_SLIDE_MS);
     }
     syncPlannerViewSwitch(mode);
     requestAnimationFrame(positionPlannerViewArrows);
