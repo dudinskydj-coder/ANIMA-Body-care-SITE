@@ -8798,12 +8798,14 @@
           plannerViewTransitionActive = false;
           // Do full interactive re-render only after slide completes.
           schedulePlannerRender(mode);
+          plannerFocusInteractiveForSwitch(mode);
         }
       });
       if(!PLANNER_VIEW_SLIDE_ANIMATION){
         plannerViewTransitionActive = false;
         renderPlannerViewState(mode);
         schedulePlannerRender(mode);
+        plannerFocusInteractiveForSwitch(mode);
       }
       requestAnimationFrame(positionPlannerViewArrows);
     } else {
@@ -9296,6 +9298,25 @@
     if(visibleRatio > 0.9 && centerDelta < vh * 0.14) return;
     plannerAutoFocusCooldownUntil = now + 1200;
     interactiveSection.scrollIntoView({ behavior:"smooth", block:"center" });
+  }
+  function plannerFocusInteractiveForSwitch(mode = activeLaserMode()){
+    ensureInteractiveInViewForInteraction();
+    if(!plannerFigure) return;
+    cancelPlannerInertia();
+    cancelPlannerSettleAnimation();
+    cancelPlannerVerticalSnap();
+    cancelPlannerEdgeBounce();
+    cancelPlannerZoomEdgeBounce();
+    setPlannerZoomEdgeScale(1);
+    setPlannerEdgeOffsetY(0);
+    clearPlannerAutoResetTimer();
+    clearPlannerSettleTimer();
+    if(plannerZoom > 1.001){
+      animatePlannerToHome(520);
+      return;
+    }
+    plannerFigure.scrollTop = 0;
+    clampPlannerPan(mode);
   }
   function maybeSnapInteractiveSectionOnMobile(){
     return;
@@ -11756,10 +11777,17 @@
 
   function setActiveLaserSwitch(mode, options = {}){
     const force = !!options.force;
+    const afterGhost = !!options.afterGhost;
     const currentMode = activeLaserMode();
     if(!force && currentMode === "frauen" && mode === "herren"){
       plannerAnimateModeSwitchForward("herren", () => {
-        setActiveLaserSwitch("herren", { force:true });
+        setActiveLaserSwitch("herren", { force:true, afterGhost:true });
+      });
+      return true;
+    }
+    if(!force && currentMode === "herren" && mode === "frauen"){
+      plannerAnimateModeSwitchForward("frauen", () => {
+        setActiveLaserSwitch("frauen", { force:true, afterGhost:true });
       });
       return true;
     }
@@ -11774,13 +11802,24 @@
     laserSwitchButtons.forEach((btn) => {
       btn.classList.toggle("is-active", btn.dataset.laserSwitch === mode);
     });
-    const shouldResetViewToFront = plannerFrauenView !== "front";
+    if(afterGhost){
+      plannerFrauenView = "front";
+      plannerViewButtons.forEach((btn) => {
+        const active = btn.dataset.plannerView === "front";
+        btn.classList.toggle("is-active", active);
+        btn.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+    }
+    const shouldResetViewToFront = !afterGhost && plannerFrauenView !== "front";
     if(shouldResetViewToFront){
       setPlannerFrauenView("front", { mode, skipNeighborWarmup:true });
     }
     applyLaserVisualMode(mode);
     syncPlannerViewSwitch(mode);
-    if(!shouldResetViewToFront){
+    if(afterGhost){
+      applyPlannerFigureMode(mode, { animate:false });
+      plannerFocusInteractiveForSwitch(mode);
+    } else if(!shouldResetViewToFront){
     applyPlannerFigureMode(mode);
     }
     applyModePricing(mode);
