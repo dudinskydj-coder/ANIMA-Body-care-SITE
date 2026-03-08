@@ -1311,6 +1311,8 @@
       flex:0 0 auto;
       margin:0 auto;
       will-change:width, height;
+      contain:layout paint;
+      transform:translateZ(0);
     }
     .plannerFigure img{
       width:100%;
@@ -1324,6 +1326,8 @@
       z-index:1;
       pointer-events:none;
       will-change:transform, opacity;
+      backface-visibility:hidden;
+      transform:translateZ(0);
     }
     .plannerFigureBase.is-view-switching,
     .plannerFigureOverlayImage.is-view-switching,
@@ -1388,6 +1392,8 @@
       opacity:0;
       transition:opacity .08s linear;
       will-change:opacity, transform;
+      backface-visibility:hidden;
+      transform:translateZ(0);
     }
     .plannerFigureOverlayImage.is-visible,
     .plannerFigureOverlayImage.is-guide-visible{
@@ -1415,6 +1421,8 @@
       pointer-events:none;
       z-index:12;
       opacity:0;
+      backface-visibility:hidden;
+      transform:translateZ(0);
     }
     .plannerFigureFrontline.is-visible{
       opacity:1;
@@ -3877,16 +3885,6 @@
     }
     const original = img.dataset.intSvgOriginal;
     if(!original) return;
-    if(
-      intRasterMq.matches &&
-      img.classList &&
-      img.classList.contains("plannerFigureOverlayImage") &&
-      !img.classList.contains("is-visible") &&
-      !img.classList.contains("is-guide-visible") &&
-      !normalizeIntAssetPath(currentSrc)
-    ){
-      return;
-    }
     setIntResponsiveImageSrc(img, original, { preserveFallbackIndex:true });
   }
   function refreshIntResponsiveAssets(root = document){
@@ -4069,9 +4067,9 @@
     });
     overlays.forEach((img) => {
       if(!(img instanceof HTMLImageElement)) return;
-      img.loading = mobile ? "lazy" : "eager";
+      img.loading = "eager";
       img.decoding = "async";
-      img.fetchPriority = mobile ? "auto" : "low";
+      img.fetchPriority = mobile ? "low" : "low";
     });
   }
   plannerPrimeFigureAssets();
@@ -4912,6 +4910,7 @@
   let plannerSuppressClickUntil = 0;
   let plannerAutoResetTimer = null;
   let plannerRenderRaf = null;
+  let plannerSelectionUiSyncRaf = null;
   let plannerSettleTimer = null;
   let plannerSettleRaf = null;
   let plannerVerticalSnapRaf = null;
@@ -8391,13 +8390,8 @@
     if(!(img instanceof HTMLImageElement) || !src) return;
     const normalized = normalizeIntAssetPath(src);
     img.dataset.intSvgOriginal = normalized;
-    const forceLoad = !!options.forceLoad;
-    const visibleNow = img.classList.contains("is-visible") || img.classList.contains("is-guide-visible");
-    if(!plannerIsMobilePerfMode() || forceLoad || visibleNow){
-      setIntResponsiveImageSrc(img, normalized);
-      return;
-    }
-    img.setAttribute("src", "data:,");
+    void options;
+    setIntResponsiveImageSrc(img, normalized);
   }
   function plannerEnsureImageSource(img){
     if(!(img instanceof HTMLImageElement)) return;
@@ -8609,41 +8603,40 @@
     const frontline = plannerFigureFrontline || null;
     plannerDynamicOverlayEntriesForView(mode, view).forEach(([partKey, src]) => {
       const key = plannerDynamicOverlayKey(mode, view, partKey);
-      if(plannerDynamicOverlayElsByKey[key]) return;
-      const el = document.createElement("img");
+      let el = plannerDynamicOverlayElsByKey[key];
+      if(!el){
+        el = document.createElement("img");
+        el.setAttribute("alt", "");
+        el.setAttribute("loading", "eager");
+        el.setAttribute("decoding", "async");
+        el.setAttribute("fetchpriority", "low");
+        el.setAttribute("aria-hidden", "true");
+        el.className = "plannerFigureOverlayImage plannerFigureOverlayImage--dynamic";
+        if(partKey === "ACHSELN_MAIN"){
+          el.classList.add("plannerFigureOverlayImage--axilla-main");
+        }
+        if(partKey === "ACHSELN_GRAY"){
+          el.classList.add("plannerFigureOverlayImage--axilla-gray-dynamic");
+        }
+        if(frontline && frontline.parentNode === plannerFigureInner){
+          plannerFigureInner.insertBefore(el, frontline);
+        } else {
+          plannerFigureInner.appendChild(el);
+        }
+        plannerDynamicOverlayElsByKey[key] = el;
+      }
       setIntResponsiveImageSrc(el, src);
-      el.setAttribute("alt", "");
-      el.setAttribute("loading", "lazy");
-      el.setAttribute("decoding", "async");
-      el.setAttribute("fetchpriority", "low");
-      el.setAttribute("aria-hidden", "true");
-      el.className = "plannerFigureOverlayImage plannerFigureOverlayImage--dynamic";
-      if(partKey === "ACHSELN_MAIN"){
-        el.classList.add("plannerFigureOverlayImage--axilla-main");
-      }
-      if(partKey === "ACHSELN_GRAY"){
-        el.classList.add("plannerFigureOverlayImage--axilla-gray-dynamic");
-      }
-      if(frontline && frontline.parentNode === plannerFigureInner){
-        plannerFigureInner.insertBefore(el, frontline);
-      } else {
-        plannerFigureInner.appendChild(el);
-      }
-      plannerDynamicOverlayElsByKey[key] = el;
     });
   }
   function plannerPruneDynamicOverlays(mode = activeLaserMode(), view = plannerFrauenView){
-    const keepPrefix = `${mode}::`;
-    const keepExactPrefix = `${mode}::${view}::`;
-    Object.entries(plannerDynamicOverlayElsByKey).forEach(([key, el]) => {
-      const shouldKeep = plannerIsLowPerfMode()
-        ? key.startsWith(keepExactPrefix)
-        : key.startsWith(keepPrefix);
-      if(shouldKeep) return;
-      if(el && el.parentNode){
-        el.parentNode.removeChild(el);
-      }
-      delete plannerDynamicOverlayElsByKey[key];
+    void mode;
+    void view;
+  }
+  function plannerEnsureAllDynamicOverlaysMounted(){
+    ["frauen", "herren"].forEach((mode) => {
+      plannerFrauenViewOrder.forEach((view) => {
+        plannerEnsureDynamicOverlaysMounted(mode, view);
+      });
     });
   }
   function plannerClearDynamicOverlayClasses(options = {}){
@@ -10144,6 +10137,7 @@
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "zoneBtn";
+      btn.dataset.zoneId = zone.id;
       if(selectedSet.has(zone.id)) btn.classList.add("is-active");
       btn.setAttribute("role", "option");
       btn.setAttribute("aria-selected", selectedSet.has(zone.id) ? "true" : "false");
@@ -10151,8 +10145,8 @@
       btn.addEventListener("click", () => {
         plannerButtonHoverPreviewActive = false;
         clearPlannerHoverPreview();
-        togglePlannerZone(mode, zone.id);
-        schedulePlannerRender(mode);
+        const changed = togglePlannerZone(mode, zone.id);
+        if(changed) requestPlannerSelectionUiSync(mode);
         requestAnimationFrame(() => {
           ensureInteractiveInViewForInteraction();
         });
@@ -10167,6 +10161,40 @@
         clearPlannerHoverPreview();
       });
       plannerZoneGrid.appendChild(btn);
+    });
+  }
+  function plannerSyncSelectionUi(mode){
+    const selectedSet = plannerSelectedByMode[mode] || new Set();
+    if(plannerZoneGrid){
+      plannerZoneGrid.querySelectorAll(".zoneBtn[data-zone-id]").forEach((btn) => {
+        const active = selectedSet.has(btn.dataset.zoneId || "");
+        btn.classList.toggle("is-active", active);
+        btn.setAttribute("aria-selected", active ? "true" : "false");
+      });
+    }
+    [plannerSketch, plannerBackSketch].forEach((host) => {
+      if(!host) return;
+      const activeCustomSet = plannerCustomActiveSet(mode, plannerFrauenView);
+      const multiSelectedCustomSet = plannerCustomMultiSelectSet(mode, plannerFrauenView);
+      host.querySelectorAll(".zoneSketchBtn").forEach((btn) => {
+        const customId = btn.dataset.customId || "";
+        const sourceZoneId = btn.dataset.sourceZoneId || btn.dataset.zoneId || "";
+        const builtinActive = sourceZoneId ? selectedSet.has(sourceZoneId) : false;
+        const customActive = customId ? activeCustomSet.has(customId) : false;
+        const active = customActive || builtinActive;
+        btn.classList.toggle("is-active", active);
+        btn.classList.toggle("is-multi-selected", !!(customId && multiSelectedCustomSet.has(customId)));
+      });
+    });
+  }
+  function requestPlannerSelectionUiSync(mode){
+    if(plannerSelectionUiSyncRaf){
+      cancelAnimationFrame(plannerSelectionUiSyncRaf);
+      plannerSelectionUiSyncRaf = null;
+    }
+    plannerSelectionUiSyncRaf = requestAnimationFrame(() => {
+      plannerSelectionUiSyncRaf = null;
+      plannerSyncSelectionUi(mode);
     });
   }
   function plannerHerrenButtonText(zoneId, fallback){
@@ -10304,8 +10332,8 @@
             if(canToggleZone){
               plannerButtonHoverPreviewActive = false;
               clearPlannerHoverPreview();
-              togglePlannerZone(mode, actionZoneId, { ignoreViewVisibility:true });
-              schedulePlannerRender(mode);
+              const changed = togglePlannerZone(mode, actionZoneId, { ignoreViewVisibility:true });
+              if(changed) requestPlannerSelectionUiSync(mode);
               plannerPersistState();
               return;
             }
@@ -10317,8 +10345,8 @@
           }
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          if(canToggleZone) togglePlannerZone(mode, actionZoneId, { ignoreViewVisibility:true });
-          schedulePlannerRender(mode);
+          const changed = canToggleZone ? togglePlannerZone(mode, actionZoneId, { ignoreViewVisibility:true }) : false;
+          if(changed) requestPlannerSelectionUiSync(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
@@ -10710,8 +10738,8 @@
           if(canToggleZone){
             plannerButtonHoverPreviewActive = false;
             clearPlannerHoverPreview();
-            togglePlannerZone(mode, actionZoneId, { ignoreViewVisibility:true });
-            schedulePlannerRender(mode);
+            const changed = togglePlannerZone(mode, actionZoneId, { ignoreViewVisibility:true });
+            if(changed) requestPlannerSelectionUiSync(mode);
             plannerPersistState();
             return;
           }
@@ -10723,8 +10751,8 @@
         }
         plannerButtonHoverPreviewActive = false;
         clearPlannerHoverPreview();
-        if(canToggleZone) togglePlannerZone(mode, actionZoneId);
-        schedulePlannerRender(mode);
+        const changed = canToggleZone ? togglePlannerZone(mode, actionZoneId) : false;
+        if(changed) requestPlannerSelectionUiSync(mode);
         requestAnimationFrame(() => {
           ensureInteractiveInViewForInteraction();
         });
@@ -10791,8 +10819,8 @@
           }
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
-          schedulePlannerRender(mode);
+          const changed = canToggleZone ? togglePlannerZone(mode, actionZoneId) : false;
+          if(changed) requestPlannerSelectionUiSync(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
@@ -10862,8 +10890,8 @@
         mirrorBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
-          schedulePlannerRender(mode);
+          const changed = canToggleZone ? togglePlannerZone(mode, actionZoneId) : false;
+          if(changed) requestPlannerSelectionUiSync(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
@@ -10898,8 +10926,8 @@
         mergedTopBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
-          schedulePlannerRender(mode);
+          const changed = canToggleZone ? togglePlannerZone(mode, actionZoneId) : false;
+          if(changed) requestPlannerSelectionUiSync(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
@@ -10935,8 +10963,8 @@
         leftLowerCopyBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
-          schedulePlannerRender(mode);
+          const changed = canToggleZone ? togglePlannerZone(mode, actionZoneId) : false;
+          if(changed) requestPlannerSelectionUiSync(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
@@ -10968,8 +10996,8 @@
         mirrorBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
-          schedulePlannerRender(mode);
+          const changed = canToggleZone ? togglePlannerZone(mode, actionZoneId) : false;
+          if(changed) requestPlannerSelectionUiSync(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
@@ -11016,8 +11044,8 @@
         mergedBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
-          schedulePlannerRender(mode);
+          const changed = canToggleZone ? togglePlannerZone(mode, actionZoneId) : false;
+          if(changed) requestPlannerSelectionUiSync(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
@@ -11056,8 +11084,8 @@
         lowerBackBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
-          schedulePlannerRender(mode);
+          const changed = canToggleZone ? togglePlannerZone(mode, actionZoneId) : false;
+          if(changed) requestPlannerSelectionUiSync(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
@@ -11095,8 +11123,8 @@
         upperBackBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
-          schedulePlannerRender(mode);
+          const changed = canToggleZone ? togglePlannerZone(mode, actionZoneId) : false;
+          if(changed) requestPlannerSelectionUiSync(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
@@ -11178,8 +11206,8 @@
         mergedBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
-          schedulePlannerRender(mode);
+          const changed = canToggleZone ? togglePlannerZone(mode, actionZoneId) : false;
+          if(changed) requestPlannerSelectionUiSync(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
@@ -11231,8 +11259,8 @@
         bikiniBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
-          schedulePlannerRender(mode);
+          const changed = canToggleZone ? togglePlannerZone(mode, actionZoneId) : false;
+          if(changed) requestPlannerSelectionUiSync(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
@@ -11268,8 +11296,8 @@
         lowerMirrorBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
-          schedulePlannerRender(mode);
+          const changed = canToggleZone ? togglePlannerZone(mode, actionZoneId) : false;
+          if(changed) requestPlannerSelectionUiSync(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
@@ -11318,8 +11346,8 @@
         mergedBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
-          schedulePlannerRender(mode);
+          const changed = canToggleZone ? togglePlannerZone(mode, actionZoneId) : false;
+          if(changed) requestPlannerSelectionUiSync(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
@@ -11355,8 +11383,8 @@
         mergedBtn.addEventListener("click", () => {
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
-          schedulePlannerRender(mode);
+          const changed = canToggleZone ? togglePlannerZone(mode, actionZoneId) : false;
+          if(changed) requestPlannerSelectionUiSync(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
@@ -11403,8 +11431,8 @@
           }
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
-          schedulePlannerRender(mode);
+          const changed = canToggleZone ? togglePlannerZone(mode, actionZoneId) : false;
+          if(changed) requestPlannerSelectionUiSync(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
@@ -11439,8 +11467,8 @@
           }
           plannerButtonHoverPreviewActive = false;
           clearPlannerHoverPreview();
-          if(canToggleZone) togglePlannerZone(mode, actionZoneId);
-          schedulePlannerRender(mode);
+          const changed = canToggleZone ? togglePlannerZone(mode, actionZoneId) : false;
+          if(changed) requestPlannerSelectionUiSync(mode);
           requestAnimationFrame(() => {
             ensureInteractiveInViewForInteraction();
           });
@@ -11749,6 +11777,9 @@
     });
     setActiveLaserSwitch(laserSwitchModeFromUrl(), { force:true });
   }
+  plannerEnsureAllDynamicOverlaysMounted();
+  warmupPlannerResponsiveAssets({ mode:"frauen", view:"front" });
+  warmupPlannerResponsiveAssets({ mode:"herren", view:"front" });
   plannerRestoreState();
   schedulePlannerRender(activeLaserMode());
   plannerHistoryLastSerialized = JSON.stringify(plannerHistorySnapshot());
