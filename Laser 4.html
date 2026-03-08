@@ -10445,11 +10445,6 @@
         })
         .filter(Boolean)
     ];
-    if(mode === "herren"){
-      renderPlannerSketchHerrenSimple(mode, zones, positions, selectedSet, stretchArea);
-      plannerSyncKonvaEditor(mode);
-      return;
-    }
     zones.forEach((zone) => {
       const area = zone.__custom ? zone.__area : stretchArea(positions[zone.id]);
       if(!area) return;
