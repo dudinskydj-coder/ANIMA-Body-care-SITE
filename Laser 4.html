@@ -1314,6 +1314,20 @@
       contain:layout paint;
       transform:translateZ(0);
     }
+    .plannerFigureTrack{
+      position:absolute;
+      inset:0;
+      display:flex;
+      width:300%;
+      height:100%;
+      will-change:transform;
+      backface-visibility:hidden;
+      transform:translate3d(0, 0, 0);
+      contain:layout paint;
+    }
+    .plannerFigureTrack.is-animating{
+      transition:transform .22s cubic-bezier(.22,.7,.24,1);
+    }
     .plannerFigure img{
       width:100%;
       height:100%;
@@ -1369,14 +1383,17 @@
       z-index:0;
     }
     .plannerFigureScene{
-      position:absolute;
-      inset:0;
-      opacity:0;
+      position:relative;
+      flex:0 0 33.333333%;
+      width:33.333333%;
+      height:100%;
       pointer-events:none;
       z-index:0;
     }
-    .plannerFigureScene.is-active{
-      opacity:1;
+    .plannerFigure.is-view-sliding .plannerSketch,
+    .plannerFigure.is-view-sliding .plannerBackSketch{
+      opacity:0;
+      pointer-events:none;
     }
     .plannerBackDeadZone{
       position:absolute;
@@ -4088,6 +4105,7 @@
     face:["HALS", "NACKEN", "KINN", "WANGEN", "KOTELETTEN", "ZWISCHENBRAUEN", "OBERLIPPE"]
   };
   const plannerViewScenes = { front:null, back:null, face:null };
+  let plannerFigureTrack = null;
   function plannerScenePartKeysForView(view){
     return Array.isArray(plannerScenePartKeysByView[view]) ? [...plannerScenePartKeysByView[view]] : [];
   }
@@ -4104,6 +4122,10 @@
   }
   function plannerInitFigureScenes(){
     if(!plannerFigureInner || plannerViewScenes.front) return;
+    const track = document.createElement("div");
+    track.className = "plannerFigureTrack";
+    plannerFigureInner.insertBefore(track, plannerBackSketch || plannerSketch || null);
+    plannerFigureTrack = track;
     const frontScene = document.createElement("div");
     frontScene.className = "plannerFigureScene is-active";
     frontScene.dataset.view = "front";
@@ -4133,7 +4155,7 @@
     ].forEach((node) => {
       if(node) frontScene.appendChild(node);
     });
-    plannerFigureInner.insertBefore(frontScene, plannerBackSketch || plannerSketch || null);
+    track.appendChild(frontScene);
     plannerViewScenes.front = {
       container:frontScene,
       base:plannerFigureImage,
@@ -4159,7 +4181,7 @@
       scene.appendChild(custom);
       const frontline = plannerCreateSceneImage("plannerFigureFrontline");
       scene.appendChild(frontline);
-      plannerFigureInner.insertBefore(scene, plannerBackSketch || plannerSketch || null);
+      track.appendChild(scene);
       plannerViewScenes[view] = {
         container:scene,
         base,
@@ -4168,6 +4190,7 @@
         overlayElsByPartKey
       };
     });
+    plannerSetActiveScene("front", { animate:false });
   }
   function plannerPrimeFigureAssets(){
     const mobile = window.matchMedia("(max-width: 1024px)").matches;
@@ -4240,6 +4263,7 @@
   let plannerViewSwitchInTimer = null;
   let plannerViewSlideRaf = null;
   let plannerViewSwitchSeq = 0;
+  const PLANNER_TRACK_SLIDE_DURATION_MS = 220;
   const plannerFrauenViewOrder = ["front", "back", "face"];
   const plannerFaceMovableZoneIdsByModeAndView = {
     frauen:{
@@ -5132,7 +5156,7 @@
   const LASER_VIDEO_MOBILE_SRC = "img/VIDEO/DEKA Epilation Mob.mp4";
   const PLANNER_COURSE_SESSIONS = 6;
   const PLANNER_COURSE_PAYABLE_SESSIONS = 5;
-  const PLANNER_VIEW_SLIDE_ANIMATION = false;
+  const PLANNER_VIEW_SLIDE_ANIMATION = true;
   const PLANNER_STATE_SESSION_KEY = "anima_laser_planner_state_v3";
   const SALONKEE_BOOKING_FALLBACK_URL = "https://salonkee.de/salon/anima-body-care-salon";
   const plannerSalonkeeUrlByMode = {
@@ -5543,12 +5567,21 @@
       });
     });
   }
-  function plannerSetActiveScene(view){
+  function plannerSetActiveScene(view, options = {}){
+    const index = Math.max(0, plannerFrauenViewOrder.indexOf(view));
+    const shouldAnimate = !!options.animate;
+    const hasAnimateOverride = Object.prototype.hasOwnProperty.call(options, "animate");
     plannerFigureSceneViews.forEach((sceneView) => {
       const scene = plannerViewScenes[sceneView];
       if(!scene || !scene.container) return;
       scene.container.classList.toggle("is-active", sceneView === view);
     });
+    if(plannerFigureTrack){
+      if(hasAnimateOverride){
+        plannerFigureTrack.classList.toggle("is-animating", shouldAnimate);
+      }
+      plannerFigureTrack.style.transform = `translate3d(${-index * 33.333333}%, 0, 0)`;
+    }
   }
   function plannerSyncAllViewScenes(mode){
     plannerSyncSceneSources(mode);
@@ -8575,6 +8608,7 @@
         },
         onVisualSettled:() => {
           plannerViewTransitionActive = false;
+          renderPlannerViewState(mode);
           // Do full interactive re-render only after slide completes.
           schedulePlannerRender(mode);
         }
@@ -8649,9 +8683,20 @@
     void mode;
   }
   function cancelPlannerViewSlideAnimation(){
-    if(!plannerViewSlideRaf) return;
-    cancelAnimationFrame(plannerViewSlideRaf);
-    plannerViewSlideRaf = null;
+    if(plannerViewSlideRaf){
+      cancelAnimationFrame(plannerViewSlideRaf);
+      plannerViewSlideRaf = null;
+    }
+    if(plannerViewSwitchOutTimer){
+      clearTimeout(plannerViewSwitchOutTimer);
+      plannerViewSwitchOutTimer = null;
+    }
+    if(plannerFigureTrack){
+      plannerFigureTrack.classList.remove("is-animating");
+    }
+    if(plannerFigure){
+      plannerFigure.classList.remove("is-view-sliding");
+    }
   }
   function applyPlannerFigureMode(mode, options = {}){
     if(!plannerFigureImage) return;
@@ -8663,28 +8708,36 @@
     }
     const shouldAnimate = !!options.animate;
     plannerSyncAllViewScenes(mode);
-    if(plannerViewSwitchOutTimer){
-      clearTimeout(plannerViewSwitchOutTimer);
-      plannerViewSwitchOutTimer = null;
-    }
     if(plannerViewSwitchInTimer){
       clearTimeout(plannerViewSwitchInTimer);
       plannerViewSwitchInTimer = null;
     }
     cancelPlannerViewSlideAnimation();
     if(!shouldAnimate){
-      plannerSetActiveScene(plannerFrauenView);
+      plannerSetActiveScene(plannerFrauenView, { animate:false });
       if(typeof options.onVisualSwapped === "function"){
         options.onVisualSwapped();
       }
     } else {
-      plannerSetActiveScene(plannerFrauenView);
+      if(plannerFigure) plannerFigure.classList.add("is-view-sliding");
+      plannerSetActiveScene(plannerFrauenView, { animate:true });
       if(typeof options.onVisualSwapped === "function"){
         options.onVisualSwapped();
       }
-      if(typeof options.onVisualSettled === "function"){
-        options.onVisualSettled();
-      }
+      plannerViewSwitchOutTimer = window.setTimeout(() => {
+        plannerViewSwitchOutTimer = null;
+        if(typeof options.onVisualSettled === "function"){
+          options.onVisualSettled();
+        }
+        requestAnimationFrame(() => {
+          if(plannerFigureTrack){
+            plannerFigureTrack.classList.remove("is-animating");
+          }
+          if(plannerFigure){
+            plannerFigure.classList.remove("is-view-sliding");
+          }
+        });
+      }, PLANNER_TRACK_SLIDE_DURATION_MS);
     }
     syncPlannerViewSwitch(mode);
     requestAnimationFrame(positionPlannerViewArrows);
