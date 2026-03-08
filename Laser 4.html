@@ -4067,7 +4067,7 @@
     });
     overlays.forEach((img) => {
       if(!(img instanceof HTMLImageElement)) return;
-      img.loading = "eager";
+      img.loading = mobile ? "lazy" : "auto";
       img.decoding = "async";
       img.fetchPriority = mobile ? "low" : "low";
     });
@@ -5307,13 +5307,15 @@
     const normalizedView = plannerFrauenViewOrder.includes(view) ? view : "front";
     const idx = plannerFrauenViewOrder.indexOf(normalizedView);
     const nextView = idx >= 0 ? plannerFrauenViewOrder[idx + 1] : null;
-    const otherMode = normalizedMode === "frauen" ? "herren" : "frauen";
+    const prevView = idx > 0 ? plannerFrauenViewOrder[idx - 1] : null;
     const out = [
-      { mode:normalizedMode, view:normalizedView, overlays:true, selectedOverlays:true },
-      { mode:otherMode, view:"front", overlays:false, selectedOverlays:false }
+      { mode:normalizedMode, view:normalizedView, overlays:true, selectedOverlays:true }
     ];
     if(nextView){
-      out.push({ mode:normalizedMode, view:nextView, overlays:false, selectedOverlays:true });
+      out.push({ mode:normalizedMode, view:nextView, overlays:false, selectedOverlays:false });
+    }
+    if(prevView){
+      out.push({ mode:normalizedMode, view:prevView, overlays:false, selectedOverlays:false });
     }
     const seen = new Set();
     return out.filter((entry) => {
@@ -8355,7 +8357,7 @@
     if(changed){
       plannerPersistState();
     }
-    plannerPruneDynamicOverlays(mode, plannerFrauenView);
+    plannerEnsurePreparedDynamicOverlays(mode, plannerFrauenView);
     // Keep next/prev view assets warm so switching is instant.
     if(!skipNeighborWarmup){
       plannerWarmupNeighborViews(mode, plannerFrauenView);
@@ -8408,8 +8410,38 @@
     }
     el.classList.toggle("is-visible", !!visible);
   }
+  function plannerFrontStaticOverlayElements(){
+    return [
+      plannerFigureOverlayUpperlip,
+      plannerFigureOverlayAxilla,
+      plannerFigureOverlayChin,
+      plannerFigureOverlayChest,
+      plannerFigureOverlayHands,
+      plannerFigureOverlayFeet,
+      plannerFigureOverlayUpperarms,
+      plannerFigureOverlayAxillaGray,
+      plannerFigureOverlayUnderarms,
+      plannerFigureOverlayBauchMedia,
+      plannerFigureOverlayBauchFull,
+      plannerFigureOverlayBikini,
+      plannerFigureOverlayObersch,
+      plannerFigureOverlayUntersch,
+      plannerFigureOverlayImage
+    ].filter(Boolean);
+  }
+  function plannerReleaseFrontStaticOverlaySources(){
+    if(!plannerIsMobilePerfMode()) return;
+    plannerFrontStaticOverlayElements().forEach((img) => {
+      if(!(img instanceof HTMLImageElement)) return;
+      img.classList.remove("is-visible", "is-guide-visible");
+      img.setAttribute("src", "data:,");
+    });
+  }
   function plannerSyncFrontStaticOverlaySources(mode){
-    if(plannerFrauenView !== "front") return;
+    if(plannerFrauenView !== "front"){
+      plannerReleaseFrontStaticOverlaySources();
+      return;
+    }
     const srcMap = plannerStaticFrontOverlaySrcByMode[mode] || plannerStaticFrontOverlaySrcByMode.frauen;
     if(!srcMap) return;
     if(plannerFigureOverlayUpperlip && srcMap.upperlip) plannerBindFrontOverlaySource(plannerFigureOverlayUpperlip, srcMap.upperlip);
@@ -8435,7 +8467,7 @@
   }
   function applyPlannerFigureMode(mode, options = {}){
     if(!plannerFigureImage) return;
-    plannerEnsureDynamicOverlaysMounted();
+    plannerEnsurePreparedDynamicOverlays(mode, plannerFrauenView);
     const modeVisual = plannerFigureByMode[mode] || plannerFigureByMode.frauen;
     const visual = (modeVisual && modeVisual[plannerFrauenView]) || modeVisual.front || modeVisual.back || modeVisual.face;
     if(plannerFigureInner){
@@ -8607,7 +8639,7 @@
       if(!el){
         el = document.createElement("img");
         el.setAttribute("alt", "");
-        el.setAttribute("loading", "eager");
+        el.setAttribute("loading", "lazy");
         el.setAttribute("decoding", "async");
         el.setAttribute("fetchpriority", "low");
         el.setAttribute("aria-hidden", "true");
@@ -8629,15 +8661,24 @@
     });
   }
   function plannerPruneDynamicOverlays(mode = activeLaserMode(), view = plannerFrauenView){
-    void mode;
-    void view;
-  }
-  function plannerEnsureAllDynamicOverlaysMounted(){
-    ["frauen", "herren"].forEach((mode) => {
-      plannerFrauenViewOrder.forEach((view) => {
-        plannerEnsureDynamicOverlaysMounted(mode, view);
-      });
+    const keepPrefix = `${mode}::`;
+    const keepExactPrefix = `${mode}::${view}::`;
+    Object.entries(plannerDynamicOverlayElsByKey).forEach(([key, el]) => {
+      const shouldKeep = plannerIsLowPerfMode()
+        ? key.startsWith(keepExactPrefix)
+        : key.startsWith(keepPrefix);
+      if(shouldKeep) return;
+      if(el && el.parentNode){
+        el.parentNode.removeChild(el);
+      }
+      delete plannerDynamicOverlayElsByKey[key];
     });
+  }
+  function plannerEnsurePreparedDynamicOverlays(mode = activeLaserMode(), view = plannerFrauenView){
+    const normalizedMode = mode === "herren" ? "herren" : "frauen";
+    const normalizedView = plannerFrauenViewOrder.includes(view) ? view : "front";
+    plannerEnsureDynamicOverlaysMounted(normalizedMode, normalizedView);
+    plannerPruneDynamicOverlays(normalizedMode, normalizedView);
   }
   function plannerClearDynamicOverlayClasses(options = {}){
     const clearVisible = options.clearVisible !== false;
@@ -11535,6 +11576,7 @@
     applyPlannerFigureMode(mode);
     }
     applyModePricing(mode);
+    plannerEnsurePreparedDynamicOverlays(mode, plannerFrauenView);
     warmupPlannerResponsiveAssets({ mode, view:plannerFrauenView });
     schedulePlannerRender(mode);
     plannerPruneDynamicOverlays(mode, plannerFrauenView);
@@ -11777,9 +11819,6 @@
     });
     setActiveLaserSwitch(laserSwitchModeFromUrl(), { force:true });
   }
-  plannerEnsureAllDynamicOverlaysMounted();
-  warmupPlannerResponsiveAssets({ mode:"frauen", view:"front" });
-  warmupPlannerResponsiveAssets({ mode:"herren", view:"front" });
   plannerRestoreState();
   schedulePlannerRender(activeLaserMode());
   plannerHistoryLastSerialized = JSON.stringify(plannerHistorySnapshot());
