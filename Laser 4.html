@@ -4219,6 +4219,74 @@
     frame.className = "plannerFigureSceneFrame";
     return frame;
   }
+  function plannerRemoveModeSwitchGhostScene(){
+    if(plannerModeSwitchTimer){
+      clearTimeout(plannerModeSwitchTimer);
+      plannerModeSwitchTimer = null;
+    }
+    if(!(plannerFigureTrack instanceof HTMLElement)) return;
+    const ghost = plannerFigureTrack.querySelector(".plannerFigureScene--mode-ghost");
+    if(ghost) ghost.remove();
+  }
+  function plannerCreateModeSwitchGhostScene(mode, view = "front"){
+    const safeMode = mode === "herren" ? "herren" : "frauen";
+    const safeView = plannerFrauenViewOrder.includes(view) ? view : "front";
+    const scene = document.createElement("div");
+    scene.className = "plannerFigureScene plannerFigureScene--mode-ghost";
+    scene.dataset.view = `${safeMode}-${safeView}`;
+    const frame = plannerCreateSceneFrame();
+    scene.appendChild(frame);
+    const visual = ((plannerFigureByMode[safeMode] || plannerFigureByMode.frauen || {})[safeView]) || null;
+    frame.style.setProperty("--planner-scene-aspect", (visual && visual.aspect) || "2200 / 5500");
+    const base = plannerCreateSceneImage("plannerFigureBase");
+    if(visual && visual.src){
+      setIntResponsiveImageSrc(base, visual.src);
+      base.setAttribute("alt", visual.alt || "");
+    }
+    frame.appendChild(base);
+    const selectedSet = plannerSelectedByMode[safeMode] || new Set();
+    const overlaySrcMap = ((plannerHoverOverlaySrcByModeAndView[safeMode] || {})[safeView]) || {};
+    plannerActivePartKeysForView(safeMode, safeView, selectedSet).forEach((partKey) => {
+      const src = overlaySrcMap[partKey] || "";
+      if(!src) return;
+      const overlay = plannerCreateSceneImage("plannerFigureOverlayImage");
+      if(partKey === "ACHSELN_MAIN") overlay.classList.add("plannerFigureOverlayImage--axilla-main");
+      if(partKey === "ACHSELN_GRAY") overlay.classList.add("plannerFigureOverlayImage--axilla-gray-dynamic");
+      setIntResponsiveImageSrc(overlay, src);
+      overlay.classList.add("is-visible");
+      frame.appendChild(overlay);
+    });
+    const frontline = plannerCreateSceneImage("plannerFigureFrontline");
+    const frontlineSrc = ((plannerFrontlineByModeAndView[safeMode] || {})[safeView]) || "";
+    if(frontlineSrc){
+      setIntResponsiveImageSrc(frontline, frontlineSrc);
+      frontline.classList.add("is-visible");
+    }
+    frame.appendChild(frontline);
+    return scene;
+  }
+  function plannerAnimateModeSwitchForward(targetMode, onDone){
+    if(!(plannerFigureTrack instanceof HTMLElement) || !(plannerFigureViewport instanceof HTMLElement)){
+      if(typeof onDone === "function") onDone();
+      return;
+    }
+    plannerRemoveModeSwitchGhostScene();
+    const ghostScene = plannerCreateModeSwitchGhostScene(targetMode, "front");
+    plannerFigureTrack.appendChild(ghostScene);
+    const gapPx = plannerSyncSceneGap(plannerFrauenView);
+    const viewportWidth = plannerFigureViewport.clientWidth || 0;
+    const targetIndex = plannerFigureTrack.children.length - 1;
+    const offsetX = (targetIndex * viewportWidth) + (targetIndex * gapPx);
+    plannerFigureTrack.style.transition = `transform ${PLANNER_VIEW_SLIDE_MS}ms ease`;
+    requestAnimationFrame(() => {
+      plannerFigureTrack.style.transform = `translate3d(${-offsetX}px, 0, 0)`;
+    });
+    plannerModeSwitchTimer = setTimeout(() => {
+      plannerModeSwitchTimer = null;
+      plannerRemoveModeSwitchGhostScene();
+      if(typeof onDone === "function") onDone();
+    }, PLANNER_VIEW_SLIDE_MS + 30);
+  }
   function plannerInitFigureScenes(){
     if(!plannerFigureInner || plannerViewScenes.front) return;
     plannerEnsureFigureTrack();
@@ -4364,6 +4432,7 @@
   let plannerViewSwitchInTimer = null;
   let plannerViewSlideRaf = null;
   let plannerViewSwitchSeq = 0;
+  let plannerModeSwitchTimer = null;
   const plannerFrauenViewOrder = ["front", "back", "face"];
   const plannerFaceMovableZoneIdsByModeAndView = {
     frauen:{
@@ -11688,6 +11757,12 @@
   function setActiveLaserSwitch(mode, options = {}){
     const force = !!options.force;
     const currentMode = activeLaserMode();
+    if(!force && currentMode === "frauen" && mode === "herren"){
+      plannerAnimateModeSwitchForward("herren", () => {
+        setActiveLaserSwitch("herren", { force:true });
+      });
+      return true;
+    }
     if(!force && currentMode === mode && plannerFrauenView === "front"){
       return false;
     }
