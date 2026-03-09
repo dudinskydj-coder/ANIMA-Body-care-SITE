@@ -4312,7 +4312,6 @@
   let plannerScrollSnapPendingView = null;
   let plannerScrollSnapLastKnownLeft = 0;
   let plannerTapFeedbackTimer = null;
-  let plannerModeSwitchUsesTransform = false;
   function plannerAllRenderedSketchHosts(){
     return [plannerSketch, plannerBackSketch, plannerScrollSketch, plannerScrollBackSketch].filter((host) => host instanceof HTMLElement);
   }
@@ -4370,12 +4369,6 @@
       plannerScrollSnapSettleTimer = null;
       plannerCommitScrollSnapSettledView({ syncOnly:true });
     }, 180);
-  }
-  function plannerSetModeSwitchTransformState(active){
-    plannerModeSwitchUsesTransform = !!active;
-    if(plannerFigureWrap){
-      plannerFigureWrap.dataset.plannerTransport = active ? "transform" : "scroll-snap";
-    }
   }
   function plannerScenePartKeysForView(view){
     return Array.isArray(plannerScenePartKeysByView[view]) ? [...plannerScenePartKeysByView[view]] : [];
@@ -4639,7 +4632,6 @@
       if(typeof onDone === "function") onDone();
       return;
     }
-    plannerSetModeSwitchTransformState(true);
     plannerRemoveModeSwitchGhostScene();
     const currentView = plannerFrauenViewOrder.includes(plannerCommittedSceneView)
       ? plannerCommittedSceneView
@@ -4665,7 +4657,6 @@
       plannerModeSwitchTimer = null;
       if(typeof onDone === "function") onDone();
       plannerRemoveModeSwitchGhostScene();
-      plannerSetModeSwitchTransformState(false);
     }, transition.duration + 30);
   }
   function plannerInitFigureScenes(){
@@ -6324,7 +6315,7 @@
     plannerScrollSnapPendingView = null;
     plannerSetSwipingState(false);
     if(plannerFigureWrap){
-      plannerFigureWrap.dataset.plannerTransport = plannerModeSwitchUsesTransform ? "transform" : nextTransport;
+      plannerFigureWrap.dataset.plannerTransport = nextTransport;
     }
     plannerInitScrollSnapScenes();
     plannerSyncAllViewScenes(activeLaserMode(), { syncActiveScene:false, sourceTransport:"transport-toggle" });
@@ -12211,12 +12202,7 @@
     applyLaserVisualMode(mode);
     syncPlannerViewSwitch(mode);
     if(afterGhost){
-      plannerSetModeSwitchTransformState(true);
       applyPlannerFigureMode(mode, { animate:false });
-      plannerSyncScrollSnapPosition("front", { instant:true, force:true, source:"mode-switch-afterghost" });
-      requestAnimationFrame(() => {
-        plannerSetModeSwitchTransformState(false);
-      });
       plannerFocusInteractiveForSwitch(mode);
     } else if(!shouldResetViewToFront){
       applyPlannerFigureMode(mode);
