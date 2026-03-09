@@ -1416,19 +1416,6 @@
       opacity:1;
       pointer-events:auto;
     }
-    .plannerFigureViewport,
-    .plannerFigureViewportScroll{
-      will-change:opacity;
-      backface-visibility:hidden;
-      transform:translateZ(0);
-    }
-    .plannerFigureViewportScroll{
-      transition:none;
-    }
-    .plannerFigureWrap.is-mode-switching .plannerFigureViewport,
-    .plannerFigureWrap.is-mode-switching .plannerFigureViewportScroll{
-      transition:none !important;
-    }
     .plannerFigureTrack{
       display:flex;
       width:100%;
@@ -4447,7 +4434,6 @@
     plannerModeSwitchUsesTransform = !!active;
     if(plannerFigureWrap){
       plannerFigureWrap.dataset.plannerTransport = active ? "transform" : "scroll-snap";
-      plannerFigureWrap.classList.toggle("is-mode-switching", !!active);
     }
   }
   function plannerScenePartKeysForView(view){
@@ -12321,27 +12307,11 @@
     if(afterGhost){
       plannerSetModeSwitchTransformState(true);
       applyPlannerFigureMode(mode, { animate:false });
-      plannerSyncScrollSnapPosition("front", {
-        instant:true,
-        force:true,
-        source:"mode-switch-afterghost"
-      });
+      plannerSyncScrollSnapPosition("front", { instant:true, force:true, source:"mode-switch-afterghost" });
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          plannerSetModeSwitchTransformState(false);
-          renderPlannerViewState(mode);
-          schedulePlannerRender(mode);
-        });
+        plannerSetModeSwitchTransformState(false);
       });
       plannerFocusInteractiveForSwitch(mode);
-      applyModePricing(mode);
-      plannerEnsurePreparedDynamicOverlays(mode, plannerFrauenView);
-      warmupPlannerResponsiveAssets({ mode, view:plannerFrauenView });
-      plannerPruneDynamicOverlays(mode, plannerFrauenView);
-      clampPlannerPan(mode);
-      document.documentElement.dataset.laserMode = mode;
-      plannerPersistState();
-      return true;
     } else if(!shouldResetViewToFront){
       applyPlannerFigureMode(mode);
     }
