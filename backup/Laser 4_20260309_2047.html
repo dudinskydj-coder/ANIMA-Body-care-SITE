@@ -3723,6 +3723,12 @@
         max-width:100%;
         aspect-ratio:var(--planner-scene-aspect, 2200 / 5500);
       }
+      .plannerFigureWrap[data-active-view="front"] .plannerFigureSceneScroll[data-view="back"] .plannerFigureSceneFrame{
+        transform:translateX(clamp(-64px, -8vw, -32px));
+      }
+      .plannerFigureWrap[data-active-view="back"] .plannerFigureSceneScroll[data-view="front"] .plannerFigureSceneFrame{
+        transform:translateX(clamp(32px, 8vw, 64px));
+      }
       .plannerSketch,
       .plannerBackSketch{
         left:50%;
