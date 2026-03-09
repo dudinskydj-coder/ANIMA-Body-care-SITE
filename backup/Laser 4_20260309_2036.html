@@ -3723,11 +3723,13 @@
         max-width:100%;
         aspect-ratio:var(--planner-scene-aspect, 2200 / 5500);
       }
-      .plannerFigureWrap[data-active-view="front"] .plannerFigureSceneScroll[data-view="back"] .plannerFigureSceneFrame{
-        transform:translateX(clamp(-44px, -5vw, -20px));
-      }
-      .plannerFigureWrap[data-active-view="back"] .plannerFigureSceneScroll[data-view="front"] .plannerFigureSceneFrame{
+      .plannerFigureScene[data-view="front"] .plannerFigureSceneFrame,
+      .plannerFigureSceneScroll[data-view="front"] .plannerFigureSceneFrame{
         transform:translateX(clamp(20px, 5vw, 44px));
+      }
+      .plannerFigureScene[data-view="back"] .plannerFigureSceneFrame,
+      .plannerFigureSceneScroll[data-view="back"] .plannerFigureSceneFrame{
+        transform:translateX(clamp(-44px, -5vw, -20px));
       }
       .plannerSketch,
       .plannerBackSketch{
@@ -9427,9 +9429,6 @@
     const changed = plannerFrauenView !== nextView;
     const prevView = plannerFrauenView;
     plannerFrauenView = nextView;
-    if(plannerFigureWrap){
-      plannerFigureWrap.dataset.activeView = plannerFrauenView;
-    }
     plannerViewButtons.forEach((btn) => {
       const active = btn.dataset.plannerView === plannerFrauenView;
       btn.classList.toggle("is-active", active);
