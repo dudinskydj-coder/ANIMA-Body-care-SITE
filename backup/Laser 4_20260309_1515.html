@@ -1337,9 +1337,6 @@
       transition:transform .34s cubic-bezier(.22, 1, .36, 1);
       will-change:transform;
     }
-    .plannerFigureTrack.is-mode-switching{
-      will-change:transform;
-    }
     .plannerFigureTrack.is-interactive-swipe{
       transition:none !important;
     }
@@ -3644,9 +3641,6 @@
         transition-timing-function:cubic-bezier(.32, 0, .2, 1);
         will-change:auto;
       }
-      .plannerFigureTrack.is-mode-switching{
-        will-change:transform;
-      }
       .plannerFigureBase,
       .plannerFigureOverlayImage,
       .plannerFigureFrontline{
@@ -4294,38 +4288,9 @@
       clearTimeout(plannerModeSwitchTimer);
       plannerModeSwitchTimer = null;
     }
-    if(plannerModeSwitchFrame1){
-      cancelAnimationFrame(plannerModeSwitchFrame1);
-      plannerModeSwitchFrame1 = null;
-    }
-    if(plannerModeSwitchFrame2){
-      cancelAnimationFrame(plannerModeSwitchFrame2);
-      plannerModeSwitchFrame2 = null;
-    }
     if(!(plannerFigureTrack instanceof HTMLElement)) return;
-    plannerFigureTrack.classList.remove("is-mode-switching");
     const ghost = plannerFigureTrack.querySelector(".plannerFigureScene--mode-ghost");
     if(ghost) ghost.remove();
-  }
-  function plannerForceTrackReflow(){
-    if(!(plannerFigureTrack instanceof HTMLElement)) return;
-    void plannerFigureTrack.getBoundingClientRect();
-  }
-  function plannerRunModeSwitchTransform(startOffsetX, targetOffsetX, transition){
-    if(!(plannerFigureTrack instanceof HTMLElement)) return;
-    plannerFigureTrack.classList.add("is-mode-switching");
-    plannerFigureTrack.style.transition = "none";
-    plannerFigureTrack.style.transform = `translate3d(${-startOffsetX}px, 0, 0)`;
-    plannerForceTrackReflow();
-    plannerModeSwitchFrame1 = requestAnimationFrame(() => {
-      plannerModeSwitchFrame1 = null;
-      plannerModeSwitchFrame2 = requestAnimationFrame(() => {
-        plannerModeSwitchFrame2 = null;
-        if(!(plannerFigureTrack instanceof HTMLElement)) return;
-        plannerFigureTrack.style.transition = `transform ${transition.duration}ms ${transition.easing}`;
-        plannerFigureTrack.style.transform = `translate3d(${-targetOffsetX}px, 0, 0)`;
-      });
-    });
   }
   function plannerCreateModeSwitchGhostScene(mode, view = "front"){
     const safeMode = mode === "herren" ? "herren" : "frauen";
@@ -4382,13 +4347,20 @@
       plannerFigureTrack.insertBefore(ghostScene, currentScene || plannerFigureTrack.firstChild || null);
       const startOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
       const targetOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
-      plannerRunModeSwitchTransform(startOffsetX, targetOffsetX, transition);
+      plannerFigureTrack.style.transition = "none";
+      plannerFigureTrack.style.transform = `translate3d(${-startOffsetX}px, 0, 0)`;
+      requestAnimationFrame(() => {
+        plannerFigureTrack.style.transition = `transform ${transition.duration}ms ${transition.easing}`;
+        plannerFigureTrack.style.transform = `translate3d(${-targetOffsetX}px, 0, 0)`;
+      });
     } else {
       const currentScene = plannerViewScenes[currentView] && plannerViewScenes[currentView].container;
       plannerFigureTrack.insertBefore(ghostScene, currentScene ? currentScene.nextSibling : null);
-      const startOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
-      const targetOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
-      plannerRunModeSwitchTransform(startOffsetX, targetOffsetX, transition);
+      const offsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
+      plannerFigureTrack.style.transition = `transform ${transition.duration}ms ${transition.easing}`;
+      requestAnimationFrame(() => {
+        plannerFigureTrack.style.transform = `translate3d(${-offsetX}px, 0, 0)`;
+      });
     }
     plannerModeSwitchTimer = setTimeout(() => {
       plannerModeSwitchTimer = null;
@@ -4547,8 +4519,6 @@
   let plannerViewSlideRaf = null;
   let plannerViewSwitchSeq = 0;
   let plannerModeSwitchTimer = null;
-  let plannerModeSwitchFrame1 = null;
-  let plannerModeSwitchFrame2 = null;
   const plannerFrauenViewOrder = ["front", "back", "face"];
   const plannerFaceMovableZoneIdsByModeAndView = {
     frauen:{
