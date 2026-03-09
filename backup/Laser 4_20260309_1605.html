@@ -12885,9 +12885,9 @@
       if(!e.touches) return;
       ensureInteractiveInViewForInteraction();
       if(e.touches.length === 1){
-        const touch = e.touches[0];
         plannerPinchActive = false;
-        plannerSwipeTracking = true;
+        const touch = e.touches[0];
+        plannerSwipeTracking = plannerZoom <= 1.02;
         plannerSwipeGestureLock = "";
         plannerSwipeStartX = touch.clientX;
         plannerSwipeStartY = touch.clientY;
@@ -12896,29 +12896,99 @@
       } else {
         plannerSwipeTracking = false;
         plannerSwipeGestureLock = "";
-        plannerTouchPanActive = false;
-        if(plannerInteractiveSwipeActive){
-          plannerCancelInteractiveSwipe();
+      }
+      if(e.touches.length === 2){
+        if(plannerShouldDisableZoomOnTouch()){
+          plannerPinchActive = false;
+          plannerPinchStartDistance = null;
+          return;
         }
+        plannerPinchActive = true;
+        cancelPlannerPinchRaf();
+        cancelPlannerInertia();
+        cancelPlannerZoomAnimation();
+        cancelPlannerSettleAnimation();
+        cancelPlannerVerticalSnap();
+        cancelPlannerEdgeBounce();
+        cancelPlannerZoomEdgeBounce();
+        setPlannerZoomEdgeScale(1);
+        setPlannerEdgeOffsetY(0);
+        clearPlannerSettleTimer();
+        clearPlannerAutoResetTimer();
+        plannerTouchPanActive = false;
+        plannerZoomEdgeLock = 0;
+        plannerPinchStartDistance = touchDistance(e.touches[0], e.touches[1]);
+        plannerPinchStartZoom = plannerZoom;
+        plannerPinchFocusX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        plannerPinchFocusY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        plannerPinchTargetZoom = plannerZoom;
+        return;
+      }
+      if(e.touches.length === 1 && canPanPlannerFigure()){
+        cancelPlannerPinchRaf();
+        cancelPlannerInertia();
+        cancelPlannerZoomAnimation();
+        cancelPlannerSettleAnimation();
+        cancelPlannerVerticalSnap();
+        cancelPlannerEdgeBounce();
+        cancelPlannerZoomEdgeBounce();
+        setPlannerZoomEdgeScale(1);
+        setPlannerEdgeOffsetY(0);
+        clearPlannerSettleTimer();
+        clearPlannerAutoResetTimer();
+        plannerPinchStartDistance = null;
+        plannerTouchPanActive = true;
+        plannerTouchStartX = e.touches[0].clientX;
+        plannerTouchStartY = e.touches[0].clientY;
+        plannerTouchStartScrollLeft = plannerFigure.scrollLeft;
+        plannerTouchStartScrollTop = plannerFigure.scrollTop;
       }
     }, { passive:true });
     plannerFigure.addEventListener("touchmove", (e) => {
       if(!e.touches) return;
-      if(e.touches.length !== 1){
+      if(e.touches.length === 2 && plannerPinchStartDistance && !plannerShouldDisableZoomOnTouch()){
+        e.preventDefault();
+        plannerPinchActive = true;
         plannerSwipeTracking = false;
         plannerSwipeGestureLock = "";
+        plannerTouchPanActive = false;
         if(plannerInteractiveSwipeActive){
           plannerCancelInteractiveSwipe();
         }
+        const currentDistance = touchDistance(e.touches[0], e.touches[1]);
+        if(!currentDistance) return;
+        const rawRatio = currentDistance / plannerPinchStartDistance;
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        plannerPinchFocusX = (plannerPinchFocusX * 0.55) + (midX * 0.45);
+        plannerPinchFocusY = (plannerPinchFocusY * 0.55) + (midY * 0.45);
+        const rawTargetZoom = plannerPinchStartZoom * rawRatio;
+        const maxZoom = plannerMaxZoom();
+        if(rawTargetZoom > maxZoom){
+          plannerPinchTargetZoom = maxZoom;
+          if(plannerZoom >= maxZoom - 0.004){
+            triggerPlannerZoomEdgeBounce(1, 260, 1.016);
+          }
+        } else if(rawTargetZoom < PLANNER_MIN_ZOOM){
+          plannerPinchTargetZoom = PLANNER_MIN_ZOOM;
+          if(plannerZoom <= PLANNER_MIN_ZOOM + 0.004){
+            triggerPlannerZoomEdgeBounce(-1, 260, 1.016);
+          }
+        } else {
+          plannerPinchTargetZoom = rawTargetZoom;
+          plannerZoomEdgeLock = 0;
+        }
+        // Run pinch updates at most once per frame to avoid touchmove overload/jank.
+        schedulePlannerPinchZoom();
         return;
       }
-      if(plannerSwipeTracking){
+      if(e.touches.length === 1 && plannerSwipeTracking){
         const dx = e.touches[0].clientX - plannerSwipeStartX;
         const dy = e.touches[0].clientY - plannerSwipeStartY;
         const absDx = Math.abs(dx);
         const absDy = Math.abs(dy);
-        const horizontalIntent = absDx > PLANNER_SWIPE_PREVIEW_START_X && absDx > absDy;
-        const verticalIntent = absDy > PLANNER_SWIPE_PREVIEW_START_X && absDy > absDx;
+        const horizontalIntent = absDx > PLANNER_SWIPE_PREVIEW_START_X && absDx > absDy * 0.85;
+        const verticalIntent = absDy > 10 && absDy > absDx * 1.05;
         if(!plannerSwipeGestureLock){
           if(horizontalIntent){
             plannerSwipeGestureLock = "horizontal";
@@ -12955,9 +13025,51 @@
           return;
         }
       }
+      if(
+        e.touches.length === 1 &&
+        plannerTouchPanActive &&
+        canPanPlannerFigure() &&
+        (!plannerSwipeTracking || plannerSwipeGestureLock === "vertical")
+      ){
+        e.preventDefault();
+        plannerTouchPanPending = {
+          clientX:e.touches[0].clientX,
+          clientY:e.touches[0].clientY
+        };
+        if(plannerTouchPanRaf) return;
+        plannerTouchPanRaf = requestAnimationFrame(() => {
+          plannerTouchPanRaf = null;
+          const pending = plannerTouchPanPending;
+          plannerTouchPanPending = null;
+          if(!pending) return;
+          const dx = pending.clientX - plannerTouchStartX;
+          const dy = pending.clientY - plannerTouchStartY;
+          const speed = plannerPanSpeedFactor();
+          const mode = activeLaserMode();
+          plannerFigure.scrollLeft = plannerTouchStartScrollLeft - (dx * speed);
+          clampPlannerPanX(mode);
+          const yRange = plannerVerticalRange(mode);
+          const rawTop = plannerTouchStartScrollTop - (dy * speed);
+          if(rawTop < yRange.min){
+            plannerFigure.scrollTop = yRange.min;
+            setPlannerEdgeOffsetY((rawTop - yRange.min) * 0.22);
+          } else if(rawTop > yRange.max){
+            plannerFigure.scrollTop = yRange.max;
+            setPlannerEdgeOffsetY((rawTop - yRange.max) * 0.22);
+          } else {
+            plannerFigure.scrollTop = rawTop;
+            setPlannerEdgeOffsetY(0);
+          }
+        });
+      }
     }, { passive:false });
     plannerFigure.addEventListener("touchend", (e) => {
-      if(plannerInteractiveSwipeActive){
+      const touch = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
+      const touchEndX = touch ? touch.clientX : 0;
+      const touchEndY = touch ? touch.clientY : 0;
+      const touchTargetIsZoneBtn = !!(e.target && typeof e.target.closest === "function" && e.target.closest(".zoneSketchBtn"));
+      const interactiveSwipeWasActive = plannerInteractiveSwipeActive;
+      if(interactiveSwipeWasActive){
         plannerSuppressClickUntil = Date.now() + 320;
         if(
           plannerInteractiveSwipeProgress >= PLANNER_SWIPE_COMMIT_PROGRESS &&
@@ -12977,12 +13089,40 @@
         plannerTouchPanRaf = null;
       }
       plannerTouchPanPending = null;
+      const wasPinching = plannerPinchActive;
       plannerPinchActive = false;
       plannerTouchPanActive = false;
-      plannerLastTapAt = 0;
-      bouncePlannerEdgeToRest();
-      snapPlannerVerticalExtremes(activeLaserMode(), 0.2);
-      maybeSettlePlannerToHome(260);
+      const canUseDoubleTapZoom = plannerShouldDisableZoomOnTouch() && !wasPinching && !!touch && !touchTargetIsZoneBtn;
+      const canUseDoubleTapZoomFinal = PLANNER_ZOOM_ENABLED && canUseDoubleTapZoom;
+      if(canUseDoubleTapZoomFinal){
+        const now = Date.now();
+        const tapDeltaMs = now - plannerLastTapAt;
+        const tapDistance = Math.hypot(touchEndX - plannerLastTapX, touchEndY - plannerLastTapY);
+        if(tapDeltaMs > 0 && tapDeltaMs <= 320 && tapDistance <= 32){
+          plannerLastTapAt = 0;
+          const targetZoom = plannerZoom > 1.06 ? PLANNER_MIN_ZOOM : Math.min(plannerMaxZoom(), 1.24);
+          animatePlannerZoom(targetZoom, touchEndX, touchEndY, 260, targetZoom > plannerZoom ? "middle" : "none");
+          schedulePlannerAutoReset();
+          return;
+        }
+        plannerLastTapAt = now;
+        plannerLastTapX = touchEndX;
+        plannerLastTapY = touchEndY;
+      } else {
+        plannerLastTapAt = 0;
+      }
+      if(!wasPinching){
+        bouncePlannerEdgeToRest();
+        snapPlannerVerticalExtremes(activeLaserMode(), 0.2);
+        maybeSettlePlannerToHome(260);
+      } else {
+        setPlannerEdgeOffsetY(0);
+        clampPlannerPan(activeLaserMode());
+        if(plannerZoom <= PLANNER_MIN_ZOOM + 0.01 || plannerZoom >= plannerMaxZoom() - 0.01){
+          bouncePlannerZoomEdge(260, 1.014);
+        }
+        maybeSettlePlannerToHome(220);
+      }
       schedulePlannerAutoReset();
     }, { passive:true });
     plannerFigure.addEventListener("touchcancel", () => {
