@@ -2150,6 +2150,22 @@
       appearance:none !important;
       touch-action:manipulation;
     }
+    .plannerSketch:not(.is-interactive-scene) .zoneSketchBtn,
+    .plannerBackSketch:not(.is-interactive-scene) .zoneSketchBtn{
+      pointer-events:none !important;
+      cursor:default !important;
+    }
+    .plannerSketch:not(.is-interactive-scene) .zoneSketchBtn:hover,
+    .plannerSketch:not(.is-interactive-scene) .zoneSketchBtn:active,
+    .plannerSketch:not(.is-interactive-scene) .zoneSketchBtn:focus,
+    .plannerSketch:not(.is-interactive-scene) .zoneSketchBtn:focus-visible,
+    .plannerBackSketch:not(.is-interactive-scene) .zoneSketchBtn:hover,
+    .plannerBackSketch:not(.is-interactive-scene) .zoneSketchBtn:active,
+    .plannerBackSketch:not(.is-interactive-scene) .zoneSketchBtn:focus,
+    .plannerBackSketch:not(.is-interactive-scene) .zoneSketchBtn:focus-visible{
+      transform:none !important;
+      box-shadow:none !important;
+    }
     .plannerSketch .zoneSketchBtn:hover,
     .plannerSketch .zoneSketchBtn:active,
     .plannerSketch .zoneSketchBtn:focus,
@@ -9306,6 +9322,20 @@
     if(targetIndex === currentIndex) return null;
     return plannerFrauenViewOrder[targetIndex] || null;
   }
+  function plannerSyncInteractiveScene(view = plannerCommittedSceneView || plannerFrauenView){
+    const interactiveView = plannerFrauenViewOrder.includes(view) ? view : "front";
+    plannerFigureSceneViews.forEach((sceneView) => {
+      const scene = plannerViewScenes[sceneView];
+      if(!scene || !scene.container) return;
+      scene.container.classList.toggle("is-interactive-scene", sceneView === interactiveView);
+    });
+    if(plannerSketch){
+      plannerSketch.classList.toggle("is-interactive-scene", interactiveView !== "back");
+    }
+    if(plannerBackSketch){
+      plannerBackSketch.classList.toggle("is-interactive-scene", interactiveView === "back");
+    }
+  }
   function plannerKeepTrackScenesReady(){
     plannerFigureSceneViews.forEach((sceneView) => {
       const scene = plannerViewScenes[sceneView];
@@ -9313,6 +9343,7 @@
       scene.container.classList.add("is-active");
       scene.container.setAttribute("aria-hidden", "false");
     });
+    plannerSyncInteractiveScene();
   }
   function plannerSetSwipePreviewScenes(fromView, toView){
     void fromView;
