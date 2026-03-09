@@ -1412,16 +1412,6 @@
       z-index:0;
       padding-inline:clamp(8px, 2vw, 18px);
       box-sizing:border-box;
-      opacity:var(--planner-scene-opacity, 1);
-    }
-    .plannerFigureScene::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(17,24,35,.06));
-      opacity:var(--planner-scene-shade-opacity, 0);
-      mix-blend-mode:multiply;
     }
     .plannerFigureSceneFrame{
       position:relative;
@@ -1430,9 +1420,6 @@
       max-width:100%;
       margin:0 auto;
       aspect-ratio:var(--planner-scene-aspect, 2200 / 5500);
-      transform:translate3d(var(--planner-scene-parallax-x, 0px), 0, 0) scale(var(--planner-scene-scale, 1));
-      transform-origin:center center;
-      filter:saturate(var(--planner-scene-saturate, 1));
     }
     .plannerBackDeadZone{
       position:absolute;
@@ -4245,52 +4232,14 @@
     plannerFigureInner.style.setProperty("--planner-scene-gap", `${gapPx}px`);
     return gapPx;
   }
-  function plannerIsTouchLikeInput(inputType = ""){
-    if(inputType === "touch") return true;
-    if(inputType === "mouse") return false;
-    return coarsePointerMq.matches && !desktopHover.matches;
-  }
-  function plannerSwipeFeel(inputType = ""){
-    if(plannerIsTouchLikeInput(inputType || plannerSwipeInputType)){
-      return {
-        startThresholdX:PLANNER_SWIPE_PREVIEW_START_X,
-        commitProgress:0.2,
-        velocityCommit:0.34,
-        resistanceSoft:0.62,
-        resistanceMid:0.88,
-        resistanceTail:0.97,
-        rubberBand:PLANNER_SWIPE_EDGE_RUBBER_BAND,
-        springStiffness:294,
-        springDamping:31,
-        springMass:1,
-        transitionDuration:468,
-        transitionEasing:"cubic-bezier(.2, .88, .22, 1)"
-      };
-    }
-    return {
-      startThresholdX:PLANNER_SWIPE_MOUSE_START_X,
-      commitProgress:0.18,
-      velocityCommit:0.24,
-      resistanceSoft:0.82,
-      resistanceMid:0.95,
-      resistanceTail:0.992,
-      rubberBand:PLANNER_SWIPE_EDGE_RUBBER_BAND * 1.3,
-      springStiffness:338,
-      springDamping:35,
-      springMass:0.92,
-      transitionDuration:388,
-      transitionEasing:"cubic-bezier(.22, 1, .32, 1)"
-    };
-  }
-  function plannerTrackTransitionConfig(options = {}){
+  function plannerTrackTransitionConfig(){
     const isMobileSlide = window.matchMedia("(max-width: 1024px)").matches;
-    const feel = plannerSwipeFeel(options.inputType);
     return isMobileSlide
-      ? { duration:Math.max(420, feel.transitionDuration), easing:feel.transitionEasing }
-      : { duration:Math.min(420, feel.transitionDuration), easing:feel.transitionEasing };
+      ? { duration:PLANNER_VIEW_SLIDE_MOBILE_MS, easing:PLANNER_VIEW_SLIDE_MOBILE_EASING }
+      : { duration:PLANNER_VIEW_SLIDE_MS, easing:"cubic-bezier(.22, 1, .36, 1)" };
   }
-  function plannerTrackTransitionCss(options = {}){
-    const transition = plannerTrackTransitionConfig(options);
+  function plannerTrackTransitionCss(){
+    const transition = plannerTrackTransitionConfig();
     return `transform ${transition.duration}ms ${transition.easing}`;
   }
   function plannerTrackOffsetPx(rawIndex, options = {}){
@@ -4310,44 +4259,10 @@
       plannerTrackFrame2 = null;
     }
   }
-  function plannerCancelTrackSpring(){
-    if(plannerTrackSpringFrame){
-      cancelAnimationFrame(plannerTrackSpringFrame);
-      plannerTrackSpringFrame = null;
-    }
-  }
-  function plannerUpdateTrackMotionFx(rawIndex){
-    plannerFigureSceneViews.forEach((view) => {
-      const scene = plannerViewScenes[view];
-      if(!(scene instanceof HTMLElement)) return;
-      const distance = plannerViewIndex(view) - rawIndex;
-      const clamped = Math.max(-1.4, Math.min(1.4, distance));
-      const depth = Math.max(0, 1 - Math.min(1, Math.abs(clamped)));
-      scene.style.setProperty("--planner-scene-parallax-x", `${Math.round(clamped * -18)}px`);
-      scene.style.setProperty("--planner-scene-scale", (0.968 + (depth * 0.05)).toFixed(4));
-      scene.style.setProperty("--planner-scene-opacity", (0.54 + (depth * 0.46)).toFixed(4));
-      scene.style.setProperty("--planner-scene-shade-opacity", (0.18 * (1 - depth)).toFixed(4));
-      scene.style.setProperty("--planner-scene-saturate", (0.9 + (depth * 0.14)).toFixed(4));
-    });
-  }
-  function plannerApplyTrackTransform(offsetX, options = {}){
+  function plannerAnimateTrackOffset(offsetX){
     if(!(plannerFigureTrack instanceof HTMLElement)) return;
-    const transitionCss = Object.prototype.hasOwnProperty.call(options, "transitionCss")
-      ? options.transitionCss
-      : "none";
-    plannerFigureTrack.classList.toggle("is-interactive-swipe", !!options.interactive);
-    plannerFigureTrack.style.transition = transitionCss;
-    plannerFigureTrack.style.transform = `translate3d(${-offsetX}px, 0, 0)`;
-    plannerTrackCurrentOffsetX = offsetX;
-    if(Number.isFinite(options.rawIndex)){
-      plannerUpdateTrackMotionFx(options.rawIndex);
-    }
-  }
-  function plannerAnimateTrackOffset(offsetX, options = {}){
-    if(!(plannerFigureTrack instanceof HTMLElement)) return;
-    const transitionCss = plannerTrackTransitionCss(options);
+    const transitionCss = plannerTrackTransitionCss();
     plannerCancelPendingTrackFrames();
-    plannerCancelTrackSpring();
     plannerFigureTrack.style.transition = "none";
     plannerForceTrackReflow();
     plannerTrackFrame1 = requestAnimationFrame(() => {
@@ -4355,11 +4270,8 @@
       plannerTrackFrame2 = requestAnimationFrame(() => {
         plannerTrackFrame2 = null;
         if(!(plannerFigureTrack instanceof HTMLElement)) return;
-        plannerApplyTrackTransform(offsetX, {
-          transitionCss,
-          rawIndex:options.rawIndex,
-          interactive:false
-        });
+        plannerFigureTrack.style.transition = transitionCss;
+        plannerFigureTrack.style.transform = `translate3d(${-offsetX}px, 0, 0)`;
       });
     });
   }
@@ -4368,74 +4280,20 @@
     const gapPx = Number.isFinite(options.gapPx) ? options.gapPx : plannerSyncSceneGap(options.view || plannerFrauenView);
     const offsetX = plannerTrackOffsetPx(rawIndex, { gapPx, view:options.view });
     const shouldAnimate = options.animate !== false;
-    plannerCancelTrackSpring();
+    plannerFigureTrack.classList.toggle("is-interactive-swipe", !shouldAnimate);
     if(!shouldAnimate){
       plannerCancelPendingTrackFrames();
-      plannerApplyTrackTransform(offsetX, {
-        transitionCss:"none",
-        rawIndex,
-        interactive:true
-      });
+      plannerFigureTrack.style.transition = "none";
+      plannerFigureTrack.style.transform = `translate3d(${-offsetX}px, 0, 0)`;
       return;
     }
     if(plannerIsMobilePerfMode()){
-      plannerAnimateTrackOffset(offsetX, { ...options, rawIndex });
+      plannerAnimateTrackOffset(offsetX);
       return;
     }
     plannerCancelPendingTrackFrames();
-    plannerApplyTrackTransform(offsetX, {
-      transitionCss:plannerTrackTransitionCss(options),
-      rawIndex,
-      interactive:false
-    });
-  }
-  function plannerAnimateTrackSpringTo(rawIndex, options = {}){
-    if(!(plannerFigureTrack instanceof HTMLElement)) return;
-    const gapPx = Number.isFinite(options.gapPx) ? options.gapPx : plannerSyncSceneGap(options.view || plannerFrauenView);
-    const targetOffsetX = plannerTrackOffsetPx(rawIndex, { gapPx, view:options.view });
-    const feel = plannerSwipeFeel(options.inputType);
-    let currentOffsetX = Number.isFinite(options.fromOffsetX) ? options.fromOffsetX : plannerTrackCurrentOffsetX;
-    let velocityPx = Number.isFinite(options.initialVelocityPx) ? options.initialVelocityPx : 0;
-    let lastTime = 0;
-    plannerCancelPendingTrackFrames();
-    plannerCancelTrackSpring();
-    plannerApplyTrackTransform(currentOffsetX, {
-      transitionCss:"none",
-      rawIndex:options.fromRawIndex ?? rawIndex,
-      interactive:false
-    });
-    const step = (now) => {
-      if(!lastTime) lastTime = now;
-      const dt = Math.min(34, now - lastTime) / 1000;
-      lastTime = now;
-      const displacement = currentOffsetX - targetOffsetX;
-      const springForce = -feel.springStiffness * displacement;
-      const dampingForce = -feel.springDamping * velocityPx;
-      const acceleration = (springForce + dampingForce) / feel.springMass;
-      velocityPx += acceleration * dt;
-      currentOffsetX += velocityPx * dt;
-      const viewportWidth = Math.max(1, (plannerFigureViewport && plannerFigureViewport.clientWidth) || 1);
-      const approxRawIndex = rawIndex + ((currentOffsetX - targetOffsetX) / viewportWidth);
-      plannerApplyTrackTransform(currentOffsetX, {
-        transitionCss:"none",
-        rawIndex:approxRawIndex,
-        interactive:false
-      });
-      if(Math.abs(currentOffsetX - targetOffsetX) <= 0.6 && Math.abs(velocityPx) <= 8){
-        plannerApplyTrackTransform(targetOffsetX, {
-          transitionCss:"none",
-          rawIndex,
-          interactive:false
-        });
-        plannerTrackSpringFrame = null;
-        if(typeof options.onComplete === "function"){
-          options.onComplete();
-        }
-        return;
-      }
-      plannerTrackSpringFrame = requestAnimationFrame(step);
-    };
-    plannerTrackSpringFrame = requestAnimationFrame(step);
+    plannerFigureTrack.style.transition = plannerTrackTransitionCss();
+    plannerFigureTrack.style.transform = `translate3d(${-offsetX}px, 0, 0)`;
   }
   function plannerSetTrackPosition(view, options = {}){
     plannerSetTrackOffset(plannerViewIndex(view), { ...options, view });
@@ -4482,22 +4340,16 @@
   function plannerRunModeSwitchTransform(startOffsetX, targetOffsetX, transition){
     if(!(plannerFigureTrack instanceof HTMLElement)) return;
     plannerFigureTrack.classList.add("is-mode-switching");
-    plannerApplyTrackTransform(startOffsetX, {
-      transitionCss:"none",
-      rawIndex:plannerViewIndex(plannerCommittedSceneView || plannerFrauenView),
-      interactive:false
-    });
+    plannerFigureTrack.style.transition = "none";
+    plannerFigureTrack.style.transform = `translate3d(${-startOffsetX}px, 0, 0)`;
     plannerForceTrackReflow();
     plannerModeSwitchFrame1 = requestAnimationFrame(() => {
       plannerModeSwitchFrame1 = null;
       plannerModeSwitchFrame2 = requestAnimationFrame(() => {
         plannerModeSwitchFrame2 = null;
         if(!(plannerFigureTrack instanceof HTMLElement)) return;
-        plannerApplyTrackTransform(targetOffsetX, {
-          transitionCss:`transform ${transition.duration}ms ${transition.easing}`,
-          rawIndex:plannerViewIndex(plannerFrauenView),
-          interactive:false
-        });
+        plannerFigureTrack.style.transition = `transform ${transition.duration}ms ${transition.easing}`;
+        plannerFigureTrack.style.transform = `translate3d(${-targetOffsetX}px, 0, 0)`;
       });
     });
   }
@@ -4725,8 +4577,6 @@
   let plannerModeSwitchTimer = null;
   let plannerTrackFrame1 = null;
   let plannerTrackFrame2 = null;
-  let plannerTrackSpringFrame = null;
-  let plannerTrackCurrentOffsetX = 0;
   let plannerModeSwitchFrame1 = null;
   let plannerModeSwitchFrame2 = null;
   const plannerFrauenViewOrder = ["front", "back", "face"];
@@ -5501,7 +5351,6 @@
   let plannerSwipeMouseDown = false;
   let plannerSwipeGestureLock = "";
   let plannerSuppressClickUntil = 0;
-  let plannerSwipeEdgePreviewActive = false;
   let plannerRenderRaf = null;
   let plannerSelectionUiSyncRaf = null;
   let plannerAutoFocusCooldownUntil = 0;
@@ -5572,7 +5421,6 @@
   const PLANNER_SWIPE_MIDPOINT_MAGNET_STRENGTH = 0.38;
   const PLANNER_SWIPE_VELOCITY_COMMIT = 0.42;
   const PLANNER_SWIPE_MOUSE_START_X = 7;
-  const PLANNER_SWIPE_EDGE_RUBBER_BAND = 0.0065;
   const PLANNER_SWIPE_CANCEL_CLICK_MS = 320;
   const faqState = { active:false, openIndex:null };
   const desktopHover = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -9176,7 +9024,6 @@
     const nextView = plannerFrauenViewOrder.includes(view) ? view : "front";
     const changed = plannerFrauenView !== nextView;
     const prevView = plannerFrauenView;
-    const shouldAnimateTrack = options.animateTrack !== false && PLANNER_VIEW_SLIDE_ANIMATION;
     plannerFrauenView = nextView;
     plannerViewButtons.forEach((btn) => {
       const active = btn.dataset.plannerView === plannerFrauenView;
@@ -9197,7 +9044,7 @@
       const nextIndex = plannerFrauenViewOrder.indexOf(nextView);
       const direction = nextIndex > prevIndex ? "to-back" : "to-front";
       applyPlannerFigureMode(mode, {
-        animate:shouldAnimateTrack,
+        animate:PLANNER_VIEW_SLIDE_ANIMATION,
         direction,
         onVisualSwapped:() => {
           // Keep the slide smooth: update only cheap visibility state mid-flight.
@@ -9211,7 +9058,7 @@
           plannerFocusInteractiveForSwitch(mode);
         }
       });
-      if(!shouldAnimateTrack){
+      if(!PLANNER_VIEW_SLIDE_ANIMATION){
         plannerViewTransitionActive = false;
         plannerReleaseFrontStaticOverlaySources();
         renderPlannerViewState(mode);
@@ -9323,25 +9170,21 @@
     const absDx = Math.abs(dx);
     if(absDx <= 0) return 0;
     const direction = Math.sign(dx) || 1;
-    const feel = plannerSwipeFeel();
-    const softZone = 18;
-    const midZone = 72;
-
+    const softZone = PLANNER_SWIPE_DRAG_SOFT_ZONE_PX;
+    const catchupZone = Math.max(softZone + 1, PLANNER_SWIPE_DRAG_CATCHUP_ZONE_PX);
+    const entryFactor = PLANNER_SWIPE_DRAG_ENTRY_FACTOR;
     if(absDx <= softZone){
-      return dx * feel.resistanceSoft;
+      return dx * entryFactor;
     }
-    if(absDx <= midZone){
-      const t = (absDx - softZone) / (midZone - softZone);
-      const factor = feel.resistanceSoft + ((feel.resistanceMid - feel.resistanceSoft) * t);
-      return direction * ((softZone * feel.resistanceSoft) + ((absDx - softZone) * factor));
+    if(absDx <= catchupZone){
+      const zoneProgress = (absDx - softZone) / (catchupZone - softZone);
+      const factor = entryFactor + ((0.96 - entryFactor) * zoneProgress);
+      const distance = (softZone * entryFactor) + ((absDx - softZone) * factor);
+      return direction * distance;
     }
-    return direction * ((softZone * feel.resistanceSoft) + ((midZone - softZone) * feel.resistanceMid) + ((absDx - midZone) * feel.resistanceTail));
-  }
-  function plannerApplyEdgeRubberBand(dx){
-    const absDx = Math.abs(dx);
-    if(absDx <= 0) return 0;
-    const factor = 1 / (1 + (absDx * plannerSwipeFeel().rubberBand));
-    return dx * factor * 0.72;
+    const softDistance = softZone * entryFactor;
+    const catchupDistance = (catchupZone - softZone) * 0.96;
+    return direction * (softDistance + catchupDistance + ((absDx - catchupZone) * 0.985));
   }
   function plannerResetSwipeTracking(){
     plannerSwipeTracking = false;
@@ -9349,7 +9192,6 @@
     plannerSwipeGestureLock = "";
     plannerSwipeVelocityX = 0;
     plannerSwipeMouseDown = false;
-    plannerSwipeEdgePreviewActive = false;
   }
   function plannerBeginSwipeTracking(clientX, clientY, inputType){
     plannerSwipeTracking = true;
@@ -9376,11 +9218,10 @@
   }
   function plannerSwipeShouldCommit(){
     if(!plannerInteractiveSwipeActive) return false;
-    const feel = plannerSwipeFeel();
-    const progressReady = plannerInteractiveSwipeProgress >= feel.commitProgress &&
+    const progressReady = plannerInteractiveSwipeProgress >= PLANNER_SWIPE_COMMIT_PROGRESS &&
       Math.abs(plannerInteractiveSwipeLastDx) >= PLANNER_SWIPE_MIN_X;
     if(progressReady) return true;
-    return Math.abs(plannerSwipeVelocityX) >= feel.velocityCommit;
+    return Math.abs(plannerSwipeVelocityX) >= PLANNER_SWIPE_VELOCITY_COMMIT;
   }
   function plannerFinalizeSwipeGesture(){
     if(plannerInteractiveSwipeActive){
@@ -9390,14 +9231,6 @@
       } else {
         plannerCancelInteractiveSwipe();
       }
-    } else if(plannerSwipeEdgePreviewActive){
-      plannerSuppressClickUntil = Date.now() + PLANNER_SWIPE_CANCEL_CLICK_MS;
-      const committedView = plannerCommittedSceneView || plannerFrauenView;
-      plannerAnimateTrackSpringTo(plannerViewIndex(committedView), {
-        view:committedView,
-        inputType:plannerSwipeInputType,
-        initialVelocityPx:plannerSwipeVelocityX * 1000
-      });
     }
     plannerResetSwipeTracking();
   }
@@ -9407,8 +9240,7 @@
     const dy = clientY - plannerSwipeStartY;
     const absDx = Math.abs(dx);
     const absDy = Math.abs(dy);
-    const feel = plannerSwipeFeel(options.inputType || plannerSwipeInputType);
-    const startThresholdX = options.startThresholdX || feel.startThresholdX;
+    const startThresholdX = options.startThresholdX || PLANNER_SWIPE_PREVIEW_START_X;
     const horizontalIntent = absDx > startThresholdX && absDx > absDy;
     const verticalIntent = absDy > PLANNER_SWIPE_PREVIEW_START_X && absDy > absDx;
     if(!plannerSwipeGestureLock){
@@ -9429,20 +9261,6 @@
     plannerRegisterSwipeVelocity(clientX, clientY);
     const swipeStep = dx < 0 ? 1 : -1;
     const targetView = absDx > 0 ? plannerInteractiveSwipeNeighbor(swipeStep) : null;
-    if(!targetView && !plannerInteractiveSwipeActive && plannerFigureViewport instanceof HTMLElement){
-      const currentView = plannerCommittedSceneView || plannerFrauenView;
-      const currentIndex = plannerViewIndex(currentView);
-      const edgeRawIndex = currentIndex - (plannerApplyEdgeRubberBand(dx) / Math.max(1, plannerFigureViewport.clientWidth || 1));
-      plannerSwipeEdgePreviewActive = true;
-      plannerSuppressClickUntil = Date.now() + PLANNER_SWIPE_CANCEL_CLICK_MS;
-      plannerSetTrackOffset(edgeRawIndex, {
-        animate:false,
-        view:currentView,
-        inputType:plannerSwipeInputType
-      });
-      return true;
-    }
-    plannerSwipeEdgePreviewActive = false;
     if(targetView && (!plannerInteractiveSwipeActive || plannerInteractiveSwipeTargetView !== targetView)){
       if(plannerInteractiveSwipeActive){
         const startView = plannerInteractiveSwipeStartView || plannerCommittedSceneView || plannerFrauenView;
@@ -9496,31 +9314,15 @@
     if(!plannerInteractiveSwipeActive) return;
     const startView = plannerInteractiveSwipeStartView || plannerCommittedSceneView || plannerFrauenView;
     plannerSetSwipePreviewScenes(startView, startView);
-    plannerAnimateTrackSpringTo(plannerViewIndex(startView), {
-      view:startView,
-      inputType:plannerSwipeInputType,
-      initialVelocityPx:plannerSwipeVelocityX * 1000,
-      fromRawIndex:plannerViewIndex(startView) + (plannerInteractiveSwipeProgress * plannerInteractiveSwipeDirection),
-      onComplete:() => {
-        plannerCommittedSceneView = startView;
-        plannerCommitActiveScene(startView);
-        plannerClearInteractiveSwipeState();
-      }
-    });
+    plannerSetTrackOffset(plannerViewIndex(startView), { animate:true, view:startView });
+    plannerCommittedSceneView = startView;
+    plannerClearInteractiveSwipeState();
   }
   function plannerCompleteInteractiveSwipe(){
     if(!plannerInteractiveSwipeActive || !plannerInteractiveSwipeTargetView) return false;
     const targetView = plannerInteractiveSwipeTargetView;
-    plannerAnimateTrackSpringTo(plannerViewIndex(targetView), {
-      view:plannerInteractiveSwipeStartView,
-      inputType:plannerSwipeInputType,
-      initialVelocityPx:plannerSwipeVelocityX * 1000,
-      fromRawIndex:plannerViewIndex(plannerInteractiveSwipeStartView) + (plannerInteractiveSwipeProgress * plannerInteractiveSwipeDirection),
-      onComplete:() => {
-        plannerClearInteractiveSwipeState();
-        setPlannerFrauenView(targetView, { animateTrack:false });
-      }
-    });
+    plannerClearInteractiveSwipeState();
+    setPlannerFrauenView(targetView);
     return true;
   }
   function applyPlannerFigureMode(mode, options = {}){
@@ -12562,16 +12364,9 @@
       if(!e.touches) return;
       const target = e.target;
       const zoneBtn = target instanceof Element ? target.closest(".zoneSketchBtn") : null;
-      if(zoneBtn){
-        if(plannerInteractiveSwipeActive){
-          plannerCancelInteractiveSwipe();
-        }
-        plannerResetSwipeTracking();
-        return;
-      }
       ensureInteractiveInViewForInteraction();
       if(e.touches.length === 1){
-        e.preventDefault();
+        if(!zoneBtn) e.preventDefault();
         const touch = e.touches[0];
         plannerBeginSwipeTracking(touch.clientX, touch.clientY, "touch");
       } else {
