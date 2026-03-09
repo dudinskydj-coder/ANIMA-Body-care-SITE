@@ -4339,7 +4339,7 @@
       ? plannerCommittedSceneView
       : (plannerFrauenViewOrder.includes(plannerFrauenView) ? plannerFrauenView : "front");
     const currentIndex = plannerViewIndex(currentView);
-    const ghostScene = plannerCreateModeSwitchGhostScene(targetMode, "front");
+    const ghostScene = plannerCreateModeSwitchGhostScene(targetMode, currentView);
     const gapPx = plannerSyncSceneGap(currentView);
     const transition = plannerTrackTransitionConfig();
     if(targetMode === "frauen"){
@@ -12032,18 +12032,12 @@
     const afterGhost = !!options.afterGhost;
     const currentMode = activeLaserMode();
     if(!force && currentMode === "frauen" && mode === "herren"){
-      laserSwitchButtons.forEach((btn) => {
-        btn.classList.toggle("is-active", btn.dataset.laserSwitch === "herren");
-      });
       plannerAnimateModeSwitchForward("herren", () => {
         setActiveLaserSwitch("herren", { force:true, afterGhost:true });
       });
       return true;
     }
     if(!force && currentMode === "herren" && mode === "frauen"){
-      laserSwitchButtons.forEach((btn) => {
-        btn.classList.toggle("is-active", btn.dataset.laserSwitch === "frauen");
-      });
       plannerAnimateModeSwitchForward("frauen", () => {
         setActiveLaserSwitch("frauen", { force:true, afterGhost:true });
       });

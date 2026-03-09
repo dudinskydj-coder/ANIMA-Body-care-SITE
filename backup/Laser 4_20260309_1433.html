@@ -4335,28 +4335,22 @@
       return;
     }
     plannerRemoveModeSwitchGhostScene();
-    const currentView = plannerFrauenViewOrder.includes(plannerCommittedSceneView)
-      ? plannerCommittedSceneView
-      : (plannerFrauenViewOrder.includes(plannerFrauenView) ? plannerFrauenView : "front");
-    const currentIndex = plannerViewIndex(currentView);
     const ghostScene = plannerCreateModeSwitchGhostScene(targetMode, "front");
-    const gapPx = plannerSyncSceneGap(currentView);
+    const gapPx = plannerSyncSceneGap(plannerFrauenView);
     const transition = plannerTrackTransitionConfig();
     if(targetMode === "frauen"){
-      const currentScene = plannerViewScenes[currentView] && plannerViewScenes[currentView].container;
-      plannerFigureTrack.insertBefore(ghostScene, currentScene || plannerFigureTrack.firstChild || null);
-      const startOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
-      const targetOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
+      plannerFigureTrack.insertBefore(ghostScene, plannerFigureTrack.firstChild || null);
+      const startOffsetX = plannerTrackOffsetPx(1, { gapPx, view:"front" });
       plannerFigureTrack.style.transition = "none";
       plannerFigureTrack.style.transform = `translate3d(${-startOffsetX}px, 0, 0)`;
       requestAnimationFrame(() => {
         plannerFigureTrack.style.transition = `transform ${transition.duration}ms ${transition.easing}`;
-        plannerFigureTrack.style.transform = `translate3d(${-targetOffsetX}px, 0, 0)`;
+        plannerFigureTrack.style.transform = "translate3d(0px, 0, 0)";
       });
     } else {
-      const currentScene = plannerViewScenes[currentView] && plannerViewScenes[currentView].container;
-      plannerFigureTrack.insertBefore(ghostScene, currentScene ? currentScene.nextSibling : null);
-      const offsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
+      plannerFigureTrack.appendChild(ghostScene);
+      const targetIndex = plannerFigureTrack.children.length - 1;
+      const offsetX = plannerTrackOffsetPx(targetIndex, { gapPx, view:"front" });
       plannerFigureTrack.style.transition = `transform ${transition.duration}ms ${transition.easing}`;
       requestAnimationFrame(() => {
         plannerFigureTrack.style.transform = `translate3d(${-offsetX}px, 0, 0)`;
@@ -12032,18 +12026,12 @@
     const afterGhost = !!options.afterGhost;
     const currentMode = activeLaserMode();
     if(!force && currentMode === "frauen" && mode === "herren"){
-      laserSwitchButtons.forEach((btn) => {
-        btn.classList.toggle("is-active", btn.dataset.laserSwitch === "herren");
-      });
       plannerAnimateModeSwitchForward("herren", () => {
         setActiveLaserSwitch("herren", { force:true, afterGhost:true });
       });
       return true;
     }
     if(!force && currentMode === "herren" && mode === "frauen"){
-      laserSwitchButtons.forEach((btn) => {
-        btn.classList.toggle("is-active", btn.dataset.laserSwitch === "frauen");
-      });
       plannerAnimateModeSwitchForward("frauen", () => {
         setActiveLaserSwitch("frauen", { force:true, afterGhost:true });
       });

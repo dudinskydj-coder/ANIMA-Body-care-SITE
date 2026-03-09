@@ -9551,8 +9551,22 @@
     plannerAutoFocusCooldownUntil = now + 1200;
     interactiveSection.scrollIntoView({ behavior:"smooth", block:"center" });
   }
-  function plannerFocusInteractiveForSwitch(mode = activeLaserMode()){
-    ensureInteractiveInViewForInteraction();
+  function scrollPlannerFigureIntoViewForSwitch(){
+    if(!plannerFigureWrap) return;
+    if(!(instantMenuMq && instantMenuMq.matches)) return;
+    const headerHeight = headerEl ? headerEl.getBoundingClientRect().height : 0;
+    const rect = plannerFigureWrap.getBoundingClientRect();
+    const targetTop = window.scrollY + rect.top - Math.max(12, headerHeight + 12);
+    plannerAutoFocusCooldownUntil = Date.now() + 1200;
+    window.scrollTo({
+      top:Math.max(0, targetTop),
+      behavior:"smooth"
+    });
+  }
+  function plannerFocusInteractiveForSwitch(mode = activeLaserMode(), options = {}){
+    if(!options.skipPageScroll){
+      ensureInteractiveInViewForInteraction();
+    }
     if(!plannerFigure) return;
     cancelPlannerInertia();
     cancelPlannerSettleAnimation();
@@ -12030,13 +12044,15 @@
   function setActiveLaserSwitch(mode, options = {}){
     const force = !!options.force;
     const afterGhost = !!options.afterGhost;
+    const skipPageScroll = !!options.skipPageScroll;
     const currentMode = activeLaserMode();
     if(!force && currentMode === "frauen" && mode === "herren"){
       laserSwitchButtons.forEach((btn) => {
         btn.classList.toggle("is-active", btn.dataset.laserSwitch === "herren");
       });
+      scrollPlannerFigureIntoViewForSwitch();
       plannerAnimateModeSwitchForward("herren", () => {
-        setActiveLaserSwitch("herren", { force:true, afterGhost:true });
+        setActiveLaserSwitch("herren", { force:true, afterGhost:true, skipPageScroll:true });
       });
       return true;
     }
@@ -12044,8 +12060,9 @@
       laserSwitchButtons.forEach((btn) => {
         btn.classList.toggle("is-active", btn.dataset.laserSwitch === "frauen");
       });
+      scrollPlannerFigureIntoViewForSwitch();
       plannerAnimateModeSwitchForward("frauen", () => {
-        setActiveLaserSwitch("frauen", { force:true, afterGhost:true });
+        setActiveLaserSwitch("frauen", { force:true, afterGhost:true, skipPageScroll:true });
       });
       return true;
     }
@@ -12076,7 +12093,7 @@
     syncPlannerViewSwitch(mode);
     if(afterGhost){
       applyPlannerFigureMode(mode, { animate:false });
-      plannerFocusInteractiveForSwitch(mode);
+      plannerFocusInteractiveForSwitch(mode, { skipPageScroll });
     } else if(!shouldResetViewToFront){
     applyPlannerFigureMode(mode);
     }
