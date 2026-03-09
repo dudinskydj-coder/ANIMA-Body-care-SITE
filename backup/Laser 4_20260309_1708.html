@@ -4389,7 +4389,7 @@
       ? plannerCommittedSceneView
       : (plannerFrauenViewOrder.includes(plannerFrauenView) ? plannerFrauenView : "front");
     const currentIndex = plannerViewIndex(currentView);
-    const ghostScene = plannerCreateModeSwitchGhostScene(targetMode, "front");
+    const ghostScene = plannerCreateModeSwitchGhostScene(targetMode, currentView);
     const gapPx = plannerSyncSceneGap(currentView);
     const transition = plannerTrackTransitionConfig();
     if(targetMode === "frauen"){
@@ -11841,23 +11841,18 @@
       btn.classList.toggle("is-active", btn.dataset.laserSwitch === mode);
     });
     if(afterGhost){
-      plannerFrauenView = "front";
       plannerViewButtons.forEach((btn) => {
-        const active = btn.dataset.plannerView === "front";
+        const active = btn.dataset.plannerView === plannerFrauenView;
         btn.classList.toggle("is-active", active);
         btn.setAttribute("aria-pressed", active ? "true" : "false");
       });
-    }
-    const shouldResetViewToFront = !afterGhost && plannerFrauenView !== "front";
-    if(shouldResetViewToFront){
-      setPlannerFrauenView("front", { mode, skipNeighborWarmup:true });
     }
     applyLaserVisualMode(mode);
     syncPlannerViewSwitch(mode);
     if(afterGhost){
       applyPlannerFigureMode(mode, { animate:false });
       plannerFocusInteractiveForSwitch(mode);
-    } else if(!shouldResetViewToFront){
+    } else {
       applyPlannerFigureMode(mode);
     }
     applyModePricing(mode);
