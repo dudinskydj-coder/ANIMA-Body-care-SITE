@@ -1381,6 +1381,34 @@
     .plannerFigureFrontline.is-view-switching{
       pointer-events:none;
     }
+    .plannerFigureBase.is-switch-out-left{
+      animation:plannerViewSlideOutLeft .165s cubic-bezier(.22,.7,.24,1) forwards;
+    }
+    .plannerFigureBase.is-switch-out-right{
+      animation:plannerViewSlideOutRight .165s cubic-bezier(.22,.7,.24,1) forwards;
+    }
+    .plannerFigureBase.is-switch-in-left{
+      animation:plannerViewSlideInLeft .19s cubic-bezier(.22,.8,.24,1) forwards;
+    }
+    .plannerFigureBase.is-switch-in-right{
+      animation:plannerViewSlideInRight .19s cubic-bezier(.22,.8,.24,1) forwards;
+    }
+    @keyframes plannerViewSlideOutLeft{
+      from{ transform:translate3d(0, 0, 0); }
+      to{ transform:translate3d(-26%, 0, 0); }
+    }
+    @keyframes plannerViewSlideOutRight{
+      from{ transform:translate3d(0, 0, 0); }
+      to{ transform:translate3d(26%, 0, 0); }
+    }
+    @keyframes plannerViewSlideInLeft{
+      from{ transform:translate3d(-26%, 0, 0); }
+      to{ transform:translate3d(0, 0, 0); }
+    }
+    @keyframes plannerViewSlideInRight{
+      from{ transform:translate3d(26%, 0, 0); }
+      to{ transform:translate3d(0, 0, 0); }
+    }
     .plannerBackSketch{
       position:absolute;
       left:50%;
@@ -1441,6 +1469,18 @@
     .plannerFigureOverlayImage.is-visible,
     .plannerFigureOverlayImage.is-guide-visible{
       opacity:1;
+    }
+    .plannerFigureOverlayImage.is-switch-out-left{
+      animation:plannerViewSlideOutLeft .165s cubic-bezier(.22,.7,.24,1) forwards;
+    }
+    .plannerFigureOverlayImage.is-switch-out-right{
+      animation:plannerViewSlideOutRight .165s cubic-bezier(.22,.7,.24,1) forwards;
+    }
+    .plannerFigureOverlayImage.is-switch-in-left{
+      animation:plannerViewSlideInLeft .19s cubic-bezier(.22,.8,.24,1) forwards;
+    }
+    .plannerFigureOverlayImage.is-switch-in-right{
+      animation:plannerViewSlideInRight .19s cubic-bezier(.22,.8,.24,1) forwards;
     }
     .plannerFigureFrontline{
       position:absolute;
@@ -9053,6 +9093,16 @@
     if(!skipNeighborWarmup){
       plannerWarmupNeighborViews(mode, plannerFrauenView);
     }
+  }
+  function plannerSwitchAnimatedLayers(){
+    const activeScene = plannerViewScenes[plannerFrauenView];
+    if(!activeScene) return [];
+    return [
+      activeScene.base,
+      ...Object.values(activeScene.overlayElsByPartKey || {}),
+      activeScene.custom,
+      activeScene.frontline
+    ].filter(Boolean);
   }
   function plannerIsMobilePerfMode(){
     return intRasterMq.matches;
