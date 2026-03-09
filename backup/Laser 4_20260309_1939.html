@@ -784,6 +784,39 @@
       cursor:not-allowed;
       transform:none;
     }
+    .plannerEngineSwitch{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      align-self:center;
+      margin:0 auto 10px;
+      padding:4px;
+      border:1px solid rgba(17,18,24,.08);
+      border-radius:999px;
+      background:rgba(255,255,255,.88);
+      backdrop-filter:saturate(140%) blur(8px);
+      -webkit-backdrop-filter:saturate(140%) blur(8px);
+      position:relative;
+      z-index:7;
+    }
+    .plannerEngineBtn{
+      border:none;
+      background:transparent;
+      color:rgba(17,18,24,.62);
+      font:600 12px/1 "Avenir Next","Avenir",-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+      letter-spacing:.01em;
+      padding:9px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      transition:background-color .18s ease, color .18s ease;
+      -webkit-appearance:none;
+      appearance:none;
+    }
+    .plannerEngineBtn.is-active{
+      background:#111218;
+      color:#fff;
+    }
     .plannerViewArrow{
       position:absolute;
       top:50%;
@@ -3945,6 +3978,10 @@
               <span class="plannerMobileInfoSaved" id="plannerMobileInfoSaved"></span>
             </span>
           </div>
+          <div class="plannerEngineSwitch" role="group" aria-label="Planner swipe engine">
+            <button type="button" class="plannerEngineBtn is-active" id="planner-engine-transform" data-planner-transport="transform" aria-pressed="true">Transform</button>
+            <button type="button" class="plannerEngineBtn" id="planner-engine-scroll" data-planner-transport="scroll-snap" aria-pressed="false">Scroll-snap</button>
+          </div>
           <div class="plannerFigure">
             <div class="plannerFigureInner">
               <div class="plannerBackSketch" id="plannerBackSketch"></div>
@@ -4304,7 +4341,7 @@
   let plannerFigureTrackScroll = null;
   let plannerScrollSketch = null;
   let plannerScrollBackSketch = null;
-  let plannerViewTransport = "scroll-snap";
+  let plannerViewTransport = "transform";
   let plannerScrollSnapMuted = false;
   let plannerScrollSnapRaf = null;
   let plannerScrollSnapSettleTimer = null;
@@ -4312,6 +4349,7 @@
   let plannerScrollSnapPendingView = null;
   let plannerScrollSnapLastKnownLeft = 0;
   let plannerTapFeedbackTimer = null;
+  let plannerHybridProgrammaticTransport = false;
   function plannerAllRenderedSketchHosts(){
     return [plannerSketch, plannerBackSketch, plannerScrollSketch, plannerScrollBackSketch].filter((host) => host instanceof HTMLElement);
   }
@@ -4354,21 +4392,7 @@
     }
   }
   function plannerProgrammaticViewChange(view, options = {}){
-    const nextView = plannerFrauenViewOrder.includes(view) ? view : "front";
-    plannerScrollSnapPendingView = nextView;
-    plannerSetSwipingState(false);
-    plannerSyncScrollSnapPosition(nextView, {
-      instant:false,
-      force:true,
-      source:"programmatic"
-    });
-    if(plannerScrollSnapSettleTimer){
-      clearTimeout(plannerScrollSnapSettleTimer);
-    }
-    plannerScrollSnapSettleTimer = setTimeout(() => {
-      plannerScrollSnapSettleTimer = null;
-      plannerCommitScrollSnapSettledView({ syncOnly:true });
-    }, 180);
+    setPlannerFrauenView(view, { ...options, navigationKind:"programmatic" });
   }
   function plannerScenePartKeysForView(view){
     return Array.isArray(plannerScenePartKeysByView[view]) ? [...plannerScenePartKeysByView[view]] : [];
@@ -4414,9 +4438,10 @@
     const viewportWidth = plannerFigureViewport.clientWidth || 0;
     const safeTransport = transport === "scroll-snap" ? "scroll-snap" : "transform";
     if(safeTransport === "scroll-snap"){
-      void isSlideMode;
-      void viewportWidth;
-      return 4;
+      if(isSlideMode){
+        return Math.max(8, Math.min(16, Math.round(viewportWidth * 0.022)));
+      }
+      return Math.max(10, Math.min(18, Math.round(viewportWidth * 0.012)));
     }
     if(isSlideMode){
       return Math.max(72, Math.min(96, Math.round(viewportWidth * 0.2)));
@@ -6308,8 +6333,7 @@
     });
   }
   function plannerSetTransport(transport){
-    void transport;
-    const nextTransport = "scroll-snap";
+    const nextTransport = transport === "scroll-snap" ? "scroll-snap" : "transform";
     plannerViewTransport = nextTransport;
     plannerScrollSnapPointerDown = false;
     plannerScrollSnapPendingView = null;
@@ -6317,10 +6341,25 @@
     if(plannerFigureWrap){
       plannerFigureWrap.dataset.plannerTransport = nextTransport;
     }
-    plannerInitScrollSnapScenes();
-    plannerSyncAllViewScenes(activeLaserMode(), { syncActiveScene:false, sourceTransport:"transport-toggle" });
-    plannerSyncScrollSnapHotspots(activeLaserMode());
-    plannerSyncScrollSnapPosition(plannerFrauenView, { instant:true, force:true, source:"transport-toggle" });
+    plannerEngineButtons.forEach((btn) => {
+      const active = btn.dataset.plannerTransport === nextTransport;
+      btn.classList.toggle("is-active", active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    if(nextTransport === "scroll-snap"){
+      plannerInitScrollSnapScenes();
+      plannerSyncAllViewScenes(activeLaserMode(), { syncActiveScene:false, sourceTransport:"transport-toggle" });
+      plannerSyncScrollSnapHotspots(activeLaserMode());
+      plannerSyncScrollSnapPosition(plannerFrauenView, { instant:true, source:"transport-toggle" });
+      return;
+    }
+    const frontScene = plannerViewScenes.front;
+    if(frontScene && frontScene.frame && plannerSketch instanceof HTMLElement){
+      frontScene.frame.appendChild(plannerSketch);
+    }
+    if(plannerFigureInner && plannerBackSketch instanceof HTMLElement){
+      plannerFigureInner.appendChild(plannerBackSketch);
+    }
   }
   function plannerCollectPrefetchSourcesForTarget(target){
     const result = [];
@@ -9345,6 +9384,11 @@
     const nextView = plannerFrauenViewOrder.includes(view) ? view : "front";
     const changed = plannerFrauenView !== nextView;
     const prevView = plannerFrauenView;
+    const programmaticHybridNav = options.navigationKind === "programmatic" && plannerViewTransport === "scroll-snap";
+    if(programmaticHybridNav){
+      plannerHybridProgrammaticTransport = true;
+      plannerSetTransport("transform");
+    }
     plannerFrauenView = nextView;
     plannerViewButtons.forEach((btn) => {
       const active = btn.dataset.plannerView === plannerFrauenView;
@@ -9374,6 +9418,15 @@
         onVisualSettled:() => {
           plannerViewTransitionActive = false;
           plannerReleaseFrontStaticOverlaySources();
+          if(programmaticHybridNav){
+            plannerSyncScrollSnapPosition(nextView, {
+              instant:true,
+              force:true,
+              source:"programmatic-transform"
+            });
+            plannerHybridProgrammaticTransport = false;
+            plannerSetTransport("scroll-snap");
+          }
           // Do full interactive re-render only after slide completes.
           schedulePlannerRender(mode);
           plannerFocusInteractiveForSwitch(mode);
@@ -9382,6 +9435,15 @@
       if(!PLANNER_VIEW_SLIDE_ANIMATION){
         plannerViewTransitionActive = false;
         plannerReleaseFrontStaticOverlaySources();
+        if(programmaticHybridNav){
+          plannerSyncScrollSnapPosition(nextView, {
+            instant:true,
+            force:true,
+            source:"programmatic-transform"
+          });
+          plannerHybridProgrammaticTransport = false;
+          plannerSetTransport("scroll-snap");
+        }
         renderPlannerViewState(mode);
         schedulePlannerRender(mode);
         plannerFocusInteractiveForSwitch(mode);
@@ -9389,16 +9451,26 @@
       requestAnimationFrame(positionPlannerViewArrows);
     } else {
       plannerViewTransitionActive = false;
+      if(programmaticHybridNav){
+        plannerSyncScrollSnapPosition(nextView, {
+          instant:true,
+          force:true,
+          source:"programmatic-transform"
+        });
+        plannerHybridProgrammaticTransport = false;
+        plannerSetTransport("scroll-snap");
+      }
     }
     if(changed){
       plannerPersistState();
     }
     plannerEnsurePreparedDynamicOverlays(mode, plannerFrauenView);
-    if(plannerViewTransport === "scroll-snap"){
+    if(plannerViewTransport === "scroll-snap" && !programmaticHybridNav){
       renderPlannerViewState(mode);
     }
     plannerSyncScrollSnapPosition(plannerFrauenView, {
       instant:!changed,
+      force:programmaticHybridNav,
       source:options.sourceTransport || ""
     });
     // Keep next/prev view assets warm so switching is instant.
