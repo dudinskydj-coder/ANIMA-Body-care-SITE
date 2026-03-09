@@ -1539,19 +1539,19 @@
       z-index:0;
     }
     .plannerFigureOverlayImage--axilla-gray{
-      z-index:10;
+      z-index:5;
     }
     .plannerFigureOverlayImage--dynamic{
       z-index:3;
     }
     .plannerFigureOverlayImage--dynamic.plannerFigureOverlayImage--axilla-main{
-      z-index:11 !important;
+      z-index:50 !important;
     }
     .plannerFigureOverlayImage--dynamic.plannerFigureOverlayImage--axilla-gray-dynamic{
       z-index:10 !important;
     }
     #plannerFigureOverlayAxilla{
-      z-index:11;
+      z-index:7;
     }
     .plannerSketch{
       position:absolute;
@@ -3954,11 +3954,13 @@
               <div class="plannerBackSketch" id="plannerBackSketch"></div>
               <img src="img/INT/FRAUEN_FRONT/FR_FRONT_GR.svg" alt="Interaktive Körperzonen Frauen Front" loading="eager" decoding="sync" fetchpriority="high" id="plannerFigureImage" class="plannerFigureBase">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/webp/FR_RS_OBERLIPPE-1600.webp" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayUpperlip" class="plannerFigureOverlayImage" aria-hidden="true">
+              <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_ACHSELN.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayAxilla" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_HALS.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayChin" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_Brustbereich.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayChest" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_HANDE.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayHands" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_FUSSE.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayFeet" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_OBERARME_MAIN.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayUpperarms" class="plannerFigureOverlayImage" aria-hidden="true">
+              <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_GR_ACHSELN_MAIN.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayAxillaGray" class="plannerFigureOverlayImage plannerFigureOverlayImage--axilla-gray" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_UNTERARME_MAIN.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayUnderarms" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_BAUCH_MEDIA_LN.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayBauchMedia" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_BAUCH.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayBauchFull" class="plannerFigureOverlayImage" aria-hidden="true">
@@ -3967,8 +3969,6 @@
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_UNTERSCH_MAIN.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayUntersch" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM_POF.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayImage" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayCustom" class="plannerFigureOverlayImage" aria-hidden="true">
-              <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_GR_ACHSELN_MAIN.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayAxillaGray" class="plannerFigureOverlayImage plannerFigureOverlayImage--axilla-gray" aria-hidden="true">
-              <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_ACHSELN.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayAxilla" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FRAUEN_FRONT/FR_FRONT_GR_KONTUR.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureFrontline" class="plannerFigureFrontline" aria-hidden="true">
               <div class="plannerSketch" id="plannerSketch"></div>
             </div>
@@ -4592,27 +4592,15 @@
       const base = plannerCreateSceneImage("plannerFigureBase");
       frame.appendChild(base);
       const overlayElsByPartKey = {};
-      let axillaMainOverlay = null;
-      let axillaGrayOverlay = null;
       plannerScenePartKeysForView(view).forEach((partKey) => {
         const overlay = plannerCreateSceneImage("plannerFigureOverlayImage");
         if(partKey === "ACHSELN_MAIN") overlay.classList.add("plannerFigureOverlayImage--axilla-main");
         if(partKey === "ACHSELN_GRAY") overlay.classList.add("plannerFigureOverlayImage--axilla-gray-dynamic");
         overlayElsByPartKey[partKey] = overlay;
-        if(partKey === "ACHSELN_MAIN"){
-          axillaMainOverlay = overlay;
-          return;
-        }
-        if(partKey === "ACHSELN_GRAY"){
-          axillaGrayOverlay = overlay;
-          return;
-        }
         frame.appendChild(overlay);
       });
       const custom = plannerCreateSceneImage("plannerFigureOverlayImage");
       frame.appendChild(custom);
-      if(axillaGrayOverlay) frame.appendChild(axillaGrayOverlay);
-      if(axillaMainOverlay) frame.appendChild(axillaMainOverlay);
       const frontline = plannerCreateSceneImage("plannerFigureFrontline");
       frame.appendChild(frontline);
       plannerFigureTrackScroll.appendChild(scene);
@@ -4686,8 +4674,6 @@
     frame.appendChild(base);
     const selectedSet = plannerSelectedByMode[safeMode] || new Set();
     const overlaySrcMap = ((plannerHoverOverlaySrcByModeAndView[safeMode] || {})[safeView]) || {};
-    let axillaMainOverlay = null;
-    let axillaGrayOverlay = null;
     plannerActivePartKeysForView(safeMode, safeView, selectedSet).forEach((partKey) => {
       const src = overlaySrcMap[partKey] || "";
       if(!src) return;
@@ -4696,18 +4682,8 @@
       if(partKey === "ACHSELN_GRAY") overlay.classList.add("plannerFigureOverlayImage--axilla-gray-dynamic");
       setIntResponsiveImageSrc(overlay, src);
       overlay.classList.add("is-visible");
-      if(partKey === "ACHSELN_MAIN"){
-        axillaMainOverlay = overlay;
-        return;
-      }
-      if(partKey === "ACHSELN_GRAY"){
-        axillaGrayOverlay = overlay;
-        return;
-      }
       frame.appendChild(overlay);
     });
-    if(axillaGrayOverlay) frame.appendChild(axillaGrayOverlay);
-    if(axillaMainOverlay) frame.appendChild(axillaMainOverlay);
     const frontline = plannerCreateSceneImage("plannerFigureFrontline");
     const frontlineSrc = ((plannerFrontlineByModeAndView[safeMode] || {})[safeView]) || "";
     if(frontlineSrc){
@@ -4806,27 +4782,15 @@
       const base = plannerCreateSceneImage("plannerFigureBase");
       const overlayElsByPartKey = {};
       frame.appendChild(base);
-      let axillaMainOverlay = null;
-      let axillaGrayOverlay = null;
       plannerScenePartKeysForView(view).forEach((partKey) => {
         const overlay = plannerCreateSceneImage("plannerFigureOverlayImage");
         if(partKey === "ACHSELN_MAIN") overlay.classList.add("plannerFigureOverlayImage--axilla-main");
         if(partKey === "ACHSELN_GRAY") overlay.classList.add("plannerFigureOverlayImage--axilla-gray-dynamic");
         overlayElsByPartKey[partKey] = overlay;
-        if(partKey === "ACHSELN_MAIN"){
-          axillaMainOverlay = overlay;
-          return;
-        }
-        if(partKey === "ACHSELN_GRAY"){
-          axillaGrayOverlay = overlay;
-          return;
-        }
         frame.appendChild(overlay);
       });
       const custom = plannerCreateSceneImage("plannerFigureOverlayImage");
       frame.appendChild(custom);
-      if(axillaGrayOverlay) frame.appendChild(axillaGrayOverlay);
-      if(axillaMainOverlay) frame.appendChild(axillaMainOverlay);
       const frontline = plannerCreateSceneImage("plannerFigureFrontline");
       frame.appendChild(frontline);
       plannerFigureTrack.appendChild(scene);
@@ -5955,7 +5919,7 @@
         HANDE_R:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_HANDEN.svg",
         FUSSE_L:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_FUSSE.svg",
         FUSSE_R:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_FUSSE.svg",
-        ACHSELN_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASHELN.svg",
+        ACHSELN_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASHELN.svg.svg",
         ACHSELN_GRAY:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_GR_ASHELN_NEW.svg",
         OBERARME_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_OBERARME.svg",
         UNTERARME_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_UNTERARME.svg",
@@ -5980,7 +5944,7 @@
         OBERSCH_MAIN:"img/INT/HERREN_BACK/HERREN_BACK_BR_OBERSCH.svg",
         UNTERSCH_MAIN:"img/INT/HERREN_BACK/HERREN_BACK_BR_UNTERSCH.svg",
         INTIM_KOM_POF:"img/INT/HERREN_BACK/HERREN_BACK_BR_INTIM_PROF.svg",
-        ACHSELN_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASHELN.svg",
+        ACHSELN_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASHELN.svg.svg",
         ACHSELN_GRAY:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_GR_ASHELN_NEW.svg"
       },
       face:{
@@ -6013,7 +5977,7 @@
       intim:"img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM_POF.svg"
     },
     herren:{
-      axilla:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASHELN.svg",
+      axilla:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASHELN.svg.svg",
       axillaGray:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_GR_ASHELN_NEW.svg",
       chin:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_HALS.svg.svg",
       chest:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_BRUST.svg",
@@ -6192,6 +6156,20 @@
       const zoneParts = zoneMap[zoneId] || [];
       zoneParts.forEach((partKey) => parts.add(partKey));
     });
+    if(view === "front"){
+      const frontKeepsAxilla = safeSelected.has("chest");
+      const frontUpperarmsKeepAxilla = !frontKeepsAxilla && safeSelected.has("upperarms") && !safeSelected.has("axilla");
+      if(frontKeepsAxilla || frontUpperarmsKeepAxilla){
+        parts.add("ACHSELN_GRAY");
+      }
+    }
+    if(view === "back"){
+      const backKeepsAxilla = safeSelected.has("upperback");
+      const backUpperarmsKeepAxilla = !backKeepsAxilla && safeSelected.has("upperarms") && !safeSelected.has("axilla");
+      if(backKeepsAxilla || backUpperarmsKeepAxilla){
+        parts.add("ACHSELN_GRAY");
+      }
+    }
     return parts;
   }
   function plannerSelectedOverlaySourcesForView(mode, view, selectedSet){
@@ -6228,6 +6206,11 @@
       if(safeSelected.has("untersch")) activeParts.add("UNTERSCH_MAIN");
       if(safeSelected.has("bikini")) activeParts.add("BIKINI_MAIN");
       if(safeSelected.has("intim")) activeParts.add("INTIM_KOM_POF");
+      const chestKeepsAxillaGray = safeSelected.has("chest");
+      const frontUpperarmsKeepAxillaGray = !chestKeepsAxillaGray && safeSelected.has("upperarms") && !safeSelected.has("axilla");
+      if(chestKeepsAxillaGray || frontUpperarmsKeepAxillaGray){
+        activeParts.add("ACHSELN_GRAY");
+      }
       return activeParts;
     }
     plannerSelectedPartsForView(mode, view, safeSelected).forEach((partKey) => activeParts.add(partKey));
@@ -6314,10 +6297,6 @@
           const el = scene.overlayElsByPartKey && scene.overlayElsByPartKey[partKey];
           if(el) plannerSetOverlayVisible(el, true);
         });
-        if(view === "front" || view === "back"){
-          const passiveAxillaGray = scene.overlayElsByPartKey && scene.overlayElsByPartKey.ACHSELN_GRAY;
-          if(passiveAxillaGray) plannerSetOverlayVisible(passiveAxillaGray, true);
-        }
         if(scene.frontline){
           scene.frontline.classList.add("is-visible");
         }
@@ -9929,6 +9908,18 @@
   function plannerHoverPartsForZone(mode, zoneId){
     const map = plannerHoverPartsByZone[mode] || {};
     const baseParts = Array.isArray(map[zoneId]) ? [...map[zoneId]] : [];
+    if((mode === "frauen" || mode === "herren") && plannerFrauenView === "front" && (zoneId === "upperarms" || zoneId === "chest")){
+      const selectedSet = plannerSelectedByMode[mode] || new Set();
+      if(!selectedSet.has("axilla") && !baseParts.includes("ACHSELN_GRAY")){
+        baseParts.push("ACHSELN_GRAY");
+      }
+    }
+    if((mode === "frauen" || mode === "herren") && plannerFrauenView === "back" && (zoneId === "upperarms" || zoneId === "upperback")){
+      const selectedSet = plannerSelectedByMode[mode] || new Set();
+      if(!selectedSet.has("axilla") && !baseParts.includes("ACHSELN_GRAY")){
+        baseParts.push("ACHSELN_GRAY");
+      }
+    }
     return baseParts;
   }
   function partKeyFromFrauenHoverRatio(rx, ry){

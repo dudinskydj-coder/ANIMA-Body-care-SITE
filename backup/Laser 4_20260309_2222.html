@@ -5955,7 +5955,7 @@
         HANDE_R:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_HANDEN.svg",
         FUSSE_L:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_FUSSE.svg",
         FUSSE_R:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_FUSSE.svg",
-        ACHSELN_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASHELN.svg",
+        ACHSELN_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASHELN.svg.svg",
         ACHSELN_GRAY:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_GR_ASHELN_NEW.svg",
         OBERARME_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_OBERARME.svg",
         UNTERARME_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_UNTERARME.svg",
@@ -5980,7 +5980,7 @@
         OBERSCH_MAIN:"img/INT/HERREN_BACK/HERREN_BACK_BR_OBERSCH.svg",
         UNTERSCH_MAIN:"img/INT/HERREN_BACK/HERREN_BACK_BR_UNTERSCH.svg",
         INTIM_KOM_POF:"img/INT/HERREN_BACK/HERREN_BACK_BR_INTIM_PROF.svg",
-        ACHSELN_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASHELN.svg",
+        ACHSELN_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASHELN.svg.svg",
         ACHSELN_GRAY:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_GR_ASHELN_NEW.svg"
       },
       face:{
@@ -6013,7 +6013,7 @@
       intim:"img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM_POF.svg"
     },
     herren:{
-      axilla:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASHELN.svg",
+      axilla:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASHELN.svg.svg",
       axillaGray:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_GR_ASHELN_NEW.svg",
       chin:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_HALS.svg.svg",
       chest:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_BRUST.svg",
@@ -6192,6 +6192,13 @@
       const zoneParts = zoneMap[zoneId] || [];
       zoneParts.forEach((partKey) => parts.add(partKey));
     });
+    if(view === "back"){
+      const backKeepsAxilla = safeSelected.has("upperback");
+      const backUpperarmsKeepAxilla = !backKeepsAxilla && safeSelected.has("upperarms") && !safeSelected.has("axilla");
+      if(backKeepsAxilla || backUpperarmsKeepAxilla){
+        parts.add("ACHSELN_GRAY");
+      }
+    }
     return parts;
   }
   function plannerSelectedOverlaySourcesForView(mode, view, selectedSet){
@@ -6228,6 +6235,11 @@
       if(safeSelected.has("untersch")) activeParts.add("UNTERSCH_MAIN");
       if(safeSelected.has("bikini")) activeParts.add("BIKINI_MAIN");
       if(safeSelected.has("intim")) activeParts.add("INTIM_KOM_POF");
+      const chestKeepsAxillaGray = safeSelected.has("chest");
+      const frontUpperarmsKeepAxillaGray = !chestKeepsAxillaGray && safeSelected.has("upperarms") && !safeSelected.has("axilla");
+      if(chestKeepsAxillaGray || frontUpperarmsKeepAxillaGray){
+        activeParts.add("ACHSELN_GRAY");
+      }
       return activeParts;
     }
     plannerSelectedPartsForView(mode, view, safeSelected).forEach((partKey) => activeParts.add(partKey));
@@ -6314,9 +6326,9 @@
           const el = scene.overlayElsByPartKey && scene.overlayElsByPartKey[partKey];
           if(el) plannerSetOverlayVisible(el, true);
         });
-        if(view === "front" || view === "back"){
-          const passiveAxillaGray = scene.overlayElsByPartKey && scene.overlayElsByPartKey.ACHSELN_GRAY;
-          if(passiveAxillaGray) plannerSetOverlayVisible(passiveAxillaGray, true);
+        if(view === "front"){
+          const frontAxillaGray = scene.overlayElsByPartKey && scene.overlayElsByPartKey.ACHSELN_GRAY;
+          if(frontAxillaGray) plannerSetOverlayVisible(frontAxillaGray, true);
         }
         if(scene.frontline){
           scene.frontline.classList.add("is-visible");
@@ -9929,6 +9941,12 @@
   function plannerHoverPartsForZone(mode, zoneId){
     const map = plannerHoverPartsByZone[mode] || {};
     const baseParts = Array.isArray(map[zoneId]) ? [...map[zoneId]] : [];
+    if((mode === "frauen" || mode === "herren") && plannerFrauenView === "back" && (zoneId === "upperarms" || zoneId === "upperback")){
+      const selectedSet = plannerSelectedByMode[mode] || new Set();
+      if(!selectedSet.has("axilla") && !baseParts.includes("ACHSELN_GRAY")){
+        baseParts.push("ACHSELN_GRAY");
+      }
+    }
     return baseParts;
   }
   function partKeyFromFrauenHoverRatio(rx, ry){
