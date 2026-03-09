@@ -9786,18 +9786,16 @@
     clearPlannerGuideOverlay();
   }
   function clearPlannerGuideOverlay(){
-    [plannerViewScenes, plannerScrollViewScenes].forEach((sceneGroup) => {
-      plannerFigureSceneViews.forEach((view) => {
-        const scene = sceneGroup[view];
-        if(!scene) return;
-        Object.values(scene.overlayElsByPartKey || {}).forEach((el) => {
-          if(!el) return;
-          el.classList.remove("is-guide-visible", "is-guide-bikini", "is-guide-intim");
-        });
-        if(scene.custom){
-          scene.custom.classList.remove("is-guide-visible");
-        }
+    plannerFigureSceneViews.forEach((view) => {
+      const scene = plannerViewScenes[view];
+      if(!scene) return;
+      Object.values(scene.overlayElsByPartKey || {}).forEach((el) => {
+        if(!el) return;
+        el.classList.remove("is-guide-visible", "is-guide-bikini", "is-guide-intim");
       });
+      if(scene.custom){
+        scene.custom.classList.remove("is-guide-visible");
+      }
     });
     plannerClearDynamicOverlayClasses({ clearVisible:false, clearGuide:true });
   }
@@ -9827,15 +9825,13 @@
   function plannerClearDynamicOverlayClasses(options = {}){
     const clearVisible = options.clearVisible !== false;
     const clearGuide = options.clearGuide !== false;
-    [plannerViewScenes, plannerScrollViewScenes].forEach((sceneGroup) => {
-      plannerFigureSceneViews.forEach((view) => {
-        const scene = sceneGroup[view];
-        if(!scene) return;
-        Object.values(scene.overlayElsByPartKey || {}).forEach((el) => {
-          if(!el) return;
-          if(clearVisible) el.classList.remove("is-visible");
-          if(clearGuide) el.classList.remove("is-guide-visible");
-        });
+    plannerFigureSceneViews.forEach((view) => {
+      const scene = plannerViewScenes[view];
+      if(!scene) return;
+      Object.values(scene.overlayElsByPartKey || {}).forEach((el) => {
+        if(!el) return;
+        if(clearVisible) el.classList.remove("is-visible");
+        if(clearGuide) el.classList.remove("is-guide-visible");
       });
     });
   }
