@@ -5393,9 +5393,6 @@
   const PLANNER_SWIPE_MAX_MS = 920;
   const PLANNER_SWIPE_PREVIEW_START_X = 6;
   const PLANNER_SWIPE_COMMIT_PROGRESS = 0.22;
-  const PLANNER_SWIPE_MIDPOINT_MAGNET_START = 0.32;
-  const PLANNER_SWIPE_MIDPOINT_MAGNET_END = 0.68;
-  const PLANNER_SWIPE_MIDPOINT_MAGNET_STRENGTH = 0.38;
   const faqState = { active:false, openIndex:null };
   const desktopHover = window.matchMedia("(hover: hover) and (pointer: fine)");
   const coarsePointerMq = window.matchMedia("(pointer: coarse)");
@@ -9095,17 +9092,9 @@
     const viewportWidth = plannerFigureViewport.clientWidth || 1;
     const signedDistance = dx * plannerInteractiveSwipeDirection;
     const progress = Math.max(0, Math.min(1, signedDistance / viewportWidth));
-    let displayProgress = progress;
-    if(progress >= PLANNER_SWIPE_MIDPOINT_MAGNET_START && progress <= PLANNER_SWIPE_MIDPOINT_MAGNET_END){
-      const halfBand = (PLANNER_SWIPE_MIDPOINT_MAGNET_END - PLANNER_SWIPE_MIDPOINT_MAGNET_START) / 2;
-      const centerDistance = Math.abs(progress - 0.5);
-      const magnetRatio = Math.max(0, 1 - (centerDistance / Math.max(0.0001, halfBand)));
-      const pull = magnetRatio * PLANNER_SWIPE_MIDPOINT_MAGNET_STRENGTH;
-      displayProgress = progress + ((0.5 - progress) * pull);
-    }
     const startIndex = plannerViewIndex(plannerInteractiveSwipeStartView);
     plannerInteractiveSwipeProgress = progress;
-    plannerSetTrackOffset(startIndex + (displayProgress * plannerInteractiveSwipeDirection), {
+    plannerSetTrackOffset(startIndex + (progress * plannerInteractiveSwipeDirection), {
       animate:false,
       view:plannerInteractiveSwipeStartView
     });
