@@ -19,7 +19,6 @@
       --accentText:#ffffff;
       --headerH:62px;
       --headerIconStroke:2;
-      --appVh:100dvh;
     }
     *{box-sizing:border-box}
     html,
@@ -1336,9 +1335,6 @@
       transform:translate3d(0, 0, 0);
       transition:transform .34s cubic-bezier(.22, 1, .36, 1);
       will-change:transform;
-    }
-    .plannerFigureTrack.is-interactive-swipe{
-      transition:none !important;
     }
     .plannerFigure img{
       width:100%;
@@ -3529,32 +3525,25 @@
         -webkit-overflow-scrolling:auto;
       }
       #menuOverlay{
-        min-height:var(--appVh);
-        max-height:var(--appVh);
+        min-height:100svh;
+        max-height:100svh;
       }
       #menuOverlay .overlayInner{
-        padding:calc(var(--headerH) + 10px) 18px 16px;
+        padding:calc(var(--headerH) + 10px) 22px 16px;
       }
       .menuGrid{
-        display:flex;
-        flex-direction:column;
-        justify-content:flex-start;
+        grid-template-columns:1fr;
         max-width:none;
         width:100%;
-        height:auto;
-        min-height:0;
-        gap:12px;
+        gap:clamp(24px, 2.9vh, 32px);
       }
       .menuCol{
-        display:flex;
-        flex-direction:column;
-        gap:12px;
+        gap:clamp(6px, .95vh, 10px);
       }
+      .menuGrid a{white-space:normal}
       .menuGrid a{
-        white-space:nowrap;
-        font-size:clamp(18px, 5.8vw, 25px);
+        font-size:clamp(25px, 3.65vh, 28px);
         line-height:1.14;
-        letter-spacing:-.03em;
       }
       .legalModal{
         padding:16px 10px;
@@ -4238,24 +4227,13 @@
     const transition = plannerTrackTransitionConfig();
     return `transform ${transition.duration}ms ${transition.easing}`;
   }
-  function plannerTrackOffsetPx(rawIndex, options = {}){
-    if(!(plannerFigureViewport instanceof HTMLElement)) return 0;
-    const index = Number.isFinite(rawIndex) ? rawIndex : 0;
-    const gapPx = Number.isFinite(options.gapPx) ? options.gapPx : plannerSyncSceneGap(options.view || plannerFrauenView);
-    const viewportWidth = plannerFigureViewport.clientWidth || 0;
-    return index * (viewportWidth + gapPx);
-  }
-  function plannerSetTrackOffset(rawIndex, options = {}){
-    if(!(plannerFigureTrack instanceof HTMLElement)) return;
-    const gapPx = Number.isFinite(options.gapPx) ? options.gapPx : plannerSyncSceneGap(options.view || plannerFrauenView);
-    const offsetX = plannerTrackOffsetPx(rawIndex, { gapPx, view:options.view });
-    const shouldAnimate = options.animate !== false;
-    plannerFigureTrack.classList.toggle("is-interactive-swipe", !shouldAnimate);
-    plannerFigureTrack.style.transition = shouldAnimate ? plannerTrackTransitionCss() : "none";
-    plannerFigureTrack.style.transform = `translate3d(${-offsetX}px, 0, 0)`;
-  }
   function plannerSetTrackPosition(view, options = {}){
-    plannerSetTrackOffset(plannerViewIndex(view), { ...options, view });
+    if(!(plannerFigureTrack instanceof HTMLElement)) return;
+    const gapPx = plannerSyncSceneGap(view);
+    const viewportWidth = plannerFigureViewport ? plannerFigureViewport.clientWidth : 0;
+    const offsetX = (plannerViewIndex(view) * viewportWidth) + (plannerViewIndex(view) * gapPx);
+    plannerFigureTrack.style.transition = options.animate === false ? "none" : plannerTrackTransitionCss();
+    plannerFigureTrack.style.transform = `translate3d(${-offsetX}px, 0, 0)`;
   }
   function plannerCreateSceneImage(className){
     const img = document.createElement("img");
@@ -4467,16 +4445,12 @@
   const laserGalleryImage3 = document.getElementById("laser-gallery-image-3");
   const laserGalleryImage4 = document.getElementById("laser-gallery-image-4");
   let searchIndex = [];
-  let searchIndexReady = false;
-  let searchIndexBuildQueued = false;
   let menuLastScrollY = window.scrollY;
   let searchLastScrollY = window.scrollY;
   let menuButtonTimer = null;
   let menuCloseTimer = null;
   let searchCloseTimer = null;
   let menuSyncRaf = null;
-  let menuTintSyncQueued = false;
-  let menuSyncUntil = 0;
   let legalScrollLockY = 0;
   let legalTouchStartX = null;
   let legalTouchStartY = null;
@@ -5318,11 +5292,6 @@
   let plannerPerfMonitorStarted = false;
   let plannerGuideDisabled = true;
   let plannerViewTransitionActive = false;
-  let plannerInteractiveSwipeActive = false;
-  let plannerInteractiveSwipeStartView = "front";
-  let plannerInteractiveSwipeTargetView = null;
-  let plannerInteractiveSwipeProgress = 0;
-  let plannerInteractiveSwipeDirection = 0;
   let plannerHoverPartKey = null;
   let plannerHoverSuppressed = false;
   let plannerHoverSuppressedKey = null;
@@ -5365,8 +5334,6 @@
   const PLANNER_SWIPE_MIN_X = 30;
   const PLANNER_SWIPE_MAX_Y = 64;
   const PLANNER_SWIPE_MAX_MS = 920;
-  const PLANNER_SWIPE_PREVIEW_START_X = 10;
-  const PLANNER_SWIPE_COMMIT_PROGRESS = 0.34;
   const faqState = { active:false, openIndex:null };
   const desktopHover = window.matchMedia("(hover: hover) and (pointer: fine)");
   const coarsePointerMq = window.matchMedia("(pointer: coarse)");
@@ -6350,16 +6317,6 @@
     document.documentElement.style.setProperty("--headerH", `${h}px`);
   }
 
-  function currentViewportHeight(){
-    const viewport = window.visualViewport;
-    const height = viewport && viewport.height ? viewport.height : window.innerHeight;
-    return Math.max(1, Math.round(height || 0));
-  }
-
-  function setViewportHeightVar(){
-    document.documentElement.style.setProperty("--appVh", `${currentViewportHeight()}px`);
-  }
-
   function syncMenuTintHeight(){
     if(!menuTint) return;
     if(menuOverlay.hidden){
@@ -6375,28 +6332,14 @@
     }
   }
 
-  function scheduleMenuTintHeightSync(){
-    if(menuTintSyncQueued) return;
-    menuTintSyncQueued = true;
-    requestAnimationFrame(() => {
-      menuTintSyncQueued = false;
-      syncMenuTintHeight();
-    });
-  }
-
-  function startMenuSync(duration = 240){
-    menuSyncUntil = Math.max(menuSyncUntil, performance.now() + duration);
+  function startMenuSync(){
     if(menuSyncRaf) return;
-    const loop = (ts) => {
+    const loop = () => {
       if(menuOverlay.hidden){
         menuSyncRaf = null;
         return;
       }
       syncMenuTintHeight();
-      if(ts >= menuSyncUntil){
-        menuSyncRaf = null;
-        return;
-      }
       menuSyncRaf = requestAnimationFrame(loop);
     };
     menuSyncRaf = requestAnimationFrame(loop);
@@ -6409,41 +6352,13 @@
   }
 
   setHeaderHeightVar();
-  setViewportHeightVar();
   window.addEventListener("resize", () => {
     setHeaderHeightVar();
-    setViewportHeightVar();
-    scheduleMenuTintHeightSync();
+    syncMenuTintHeight();
     syncPlannerInteractivePaneWidth();
     plannerSyncSceneGap(plannerFrauenView);
     plannerSetTrackPosition(plannerFrauenView, { animate:false });
   });
-  window.addEventListener("orientationchange", () => {
-    setHeaderHeightVar();
-    setViewportHeightVar();
-    startMenuSync(260);
-    scheduleMenuTintHeightSync();
-  });
-  if(window.visualViewport){
-    const syncViewportOverlay = () => {
-      setViewportHeightVar();
-      if(menuOverlay.hidden) return;
-      startMenuSync(220);
-      scheduleMenuTintHeightSync();
-    };
-    window.visualViewport.addEventListener("resize", syncViewportOverlay, { passive:true });
-    window.visualViewport.addEventListener("scroll", syncViewportOverlay, { passive:true });
-  }
-  if(typeof ResizeObserver === "function"){
-    const overlayResizeObserver = new ResizeObserver(() => {
-      if(menuOverlay.hidden) return;
-      startMenuSync(200);
-      scheduleMenuTintHeightSync();
-    });
-    [menuOverlay, headerEl].forEach((el) => {
-      if(el) overlayResizeObserver.observe(el);
-    });
-  }
 
   function updateMenuButton(){
     const menuOpen = !menuOverlay.hidden;
@@ -6476,8 +6391,8 @@
 
   function activateMenuTint(){
     body.classList.add("menu-open");
+    requestAnimationFrame(syncMenuTintHeight);
     startMenuSync();
-    scheduleMenuTintHeightSync();
   }
 
   function deactivateMenuTint(){
@@ -6500,7 +6415,6 @@
     menuOverlay.classList.remove("is-opening");
     menuOverlay.classList.add("is-closing");
     setMenuButtonOpen(false);
-    startMenuSync();
     const closeDelay = instantMenuMq.matches ? 0 : 160;
     menuCloseTimer = setTimeout(() => {
       menuOverlay.hidden = true;
@@ -6543,8 +6457,7 @@
       activateMenuTint();
       menuOverlay.style.setProperty("--menuOpenDelay", "0ms");
       setMenuButtonOpen(true);
-      startMenuSync();
-      scheduleMenuTintHeightSync();
+      requestAnimationFrame(syncMenuTintHeight);
       if(instantMenuMq.matches && isMenu){
         activeOverlay.classList.remove("is-opening");
       } else {
@@ -9020,83 +8933,6 @@
     if(!plannerViewSlideRaf) return;
     cancelAnimationFrame(plannerViewSlideRaf);
     plannerViewSlideRaf = null;
-  }
-  function plannerInteractiveSwipeNeighbor(step){
-    const currentIndex = plannerViewIndex(plannerCommittedSceneView || plannerFrauenView);
-    const targetIndex = Math.max(0, Math.min(plannerFrauenViewOrder.length - 1, currentIndex + step));
-    if(targetIndex === currentIndex) return null;
-    return plannerFrauenViewOrder[targetIndex] || null;
-  }
-  function plannerSetSwipePreviewScenes(fromView, toView){
-    plannerFigureSceneViews.forEach((sceneView) => {
-      const scene = plannerViewScenes[sceneView];
-      if(!scene || !scene.container) return;
-      const isVisible = sceneView === fromView || sceneView === toView;
-      scene.container.classList.toggle("is-active", isVisible);
-      scene.container.setAttribute("aria-hidden", isVisible ? "false" : "true");
-    });
-  }
-  function plannerBeginInteractiveSwipe(targetView){
-    if(!(plannerFigureTrack instanceof HTMLElement) || !(plannerFigureViewport instanceof HTMLElement)) return false;
-    if(!plannerFrauenViewOrder.includes(targetView)) return false;
-    const startView = plannerCommittedSceneView || plannerFrauenView;
-    if(targetView === startView) return false;
-    plannerEnsurePreparedDynamicOverlays(activeLaserMode(), targetView);
-    plannerSyncAllViewScenes(activeLaserMode(), { syncActiveScene:false });
-    if(plannerViewSwitchOutTimer){
-      clearTimeout(plannerViewSwitchOutTimer);
-      plannerViewSwitchOutTimer = null;
-    }
-    if(plannerViewSwitchInTimer){
-      clearTimeout(plannerViewSwitchInTimer);
-      plannerViewSwitchInTimer = null;
-    }
-    cancelPlannerViewSlideAnimation();
-    plannerInteractiveSwipeActive = true;
-    plannerInteractiveSwipeStartView = startView;
-    plannerInteractiveSwipeTargetView = targetView;
-    plannerInteractiveSwipeDirection = plannerViewIndex(targetView) > plannerViewIndex(startView) ? 1 : -1;
-    plannerInteractiveSwipeProgress = 0;
-    plannerSetSwipePreviewScenes(startView, targetView);
-    plannerSetTrackOffset(plannerViewIndex(startView), { animate:false, view:startView });
-    return true;
-  }
-  function plannerUpdateInteractiveSwipe(dx){
-    if(!plannerInteractiveSwipeActive || !(plannerFigureViewport instanceof HTMLElement)) return;
-    const viewportWidth = plannerFigureViewport.clientWidth || 1;
-    const signedDistance = dx * plannerInteractiveSwipeDirection;
-    const progress = Math.max(0, Math.min(1, signedDistance / viewportWidth));
-    const startIndex = plannerViewIndex(plannerInteractiveSwipeStartView);
-    plannerInteractiveSwipeProgress = progress;
-    plannerSetTrackOffset(startIndex + (progress * plannerInteractiveSwipeDirection), {
-      animate:false,
-      view:plannerInteractiveSwipeStartView
-    });
-  }
-  function plannerClearInteractiveSwipeState(){
-    plannerInteractiveSwipeActive = false;
-    plannerInteractiveSwipeStartView = plannerCommittedSceneView || plannerFrauenView;
-    plannerInteractiveSwipeTargetView = null;
-    plannerInteractiveSwipeProgress = 0;
-    plannerInteractiveSwipeDirection = 0;
-    if(plannerFigureTrack){
-      plannerFigureTrack.classList.remove("is-interactive-swipe");
-    }
-  }
-  function plannerCancelInteractiveSwipe(){
-    if(!plannerInteractiveSwipeActive) return;
-    const startView = plannerInteractiveSwipeStartView || plannerCommittedSceneView || plannerFrauenView;
-    plannerSetSwipePreviewScenes(startView, startView);
-    plannerSetTrackOffset(plannerViewIndex(startView), { animate:true, view:startView });
-    plannerCommittedSceneView = startView;
-    plannerClearInteractiveSwipeState();
-  }
-  function plannerCompleteInteractiveSwipe(){
-    if(!plannerInteractiveSwipeActive || !plannerInteractiveSwipeTargetView) return false;
-    const targetView = plannerInteractiveSwipeTargetView;
-    plannerClearInteractiveSwipeState();
-    setPlannerFrauenView(targetView);
-    return true;
   }
   function applyPlannerFigureMode(mode, options = {}){
     if(!plannerFigureImage) return;
@@ -12636,7 +12472,6 @@
         plannerSwipeStartX = touch.clientX;
         plannerSwipeStartY = touch.clientY;
         plannerSwipeStartAt = Date.now();
-        plannerClearInteractiveSwipeState();
       } else {
         plannerSwipeTracking = false;
       }
@@ -12724,18 +12559,6 @@
       if(e.touches.length === 1 && plannerSwipeTracking){
         const dx = e.touches[0].clientX - plannerSwipeStartX;
         const dy = e.touches[0].clientY - plannerSwipeStartY;
-        const horizontalIntent = Math.abs(dx) > PLANNER_SWIPE_PREVIEW_START_X && Math.abs(dx) > Math.abs(dy) * 0.85;
-        if(horizontalIntent && !plannerInteractiveSwipeActive){
-          const targetView = plannerInteractiveSwipeNeighbor(dx < 0 ? 1 : -1);
-          if(targetView){
-            plannerBeginInteractiveSwipe(targetView);
-          }
-        }
-        if(plannerInteractiveSwipeActive){
-          plannerUpdateInteractiveSwipe(dx);
-          e.preventDefault();
-          return;
-        }
         if(Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy) * 0.85){
           e.preventDefault();
         }
@@ -12778,22 +12601,13 @@
       const touchEndX = touch ? touch.clientX : 0;
       const touchEndY = touch ? touch.clientY : 0;
       const touchTargetIsZoneBtn = !!(e.target && typeof e.target.closest === "function" && e.target.closest(".zoneSketchBtn"));
-      const interactiveSwipeWasActive = plannerInteractiveSwipeActive;
-      if(interactiveSwipeWasActive){
-        if(plannerInteractiveSwipeProgress >= PLANNER_SWIPE_COMMIT_PROGRESS){
-          plannerCompleteInteractiveSwipe();
-        } else {
-          plannerCancelInteractiveSwipe();
-        }
-      }
       if(plannerSwipeTracking){
         const endX = touch ? touch.clientX : plannerSwipeStartX;
         const endY = touch ? touch.clientY : plannerSwipeStartY;
         const dx = endX - plannerSwipeStartX;
         const dy = endY - plannerSwipeStartY;
         const dt = Date.now() - plannerSwipeStartAt;
-        const isSwipe = !interactiveSwipeWasActive &&
-          dt <= PLANNER_SWIPE_MAX_MS &&
+        const isSwipe = dt <= PLANNER_SWIPE_MAX_MS &&
           Math.abs(dx) >= PLANNER_SWIPE_MIN_X &&
           Math.abs(dy) <= PLANNER_SWIPE_MAX_Y &&
           Math.abs(dx) > Math.abs(dy) * 0.75;
@@ -12846,9 +12660,6 @@
       schedulePlannerAutoReset();
     }, { passive:true });
     plannerFigure.addEventListener("touchcancel", () => {
-      if(plannerInteractiveSwipeActive){
-        plannerCancelInteractiveSwipe();
-      }
       plannerSwipeTracking = false;
       plannerPinchStartDistance = null;
       cancelPlannerPinchRaf();
@@ -12899,18 +12710,6 @@
 
   function preferredLaserVideoSrc(){
     return mobileVideoMq.matches ? LASER_VIDEO_MOBILE_SRC : LASER_VIDEO_DESKTOP_SRC;
-  }
-  function warmLaserVideoSource(){
-    const src = preferredLaserVideoSrc();
-    if(!src) return;
-    const existing = document.head.querySelector(`link[data-laser-video-preload="${src}"]`);
-    if(existing) return;
-    const preload = document.createElement("link");
-    preload.rel = "preload";
-    preload.as = "video";
-    preload.href = src;
-    preload.setAttribute("data-laser-video-preload", src);
-    document.head.appendChild(preload);
   }
   function syncLaserVideoPreview(){
     if(!laserVideoPreview) return;
@@ -12980,21 +12779,10 @@
     }, 220);
   }
   syncLaserVideoPreview();
-  if("requestIdleCallback" in window){
-    window.requestIdleCallback(warmLaserVideoSource, { timeout:450 });
-  } else {
-    setTimeout(warmLaserVideoSource, 180);
-  }
   if(mobileVideoMq && typeof mobileVideoMq.addEventListener === "function"){
-    mobileVideoMq.addEventListener("change", () => {
-      syncLaserVideoPreview();
-      warmLaserVideoSource();
-    });
+    mobileVideoMq.addEventListener("change", syncLaserVideoPreview);
   } else if(mobileVideoMq && typeof mobileVideoMq.addListener === "function"){
-    mobileVideoMq.addListener(() => {
-      syncLaserVideoPreview();
-      warmLaserVideoSource();
-    });
+    mobileVideoMq.addListener(syncLaserVideoPreview);
   }
   if(laserVideoFrame){
     laserVideoFrame.addEventListener("click", openVideoModal);
@@ -13066,33 +12854,6 @@
       });
     });
     searchIndex = Array.from(map.values());
-    searchIndexReady = true;
-  }
-
-  function ensureSearchIndex(force = false){
-    if(searchIndexReady) return;
-    if(force){
-      searchIndexBuildQueued = false;
-      buildSearchIndex();
-      return;
-    }
-    if(searchIndexBuildQueued) return;
-    searchIndexBuildQueued = true;
-    const run = () => {
-      searchIndexBuildQueued = false;
-      buildSearchIndex();
-    };
-    if("requestIdleCallback" in window){
-      window.requestIdleCallback(run, { timeout:320 });
-      return;
-    }
-    setTimeout(run, 120);
-  }
-
-  function invalidateSearchIndex(){
-    searchIndex = [];
-    searchIndexReady = false;
-    ensureSearchIndex();
   }
 
   function updateSearchLineIndexes(){
@@ -13170,7 +12931,6 @@
       renderQuickLinks();
       return;
     }
-    ensureSearchIndex(true);
 
     const matches = searchIndex
       .filter((item) => item.label.includes(query))
@@ -13200,7 +12960,7 @@
   }
 
   searchInput.addEventListener("input", (e) => renderSearch(e.target.value));
-  ensureSearchIndex();
+  buildSearchIndex();
   deactivateMenuTint();
 
   // i18n
@@ -13462,7 +13222,7 @@
     if(searchEmpty) searchEmpty.textContent = m.search_empty;
     applyModePricing(activeLaserMode());
     renderPlanner(activeLaserMode());
-    invalidateSearchIndex();
+    buildSearchIndex();
     renderSearch(searchInput ? searchInput.value : "");
 
     const sel = document.getElementById("langSelect");
