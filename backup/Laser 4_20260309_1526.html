@@ -740,6 +740,44 @@
       -ms-overflow-style:none;
       z-index:5;
     }
+    .plannerViewArrowDecorLayer{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      z-index:4;
+      overflow:hidden;
+    }
+    .plannerViewArrowDecor{
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      width:36px;
+      height:36px;
+      border:1px solid rgba(255,255,255,.62);
+      border-radius:999px;
+      background:rgba(248,249,252,.72);
+      color:#1b1e27;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 8px 20px rgba(17,24,35,.09), inset 0 1px 0 rgba(255,255,255,.8);
+      backdrop-filter:blur(14px) saturate(1.04);
+      -webkit-backdrop-filter:blur(14px) saturate(1.04);
+      opacity:.78;
+      transition:opacity .18s ease, transform .18s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease;
+    }
+    .plannerViewArrowDecor--prev{ left:10px; }
+    .plannerViewArrowDecor--next{ right:10px; }
+    .plannerViewArrowDecor svg{
+      width:17px;
+      height:17px;
+      stroke:currentColor;
+      stroke-width:2.1;
+      fill:none;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      opacity:.88;
+    }
     .plannerViewSwitch{
       display:inline-flex;
       align-items:center;
@@ -782,22 +820,17 @@
       transform:translateY(-50%);
       width:36px;
       height:36px;
-      border:1px solid rgba(255,255,255,.82);
+      border:none;
       border-radius:999px;
-      background:rgba(255,255,255,.10);
-      color:rgba(93,98,110,.96);
+      background:transparent;
+      color:transparent;
       display:flex;
       align-items:center;
       justify-content:center;
       cursor:pointer;
       z-index:6;
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.08),
-        0 10px 22px rgba(255,255,255,.18),
-        0 6px 16px rgba(17,24,35,.08);
-      backdrop-filter:blur(12px) saturate(1.02);
-      -webkit-backdrop-filter:blur(12px) saturate(1.02);
-      transition:background-color .2s ease, transform .18s ease, opacity .18s ease, box-shadow .2s ease, border-color .2s ease;
+      box-shadow:none;
+      transition:transform .18s ease, opacity .18s ease;
       -webkit-tap-highlight-color:transparent;
       -webkit-appearance:none;
       appearance:none;
@@ -805,46 +838,41 @@
       outline:none;
     }
     .plannerViewArrow:hover{
-      background:rgba(255,255,255,.14);
-      border-color:rgba(255,255,255,.92);
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.10),
-        0 12px 26px rgba(255,255,255,.24),
-        0 8px 18px rgba(17,24,35,.10);
-      transform:translateY(-50%) scale(1.02);
+      transform:translateY(-50%);
     }
     .plannerViewArrow:disabled{
       opacity:0;
       pointer-events:none;
       cursor:not-allowed;
       transform:translateY(-50%);
-      box-shadow:none;
     }
     .plannerViewArrow:focus,
     .plannerViewArrow:focus-visible,
     .plannerViewArrow:active{
       outline:none;
-      background:rgba(255,255,255,.16);
-      border-color:rgba(255,255,255,.94);
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.12),
-        0 11px 24px rgba(255,255,255,.22),
-        0 7px 16px rgba(17,24,35,.10);
-    }
-    .plannerViewArrow:active{
-      transform:translateY(-50%) scale(.985);
     }
     .plannerViewArrow--prev{ left:10px; }
     .plannerViewArrow--next{ right:10px; }
     .plannerViewArrow svg{
-      width:17px;
-      height:17px;
-      stroke:currentColor;
-      stroke-width:2.1;
-      fill:none;
-      stroke-linecap:round;
-      stroke-linejoin:round;
-      opacity:.98;
+      opacity:0;
+    }
+    #plannerViewPrev:hover ~ .plannerViewArrowDecorLayer .plannerViewArrowDecor--prev,
+    #plannerViewPrev:focus-visible ~ .plannerViewArrowDecorLayer .plannerViewArrowDecor--prev,
+    #plannerViewPrev:active ~ .plannerViewArrowDecorLayer .plannerViewArrowDecor--prev,
+    #plannerViewNext:hover ~ .plannerViewArrowDecorLayer .plannerViewArrowDecor--next,
+    #plannerViewNext:focus-visible ~ .plannerViewArrowDecorLayer .plannerViewArrowDecor--next,
+    #plannerViewNext:active ~ .plannerViewArrowDecorLayer .plannerViewArrowDecor--next{
+      opacity:.94;
+      transform:translateY(-50%) scale(1.018);
+      box-shadow:0 10px 24px rgba(17,24,35,.11), inset 0 1px 0 rgba(255,255,255,.86);
+      border-color:rgba(255,255,255,.86);
+      background:rgba(252,253,255,.82);
+    }
+    #plannerViewPrev[disabled] ~ .plannerViewArrowDecorLayer .plannerViewArrowDecor--prev,
+    #plannerViewPrev[hidden] ~ .plannerViewArrowDecorLayer .plannerViewArrowDecor--prev,
+    #plannerViewNext[disabled] ~ .plannerViewArrowDecorLayer .plannerViewArrowDecor--next,
+    #plannerViewNext[hidden] ~ .plannerViewArrowDecorLayer .plannerViewArrowDecor--next{
+      opacity:0;
     }
     .plannerFaceJoystick{
       position:absolute;
@@ -1343,7 +1371,7 @@
       width:100%;
       height:100%;
       overflow:hidden;
-      z-index:0;
+      z-index:1;
     }
     .plannerFigureTrack{
       display:flex;
@@ -1533,7 +1561,7 @@
       top:12%;
       transform:translate(-50%, 0);
       pointer-events:none;
-      z-index:9;
+      z-index:0;
       font-family:"Avenir Next","Avenir",-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
       font-size:15px;
       font-weight:500;
@@ -3682,14 +3710,24 @@
         height:32px;
         top:50%;
         border-width:1px;
-        transition:background-color .2s ease, transform .18s ease, opacity .18s ease, box-shadow .2s ease, border-color .2s ease;
+        transition:transform .18s ease, opacity .18s ease;
       }
       .plannerViewArrow:hover{
-        transform:translateY(-50%) scale(1.015);
+        transform:translateY(-50%);
       }
       .plannerViewArrow--prev{ left:6px; }
       .plannerViewArrow--next{ right:6px; }
       .plannerViewArrow svg{
+        width:15px;
+        height:15px;
+      }
+      .plannerViewArrowDecor{
+        width:32px;
+        height:32px;
+      }
+      .plannerViewArrowDecor--prev{ left:6px; }
+      .plannerViewArrowDecor--next{ right:6px; }
+      .plannerViewArrowDecor svg{
         width:15px;
         height:15px;
       }
@@ -3861,6 +3899,14 @@
           <button type="button" class="plannerViewArrow plannerViewArrow--next" id="plannerViewNext" aria-label="Next view">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
           </button>
+          <div class="plannerViewArrowDecorLayer" aria-hidden="true">
+            <div class="plannerViewArrowDecor plannerViewArrowDecor--prev">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+            </div>
+            <div class="plannerViewArrowDecor plannerViewArrowDecor--next">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
           <div class="plannerMobileInfo" id="plannerMobileInfo" aria-hidden="true">
             <span class="plannerMobileInfoZones" id="plannerMobileInfoZones"></span>
             <span class="plannerMobileInfoPrice" id="plannerMobileInfoPrice">
@@ -4147,6 +4193,8 @@
   const plannerFigureImage = document.getElementById("plannerFigureImage");
   const plannerViewPrevBtn = document.getElementById("plannerViewPrev");
   const plannerViewNextBtn = document.getElementById("plannerViewNext");
+  const plannerViewPrevDecor = document.querySelector(".plannerViewArrowDecor--prev");
+  const plannerViewNextDecor = document.querySelector(".plannerViewArrowDecor--next");
   const plannerViewSwitch = document.getElementById("plannerViewSwitch");
   const plannerViewButtons = Array.from(document.querySelectorAll("[data-planner-view]"));
   const plannerFaceJoystick = document.getElementById("plannerFaceJoystick");
@@ -7234,6 +7282,14 @@
     if(plannerViewNextBtn){
       plannerViewNextBtn.style.top = `${topPx}px`;
       plannerViewNextBtn.style.transform = "translateY(-50%)";
+    }
+    if(plannerViewPrevDecor){
+      plannerViewPrevDecor.style.top = `${topPx}px`;
+      plannerViewPrevDecor.style.transform = "translateY(-50%)";
+    }
+    if(plannerViewNextDecor){
+      plannerViewNextDecor.style.top = `${topPx}px`;
+      plannerViewNextDecor.style.transform = "translateY(-50%)";
     }
   }
   function syncPlannerViewSwitch(mode){

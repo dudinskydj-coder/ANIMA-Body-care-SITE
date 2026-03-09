@@ -782,21 +782,18 @@
       transform:translateY(-50%);
       width:36px;
       height:36px;
-      border:1px solid rgba(255,255,255,.82);
+      border:1px solid rgba(255,255,255,.68);
       border-radius:999px;
-      background:rgba(255,255,255,.10);
-      color:rgba(93,98,110,.96);
+      background:rgba(248,249,252,.76);
+      color:#1b1e27;
       display:flex;
       align-items:center;
       justify-content:center;
       cursor:pointer;
       z-index:6;
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.08),
-        0 10px 22px rgba(255,255,255,.18),
-        0 6px 16px rgba(17,24,35,.08);
-      backdrop-filter:blur(12px) saturate(1.02);
-      -webkit-backdrop-filter:blur(12px) saturate(1.02);
+      box-shadow:0 8px 20px rgba(17,24,35,.10), inset 0 1px 0 rgba(255,255,255,.82);
+      backdrop-filter:blur(14px) saturate(1.04);
+      -webkit-backdrop-filter:blur(14px) saturate(1.04);
       transition:background-color .2s ease, transform .18s ease, opacity .18s ease, box-shadow .2s ease, border-color .2s ease;
       -webkit-tap-highlight-color:transparent;
       -webkit-appearance:none;
@@ -805,12 +802,9 @@
       outline:none;
     }
     .plannerViewArrow:hover{
-      background:rgba(255,255,255,.14);
-      border-color:rgba(255,255,255,.92);
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.10),
-        0 12px 26px rgba(255,255,255,.24),
-        0 8px 18px rgba(17,24,35,.10);
+      background:rgba(252,253,255,.88);
+      border-color:rgba(255,255,255,.9);
+      box-shadow:0 10px 24px rgba(17,24,35,.12), inset 0 1px 0 rgba(255,255,255,.88);
       transform:translateY(-50%) scale(1.02);
     }
     .plannerViewArrow:disabled{
@@ -824,12 +818,9 @@
     .plannerViewArrow:focus-visible,
     .plannerViewArrow:active{
       outline:none;
-      background:rgba(255,255,255,.16);
-      border-color:rgba(255,255,255,.94);
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.12),
-        0 11px 24px rgba(255,255,255,.22),
-        0 7px 16px rgba(17,24,35,.10);
+      background:rgba(252,253,255,.9);
+      border-color:rgba(255,255,255,.92);
+      box-shadow:0 9px 22px rgba(17,24,35,.11), inset 0 1px 0 rgba(255,255,255,.9);
     }
     .plannerViewArrow:active{
       transform:translateY(-50%) scale(.985);
@@ -844,7 +835,7 @@
       fill:none;
       stroke-linecap:round;
       stroke-linejoin:round;
-      opacity:.98;
+      opacity:.9;
     }
     .plannerFaceJoystick{
       position:absolute;
