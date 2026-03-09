@@ -5388,11 +5388,11 @@
   const PLANNER_PRELOAD_CACHE_LIMIT_MOBILE = 56;
   const PLANNER_LOW_FPS_THRESHOLD = 42;
   const PLANNER_FACE_LOCAL_STATE_KEY = "anima_laser_face_adjustments_v1";
-  const PLANNER_SWIPE_MIN_X = 22;
+  const PLANNER_SWIPE_MIN_X = 30;
   const PLANNER_SWIPE_MAX_Y = 64;
   const PLANNER_SWIPE_MAX_MS = 920;
-  const PLANNER_SWIPE_PREVIEW_START_X = 6;
-  const PLANNER_SWIPE_COMMIT_PROGRESS = 0.22;
+  const PLANNER_SWIPE_PREVIEW_START_X = 10;
+  const PLANNER_SWIPE_COMMIT_PROGRESS = 0.34;
   const faqState = { active:false, openIndex:null };
   const desktopHover = window.matchMedia("(hover: hover) and (pointer: fine)");
   const coarsePointerMq = window.matchMedia("(pointer: coarse)");
@@ -12442,11 +12442,6 @@
       if(!(target instanceof Element)) return;
       const zoneBtn = target.closest(".zoneSketchBtn");
       if(!zoneBtn || !plannerFigure.contains(zoneBtn) || !plannerFigureInner) return;
-      if(Date.now() < plannerSuppressClickUntil){
-        event.preventDefault();
-        event.stopPropagation();
-        return;
-      }
       const clickedCustomId = (zoneBtn.dataset && zoneBtn.dataset.customId) ? String(zoneBtn.dataset.customId) : "";
       if(event.shiftKey && clickedCustomId){
         const multiSet = plannerCustomMultiSelectSet(activeLaserMode(), plannerFrauenView);
@@ -12765,12 +12760,10 @@
         if(horizontalIntent && !plannerInteractiveSwipeActive){
           const targetView = plannerInteractiveSwipeNeighbor(dx < 0 ? 1 : -1);
           if(targetView){
-            plannerSuppressClickUntil = Date.now() + 320;
             plannerBeginInteractiveSwipe(targetView);
           }
         }
         if(plannerInteractiveSwipeActive){
-          plannerSuppressClickUntil = Date.now() + 320;
           plannerUpdateInteractiveSwipe(dx);
           e.preventDefault();
           return;
@@ -12819,7 +12812,6 @@
       const touchTargetIsZoneBtn = !!(e.target && typeof e.target.closest === "function" && e.target.closest(".zoneSketchBtn"));
       const interactiveSwipeWasActive = plannerInteractiveSwipeActive;
       if(interactiveSwipeWasActive){
-        plannerSuppressClickUntil = Date.now() + 320;
         if(plannerInteractiveSwipeProgress >= PLANNER_SWIPE_COMMIT_PROGRESS){
           plannerCompleteInteractiveSwipe();
         } else {
@@ -12838,7 +12830,6 @@
           Math.abs(dy) <= PLANNER_SWIPE_MAX_Y &&
           Math.abs(dx) > Math.abs(dy) * 0.75;
         if(isSwipe){
-          plannerSuppressClickUntil = Date.now() + 320;
           movePlannerFrauenView(dx < 0 ? 1 : -1);
         }
       }
