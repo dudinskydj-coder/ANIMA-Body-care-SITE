@@ -5434,7 +5434,6 @@
   let plannerInteractiveSwipeTargetView = null;
   let plannerInteractiveSwipeProgress = 0;
   let plannerInteractiveSwipeDirection = 0;
-  let plannerInteractiveSwipeLastDx = 0;
   let plannerHoverPartKey = null;
   let plannerHoverSuppressed = false;
   let plannerHoverSuppressedKey = null;
@@ -5485,9 +5484,6 @@
   const PLANNER_SWIPE_MAX_MS = 920;
   const PLANNER_SWIPE_PREVIEW_START_X = 6;
   const PLANNER_SWIPE_COMMIT_PROGRESS = 0.22;
-  const PLANNER_SWIPE_DRAG_SOFT_ZONE_PX = 26;
-  const PLANNER_SWIPE_DRAG_CATCHUP_ZONE_PX = 92;
-  const PLANNER_SWIPE_DRAG_ENTRY_FACTOR = 0.44;
   const PLANNER_SWIPE_MIDPOINT_MAGNET_START = 0.32;
   const PLANNER_SWIPE_MIDPOINT_MAGNET_END = 0.68;
   const PLANNER_SWIPE_MIDPOINT_MAGNET_STRENGTH = 0.38;
@@ -9264,36 +9260,14 @@
     plannerInteractiveSwipeTargetView = targetView;
     plannerInteractiveSwipeDirection = plannerViewIndex(targetView) > plannerViewIndex(startView) ? 1 : -1;
     plannerInteractiveSwipeProgress = 0;
-    plannerInteractiveSwipeLastDx = 0;
     plannerSetSwipePreviewScenes(startView, targetView);
     plannerSetTrackOffset(plannerViewIndex(startView), { animate:false, view:startView });
     return true;
   }
-  function plannerApplyInteractiveSwipeResistance(dx){
-    const absDx = Math.abs(dx);
-    if(absDx <= 0) return 0;
-    const direction = Math.sign(dx) || 1;
-    const softZone = PLANNER_SWIPE_DRAG_SOFT_ZONE_PX;
-    const catchupZone = Math.max(softZone + 1, PLANNER_SWIPE_DRAG_CATCHUP_ZONE_PX);
-    const entryFactor = PLANNER_SWIPE_DRAG_ENTRY_FACTOR;
-    if(absDx <= softZone){
-      return dx * entryFactor;
-    }
-    if(absDx <= catchupZone){
-      const zoneProgress = (absDx - softZone) / (catchupZone - softZone);
-      const factor = entryFactor + ((0.96 - entryFactor) * zoneProgress);
-      const distance = (softZone * entryFactor) + ((absDx - softZone) * factor);
-      return direction * distance;
-    }
-    const softDistance = softZone * entryFactor;
-    const catchupDistance = (catchupZone - softZone) * 0.96;
-    return direction * (softDistance + catchupDistance + ((absDx - catchupZone) * 0.985));
-  }
   function plannerUpdateInteractiveSwipe(dx){
     if(!plannerInteractiveSwipeActive || !(plannerFigureViewport instanceof HTMLElement)) return;
     const viewportWidth = plannerFigureViewport.clientWidth || 1;
-    const responsiveDx = plannerApplyInteractiveSwipeResistance(dx);
-    const signedDistance = responsiveDx * plannerInteractiveSwipeDirection;
+    const signedDistance = dx * plannerInteractiveSwipeDirection;
     const progress = Math.max(0, Math.min(1, signedDistance / viewportWidth));
     let displayProgress = progress;
     if(progress >= PLANNER_SWIPE_MIDPOINT_MAGNET_START && progress <= PLANNER_SWIPE_MIDPOINT_MAGNET_END){
@@ -9305,7 +9279,6 @@
     }
     const startIndex = plannerViewIndex(plannerInteractiveSwipeStartView);
     plannerInteractiveSwipeProgress = progress;
-    plannerInteractiveSwipeLastDx = dx;
     plannerSetTrackOffset(startIndex + (displayProgress * plannerInteractiveSwipeDirection), {
       animate:false,
       view:plannerInteractiveSwipeStartView
@@ -9317,7 +9290,6 @@
     plannerInteractiveSwipeTargetView = null;
     plannerInteractiveSwipeProgress = 0;
     plannerInteractiveSwipeDirection = 0;
-    plannerInteractiveSwipeLastDx = 0;
     if(plannerFigureTrack){
       plannerFigureTrack.classList.remove("is-interactive-swipe");
     }
@@ -12952,9 +12924,6 @@
         plannerSwipeTracking = false;
         plannerSwipeGestureLock = "";
         plannerTouchPanActive = false;
-        if(plannerInteractiveSwipeActive){
-          plannerCancelInteractiveSwipe();
-        }
         const currentDistance = touchDistance(e.touches[0], e.touches[1]);
         if(!currentDistance) return;
         const rawRatio = currentDistance / plannerPinchStartDistance;
@@ -12998,39 +12967,27 @@
           }
         }
         if(plannerSwipeGestureLock === "vertical"){
-          if(plannerInteractiveSwipeActive){
-            plannerCancelInteractiveSwipe();
-          }
           plannerSwipeTracking = false;
           return;
         }
-        if(plannerSwipeGestureLock === "horizontal"){
-          const swipeStep = dx < 0 ? 1 : -1;
-          const targetView = absDx > 0 ? plannerInteractiveSwipeNeighbor(swipeStep) : null;
-          if(targetView && (!plannerInteractiveSwipeActive || plannerInteractiveSwipeTargetView !== targetView)){
-            if(plannerInteractiveSwipeActive){
-              const startView = plannerInteractiveSwipeStartView || plannerCommittedSceneView || plannerFrauenView;
-              plannerClearInteractiveSwipeState();
-              plannerSetSwipePreviewScenes(startView, startView);
-              plannerSetTrackOffset(plannerViewIndex(startView), { animate:false, view:startView });
-            }
+        if(plannerSwipeGestureLock === "horizontal" && !plannerInteractiveSwipeActive){
+          const targetView = plannerInteractiveSwipeNeighbor(dx < 0 ? 1 : -1);
+          if(targetView){
             plannerSuppressClickUntil = Date.now() + 320;
             plannerBeginInteractiveSwipe(targetView);
           }
-          if(plannerInteractiveSwipeActive){
-            plannerSuppressClickUntil = Date.now() + 320;
-            plannerUpdateInteractiveSwipe(dx);
-          }
+        }
+        if(plannerSwipeGestureLock === "horizontal" && plannerInteractiveSwipeActive){
+          plannerSuppressClickUntil = Date.now() + 320;
+          plannerUpdateInteractiveSwipe(dx);
           e.preventDefault();
           return;
         }
+        if(plannerSwipeGestureLock === "horizontal"){
+          e.preventDefault();
+        }
       }
-      if(
-        e.touches.length === 1 &&
-        plannerTouchPanActive &&
-        canPanPlannerFigure() &&
-        (!plannerSwipeTracking || plannerSwipeGestureLock === "vertical")
-      ){
+      if(e.touches.length === 1 && plannerTouchPanActive && canPanPlannerFigure()){
         e.preventDefault();
         plannerTouchPanPending = {
           clientX:e.touches[0].clientX,
@@ -13071,13 +13028,27 @@
       const interactiveSwipeWasActive = plannerInteractiveSwipeActive;
       if(interactiveSwipeWasActive){
         plannerSuppressClickUntil = Date.now() + 320;
-        if(
-          plannerInteractiveSwipeProgress >= PLANNER_SWIPE_COMMIT_PROGRESS &&
-          Math.abs(plannerInteractiveSwipeLastDx) >= PLANNER_SWIPE_MIN_X
-        ){
+        if(plannerInteractiveSwipeProgress >= PLANNER_SWIPE_COMMIT_PROGRESS){
           plannerCompleteInteractiveSwipe();
         } else {
           plannerCancelInteractiveSwipe();
+        }
+      }
+      if(plannerSwipeTracking){
+        const endX = touch ? touch.clientX : plannerSwipeStartX;
+        const endY = touch ? touch.clientY : plannerSwipeStartY;
+        const dx = endX - plannerSwipeStartX;
+        const dy = endY - plannerSwipeStartY;
+        const dt = Date.now() - plannerSwipeStartAt;
+        const isSwipe = !interactiveSwipeWasActive &&
+          plannerSwipeGestureLock === "horizontal" &&
+          dt <= PLANNER_SWIPE_MAX_MS &&
+          Math.abs(dx) >= PLANNER_SWIPE_MIN_X &&
+          Math.abs(dy) <= PLANNER_SWIPE_MAX_Y &&
+          Math.abs(dx) > Math.abs(dy) * 0.75;
+        if(isSwipe){
+          plannerSuppressClickUntil = Date.now() + 320;
+          movePlannerFrauenView(dx < 0 ? 1 : -1);
         }
       }
       plannerSwipeTracking = false;
