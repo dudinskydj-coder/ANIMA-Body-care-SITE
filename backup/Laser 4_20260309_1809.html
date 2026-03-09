@@ -4256,9 +4256,9 @@
         startThresholdX:PLANNER_SWIPE_PREVIEW_START_X,
         commitProgress:0.2,
         velocityCommit:0.34,
-        resistanceSoft:0.9,
-        resistanceMid:0.97,
-        resistanceTail:0.995,
+        resistanceSoft:0.62,
+        resistanceMid:0.88,
+        resistanceTail:0.97,
         rubberBand:PLANNER_SWIPE_EDGE_RUBBER_BAND,
         springStiffness:294,
         springDamping:31,
@@ -4316,29 +4316,18 @@
       plannerTrackSpringFrame = null;
     }
   }
-  function plannerUpdateTrackMotionFx(rawIndex, options = {}){
-    const interactive = !!options.interactive ||
-      !!(plannerFigureTrack && plannerFigureTrack.classList.contains("is-interactive-swipe"));
+  function plannerUpdateTrackMotionFx(rawIndex){
     plannerFigureSceneViews.forEach((view) => {
       const scene = plannerViewScenes[view];
-      const sceneEl = scene && scene.container ? scene.container : null;
-      if(!(sceneEl instanceof HTMLElement)) return;
-      if(interactive){
-        sceneEl.style.setProperty("--planner-scene-parallax-x", "0px");
-        sceneEl.style.setProperty("--planner-scene-scale", "1");
-        sceneEl.style.setProperty("--planner-scene-opacity", "1");
-        sceneEl.style.setProperty("--planner-scene-shade-opacity", "0");
-        sceneEl.style.setProperty("--planner-scene-saturate", "1");
-        return;
-      }
+      if(!(scene instanceof HTMLElement)) return;
       const distance = plannerViewIndex(view) - rawIndex;
       const clamped = Math.max(-1.4, Math.min(1.4, distance));
       const depth = Math.max(0, 1 - Math.min(1, Math.abs(clamped)));
-      sceneEl.style.setProperty("--planner-scene-parallax-x", `${Math.round(clamped * -18)}px`);
-      sceneEl.style.setProperty("--planner-scene-scale", (0.968 + (depth * 0.05)).toFixed(4));
-      sceneEl.style.setProperty("--planner-scene-opacity", (0.54 + (depth * 0.46)).toFixed(4));
-      sceneEl.style.setProperty("--planner-scene-shade-opacity", (0.18 * (1 - depth)).toFixed(4));
-      sceneEl.style.setProperty("--planner-scene-saturate", (0.9 + (depth * 0.14)).toFixed(4));
+      scene.style.setProperty("--planner-scene-parallax-x", `${Math.round(clamped * -18)}px`);
+      scene.style.setProperty("--planner-scene-scale", (0.968 + (depth * 0.05)).toFixed(4));
+      scene.style.setProperty("--planner-scene-opacity", (0.54 + (depth * 0.46)).toFixed(4));
+      scene.style.setProperty("--planner-scene-shade-opacity", (0.18 * (1 - depth)).toFixed(4));
+      scene.style.setProperty("--planner-scene-saturate", (0.9 + (depth * 0.14)).toFixed(4));
     });
   }
   function plannerApplyTrackTransform(offsetX, options = {}){
@@ -4351,7 +4340,7 @@
     plannerFigureTrack.style.transform = `translate3d(${-offsetX}px, 0, 0)`;
     plannerTrackCurrentOffsetX = offsetX;
     if(Number.isFinite(options.rawIndex)){
-      plannerUpdateTrackMotionFx(options.rawIndex, { interactive:!!options.interactive });
+      plannerUpdateTrackMotionFx(options.rawIndex);
     }
   }
   function plannerAnimateTrackOffset(offsetX, options = {}){
