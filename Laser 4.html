@@ -784,6 +784,39 @@
       cursor:not-allowed;
       transform:none;
     }
+    .plannerEngineSwitch{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      align-self:center;
+      margin:0 auto 10px;
+      padding:4px;
+      border:1px solid rgba(17,18,24,.08);
+      border-radius:999px;
+      background:rgba(255,255,255,.88);
+      backdrop-filter:saturate(140%) blur(8px);
+      -webkit-backdrop-filter:saturate(140%) blur(8px);
+      position:relative;
+      z-index:7;
+    }
+    .plannerEngineBtn{
+      border:none;
+      background:transparent;
+      color:rgba(17,18,24,.62);
+      font:600 12px/1 "Avenir Next","Avenir",-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+      letter-spacing:.01em;
+      padding:9px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      transition:background-color .18s ease, color .18s ease;
+      -webkit-appearance:none;
+      appearance:none;
+    }
+    .plannerEngineBtn.is-active{
+      background:#111218;
+      color:#fff;
+    }
     .plannerViewArrow{
       position:absolute;
       top:50%;
@@ -1353,6 +1386,68 @@
       overflow:hidden;
       z-index:0;
     }
+    .plannerFigureViewportScroll{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      overflow-x:auto;
+      overflow-y:hidden;
+      scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch;
+      overscroll-behavior-x:contain;
+      overscroll-behavior-y:none;
+      scrollbar-width:none;
+      -ms-overflow-style:none;
+      z-index:0;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .18s ease;
+    }
+    .plannerFigureViewportScroll::-webkit-scrollbar{
+      display:none;
+    }
+    .plannerFigureTrackScroll{
+      display:flex;
+      width:100%;
+      height:100%;
+    }
+    .plannerFigureSceneScroll{
+      position:relative;
+      flex:0 0 100%;
+      min-width:100%;
+      height:100%;
+      scroll-snap-align:center;
+      scroll-snap-stop:always;
+      padding-inline:clamp(8px, 2vw, 18px);
+      box-sizing:border-box;
+      pointer-events:none;
+    }
+    .plannerFigureScrollSketch,
+    .plannerFigureScrollBackSketch{
+      position:absolute;
+      left:50%;
+      top:0;
+      width:auto;
+      height:100%;
+      max-width:100%;
+      aspect-ratio:var(--planner-active-aspect, 2200 / 5500);
+      transform:translateX(-50%);
+      z-index:14;
+      pointer-events:none;
+    }
+    .plannerFigureScrollSketch .zoneSketchBtn,
+    .plannerFigureScrollBackSketch .zoneSketchBtn{
+      pointer-events:none;
+    }
+    .plannerFigureWrap[data-planner-transport="scroll-snap"] .plannerFigureViewport{
+      opacity:0;
+      pointer-events:none;
+    }
+    .plannerFigureWrap[data-planner-transport="scroll-snap"] .plannerFigureViewportScroll{
+      opacity:1;
+      pointer-events:auto;
+    }
     .plannerFigureTrack{
       display:flex;
       width:100%;
@@ -1406,24 +1501,12 @@
     .plannerFigureScene{
       position:relative;
       flex:0 0 100%;
-      width:100%;
       min-width:100%;
       height:100%;
-      margin:0;
       pointer-events:none;
       z-index:0;
-      padding:0;
+      padding-inline:clamp(8px, 2vw, 18px);
       box-sizing:border-box;
-      opacity:var(--planner-scene-opacity, 1);
-    }
-    .plannerFigureScene::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(17,24,35,.06));
-      opacity:var(--planner-scene-shade-opacity, 0);
-      mix-blend-mode:multiply;
     }
     .plannerFigureSceneFrame{
       position:relative;
@@ -1432,9 +1515,6 @@
       max-width:100%;
       margin:0 auto;
       aspect-ratio:var(--planner-scene-aspect, 2200 / 5500);
-      transform:translate3d(var(--planner-scene-parallax-x, 0px), 0, 0) scale(var(--planner-scene-scale, 1));
-      transform-origin:center center;
-      filter:saturate(var(--planner-scene-saturate, 1));
     }
     .plannerBackDeadZone{
       position:absolute;
@@ -2149,22 +2229,6 @@
       -webkit-appearance:none !important;
       appearance:none !important;
       touch-action:manipulation;
-    }
-    .plannerSketch:not(.is-interactive-scene) .zoneSketchBtn,
-    .plannerBackSketch:not(.is-interactive-scene) .zoneSketchBtn{
-      pointer-events:none !important;
-      cursor:default !important;
-    }
-    .plannerSketch:not(.is-interactive-scene) .zoneSketchBtn:hover,
-    .plannerSketch:not(.is-interactive-scene) .zoneSketchBtn:active,
-    .plannerSketch:not(.is-interactive-scene) .zoneSketchBtn:focus,
-    .plannerSketch:not(.is-interactive-scene) .zoneSketchBtn:focus-visible,
-    .plannerBackSketch:not(.is-interactive-scene) .zoneSketchBtn:hover,
-    .plannerBackSketch:not(.is-interactive-scene) .zoneSketchBtn:active,
-    .plannerBackSketch:not(.is-interactive-scene) .zoneSketchBtn:focus,
-    .plannerBackSketch:not(.is-interactive-scene) .zoneSketchBtn:focus-visible{
-      transform:none !important;
-      box-shadow:none !important;
     }
     .plannerSketch .zoneSketchBtn:hover,
     .plannerSketch .zoneSketchBtn:active,
@@ -3873,6 +3937,10 @@
               <span class="plannerMobileInfoSaved" id="plannerMobileInfoSaved"></span>
             </span>
           </div>
+          <div class="plannerEngineSwitch" role="group" aria-label="Planner swipe engine">
+            <button type="button" class="plannerEngineBtn is-active" id="planner-engine-transform" data-planner-transport="transform" aria-pressed="true">Transform</button>
+            <button type="button" class="plannerEngineBtn" id="planner-engine-scroll" data-planner-transport="scroll-snap" aria-pressed="false">Scroll-snap</button>
+          </div>
           <div class="plannerFigure">
             <div class="plannerFigureInner">
               <div class="plannerBackSketch" id="plannerBackSketch"></div>
@@ -4153,6 +4221,7 @@
   const plannerViewNextBtn = document.getElementById("plannerViewNext");
   const plannerViewSwitch = document.getElementById("plannerViewSwitch");
   const plannerViewButtons = Array.from(document.querySelectorAll("[data-planner-view]"));
+  const plannerEngineButtons = Array.from(document.querySelectorAll("[data-planner-transport]"));
   const plannerFaceJoystick = document.getElementById("plannerFaceJoystick");
   const plannerFaceJoystickTarget = document.getElementById("plannerFaceJoystickTarget");
   const plannerEditModeSwitch = document.getElementById("plannerEditModeSwitch");
@@ -4224,8 +4293,20 @@
     face:["HALS", "NACKEN", "KINN", "WANGEN", "KOTELETTEN", "ZWISCHENBRAUEN", "OBERLIPPE"]
   };
   const plannerViewScenes = { front:null, back:null, face:null };
+  const plannerScrollViewScenes = { front:null, back:null, face:null };
   let plannerFigureViewport = null;
   let plannerFigureTrack = null;
+  let plannerFigureViewportScroll = null;
+  let plannerFigureTrackScroll = null;
+  let plannerScrollSketch = null;
+  let plannerScrollBackSketch = null;
+  let plannerViewTransport = "transform";
+  let plannerScrollSnapMuted = false;
+  let plannerScrollSnapRaf = null;
+  let plannerScrollSnapSettleTimer = null;
+  function plannerAllRenderedSketchHosts(){
+    return [plannerSketch, plannerBackSketch, plannerScrollSketch, plannerScrollBackSketch].filter((host) => host instanceof HTMLElement);
+  }
   function plannerScenePartKeysForView(view){
     return Array.isArray(plannerScenePartKeysByView[view]) ? [...plannerScenePartKeysByView[view]] : [];
   }
@@ -4248,12 +4329,28 @@
       plannerFigureTrack = plannerFigureViewport.querySelector(".plannerFigureTrack");
     }
   }
+  function plannerEnsureScrollSnapTrack(){
+    if(!plannerFigureInner) return;
+    if(!(plannerFigureViewportScroll instanceof HTMLElement)){
+      plannerFigureViewportScroll = document.createElement("div");
+      plannerFigureViewportScroll.className = "plannerFigureViewportScroll";
+      plannerFigureTrackScroll = document.createElement("div");
+      plannerFigureTrackScroll.className = "plannerFigureTrackScroll";
+      plannerFigureViewportScroll.appendChild(plannerFigureTrackScroll);
+      plannerFigureInner.insertBefore(plannerFigureViewportScroll, plannerBackSketch || null);
+      plannerFigureViewportScroll.addEventListener("scroll", plannerHandleScrollSnapScroll, { passive:true });
+      return;
+    }
+    if(!(plannerFigureTrackScroll instanceof HTMLElement)){
+      plannerFigureTrackScroll = plannerFigureViewportScroll.querySelector(".plannerFigureTrackScroll");
+    }
+  }
   function plannerSceneGapPx(view = plannerFrauenView){
     if(!(plannerFigureViewport instanceof HTMLElement) || !plannerViewScenes[view]) return 0;
     const isSlideMode = window.matchMedia("(max-width: 1024px)").matches;
     const viewportWidth = plannerFigureViewport.clientWidth || 0;
     if(isSlideMode){
-      return Math.max(0, Math.min(8, Math.round(viewportWidth * 0.01)));
+      return Math.max(72, Math.min(96, Math.round(viewportWidth * 0.2)));
     }
     return Math.max(24, Math.round(viewportWidth * 0.035));
   }
@@ -4263,52 +4360,14 @@
     plannerFigureInner.style.setProperty("--planner-scene-gap", `${gapPx}px`);
     return gapPx;
   }
-  function plannerIsTouchLikeInput(inputType = ""){
-    if(inputType === "touch") return true;
-    if(inputType === "mouse") return false;
-    return coarsePointerMq.matches && !desktopHover.matches;
-  }
-  function plannerSwipeFeel(inputType = ""){
-    if(plannerIsTouchLikeInput(inputType || plannerSwipeInputType)){
-      return {
-        startThresholdX:PLANNER_SWIPE_PREVIEW_START_X,
-        commitProgress:0.2,
-        velocityCommit:0.34,
-        resistanceSoft:0.9,
-        resistanceMid:0.97,
-        resistanceTail:0.995,
-        rubberBand:PLANNER_SWIPE_EDGE_RUBBER_BAND,
-        springStiffness:294,
-        springDamping:31,
-        springMass:1,
-        transitionDuration:468,
-        transitionEasing:"cubic-bezier(.2, .88, .22, 1)"
-      };
-    }
-    return {
-      startThresholdX:PLANNER_SWIPE_MOUSE_START_X,
-      commitProgress:0.18,
-      velocityCommit:0.24,
-      resistanceSoft:0.82,
-      resistanceMid:0.95,
-      resistanceTail:0.992,
-      rubberBand:PLANNER_SWIPE_EDGE_RUBBER_BAND * 1.3,
-      springStiffness:338,
-      springDamping:35,
-      springMass:0.92,
-      transitionDuration:388,
-      transitionEasing:"cubic-bezier(.22, 1, .32, 1)"
-    };
-  }
-  function plannerTrackTransitionConfig(options = {}){
+  function plannerTrackTransitionConfig(){
     const isMobileSlide = window.matchMedia("(max-width: 1024px)").matches;
-    void options;
     return isMobileSlide
       ? { duration:PLANNER_VIEW_SLIDE_MOBILE_MS, easing:PLANNER_VIEW_SLIDE_MOBILE_EASING }
-      : { duration:PLANNER_VIEW_SLIDE_MS, easing:PLANNER_VIEW_SLIDE_MOBILE_EASING };
+      : { duration:PLANNER_VIEW_SLIDE_MS, easing:"ease" };
   }
-  function plannerTrackTransitionCss(options = {}){
-    const transition = plannerTrackTransitionConfig(options);
+  function plannerTrackTransitionCss(){
+    const transition = plannerTrackTransitionConfig();
     return `transform ${transition.duration}ms ${transition.easing}`;
   }
   function plannerTrackOffsetPx(rawIndex, options = {}){
@@ -4328,55 +4387,10 @@
       plannerTrackFrame2 = null;
     }
   }
-  function plannerCancelTrackSpring(){
-    if(plannerTrackSpringFrame){
-      cancelAnimationFrame(plannerTrackSpringFrame);
-      plannerTrackSpringFrame = null;
-    }
-  }
-  function plannerUpdateTrackMotionFx(rawIndex, options = {}){
-    const interactive = !!options.interactive ||
-      !!(plannerFigureTrack && plannerFigureTrack.classList.contains("is-interactive-swipe"));
-    plannerFigureSceneViews.forEach((view) => {
-      const scene = plannerViewScenes[view];
-      const sceneEl = scene && scene.container ? scene.container : null;
-      if(!(sceneEl instanceof HTMLElement)) return;
-      if(interactive){
-        sceneEl.style.setProperty("--planner-scene-parallax-x", "0px");
-        sceneEl.style.setProperty("--planner-scene-scale", "1");
-        sceneEl.style.setProperty("--planner-scene-opacity", "1");
-        sceneEl.style.setProperty("--planner-scene-shade-opacity", "0");
-        sceneEl.style.setProperty("--planner-scene-saturate", "1");
-        return;
-      }
-      const distance = plannerViewIndex(view) - rawIndex;
-      const clamped = Math.max(-1.4, Math.min(1.4, distance));
-      const depth = Math.max(0, 1 - Math.min(1, Math.abs(clamped)));
-      sceneEl.style.setProperty("--planner-scene-parallax-x", `${Math.round(clamped * -18)}px`);
-      sceneEl.style.setProperty("--planner-scene-scale", (0.968 + (depth * 0.05)).toFixed(4));
-      sceneEl.style.setProperty("--planner-scene-opacity", (0.54 + (depth * 0.46)).toFixed(4));
-      sceneEl.style.setProperty("--planner-scene-shade-opacity", (0.18 * (1 - depth)).toFixed(4));
-      sceneEl.style.setProperty("--planner-scene-saturate", (0.9 + (depth * 0.14)).toFixed(4));
-    });
-  }
-  function plannerApplyTrackTransform(offsetX, options = {}){
+  function plannerAnimateTrackOffset(offsetX){
     if(!(plannerFigureTrack instanceof HTMLElement)) return;
-    const transitionCss = Object.prototype.hasOwnProperty.call(options, "transitionCss")
-      ? options.transitionCss
-      : "none";
-    plannerFigureTrack.classList.toggle("is-interactive-swipe", !!options.interactive);
-    plannerFigureTrack.style.transition = transitionCss;
-    plannerFigureTrack.style.transform = `translate3d(${-offsetX}px, 0, 0)`;
-    plannerTrackCurrentOffsetX = offsetX;
-    if(Number.isFinite(options.rawIndex)){
-      plannerUpdateTrackMotionFx(options.rawIndex, { interactive:!!options.interactive });
-    }
-  }
-  function plannerAnimateTrackOffset(offsetX, options = {}){
-    if(!(plannerFigureTrack instanceof HTMLElement)) return;
-    const transitionCss = plannerTrackTransitionCss(options);
+    const transitionCss = plannerTrackTransitionCss();
     plannerCancelPendingTrackFrames();
-    plannerCancelTrackSpring();
     plannerFigureTrack.style.transition = "none";
     plannerForceTrackReflow();
     plannerTrackFrame1 = requestAnimationFrame(() => {
@@ -4384,11 +4398,8 @@
       plannerTrackFrame2 = requestAnimationFrame(() => {
         plannerTrackFrame2 = null;
         if(!(plannerFigureTrack instanceof HTMLElement)) return;
-        plannerApplyTrackTransform(offsetX, {
-          transitionCss,
-          rawIndex:options.rawIndex,
-          interactive:false
-        });
+        plannerFigureTrack.style.transition = transitionCss;
+        plannerFigureTrack.style.transform = `translate3d(${-offsetX}px, 0, 0)`;
       });
     });
   }
@@ -4397,78 +4408,20 @@
     const gapPx = Number.isFinite(options.gapPx) ? options.gapPx : plannerSyncSceneGap(options.view || plannerFrauenView);
     const offsetX = plannerTrackOffsetPx(rawIndex, { gapPx, view:options.view });
     const shouldAnimate = options.animate !== false;
-    plannerCancelTrackSpring();
+    plannerFigureTrack.classList.toggle("is-interactive-swipe", !shouldAnimate);
     if(!shouldAnimate){
       plannerCancelPendingTrackFrames();
-      plannerApplyTrackTransform(offsetX, {
-        transitionCss:"none",
-        rawIndex,
-        interactive:true
-      });
+      plannerFigureTrack.style.transition = "none";
+      plannerFigureTrack.style.transform = `translate3d(${-offsetX}px, 0, 0)`;
       return;
     }
     if(plannerIsMobilePerfMode()){
-      plannerAnimateTrackOffset(offsetX, { ...options, rawIndex });
+      plannerAnimateTrackOffset(offsetX);
       return;
     }
     plannerCancelPendingTrackFrames();
-    plannerApplyTrackTransform(offsetX, {
-      transitionCss:plannerTrackTransitionCss(options),
-      rawIndex,
-      interactive:false
-    });
-  }
-  function plannerAnimateTrackSpringTo(rawIndex, options = {}){
-    if(!(plannerFigureTrack instanceof HTMLElement)) return;
-    const gapPx = Number.isFinite(options.gapPx) ? options.gapPx : plannerSyncSceneGap(options.view || plannerFrauenView);
-    const targetOffsetX = plannerTrackOffsetPx(rawIndex, { gapPx, view:options.view });
-    let currentOffsetX = Number.isFinite(options.fromOffsetX) ? options.fromOffsetX : plannerTrackCurrentOffsetX;
-    const seededVelocityPx = Number.isFinite(options.initialVelocityPx) ? options.initialVelocityPx : 0;
-    let velocityPx = Math.max(
-      -PLANNER_TRACK_SPRING_MAX_INITIAL_VELOCITY,
-      Math.min(PLANNER_TRACK_SPRING_MAX_INITIAL_VELOCITY, seededVelocityPx * PLANNER_TRACK_SPRING_VELOCITY_INFLUENCE)
-    );
-    let lastTime = 0;
-    plannerCancelPendingTrackFrames();
-    plannerCancelTrackSpring();
-    plannerApplyTrackTransform(currentOffsetX, {
-      transitionCss:"none",
-      rawIndex:options.fromRawIndex ?? rawIndex,
-      interactive:false
-    });
-    const step = (now) => {
-      if(!lastTime) lastTime = now;
-      const dt = Math.min(34, now - lastTime) / 1000;
-      lastTime = now;
-      const displacement = currentOffsetX - targetOffsetX;
-      const springForce = -PLANNER_TRACK_SPRING_STIFFNESS * displacement;
-      const dampingForce = -PLANNER_TRACK_SPRING_DAMPING * velocityPx;
-      const acceleration = (springForce + dampingForce) / PLANNER_TRACK_SPRING_MASS;
-      velocityPx += acceleration * dt;
-      currentOffsetX += velocityPx * dt;
-      const viewportWidth = Math.max(1, (plannerFigureViewport && plannerFigureViewport.clientWidth) || 1);
-      const approxRawIndex = rawIndex + ((currentOffsetX - targetOffsetX) / viewportWidth);
-      plannerApplyTrackTransform(currentOffsetX, {
-        transitionCss:"none",
-        rawIndex:approxRawIndex,
-        interactive:false
-      });
-      if(Math.abs(currentOffsetX - targetOffsetX) <= PLANNER_TRACK_SPRING_SETTLE_DISTANCE &&
-        Math.abs(velocityPx) <= PLANNER_TRACK_SPRING_SETTLE_VELOCITY){
-        plannerApplyTrackTransform(targetOffsetX, {
-          transitionCss:"none",
-          rawIndex,
-          interactive:false
-        });
-        plannerTrackSpringFrame = null;
-        if(typeof options.onComplete === "function"){
-          options.onComplete();
-        }
-        return;
-      }
-      plannerTrackSpringFrame = requestAnimationFrame(step);
-    };
-    plannerTrackSpringFrame = requestAnimationFrame(step);
+    plannerFigureTrack.style.transition = plannerTrackTransitionCss();
+    plannerFigureTrack.style.transform = `translate3d(${-offsetX}px, 0, 0)`;
   }
   function plannerSetTrackPosition(view, options = {}){
     plannerSetTrackOffset(plannerViewIndex(view), { ...options, view });
@@ -4489,6 +4442,44 @@
     const frame = document.createElement("div");
     frame.className = "plannerFigureSceneFrame";
     return frame;
+  }
+  function plannerInitScrollSnapScenes(){
+    if(!plannerFigureInner || plannerScrollViewScenes.front) return;
+    plannerEnsureScrollSnapTrack();
+    plannerFigureSceneViews.forEach((view) => {
+      const scene = document.createElement("div");
+      scene.className = "plannerFigureSceneScroll";
+      scene.dataset.view = view;
+      const frame = plannerCreateSceneFrame();
+      scene.appendChild(frame);
+      const base = plannerCreateSceneImage("plannerFigureBase");
+      frame.appendChild(base);
+      const overlayElsByPartKey = {};
+      plannerScenePartKeysForView(view).forEach((partKey) => {
+        const overlay = plannerCreateSceneImage("plannerFigureOverlayImage");
+        if(partKey === "ACHSELN_MAIN") overlay.classList.add("plannerFigureOverlayImage--axilla-main");
+        if(partKey === "ACHSELN_GRAY") overlay.classList.add("plannerFigureOverlayImage--axilla-gray-dynamic");
+        overlayElsByPartKey[partKey] = overlay;
+        frame.appendChild(overlay);
+      });
+      const custom = plannerCreateSceneImage("plannerFigureOverlayImage");
+      frame.appendChild(custom);
+      const frontline = plannerCreateSceneImage("plannerFigureFrontline");
+      frame.appendChild(frontline);
+      plannerFigureTrackScroll.appendChild(scene);
+      plannerScrollViewScenes[view] = {
+        container:scene,
+        frame,
+        base,
+        frontline,
+        custom,
+        overlayElsByPartKey
+      };
+    });
+    plannerScrollBackSketch = document.createElement("div");
+    plannerScrollBackSketch.className = "plannerFigureScrollBackSketch";
+    plannerScrollSketch = document.createElement("div");
+    plannerScrollSketch.className = "plannerFigureScrollSketch";
   }
   function plannerRemoveModeSwitchGhostScene(){
     if(plannerModeSwitchTimer){
@@ -4515,22 +4506,16 @@
   function plannerRunModeSwitchTransform(startOffsetX, targetOffsetX, transition){
     if(!(plannerFigureTrack instanceof HTMLElement)) return;
     plannerFigureTrack.classList.add("is-mode-switching");
-    plannerApplyTrackTransform(startOffsetX, {
-      transitionCss:"none",
-      rawIndex:plannerViewIndex(plannerCommittedSceneView || plannerFrauenView),
-      interactive:false
-    });
+    plannerFigureTrack.style.transition = "none";
+    plannerFigureTrack.style.transform = `translate3d(${-startOffsetX}px, 0, 0)`;
     plannerForceTrackReflow();
     plannerModeSwitchFrame1 = requestAnimationFrame(() => {
       plannerModeSwitchFrame1 = null;
       plannerModeSwitchFrame2 = requestAnimationFrame(() => {
         plannerModeSwitchFrame2 = null;
         if(!(plannerFigureTrack instanceof HTMLElement)) return;
-        plannerApplyTrackTransform(targetOffsetX, {
-          transitionCss:`transform ${transition.duration}ms ${transition.easing}`,
-          rawIndex:plannerViewIndex(plannerFrauenView),
-          interactive:false
-        });
+        plannerFigureTrack.style.transition = `transform ${transition.duration}ms ${transition.easing}`;
+        plannerFigureTrack.style.transform = `translate3d(${-targetOffsetX}px, 0, 0)`;
       });
     });
   }
@@ -4758,8 +4743,6 @@
   let plannerModeSwitchTimer = null;
   let plannerTrackFrame1 = null;
   let plannerTrackFrame2 = null;
-  let plannerTrackSpringFrame = null;
-  let plannerTrackCurrentOffsetX = 0;
   let plannerModeSwitchFrame1 = null;
   let plannerModeSwitchFrame2 = null;
   const plannerFrauenViewOrder = ["front", "back", "face"];
@@ -5599,17 +5582,12 @@
   const PLANNER_SWIPE_DRAG_SOFT_ZONE_PX = 26;
   const PLANNER_SWIPE_DRAG_CATCHUP_ZONE_PX = 92;
   const PLANNER_SWIPE_DRAG_ENTRY_FACTOR = 0.44;
+  const PLANNER_SWIPE_MIDPOINT_MAGNET_START = 0.32;
+  const PLANNER_SWIPE_MIDPOINT_MAGNET_END = 0.68;
+  const PLANNER_SWIPE_MIDPOINT_MAGNET_STRENGTH = 0.38;
   const PLANNER_SWIPE_VELOCITY_COMMIT = 0.42;
   const PLANNER_SWIPE_MOUSE_START_X = 7;
-  const PLANNER_SWIPE_EDGE_RUBBER_BAND = 0.0065;
   const PLANNER_SWIPE_CANCEL_CLICK_MS = 320;
-  const PLANNER_TRACK_SPRING_STIFFNESS = 276;
-  const PLANNER_TRACK_SPRING_DAMPING = 33;
-  const PLANNER_TRACK_SPRING_MASS = 1;
-  const PLANNER_TRACK_SPRING_VELOCITY_INFLUENCE = 0.22;
-  const PLANNER_TRACK_SPRING_MAX_INITIAL_VELOCITY = 880;
-  const PLANNER_TRACK_SPRING_SETTLE_DISTANCE = 0.45;
-  const PLANNER_TRACK_SPRING_SETTLE_VELOCITY = 5;
   const faqState = { active:false, openIndex:null };
   const desktopHover = window.matchMedia("(hover: hover) and (pointer: fine)");
   const coarsePointerMq = window.matchMedia("(pointer: coarse)");
@@ -5623,9 +5601,9 @@
   const PLANNER_COURSE_SESSIONS = 6;
   const PLANNER_COURSE_PAYABLE_SESSIONS = 5;
   const PLANNER_VIEW_SLIDE_ANIMATION = true;
-  const PLANNER_VIEW_SLIDE_MS = 440;
-  const PLANNER_VIEW_SLIDE_MOBILE_MS = 480;
-  const PLANNER_VIEW_SLIDE_MOBILE_EASING = "cubic-bezier(0.16, 1, 0.3, 1)";
+  const PLANNER_VIEW_SLIDE_MS = 420;
+  const PLANNER_VIEW_SLIDE_MOBILE_MS = 520;
+  const PLANNER_VIEW_SLIDE_MOBILE_EASING = "cubic-bezier(.32, 0, .2, 1)";
   const PLANNER_BASE_FIGURE_SCALE_DESKTOP = 1.02;
   const PLANNER_BASE_FIGURE_SCALE_MOBILE = 1;
   const PLANNER_STATE_SESSION_KEY = "anima_laser_planner_state_v3";
@@ -6096,9 +6074,9 @@
     const el = scene.overlayElsByPartKey[partKey];
     return el ? [el] : [];
   }
-  function plannerSyncSceneSources(mode){
+  function plannerSceneSourceGroupSync(sceneGroup, mode){
     plannerFigureSceneViews.forEach((view) => {
-      const scene = plannerViewScenes[view];
+      const scene = sceneGroup[view];
       if(!scene) return;
       const visual = ((plannerFigureByMode[mode] || plannerFigureByMode.frauen || {})[view]) || null;
       if(scene.frame){
@@ -6124,24 +6102,27 @@
       });
     });
   }
+  function plannerSyncSceneSources(mode){
+    plannerSceneSourceGroupSync(plannerViewScenes, mode);
+    plannerSceneSourceGroupSync(plannerScrollViewScenes, mode);
+  }
   function plannerSetActiveScene(view, options = {}){
     const nextView = plannerFrauenViewOrder.includes(view) ? view : "front";
     const committedView = plannerFrauenViewOrder.includes(plannerCommittedSceneView) ? plannerCommittedSceneView : "front";
     const deferCommit = options.deferCommit !== undefined
       ? !!options.deferCommit
       : (!!options.animate && plannerViewTransitionActive && committedView !== nextView);
-    void committedView;
-    plannerKeepTrackScenesReady();
+    plannerFigureSceneViews.forEach((sceneView) => {
+      const scene = plannerViewScenes[sceneView];
+      if(!scene || !scene.container) return;
+      const isVisibleDuringTransition = deferCommit
+        ? (sceneView === committedView || sceneView === nextView)
+        : sceneView === nextView;
+      scene.container.classList.toggle("is-active", isVisibleDuringTransition);
+      scene.container.setAttribute("aria-hidden", isVisibleDuringTransition ? "false" : "true");
+    });
     if(!deferCommit){
       plannerCommittedSceneView = nextView;
-    }
-    if(options.animate){
-      plannerAnimateTrackSpringTo(plannerViewIndex(nextView), {
-        view:nextView,
-        inputType:options.inputType,
-        onComplete:options.onTrackSettled
-      });
-      return;
     }
     plannerSetTrackPosition(nextView, options);
   }
@@ -6151,42 +6132,127 @@
   function plannerSyncAllViewScenes(mode, options = {}){
     plannerSyncSceneSources(mode);
     const selectedSet = plannerSelectedByMode[mode] || new Set();
-    plannerFigureSceneViews.forEach((view) => {
-      const scene = plannerViewScenes[view];
-      if(!scene) return;
-      Object.values(scene.overlayElsByPartKey || {}).forEach((el) => {
-        if(!el) return;
-        el.classList.remove("is-visible", "is-guide-visible");
-      });
-      const activeParts = plannerActivePartKeysForView(mode, view, selectedSet);
-      activeParts.forEach((partKey) => {
-        plannerSceneOverlayElementsForPartKey(view, partKey).forEach((el) => {
-          plannerSetOverlayVisible(el, true);
+    [plannerViewScenes, plannerScrollViewScenes].forEach((sceneGroup) => {
+      plannerFigureSceneViews.forEach((view) => {
+        const scene = sceneGroup[view];
+        if(!scene) return;
+        Object.values(scene.overlayElsByPartKey || {}).forEach((el) => {
+          if(!el) return;
+          el.classList.remove("is-visible", "is-guide-visible");
         });
-      });
-      if(scene.frontline){
-        scene.frontline.classList.add("is-visible");
-      }
-      if(scene.custom){
-        const activeSet = plannerCustomActiveSet(mode, view);
-        const visibleCustomId = plannerCustomButtonVisibleOverlayId(mode, view);
-        const custom = plannerFindCustomButtonById(visibleCustomId, mode, view);
-        const customSrc = custom && typeof custom.assetDataUrl === "string" ? custom.assetDataUrl : "";
-        if(customSrc){
-          scene.custom.setAttribute("src", customSrc);
-        } else {
-          scene.custom.setAttribute("src", "data:,");
+        const activeParts = plannerActivePartKeysForView(mode, view, selectedSet);
+        activeParts.forEach((partKey) => {
+          const el = scene.overlayElsByPartKey && scene.overlayElsByPartKey[partKey];
+          if(el) plannerSetOverlayVisible(el, true);
+        });
+        if(scene.frontline){
+          scene.frontline.classList.add("is-visible");
         }
-        scene.custom.classList.remove("is-guide-visible");
-        scene.custom.classList.toggle("is-visible", !!(customSrc && visibleCustomId && activeSet.has(visibleCustomId)));
-      }
+        if(scene.custom){
+          const activeSet = plannerCustomActiveSet(mode, view);
+          const visibleCustomId = plannerCustomButtonVisibleOverlayId(mode, view);
+          const custom = plannerFindCustomButtonById(visibleCustomId, mode, view);
+          const customSrc = custom && typeof custom.assetDataUrl === "string" ? custom.assetDataUrl : "";
+          if(customSrc){
+            scene.custom.setAttribute("src", customSrc);
+          } else {
+            scene.custom.setAttribute("src", "data:,");
+          }
+          scene.custom.classList.remove("is-guide-visible");
+          scene.custom.classList.toggle("is-visible", !!(customSrc && visibleCustomId && activeSet.has(visibleCustomId)));
+        }
+      });
     });
-    plannerKeepTrackScenesReady();
     if(options.syncActiveScene !== false){
       plannerSetActiveScene(plannerFrauenView, {
         animate:options.animateTrack,
         deferCommit:options.deferActiveSceneCommit
       });
+    }
+    plannerSyncScrollSnapPosition(plannerFrauenView, {
+      instant:true,
+      source:options.sourceTransport || ""
+    });
+  }
+  function plannerSyncScrollSnapHotspots(mode){
+    if(plannerViewTransport !== "scroll-snap") return;
+    if(!(plannerSketch instanceof HTMLElement) || !(plannerBackSketch instanceof HTMLElement)) return;
+    const activeView = plannerFrauenViewOrder.includes(plannerFrauenView) ? plannerFrauenView : "front";
+    const activeScene = plannerScrollViewScenes[activeView];
+    if(!(activeScene && activeScene.frame)) return;
+    activeScene.frame.appendChild(plannerBackSketch);
+    activeScene.frame.appendChild(plannerSketch);
+    [plannerSketch, plannerBackSketch].forEach((host) => {
+      host.querySelectorAll(".zoneSketchBtn").forEach((btn) => {
+        btn.style.pointerEvents = "auto";
+      });
+    });
+  }
+  function plannerScrollSnapIndex(){
+    if(!(plannerFigureViewportScroll instanceof HTMLElement)) return plannerViewIndex(plannerFrauenView);
+    const width = plannerFigureViewportScroll.clientWidth || 1;
+    return Math.max(0, Math.min(plannerFrauenViewOrder.length - 1, Math.round(plannerFigureViewportScroll.scrollLeft / width)));
+  }
+  function plannerHandleScrollSnapScroll(){
+    if(plannerViewTransport !== "scroll-snap" || plannerScrollSnapMuted) return;
+    if(plannerScrollSnapRaf){
+      cancelAnimationFrame(plannerScrollSnapRaf);
+    }
+    plannerScrollSnapRaf = requestAnimationFrame(() => {
+      plannerScrollSnapRaf = null;
+      const nextView = plannerFrauenViewOrder[plannerScrollSnapIndex()] || "front";
+      if(nextView !== plannerFrauenView){
+        setPlannerFrauenView(nextView, { sourceTransport:"scroll-snap" });
+      } else {
+        plannerSyncScrollSnapHotspots(activeLaserMode());
+      }
+    });
+    if(plannerScrollSnapSettleTimer){
+      clearTimeout(plannerScrollSnapSettleTimer);
+    }
+    plannerScrollSnapSettleTimer = setTimeout(() => {
+      plannerScrollSnapSettleTimer = null;
+      plannerSyncScrollSnapHotspots(activeLaserMode());
+    }, 80);
+  }
+  function plannerSyncScrollSnapPosition(view, options = {}){
+    if(plannerViewTransport !== "scroll-snap") return;
+    if(!(plannerFigureViewportScroll instanceof HTMLElement)) return;
+    if(options.source === "scroll-snap") return;
+    const left = plannerViewIndex(view) * (plannerFigureViewportScroll.clientWidth || 0);
+    plannerScrollSnapMuted = true;
+    plannerFigureViewportScroll.scrollTo({
+      left,
+      behavior:options.instant === false ? "smooth" : "auto"
+    });
+    requestAnimationFrame(() => {
+      plannerScrollSnapMuted = false;
+    });
+  }
+  function plannerSetTransport(transport){
+    const nextTransport = transport === "scroll-snap" ? "scroll-snap" : "transform";
+    plannerViewTransport = nextTransport;
+    if(plannerFigureWrap){
+      plannerFigureWrap.dataset.plannerTransport = nextTransport;
+    }
+    plannerEngineButtons.forEach((btn) => {
+      const active = btn.dataset.plannerTransport === nextTransport;
+      btn.classList.toggle("is-active", active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    if(nextTransport === "scroll-snap"){
+      plannerInitScrollSnapScenes();
+      plannerSyncAllViewScenes(activeLaserMode(), { syncActiveScene:false, sourceTransport:"transport-toggle" });
+      plannerSyncScrollSnapHotspots(activeLaserMode());
+      plannerSyncScrollSnapPosition(plannerFrauenView, { instant:true, source:"transport-toggle" });
+      return;
+    }
+    const frontScene = plannerViewScenes.front;
+    if(frontScene && frontScene.frame && plannerSketch instanceof HTMLElement){
+      frontScene.frame.appendChild(plannerSketch);
+    }
+    if(plannerFigureInner && plannerBackSketch instanceof HTMLElement){
+      plannerFigureInner.appendChild(plannerBackSketch);
     }
   }
   function plannerCollectPrefetchSourcesForTarget(target){
@@ -7631,10 +7697,10 @@
     const safeKey = String(plannerJoystickTargetZoneId || "").replace(/"/g, '\\"');
     if(!safeKey) return null;
     const selector = `.zoneSketchBtn[data-move-key="${safeKey}"], .zoneSketchBtn[data-zone-id="${safeKey}"]`;
-    const fromFront = plannerSketch ? plannerSketch.querySelector(selector) : null;
-    if(fromFront instanceof HTMLElement) return fromFront;
-    const fromBack = plannerBackSketch ? plannerBackSketch.querySelector(selector) : null;
-    if(fromBack instanceof HTMLElement) return fromBack;
+    for(const host of plannerAllRenderedSketchHosts()){
+      const match = host.querySelector(selector);
+      if(match instanceof HTMLElement) return match;
+    }
     return null;
   }
   function plannerUpdateButtonInspector(){
@@ -7921,13 +7987,9 @@
     const safeKey = String(zoneId).replace(/"/g, '\\"');
     const byKeySelector = `.zoneSketchBtn[data-face-primary="1"][data-move-key="${safeKey}"]`;
     const byZoneSelector = `.zoneSketchBtn[data-face-primary="1"][data-zone-id="${safeKey}"]`;
-    if(plannerSketch){
-      const inFront = plannerSketch.querySelector(byKeySelector) || plannerSketch.querySelector(byZoneSelector);
-      if(inFront) return inFront;
-    }
-    if(plannerBackSketch){
-      const inBack = plannerBackSketch.querySelector(byKeySelector) || plannerBackSketch.querySelector(byZoneSelector);
-      if(inBack) return inBack;
+    for(const host of plannerAllRenderedSketchHosts()){
+      const match = host.querySelector(byKeySelector) || host.querySelector(byZoneSelector);
+      if(match) return match;
     }
     return null;
   }
@@ -8219,7 +8281,7 @@
     const mode = activeLaserMode();
     const targetKey = plannerJoystickTargetZoneId;
     const baseId = plannerBaseZoneIdFromStateKey(targetKey);
-    const hosts = [plannerSketch, plannerBackSketch];
+    const hosts = plannerAllRenderedSketchHosts();
     plannerFaceStateWrite(plannerFaceZoneLayerById, targetKey, layerValue, mode);
     if(baseId) plannerFaceStateWrite(plannerFaceZoneLayerById, baseId, layerValue, mode);
     hosts.forEach((host) => {
@@ -8265,9 +8327,11 @@
     const safeId = String(zoneId).replace(/"/g, '\\"');
     const selectorByKey = `.zoneSketchBtn[data-move-key="${safeId}"]`;
     const selectorByZone = `.zoneSketchBtn[data-zone-id="${safeId}"]`;
-    const btn =
-      (plannerSketch && (plannerSketch.querySelector(selectorByKey) || plannerSketch.querySelector(selectorByZone))) ||
-      (plannerBackSketch && (plannerBackSketch.querySelector(selectorByKey) || plannerBackSketch.querySelector(selectorByZone)));
+    let btn = null;
+    for(const host of plannerAllRenderedSketchHosts()){
+      btn = host.querySelector(selectorByKey) || host.querySelector(selectorByZone);
+      if(btn) break;
+    }
     if(!(btn instanceof HTMLElement)) return null;
     const left = Number.parseFloat(btn.style.left);
     const top = Number.parseFloat(btn.style.top);
@@ -9214,7 +9278,6 @@
     const nextView = plannerFrauenViewOrder.includes(view) ? view : "front";
     const changed = plannerFrauenView !== nextView;
     const prevView = plannerFrauenView;
-    const shouldAnimateTrack = options.animateTrack !== false && PLANNER_VIEW_SLIDE_ANIMATION;
     plannerFrauenView = nextView;
     plannerViewButtons.forEach((btn) => {
       const active = btn.dataset.plannerView === plannerFrauenView;
@@ -9235,7 +9298,7 @@
       const nextIndex = plannerFrauenViewOrder.indexOf(nextView);
       const direction = nextIndex > prevIndex ? "to-back" : "to-front";
       applyPlannerFigureMode(mode, {
-        animate:shouldAnimateTrack,
+        animate:PLANNER_VIEW_SLIDE_ANIMATION,
         direction,
         onVisualSwapped:() => {
           // Keep the slide smooth: update only cheap visibility state mid-flight.
@@ -9249,7 +9312,7 @@
           plannerFocusInteractiveForSwitch(mode);
         }
       });
-      if(!shouldAnimateTrack){
+      if(!PLANNER_VIEW_SLIDE_ANIMATION){
         plannerViewTransitionActive = false;
         plannerReleaseFrontStaticOverlaySources();
         renderPlannerViewState(mode);
@@ -9264,6 +9327,13 @@
       plannerPersistState();
     }
     plannerEnsurePreparedDynamicOverlays(mode, plannerFrauenView);
+    if(plannerViewTransport === "scroll-snap"){
+      renderPlannerViewState(mode);
+    }
+    plannerSyncScrollSnapPosition(plannerFrauenView, {
+      instant:!changed,
+      source:options.sourceTransport || ""
+    });
     // Keep next/prev view assets warm so switching is instant.
     if(!skipNeighborWarmup){
       plannerWarmupNeighborViews(mode, plannerFrauenView);
@@ -9322,33 +9392,14 @@
     if(targetIndex === currentIndex) return null;
     return plannerFrauenViewOrder[targetIndex] || null;
   }
-  function plannerSyncInteractiveScene(view = plannerCommittedSceneView || plannerFrauenView){
-    const interactiveView = plannerFrauenViewOrder.includes(view) ? view : "front";
-    plannerFigureSceneViews.forEach((sceneView) => {
-      const scene = plannerViewScenes[sceneView];
-      if(!scene || !scene.container) return;
-      scene.container.classList.toggle("is-interactive-scene", sceneView === interactiveView);
-    });
-    if(plannerSketch){
-      plannerSketch.classList.toggle("is-interactive-scene", interactiveView !== "back");
-    }
-    if(plannerBackSketch){
-      plannerBackSketch.classList.toggle("is-interactive-scene", interactiveView === "back");
-    }
-  }
-  function plannerKeepTrackScenesReady(){
-    plannerFigureSceneViews.forEach((sceneView) => {
-      const scene = plannerViewScenes[sceneView];
-      if(!scene || !scene.container) return;
-      scene.container.classList.add("is-active");
-      scene.container.setAttribute("aria-hidden", "false");
-    });
-    plannerSyncInteractiveScene();
-  }
   function plannerSetSwipePreviewScenes(fromView, toView){
-    void fromView;
-    void toView;
-    plannerKeepTrackScenesReady();
+    plannerFigureSceneViews.forEach((sceneView) => {
+      const scene = plannerViewScenes[sceneView];
+      if(!scene || !scene.container) return;
+      const isVisible = sceneView === fromView || sceneView === toView;
+      scene.container.classList.toggle("is-active", isVisible);
+      scene.container.setAttribute("aria-hidden", isVisible ? "false" : "true");
+    });
   }
   function plannerBeginInteractiveSwipe(targetView){
     if(!(plannerFigureTrack instanceof HTMLElement) || !(plannerFigureViewport instanceof HTMLElement)) return false;
@@ -9380,19 +9431,21 @@
     const absDx = Math.abs(dx);
     if(absDx <= 0) return 0;
     const direction = Math.sign(dx) || 1;
-    const feel = plannerSwipeFeel();
-    const softZone = 18;
-    const midZone = 72;
-
+    const softZone = PLANNER_SWIPE_DRAG_SOFT_ZONE_PX;
+    const catchupZone = Math.max(softZone + 1, PLANNER_SWIPE_DRAG_CATCHUP_ZONE_PX);
+    const entryFactor = PLANNER_SWIPE_DRAG_ENTRY_FACTOR;
     if(absDx <= softZone){
-      return dx * feel.resistanceSoft;
+      return dx * entryFactor;
     }
-    if(absDx <= midZone){
-      const t = (absDx - softZone) / (midZone - softZone);
-      const factor = feel.resistanceSoft + ((feel.resistanceMid - feel.resistanceSoft) * t);
-      return direction * ((softZone * feel.resistanceSoft) + ((absDx - softZone) * factor));
+    if(absDx <= catchupZone){
+      const zoneProgress = (absDx - softZone) / (catchupZone - softZone);
+      const factor = entryFactor + ((0.96 - entryFactor) * zoneProgress);
+      const distance = (softZone * entryFactor) + ((absDx - softZone) * factor);
+      return direction * distance;
     }
-    return direction * ((softZone * feel.resistanceSoft) + ((midZone - softZone) * feel.resistanceMid) + ((absDx - midZone) * feel.resistanceTail));
+    const softDistance = softZone * entryFactor;
+    const catchupDistance = (catchupZone - softZone) * 0.96;
+    return direction * (softDistance + catchupDistance + ((absDx - catchupZone) * 0.985));
   }
   function plannerResetSwipeTracking(){
     plannerSwipeTracking = false;
@@ -9426,11 +9479,10 @@
   }
   function plannerSwipeShouldCommit(){
     if(!plannerInteractiveSwipeActive) return false;
-    const feel = plannerSwipeFeel();
-    const progressReady = plannerInteractiveSwipeProgress >= feel.commitProgress &&
+    const progressReady = plannerInteractiveSwipeProgress >= PLANNER_SWIPE_COMMIT_PROGRESS &&
       Math.abs(plannerInteractiveSwipeLastDx) >= PLANNER_SWIPE_MIN_X;
     if(progressReady) return true;
-    return Math.abs(plannerSwipeVelocityX) >= feel.velocityCommit;
+    return Math.abs(plannerSwipeVelocityX) >= PLANNER_SWIPE_VELOCITY_COMMIT;
   }
   function plannerFinalizeSwipeGesture(){
     if(plannerInteractiveSwipeActive){
@@ -9449,8 +9501,7 @@
     const dy = clientY - plannerSwipeStartY;
     const absDx = Math.abs(dx);
     const absDy = Math.abs(dy);
-    const feel = plannerSwipeFeel(options.inputType || plannerSwipeInputType);
-    const startThresholdX = options.startThresholdX || feel.startThresholdX;
+    const startThresholdX = options.startThresholdX || PLANNER_SWIPE_PREVIEW_START_X;
     const horizontalIntent = absDx > startThresholdX && absDx > absDy;
     const verticalIntent = absDy > PLANNER_SWIPE_PREVIEW_START_X && absDy > absDx;
     if(!plannerSwipeGestureLock){
@@ -9471,9 +9522,6 @@
     plannerRegisterSwipeVelocity(clientX, clientY);
     const swipeStep = dx < 0 ? 1 : -1;
     const targetView = absDx > 0 ? plannerInteractiveSwipeNeighbor(swipeStep) : null;
-    if(!targetView && !plannerInteractiveSwipeActive){
-      return false;
-    }
     if(targetView && (!plannerInteractiveSwipeActive || plannerInteractiveSwipeTargetView !== targetView)){
       if(plannerInteractiveSwipeActive){
         const startView = plannerInteractiveSwipeStartView || plannerCommittedSceneView || plannerFrauenView;
@@ -9496,10 +9544,18 @@
     const responsiveDx = plannerApplyInteractiveSwipeResistance(dx);
     const signedDistance = responsiveDx * plannerInteractiveSwipeDirection;
     const progress = Math.max(0, Math.min(1, signedDistance / viewportWidth));
+    let displayProgress = progress;
+    if(progress >= PLANNER_SWIPE_MIDPOINT_MAGNET_START && progress <= PLANNER_SWIPE_MIDPOINT_MAGNET_END){
+      const halfBand = (PLANNER_SWIPE_MIDPOINT_MAGNET_END - PLANNER_SWIPE_MIDPOINT_MAGNET_START) / 2;
+      const centerDistance = Math.abs(progress - 0.5);
+      const magnetRatio = Math.max(0, 1 - (centerDistance / Math.max(0.0001, halfBand)));
+      const pull = magnetRatio * PLANNER_SWIPE_MIDPOINT_MAGNET_STRENGTH;
+      displayProgress = progress + ((0.5 - progress) * pull);
+    }
     const startIndex = plannerViewIndex(plannerInteractiveSwipeStartView);
     plannerInteractiveSwipeProgress = progress;
     plannerInteractiveSwipeLastDx = dx;
-    plannerSetTrackOffset(startIndex + (progress * plannerInteractiveSwipeDirection), {
+    plannerSetTrackOffset(startIndex + (displayProgress * plannerInteractiveSwipeDirection), {
       animate:false,
       view:plannerInteractiveSwipeStartView
     });
@@ -9519,31 +9575,15 @@
     if(!plannerInteractiveSwipeActive) return;
     const startView = plannerInteractiveSwipeStartView || plannerCommittedSceneView || plannerFrauenView;
     plannerSetSwipePreviewScenes(startView, startView);
-    plannerAnimateTrackSpringTo(plannerViewIndex(startView), {
-      view:startView,
-      inputType:plannerSwipeInputType,
-      initialVelocityPx:plannerSwipeVelocityX * 1000,
-      fromRawIndex:plannerViewIndex(startView) + (plannerInteractiveSwipeProgress * plannerInteractiveSwipeDirection),
-      onComplete:() => {
-        plannerCommittedSceneView = startView;
-        plannerCommitActiveScene(startView);
-        plannerClearInteractiveSwipeState();
-      }
-    });
+    plannerSetTrackOffset(plannerViewIndex(startView), { animate:true, view:startView });
+    plannerCommittedSceneView = startView;
+    plannerClearInteractiveSwipeState();
   }
   function plannerCompleteInteractiveSwipe(){
     if(!plannerInteractiveSwipeActive || !plannerInteractiveSwipeTargetView) return false;
     const targetView = plannerInteractiveSwipeTargetView;
-    plannerAnimateTrackSpringTo(plannerViewIndex(targetView), {
-      view:plannerInteractiveSwipeStartView,
-      inputType:plannerSwipeInputType,
-      initialVelocityPx:plannerSwipeVelocityX * 1000,
-      fromRawIndex:plannerViewIndex(plannerInteractiveSwipeStartView) + (plannerInteractiveSwipeProgress * plannerInteractiveSwipeDirection),
-      onComplete:() => {
-        plannerClearInteractiveSwipeState();
-        setPlannerFrauenView(targetView, { animateTrack:false });
-      }
-    });
+    plannerClearInteractiveSwipeState();
+    setPlannerFrauenView(targetView);
     return true;
   }
   function applyPlannerFigureMode(mode, options = {}){
@@ -9572,20 +9612,18 @@
         options.onVisualSwapped();
       }
     } else {
-      plannerSetActiveScene(plannerFrauenView, {
-        animate:true,
-        deferCommit:true,
-        onTrackSettled:() => {
-          plannerViewSwitchInTimer = null;
-          plannerCommitActiveScene(plannerFrauenView);
-          if(typeof options.onVisualSettled === "function"){
-            options.onVisualSettled();
-          }
-        }
-      });
+      const transition = plannerTrackTransitionConfig();
+      plannerSetActiveScene(plannerFrauenView, { animate:true, deferCommit:true });
       if(typeof options.onVisualSwapped === "function"){
         options.onVisualSwapped();
       }
+      plannerViewSwitchInTimer = setTimeout(() => {
+        plannerViewSwitchInTimer = null;
+        plannerCommitActiveScene(plannerFrauenView);
+        if(typeof options.onVisualSettled === "function"){
+          options.onVisualSettled();
+        }
+      }, transition.duration);
     }
     syncPlannerViewSwitch(mode);
     requestAnimationFrame(positionPlannerViewArrows);
@@ -10682,7 +10720,7 @@
         btn.setAttribute("aria-selected", active ? "true" : "false");
       });
     }
-    [plannerSketch, plannerBackSketch].forEach((host) => {
+    plannerAllRenderedSketchHosts().forEach((host) => {
       if(!host) return;
       const activeCustomSet = plannerCustomActiveSet(mode, plannerFrauenView);
       const multiSelectedCustomSet = plannerCustomMultiSelectSet(mode, plannerFrauenView);
@@ -12007,6 +12045,7 @@
   function renderPlanner(mode){
     renderPlannerText();
     renderPlannerSketch(mode);
+    plannerSyncScrollSnapHotspots(mode);
     renderPlannerZones(mode);
     updatePlannerOrder(mode);
     updatePlannerFigureOverlay(mode);
@@ -12014,6 +12053,7 @@
   }
   function renderPlannerViewState(mode){
     renderPlannerSketch(mode);
+    plannerSyncScrollSnapHotspots(mode);
     renderPlannerZones(mode);
     updatePlannerFigureOverlay(mode);
   }
@@ -12162,7 +12202,15 @@
       });
     }
     warmupPlannerResponsiveAssets();
+    plannerInitScrollSnapScenes();
     setPlannerFrauenView("front", { mode:laserSwitchModeFromUrl() });
+  }
+  if(plannerEngineButtons.length){
+    plannerEngineButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        plannerSetTransport(btn.dataset.plannerTransport || "transform");
+      });
+    });
   }
   if(plannerFaceJoystickButtons.length){
     plannerFaceJoystickButtons.forEach((btn) => {
@@ -12319,6 +12367,7 @@
   }
   window.addEventListener("resize", () => {
     plannerSyncKonvaEditor(activeLaserMode());
+    plannerSyncScrollSnapPosition(plannerFrauenView, { instant:true });
   });
   plannerSetEditMode(false);
   plannerSetMouseDragMode("move");
@@ -12347,6 +12396,7 @@
   } else {
     setTimeout(() => plannerWarmStartupScenes(), 120);
   }
+  plannerSetTransport("transform");
   plannerRestoreState();
   schedulePlannerRender(activeLaserMode());
   plannerHistoryLastSerialized = JSON.stringify(plannerHistorySnapshot());
@@ -12587,16 +12637,9 @@
       if(!e.touches) return;
       const target = e.target;
       const zoneBtn = target instanceof Element ? target.closest(".zoneSketchBtn") : null;
-      if(zoneBtn){
-        if(plannerInteractiveSwipeActive){
-          plannerCancelInteractiveSwipe();
-        }
-        plannerResetSwipeTracking();
-        return;
-      }
       ensureInteractiveInViewForInteraction();
       if(e.touches.length === 1){
-        e.preventDefault();
+        if(!zoneBtn) e.preventDefault();
         const touch = e.touches[0];
         plannerBeginSwipeTracking(touch.clientX, touch.clientY, "touch");
       } else {
