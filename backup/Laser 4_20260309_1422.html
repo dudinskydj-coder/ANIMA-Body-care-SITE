@@ -7251,7 +7251,7 @@
   function plannerSetEditMode(enabled){
     void enabled;
     plannerEditModeEnabled = false;
-    body.classList.add("planner-hotspots-hidden");
+    body.classList.remove("planner-hotspots-hidden");
     if(plannerEditModeSwitch) plannerEditModeSwitch.checked = false;
     if(plannerFaceJoystick){
       plannerFaceJoystick.classList.remove("is-edit-mode", "is-visible");
