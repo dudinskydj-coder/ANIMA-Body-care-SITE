@@ -5390,7 +5390,6 @@
   let plannerSwipeStartX = 0;
   let plannerSwipeStartY = 0;
   let plannerSwipeStartAt = 0;
-  let plannerSwipeGestureLock = "";
   let plannerLastTapAt = 0;
   let plannerLastTapX = 0;
   let plannerLastTapY = 0;
@@ -12860,14 +12859,12 @@
         plannerPinchActive = false;
         const touch = e.touches[0];
         plannerSwipeTracking = plannerZoom <= 1.02;
-        plannerSwipeGestureLock = "";
         plannerSwipeStartX = touch.clientX;
         plannerSwipeStartY = touch.clientY;
         plannerSwipeStartAt = Date.now();
         plannerClearInteractiveSwipeState();
       } else {
         plannerSwipeTracking = false;
-        plannerSwipeGestureLock = "";
       }
       if(e.touches.length === 2){
         if(plannerShouldDisableZoomOnTouch()){
@@ -12922,7 +12919,6 @@
         e.preventDefault();
         plannerPinchActive = true;
         plannerSwipeTracking = false;
-        plannerSwipeGestureLock = "";
         plannerTouchPanActive = false;
         const currentDistance = touchDistance(e.touches[0], e.touches[1]);
         if(!currentDistance) return;
@@ -12954,36 +12950,21 @@
       if(e.touches.length === 1 && plannerSwipeTracking){
         const dx = e.touches[0].clientX - plannerSwipeStartX;
         const dy = e.touches[0].clientY - plannerSwipeStartY;
-        const absDx = Math.abs(dx);
-        const absDy = Math.abs(dy);
-        const horizontalIntent = absDx > PLANNER_SWIPE_PREVIEW_START_X && absDx > absDy * 0.85;
-        const verticalIntent = absDy > 10 && absDy > absDx * 1.05;
-        if(!plannerSwipeGestureLock){
-          if(horizontalIntent){
-            plannerSwipeGestureLock = "horizontal";
-            plannerTouchPanActive = false;
-          } else if(verticalIntent){
-            plannerSwipeGestureLock = "vertical";
-          }
-        }
-        if(plannerSwipeGestureLock === "vertical"){
-          plannerSwipeTracking = false;
-          return;
-        }
-        if(plannerSwipeGestureLock === "horizontal" && !plannerInteractiveSwipeActive){
+        const horizontalIntent = Math.abs(dx) > PLANNER_SWIPE_PREVIEW_START_X && Math.abs(dx) > Math.abs(dy) * 0.85;
+        if(horizontalIntent && !plannerInteractiveSwipeActive){
           const targetView = plannerInteractiveSwipeNeighbor(dx < 0 ? 1 : -1);
           if(targetView){
             plannerSuppressClickUntil = Date.now() + 320;
             plannerBeginInteractiveSwipe(targetView);
           }
         }
-        if(plannerSwipeGestureLock === "horizontal" && plannerInteractiveSwipeActive){
+        if(plannerInteractiveSwipeActive){
           plannerSuppressClickUntil = Date.now() + 320;
           plannerUpdateInteractiveSwipe(dx);
           e.preventDefault();
           return;
         }
-        if(plannerSwipeGestureLock === "horizontal"){
+        if(Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy) * 0.85){
           e.preventDefault();
         }
       }
@@ -13041,7 +13022,6 @@
         const dy = endY - plannerSwipeStartY;
         const dt = Date.now() - plannerSwipeStartAt;
         const isSwipe = !interactiveSwipeWasActive &&
-          plannerSwipeGestureLock === "horizontal" &&
           dt <= PLANNER_SWIPE_MAX_MS &&
           Math.abs(dx) >= PLANNER_SWIPE_MIN_X &&
           Math.abs(dy) <= PLANNER_SWIPE_MAX_Y &&
@@ -13052,7 +13032,6 @@
         }
       }
       plannerSwipeTracking = false;
-      plannerSwipeGestureLock = "";
       plannerPinchStartDistance = null;
       cancelPlannerPinchRaf();
       if(plannerTouchPanRaf){
@@ -13101,7 +13080,6 @@
         plannerCancelInteractiveSwipe();
       }
       plannerSwipeTracking = false;
-      plannerSwipeGestureLock = "";
       plannerPinchStartDistance = null;
       cancelPlannerPinchRaf();
       if(plannerTouchPanRaf){
