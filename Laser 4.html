@@ -5359,16 +5359,6 @@
   let plannerFaceWarpDragState = null;
   let plannerFaceDragSuppressClickZoneId = null;
   let plannerFaceDragSuppressClickAt = 0;
-  let plannerDragActive = false;
-  let plannerDragMoved = false;
-  let plannerDragStartX = 0;
-  let plannerDragStartY = 0;
-  let plannerDragLastX = 0;
-  let plannerDragLastY = 0;
-  let plannerDragLastTs = 0;
-  let plannerDragGestureLock = "";
-  let plannerTouchStartX = 0;
-  let plannerTouchStartY = 0;
   let plannerEditModeEnabled = false;
   let plannerKonvaStage = null;
   let plannerKonvaLayer = null;
@@ -5378,11 +5368,7 @@
   let plannerSwipeTracking = false;
   let plannerSwipeStartX = 0;
   let plannerSwipeStartY = 0;
-  let plannerSwipeStartAt = 0;
   let plannerSwipeGestureLock = "";
-  let plannerLastTapAt = 0;
-  let plannerLastTapX = 0;
-  let plannerLastTapY = 0;
   let plannerSuppressClickUntil = 0;
   let plannerRenderRaf = null;
   let plannerSelectionUiSyncRaf = null;
@@ -5431,10 +5417,6 @@
   const plannerLastToggleAtByKey = new Map();
   const PLANNER_TOGGLE_GUARD_MS = 220;
   let lastLegalTrigger = null;
-  const PLANNER_MIN_ZOOM = 1;
-  const PLANNER_ZOOM_ENABLED = false;
-  const PLANNER_MAX_ZOOM = 2.8;
-  const PLANNER_MOBILE_MAX_ZOOM = 1.35;
   const PLANNER_PRELOAD_CACHE_LIMIT_DESKTOP = 140;
   const PLANNER_PRELOAD_CACHE_LIMIT_MOBILE = 56;
   const PLANNER_STARTUP_SCENE_TARGETS = [
@@ -5461,21 +5443,8 @@
   const coarsePointerMq = window.matchMedia("(pointer: coarse)");
   const instantMenuMq = window.matchMedia("(max-width: 1024px)");
   const mobileVideoMq = window.matchMedia("(max-width: 767px)");
-  function isIPadTouchDevice(){
-    const ua = navigator.userAgent || "";
-    const platform = navigator.platform || "";
-    const touchPoints = navigator.maxTouchPoints || 0;
-    return /iPad/i.test(ua) || (platform === "MacIntel" && touchPoints > 1);
-  }
-  function plannerShouldDisableZoomOnTouch(){
-    return !PLANNER_ZOOM_ENABLED || !!((coarsePointerMq && coarsePointerMq.matches) || isIPadTouchDevice());
-  }
   function plannerIsLowPerfMode(){
     return plannerIsMobilePerfMode() && plannerLowPerfMode;
-  }
-  function plannerMaxZoom(){
-    if(!PLANNER_ZOOM_ENABLED) return PLANNER_MIN_ZOOM;
-    return plannerShouldDisableZoomOnTouch() ? PLANNER_MOBILE_MAX_ZOOM : PLANNER_MAX_ZOOM;
   }
   const LASER_VIDEO_DESKTOP_SRC = "img/VIDEO/DEKA Epilation.mp4";
   const LASER_VIDEO_MOBILE_SRC = "img/VIDEO/DEKA Epilation Mob.mp4";
@@ -9087,17 +9056,6 @@
       plannerHoverSuppressed = false;
       plannerHoverSuppressedKey = null;
       clearPlannerHoverPreview();
-      clearPlannerAutoResetTimer();
-      clearPlannerSettleTimer();
-      cancelPlannerInertia();
-      cancelPlannerPinchRaf();
-      cancelPlannerZoomAnimation();
-      cancelPlannerSettleAnimation();
-      cancelPlannerVerticalSnap();
-      cancelPlannerEdgeBounce();
-      cancelPlannerZoomEdgeBounce();
-      setPlannerZoomEdgeScale(1);
-      setPlannerEdgeOffsetY(0);
       const prevIndex = plannerFrauenViewOrder.indexOf(prevView);
       const nextIndex = plannerFrauenViewOrder.indexOf(nextView);
       const direction = nextIndex > prevIndex ? "to-back" : "to-front";
@@ -9594,123 +9552,8 @@
     const baseScale = window.innerWidth <= 767
       ? PLANNER_BASE_FIGURE_SCALE_MOBILE
       : PLANNER_BASE_FIGURE_SCALE_DESKTOP;
-    applyPlannerInnerTransform();
     plannerFigureInner.style.width = "100%";
-    plannerFigureInner.style.height = `${plannerZoom * baseScale * 100}%`;
-  }
-  function clearPlannerAutoResetTimer(){
-    if(!plannerAutoResetTimer) return;
-    clearTimeout(plannerAutoResetTimer);
-    plannerAutoResetTimer = null;
-  }
-  function clearPlannerSettleTimer(){
-    if(!plannerSettleTimer) return;
-    clearTimeout(plannerSettleTimer);
-    plannerSettleTimer = null;
-  }
-  function cancelPlannerSettleAnimation(){
-    if(!plannerSettleRaf) return;
-    cancelAnimationFrame(plannerSettleRaf);
-    plannerSettleRaf = null;
-  }
-  function cancelPlannerVerticalSnap(){
-    if(!plannerVerticalSnapRaf) return;
-    cancelAnimationFrame(plannerVerticalSnapRaf);
-    plannerVerticalSnapRaf = null;
-  }
-  function cancelPlannerZoomAnimation(){
-    if(!plannerZoomRaf) return;
-    cancelAnimationFrame(plannerZoomRaf);
-    plannerZoomRaf = null;
-  }
-  function cancelPlannerInertia(){
-    if(!plannerInertiaRaf) return;
-    cancelAnimationFrame(plannerInertiaRaf);
-    plannerInertiaRaf = null;
-  }
-  function cancelPlannerEdgeBounce(){
-    if(!plannerEdgeBounceRaf) return;
-    cancelAnimationFrame(plannerEdgeBounceRaf);
-    plannerEdgeBounceRaf = null;
-  }
-  function cancelPlannerZoomEdgeBounce(){
-    if(!plannerZoomEdgeRaf) return;
-    cancelAnimationFrame(plannerZoomEdgeRaf);
-    plannerZoomEdgeRaf = null;
-  }
-  function applyPlannerInnerTransform(){
-    if(!plannerFigureInner) return;
-    const y = Math.round(plannerEdgeOffsetY * 100) / 100;
-    const s = Math.round(plannerZoomEdgeScale * 1000) / 1000;
-    if(!y && Math.abs(s - 1) < 0.0005){
-      plannerFigureInner.style.transform = "";
-      return;
-    }
-    const parts = [];
-    if(y) parts.push(`translate3d(0, ${y}px, 0)`);
-    if(Math.abs(s - 1) >= 0.0005) parts.push(`scale(${s})`);
-    plannerFigureInner.style.transform = parts.join(" ");
-  }
-  function setPlannerEdgeOffsetY(nextOffset){
-    plannerEdgeOffsetY = nextOffset;
-    applyPlannerInnerTransform();
-  }
-  function setPlannerZoomEdgeScale(nextScale){
-    plannerZoomEdgeScale = nextScale;
-    applyPlannerInnerTransform();
-  }
-  function bouncePlannerZoomEdge(durationMs = 300, peak = 1.018){
-    cancelPlannerZoomEdgeBounce();
-    const start = performance.now();
-    const from = plannerZoomEdgeScale;
-    const mid = Math.max(from, peak);
-    const easeOut = (t) => 1 - Math.pow(1 - t, 3);
-    const easeIn = (t) => t * t * (3 - 2 * t);
-    const frame = (now) => {
-      const p = Math.min(1, (now - start) / durationMs);
-      if(p < 0.45){
-        const t = p / 0.45;
-        setPlannerZoomEdgeScale(from + ((mid - from) * easeOut(t)));
-      } else {
-        const t = (p - 0.45) / 0.55;
-        setPlannerZoomEdgeScale(mid + ((1 - mid) * easeIn(t)));
-      }
-      if(p < 1){
-        plannerZoomEdgeRaf = requestAnimationFrame(frame);
-      } else {
-        plannerZoomEdgeRaf = null;
-        setPlannerZoomEdgeScale(1);
-      }
-    };
-    plannerZoomEdgeRaf = requestAnimationFrame(frame);
-  }
-  function triggerPlannerZoomEdgeBounce(direction, durationMs = 300, peak = 1.018){
-    if(direction === 0) return;
-    const now = performance.now();
-    if(now < plannerZoomEdgeCooldownUntil) return;
-    if(plannerZoomEdgeLock === direction) return;
-    plannerZoomEdgeLock = direction;
-    plannerZoomEdgeCooldownUntil = now + Math.max(220, durationMs * 0.9);
-    bouncePlannerZoomEdge(durationMs, peak);
-  }
-  function bouncePlannerEdgeToRest(durationMs = 420){
-    if(!plannerEdgeOffsetY) return;
-    cancelPlannerEdgeBounce();
-    const start = performance.now();
-    const from = plannerEdgeOffsetY;
-    const ease = (t) => 1 - Math.pow(1 - t, 3);
-    const frame = (now) => {
-      const p = Math.min(1, (now - start) / durationMs);
-      const e = ease(p);
-      setPlannerEdgeOffsetY(from * (1 - e));
-      if(p < 1){
-        plannerEdgeBounceRaf = requestAnimationFrame(frame);
-      } else {
-        plannerEdgeBounceRaf = null;
-        setPlannerEdgeOffsetY(0);
-      }
-    };
-    plannerEdgeBounceRaf = requestAnimationFrame(frame);
+    plannerFigureInner.style.height = `${baseScale * 100}%`;
   }
   function ensureInteractiveInViewForInteraction(){
     if(!interactiveSection) return;
@@ -9732,273 +9575,12 @@
   function plannerFocusInteractiveForSwitch(mode = activeLaserMode()){
     ensureInteractiveInViewForInteraction();
     if(!plannerFigure) return;
-    cancelPlannerInertia();
-    cancelPlannerSettleAnimation();
-    cancelPlannerVerticalSnap();
-    cancelPlannerEdgeBounce();
-    cancelPlannerZoomEdgeBounce();
-    setPlannerZoomEdgeScale(1);
-    setPlannerEdgeOffsetY(0);
-    clearPlannerAutoResetTimer();
-    clearPlannerSettleTimer();
-    if(plannerZoom > 1.001){
-      animatePlannerToHome(520);
-      return;
-    }
+    plannerFigure.scrollLeft = 0;
     plannerFigure.scrollTop = 0;
     clampPlannerPan(mode);
   }
   function maybeSnapInteractiveSectionOnMobile(){
     return;
-  }
-  function startPlannerInertia(initialVx, initialVy){
-    if(!plannerFigure) return;
-    cancelPlannerInertia();
-    cancelPlannerEdgeBounce();
-    let vx = initialVx;
-    let vy = initialVy;
-    let last = performance.now();
-    const step = (now) => {
-      if(!plannerFigure){
-        plannerInertiaRaf = null;
-        return;
-      }
-      const dt = Math.min(34, Math.max(8, now - last));
-      last = now;
-      const mode = activeLaserMode();
-      plannerFigure.scrollLeft += vx * dt;
-      clampPlannerPanX(mode);
-      const yRange = plannerVerticalRange(mode);
-      const nextY = plannerFigure.scrollTop + (vy * dt);
-      if(nextY < yRange.min){
-        plannerFigure.scrollTop = yRange.min;
-        setPlannerEdgeOffsetY((nextY - yRange.min) * 0.16);
-        vy = 0;
-      } else if(nextY > yRange.max){
-        plannerFigure.scrollTop = yRange.max;
-        setPlannerEdgeOffsetY((nextY - yRange.max) * 0.16);
-        vy = 0;
-      } else {
-        plannerFigure.scrollTop = nextY;
-        setPlannerEdgeOffsetY(0);
-      }
-      const friction = Math.pow(0.92, dt / 16.67);
-      vx *= friction;
-      vy *= friction;
-      const speed = Math.hypot(vx, vy);
-      if(speed < 0.018){
-        plannerInertiaRaf = null;
-        bouncePlannerEdgeToRest(520);
-        snapPlannerVerticalExtremes(mode, 0.18);
-        maybeSettlePlannerToHome(420);
-        schedulePlannerAutoReset();
-        return;
-      }
-      plannerInertiaRaf = requestAnimationFrame(step);
-    };
-    plannerInertiaRaf = requestAnimationFrame(step);
-  }
-  function maybeSettlePlannerToHome(delayMs = 280){
-    if(isPlannerFaceJoystickActive()) return;
-    if(plannerZoom <= 1.001) return;
-    if(plannerZoom > 1.18) return;
-    clearPlannerSettleTimer();
-    plannerSettleTimer = setTimeout(() => {
-      clearPlannerSettleTimer();
-      if(isPlannerFaceJoystickActive()) return;
-      animatePlannerToHome(920);
-    }, delayMs);
-  }
-  function animatePlannerToHome(durationMs = 920){
-    if(!plannerFigure) return;
-    cancelPlannerInertia();
-    cancelPlannerZoomAnimation();
-    cancelPlannerSettleAnimation();
-    cancelPlannerVerticalSnap();
-    cancelPlannerEdgeBounce();
-    cancelPlannerZoomEdgeBounce();
-    setPlannerZoomEdgeScale(1);
-    clearPlannerAutoResetTimer();
-    const startZoom = plannerZoom;
-    const startLeft = plannerFigure.scrollLeft;
-    const startTop = plannerFigure.scrollTop;
-    if(startZoom <= 1.001 && startLeft <= 1 && startTop <= 1) return;
-    const start = performance.now();
-    const ease = (t) => 0.5 - 0.5 * Math.cos(Math.PI * t);
-    const frame = (now) => {
-      const p = Math.min(1, (now - start) / durationMs);
-      const e = ease(p);
-      plannerZoom = startZoom + (1 - startZoom) * e;
-      updatePlannerZoom();
-      plannerFigure.scrollLeft = startLeft * (1 - e);
-      plannerFigure.scrollTop = startTop * (1 - e);
-      setPlannerEdgeOffsetY(0);
-      if(p < 1){
-        plannerSettleRaf = requestAnimationFrame(frame);
-      } else {
-        plannerSettleRaf = null;
-        plannerZoom = 1;
-        updatePlannerZoom();
-        plannerFigure.scrollLeft = 0;
-        plannerFigure.scrollTop = 0;
-      }
-    };
-    plannerSettleRaf = requestAnimationFrame(frame);
-  }
-  function animatePlannerScrollTopTo(targetTop, durationMs = 320){
-    if(!plannerFigure) return;
-    cancelPlannerVerticalSnap();
-    const startTop = plannerFigure.scrollTop;
-    const delta = targetTop - startTop;
-    if(Math.abs(delta) < 0.5){
-      plannerFigure.scrollTop = targetTop;
-      return;
-    }
-    const start = performance.now();
-    const ease = (t) => 1 - Math.pow(1 - t, 3);
-    const frame = (now) => {
-      if(!plannerFigure){
-        plannerVerticalSnapRaf = null;
-        return;
-      }
-      const p = Math.min(1, (now - start) / durationMs);
-      plannerFigure.scrollTop = startTop + (delta * ease(p));
-      if(p < 1) plannerVerticalSnapRaf = requestAnimationFrame(frame);
-      else plannerVerticalSnapRaf = null;
-    };
-    plannerVerticalSnapRaf = requestAnimationFrame(frame);
-  }
-  function snapPlannerVerticalExtremes(mode, thresholdRatio = 0.16){
-    if(!plannerFigure || plannerZoom <= 1.02) return;
-    const yRange = plannerVerticalRange(mode);
-    const span = yRange.max - yRange.min;
-    if(span <= 1) return;
-    const threshold = Math.max(24, plannerFigure.clientHeight * thresholdRatio);
-    const distTop = plannerFigure.scrollTop - yRange.min;
-    const distBottom = yRange.max - plannerFigure.scrollTop;
-    if(distTop <= threshold && distTop <= distBottom){
-      animatePlannerScrollTopTo(yRange.min, 300);
-      return;
-    }
-    if(distBottom <= threshold && distBottom < distTop){
-      animatePlannerScrollTopTo(yRange.max, 300);
-    }
-  }
-  function schedulePlannerAutoReset(){
-    clearPlannerAutoResetTimer();
-    if(isPlannerFaceJoystickActive()) return;
-    if(plannerZoom <= 1.001) return;
-    plannerAutoResetTimer = setTimeout(() => {
-      if(isPlannerFaceJoystickActive()) return;
-      animatePlannerToHome(1900);
-    }, 4500);
-  }
-  function resetPlannerWheelFocus(){
-    plannerWheelFocusClientX = null;
-    plannerWheelFocusClientY = null;
-    plannerWheelGestureUntil = 0;
-    plannerLastWheelInputAt = 0;
-    plannerWheelFramingMode = "auto";
-    plannerWheelFramingApplied = false;
-  }
-  function applyPlannerZoom(nextZoom, focusClientX, focusClientY, framingMode = "auto"){
-    const prevZoom = plannerZoom;
-    const oldFigureRect = plannerFigure ? plannerFigure.getBoundingClientRect() : null;
-    const oldScrollLeft = plannerFigure ? plannerFigure.scrollLeft : 0;
-    const oldScrollTop = plannerFigure ? plannerFigure.scrollTop : 0;
-    const maxZoom = plannerMaxZoom();
-    const clamped = Math.max(PLANNER_MIN_ZOOM, Math.min(maxZoom, nextZoom));
-    plannerZoom = Math.round(clamped * 1000) / 1000;
-    if(plannerZoom > PLANNER_MIN_ZOOM + 0.06 && plannerZoom < maxZoom - 0.06){
-      plannerZoomEdgeLock = 0;
-    }
-    updatePlannerZoom();
-    if(!plannerFigure || !plannerFigureInner || !oldFigureRect || !Number.isFinite(focusClientX) || !Number.isFinite(focusClientY) || prevZoom <= 0) return;
-
-    // Keep the same content point under cursor even if container geometry changes.
-    const oldViewX = Math.max(0, Math.min(oldFigureRect.width, focusClientX - oldFigureRect.left));
-    const oldViewY = Math.max(0, Math.min(oldFigureRect.height, focusClientY - oldFigureRect.top));
-    const contentX = (oldScrollLeft + oldViewX) / prevZoom;
-    const contentY = (oldScrollTop + oldViewY) / prevZoom;
-
-    const newFigureRect = plannerFigure.getBoundingClientRect();
-    const newViewX = Math.max(0, Math.min(newFigureRect.width, focusClientX - newFigureRect.left));
-    const newViewY = Math.max(0, Math.min(newFigureRect.height, focusClientY - newFigureRect.top));
-    plannerFigure.scrollLeft = (contentX * plannerZoom) - newViewX;
-    plannerFigure.scrollTop = (contentY * plannerZoom) - newViewY;
-    const mode = activeLaserMode();
-    clampPlannerPan(mode);
-
-    // 3-stage zoom framing:
-    // top -> keep head fully visible
-    // middle -> compose torso so arms remain visible
-    // bottom -> keep feet fully visible
-    const focusRatioY = oldViewY / Math.max(1, oldFigureRect.height);
-    const bounds = plannerBodyBoundsByMode[mode] || plannerBodyBoundsByMode.frauen;
-    const sh = plannerFigure.scrollHeight;
-    const ch = plannerFigure.clientHeight;
-    const yRange = plannerVerticalRange(mode);
-    const isZoomIn = plannerZoom > prevZoom + 0.0005;
-    if(sh > 0 && ch > 0){
-      const stage = framingMode === "auto"
-        ? (focusRatioY < 0.38 ? "top" : (focusRatioY > 0.68 ? "bottom" : "middle"))
-        : framingMode;
-      if(stage !== "none" && isZoomIn && stage === "top"){
-        const topBase = typeof bounds.top === "number" ? bounds.top : 0;
-        const headKeepMax = Math.max(yRange.min, Math.min(yRange.max, sh * (topBase + 0.03)));
-        plannerFigure.scrollTop = Math.min(plannerFigure.scrollTop, headKeepMax);
-      } else if(stage !== "none" && isZoomIn && stage === "bottom"){
-        const bottomBase = typeof bounds.bottom === "number" ? bounds.bottom : 1;
-        const feetKeepMin = Math.max(yRange.min, Math.min(yRange.max, (sh * (bottomBase - 0.02)) - ch));
-        plannerFigure.scrollTop = Math.max(plannerFigure.scrollTop, feetKeepMin);
-      } else if(stage !== "none" && isZoomIn && stage === "middle"){
-        const handsY = typeof bounds.middleHandsY === "number" ? bounds.middleHandsY : 0.71;
-        const handsViewportY = typeof bounds.middleHandsViewportY === "number" ? bounds.middleHandsViewportY : 0.94;
-        const middleTarget = Math.max(yRange.min, Math.min(yRange.max, (sh * handsY) - (ch * handsViewportY)));
-        plannerFigure.scrollTop += (middleTarget - plannerFigure.scrollTop) * 0.34;
-      }
-      plannerFigure.scrollTop = Math.max(yRange.min, Math.min(yRange.max, plannerFigure.scrollTop));
-    }
-  }
-  function setPlannerZoom(nextZoom, focusClientX, focusClientY, framingMode = "auto"){
-    cancelPlannerInertia();
-    cancelPlannerZoomAnimation();
-    cancelPlannerSettleAnimation();
-    cancelPlannerVerticalSnap();
-    cancelPlannerEdgeBounce();
-    cancelPlannerZoomEdgeBounce();
-    setPlannerZoomEdgeScale(1);
-    setPlannerEdgeOffsetY(0);
-    clearPlannerSettleTimer();
-    applyPlannerZoom(nextZoom, focusClientX, focusClientY, framingMode);
-  }
-  function animatePlannerZoom(nextZoom, focusClientX, focusClientY, durationMs = 340, framingMode = "auto"){
-    cancelPlannerInertia();
-    cancelPlannerZoomAnimation();
-    cancelPlannerSettleAnimation();
-    cancelPlannerVerticalSnap();
-    cancelPlannerEdgeBounce();
-    cancelPlannerZoomEdgeBounce();
-    setPlannerZoomEdgeScale(1);
-    setPlannerEdgeOffsetY(0);
-    clearPlannerSettleTimer();
-    const startZoom = plannerZoom;
-    const targetZoom = Math.max(PLANNER_MIN_ZOOM, Math.min(plannerMaxZoom(), nextZoom));
-    if(Math.abs(targetZoom - startZoom) < 0.001){
-      applyPlannerZoom(targetZoom, focusClientX, focusClientY);
-      return;
-    }
-    const start = performance.now();
-    const ease = (t) => 0.5 - 0.5 * Math.cos(Math.PI * t);
-    const frame = (now) => {
-      const p = Math.min(1, (now - start) / durationMs);
-      const e = ease(p);
-      const z = startZoom + ((targetZoom - startZoom) * e);
-      applyPlannerZoom(z, focusClientX, focusClientY, framingMode);
-      if(p < 1) plannerZoomRaf = requestAnimationFrame(frame);
-      else plannerZoomRaf = null;
-    };
-    plannerZoomRaf = requestAnimationFrame(frame);
   }
   function clampPlannerPan(mode){
     clampPlannerPanX(mode);
@@ -10018,10 +9600,6 @@
     const maxScrollX = Math.max(0, sw - cw);
     // Mobile/touch mode: keep X centered at all times (vertical pan only).
     if((mobileVideoMq && mobileVideoMq.matches) || (coarsePointerMq && coarsePointerMq.matches)){
-      plannerFigure.scrollLeft = Math.max(0, Math.min(maxScrollX, centered));
-      return;
-    }
-    if(plannerZoom <= 1.04){
       plannerFigure.scrollLeft = Math.max(0, Math.min(maxScrollX, centered));
       return;
     }
@@ -10056,33 +9634,6 @@
       maxY = centered;
     }
     return { min:minY, max:maxY };
-  }
-  function canPanPlannerFigure(){
-    return PLANNER_ZOOM_ENABLED && plannerZoom > 1.08;
-  }
-  function plannerPanSpeedFactor(){
-    // Higher zoom = faster pan to reduce repeated dragging.
-    return Math.min(2.3, 1 + Math.max(0, plannerZoom - 1) * 0.8);
-  }
-  function touchDistance(touchA, touchB){
-    const dx = touchA.clientX - touchB.clientX;
-    const dy = touchA.clientY - touchB.clientY;
-    return Math.hypot(dx, dy);
-  }
-  function cancelPlannerPinchRaf(){
-    if(!plannerPinchRaf) return;
-    cancelAnimationFrame(plannerPinchRaf);
-    plannerPinchRaf = null;
-  }
-  function schedulePlannerPinchZoom(){
-    if(plannerPinchRaf) return;
-    plannerPinchRaf = requestAnimationFrame(() => {
-      plannerPinchRaf = null;
-      const delta = plannerPinchTargetZoom - plannerZoom;
-      const follow = Math.min(0.7, Math.max(0.34, Math.abs(delta) * 1.55));
-      const nextZoom = plannerZoom + (delta * follow);
-      applyPlannerZoom(nextZoom, plannerPinchFocusX, plannerPinchFocusY, "none");
-    });
   }
   function plannerLabel(labelMap){
     const lang = currentLang();
@@ -12711,88 +12262,11 @@
         e.preventDefault();
         return;
       }
-      if(!canPanPlannerFigure()) return;
-      ensureInteractiveInViewForInteraction();
-      cancelPlannerInertia();
-      cancelPlannerZoomAnimation();
-      plannerDragActive = true;
-      plannerDragMoved = false;
-      plannerDragGestureLock = "";
-      plannerDragStartX = e.clientX;
-      plannerDragStartY = e.clientY;
-      plannerDragLastX = e.clientX;
-      plannerDragLastY = e.clientY;
-      plannerDragLastTs = performance.now();
-      plannerDragVelocityX = 0;
-      plannerDragVelocityY = 0;
-      plannerFigure.classList.add("is-dragging");
-      e.preventDefault();
-    });
-    window.addEventListener("mousemove", (e) => {
-      if(plannerBoxSelectState){
-        plannerUpdateBoxSelectOverlay(plannerBoxSelectState, e.clientX, e.clientY);
-        return;
-      }
-      if(!plannerDragActive || !plannerFigure) return;
-      const dx = e.clientX - plannerDragStartX;
-      const dy = e.clientY - plannerDragStartY;
-      const absDx = Math.abs(dx);
-      const absDy = Math.abs(dy);
-      if(absDx > 3 || absDy > 3) plannerDragMoved = true;
-      if(!plannerDragGestureLock){
-        if(absDx > PLANNER_SWIPE_PREVIEW_START_X && absDx > absDy){
-          plannerDragGestureLock = "horizontal";
-        } else if(absDy > PLANNER_SWIPE_PREVIEW_START_X && absDy > absDx){
-          plannerDragGestureLock = "vertical";
-        }
-      }
-      if(plannerDragGestureLock === "horizontal"){
-        const swipeStep = dx < 0 ? 1 : -1;
-        const targetView = absDx > 0 ? plannerInteractiveSwipeNeighbor(swipeStep) : null;
-        if(targetView && (!plannerInteractiveSwipeActive || plannerInteractiveSwipeTargetView !== targetView)){
-          if(plannerInteractiveSwipeActive){
-            const startView = plannerInteractiveSwipeStartView || plannerCommittedSceneView || plannerFrauenView;
-            plannerClearInteractiveSwipeState();
-            plannerSetSwipePreviewScenes(startView, startView);
-            plannerSetTrackOffset(plannerViewIndex(startView), { animate:false, view:startView });
-          }
-          plannerSuppressClickUntil = Date.now() + 320;
-          plannerBeginInteractiveSwipe(targetView);
-        }
-        if(plannerInteractiveSwipeActive){
-          plannerSuppressClickUntil = Date.now() + 320;
-          plannerUpdateInteractiveSwipe(dx);
-        }
-        return;
-      }
     });
     window.addEventListener("mouseup", () => {
       if(plannerBoxSelectState){
         plannerEndBoxSelection(true);
         return;
-      }
-      if(!plannerDragActive || !plannerFigure) return;
-      plannerDragActive = false;
-      plannerDragGestureLock = "";
-      plannerFigure.classList.remove("is-dragging");
-      if(plannerDragMoved){
-        plannerSuppressClickUntil = Date.now() + 180;
-      }
-      if(plannerInteractiveSwipeActive){
-        plannerSuppressClickUntil = Date.now() + 320;
-        if(
-          plannerInteractiveSwipeProgress >= PLANNER_SWIPE_COMMIT_PROGRESS &&
-          Math.abs(plannerInteractiveSwipeLastDx) >= PLANNER_SWIPE_MIN_X
-        ){
-          plannerCompleteInteractiveSwipe();
-        } else {
-          plannerCancelInteractiveSwipe();
-        }
-      } else {
-        bouncePlannerEdgeToRest();
-        snapPlannerVerticalExtremes(activeLaserMode(), 0.18);
-        maybeSettlePlannerToHome(260);
-        schedulePlannerAutoReset();
       }
     });
     plannerFigure.addEventListener("click", (e) => {
@@ -12801,77 +12275,19 @@
         e.stopPropagation();
       }
     }, true);
-    plannerFigure.addEventListener("wheel", (e) => {
-      if(!PLANNER_ZOOM_ENABLED) return;
-      if(plannerShouldDisableZoomOnTouch()) return;
-      e.preventDefault();
-      ensureInteractiveInViewForInteraction();
-      const now = performance.now();
-      const wheelIdleMs = plannerLastWheelInputAt ? (now - plannerLastWheelInputAt) : Infinity;
-      plannerLastWheelInputAt = now;
-      const isNewWheelGesture = now > plannerWheelGestureUntil || plannerWheelFocusClientX === null || plannerWheelFocusClientY === null;
-      if(isNewWheelGesture){
-        plannerWheelFocusClientX = e.clientX;
-        plannerWheelFocusClientY = e.clientY;
-        if(wheelIdleMs > 140){
-          plannerZoomEdgeLock = 0;
-        }
-        const figureRect = plannerFigure.getBoundingClientRect();
-        const localY = Math.max(0, Math.min(figureRect.height, e.clientY - figureRect.top));
-        const ratioY = figureRect.height > 0 ? localY / figureRect.height : 0.5;
-        plannerWheelFramingMode = ratioY < 0.38 ? "top" : (ratioY > 0.68 ? "bottom" : "middle");
-        plannerWheelFramingApplied = false;
-      }
-      plannerWheelGestureUntil = now + 30;
-      const rawDelta = e.deltaY || 0;
-      if(Math.abs(rawDelta) < 0.01) return;
-      plannerWheelAccumDelta += Math.sign(rawDelta) * Math.max(12, Math.abs(rawDelta));
-      plannerWheelPendingFocusX = plannerWheelFocusClientX;
-      plannerWheelPendingFocusY = plannerWheelFocusClientY;
-      if(plannerWheelFramePending) return;
-      plannerWheelFramePending = true;
-      requestAnimationFrame(() => {
-        plannerWheelFramePending = false;
-        const delta = plannerWheelAccumDelta;
-        plannerWheelAccumDelta = 0;
-        if(Math.abs(delta) < 0.01) return;
-        const focusX = plannerWheelPendingFocusX;
-        const focusY = plannerWheelPendingFocusY;
-        const factor = Math.exp(-delta * 0.00155);
-        const targetZoom = plannerZoom * factor;
-        const maxZoom = plannerMaxZoom();
-        if((targetZoom > maxZoom && plannerZoom >= maxZoom - 0.001) ||
-           (targetZoom < PLANNER_MIN_ZOOM && plannerZoom <= PLANNER_MIN_ZOOM + 0.001)){
-          triggerPlannerZoomEdgeBounce(targetZoom > maxZoom ? 1 : -1, 280, 1.017);
-        } else {
-          const continuousEdgeFraming = plannerWheelFramingMode === "top" || plannerWheelFramingMode === "bottom";
-          const framingMode = continuousEdgeFraming
-            ? plannerWheelFramingMode
-            : (plannerWheelFramingApplied ? "none" : "middle");
-          setPlannerZoom(targetZoom, focusX, focusY, framingMode);
-          if(!continuousEdgeFraming && framingMode !== "none"){
-            plannerWheelFramingApplied = true;
-          }
-        }
-        schedulePlannerAutoReset();
-      });
-    }, { passive:false });
     plannerFigure.addEventListener("touchstart", (e) => {
       if(!e.touches) return;
       ensureInteractiveInViewForInteraction();
       if(e.touches.length === 1){
         const touch = e.touches[0];
-        plannerPinchActive = false;
         plannerSwipeTracking = true;
         plannerSwipeGestureLock = "";
         plannerSwipeStartX = touch.clientX;
         plannerSwipeStartY = touch.clientY;
-        plannerSwipeStartAt = Date.now();
         plannerClearInteractiveSwipeState();
       } else {
         plannerSwipeTracking = false;
         plannerSwipeGestureLock = "";
-        plannerTouchPanActive = false;
         if(plannerInteractiveSwipeActive){
           plannerCancelInteractiveSwipe();
         }
@@ -12897,7 +12313,6 @@
         if(!plannerSwipeGestureLock){
           if(horizontalIntent){
             plannerSwipeGestureLock = "horizontal";
-            plannerTouchPanActive = false;
           } else if(verticalIntent){
             plannerSwipeGestureLock = "vertical";
           }
@@ -12945,20 +12360,6 @@
       }
       plannerSwipeTracking = false;
       plannerSwipeGestureLock = "";
-      plannerPinchStartDistance = null;
-      cancelPlannerPinchRaf();
-      if(plannerTouchPanRaf){
-        cancelAnimationFrame(plannerTouchPanRaf);
-        plannerTouchPanRaf = null;
-      }
-      plannerTouchPanPending = null;
-      plannerPinchActive = false;
-      plannerTouchPanActive = false;
-      plannerLastTapAt = 0;
-      bouncePlannerEdgeToRest();
-      snapPlannerVerticalExtremes(activeLaserMode(), 0.2);
-      maybeSettlePlannerToHome(260);
-      schedulePlannerAutoReset();
     }, { passive:true });
     plannerFigure.addEventListener("touchcancel", () => {
       if(plannerInteractiveSwipeActive){
@@ -12966,19 +12367,6 @@
       }
       plannerSwipeTracking = false;
       plannerSwipeGestureLock = "";
-      plannerPinchStartDistance = null;
-      cancelPlannerPinchRaf();
-      if(plannerTouchPanRaf){
-        cancelAnimationFrame(plannerTouchPanRaf);
-        plannerTouchPanRaf = null;
-      }
-      plannerTouchPanPending = null;
-      plannerPinchActive = false;
-      plannerTouchPanActive = false;
-      bouncePlannerEdgeToRest();
-      snapPlannerVerticalExtremes(activeLaserMode(), 0.2);
-      maybeSettlePlannerToHome(260);
-      schedulePlannerAutoReset();
     }, { passive:true });
   }
   window.addEventListener("resize", () => {
