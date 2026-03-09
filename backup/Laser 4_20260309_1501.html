@@ -5386,12 +5386,6 @@
   const PLANNER_MOBILE_MAX_ZOOM = 1.35;
   const PLANNER_PRELOAD_CACHE_LIMIT_DESKTOP = 140;
   const PLANNER_PRELOAD_CACHE_LIMIT_MOBILE = 56;
-  const PLANNER_STARTUP_SCENE_TARGETS = [
-    { mode:"frauen", view:"front" },
-    { mode:"frauen", view:"back" },
-    { mode:"frauen", view:"face" },
-    { mode:"herren", view:"front" }
-  ];
   const PLANNER_LOW_FPS_THRESHOLD = 42;
   const PLANNER_FACE_LOCAL_STATE_KEY = "anima_laser_face_adjustments_v1";
   const PLANNER_SWIPE_MIN_X = 22;
@@ -5708,24 +5702,15 @@
     const shouldDecode = options.decode === true;
     const p = new Promise((resolve) => {
       const img = new Image();
-      let settled = false;
-      const finish = () => {
-        if(settled) return;
-        settled = true;
-        resolve();
-      };
-      img.onload = () => {
-        if(shouldDecode && typeof img.decode === "function"){
-          img.decode().then(finish).catch(finish);
-          return;
-        }
-        finish();
-      };
-      img.onerror = () => finish();
+      img.onload = () => resolve();
+      img.onerror = () => resolve();
       img.loading = loading;
       img.decoding = decoding;
       img.fetchPriority = fetchPriority;
       img.src = normalized;
+      if(shouldDecode && typeof img.decode === "function"){
+        img.decode().then(resolve).catch(() => resolve());
+      }
     });
     plannerPreloadedImagePromises.set(normalized, p);
     plannerTouchPreloadKey(normalized);
@@ -5735,80 +5720,6 @@
     const normalized = normalizeIntAssetPath(src);
     if(!isIntSvgAssetPath(normalized)) return normalized;
     return intRasterMq.matches ? intMobileWebpPath(normalized) : normalized;
-  }
-  function plannerSceneAssetEntries(mode, view, options = {}){
-    const result = [];
-    const safeMode = mode === "herren" ? "herren" : "frauen";
-    const safeView = plannerFrauenViewOrder.includes(view) ? view : "front";
-    const includeAllOverlays = options.includeAllOverlays !== false;
-    const modeVisuals = plannerFigureByMode[safeMode] || plannerFigureByMode.frauen || {};
-    const visual = modeVisuals[safeView];
-    if(visual && visual.src) result.push({ src:visual.src, kind:"base" });
-    const frontlineByView = plannerFrontlineByModeAndView[safeMode] || {};
-    if(frontlineByView[safeView]) result.push({ src:frontlineByView[safeView], kind:"frontline" });
-    if(includeAllOverlays){
-      const hoverByView = plannerHoverOverlaySrcByModeAndView[safeMode] || {};
-      const overlayMap = hoverByView[safeView] || {};
-      Object.values(overlayMap).forEach((src) => {
-        if(src) result.push({ src, kind:"overlay" });
-      });
-    }
-    return result
-      .map((entry) => ({ ...entry, src:normalizeIntAssetPath(entry.src) }))
-      .filter((entry) => !!entry.src);
-  }
-  function plannerStartupCriticalEntries(){
-    const unique = new Map();
-    PLANNER_STARTUP_SCENE_TARGETS.forEach(({ mode, view }) => {
-      plannerSceneAssetEntries(mode, view, { includeAllOverlays:true }).forEach((entry) => {
-        const resolved = plannerResolveAssetForPreload(entry.src);
-        if(!resolved) return;
-        const prev = unique.get(resolved);
-        const shouldPromote = !prev || prev.kind === "overlay";
-        if(shouldPromote){
-          unique.set(resolved, {
-            src:resolved,
-            kind:entry.kind
-          });
-        }
-      });
-    });
-    return Array.from(unique.values());
-  }
-  function plannerPrimeStartupSceneDomSources(){
-    const activeMode = activeLaserMode();
-    if(activeMode !== "frauen") return;
-    plannerSyncSceneSources("frauen");
-    const frauenStartupViews = new Set(["front", "back", "face"]);
-    plannerFigureSceneViews.forEach((view) => {
-      if(!frauenStartupViews.has(view)) return;
-      const scene = plannerViewScenes[view];
-      if(!scene) return;
-      [scene.base, scene.frontline, ...Object.values(scene.overlayElsByPartKey || {})].forEach((img) => {
-        if(!(img instanceof HTMLImageElement)) return;
-        if((img.getAttribute("src") || "") === "data:,"){
-          plannerEnsureImageSource(img);
-        }
-        const isCriticalFrameLayer = img === scene.base || img === scene.frontline;
-        img.loading = isCriticalFrameLayer ? "eager" : "auto";
-        img.decoding = "async";
-        img.fetchPriority = isCriticalFrameLayer ? "high" : "low";
-      });
-    });
-  }
-  let plannerStartupScenesWarmed = false;
-  function plannerWarmStartupScenes(){
-    if(plannerStartupScenesWarmed) return;
-    plannerStartupScenesWarmed = true;
-    plannerPrimeStartupSceneDomSources();
-    plannerStartupCriticalEntries().forEach((entry) => {
-      preloadImageSrc(entry.src, {
-        loading:"eager",
-        decoding:"async",
-        fetchPriority:entry.kind === "overlay" ? "low" : "high",
-        decode:true
-      });
-    });
   }
   function plannerTheoreticalTargets(mode = activeLaserMode(), view = plannerFrauenView){
     const normalizedMode = mode === "herren" ? "herren" : "frauen";
@@ -12424,11 +12335,6 @@
       });
     });
     setActiveLaserSwitch(laserSwitchModeFromUrl(), { force:true });
-  }
-  if("requestIdleCallback" in window){
-    window.requestIdleCallback(() => plannerWarmStartupScenes(), { timeout:350 });
-  } else {
-    setTimeout(() => plannerWarmStartupScenes(), 120);
   }
   plannerRestoreState();
   schedulePlannerRender(activeLaserMode());
