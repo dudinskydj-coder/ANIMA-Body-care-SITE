@@ -4428,9 +4428,7 @@
     });
     if(nextView !== plannerFrauenView){
       setPlannerFrauenView(nextView, { sourceTransport:"scroll-snap" });
-      plannerAfterViewSettled(() => {
-        plannerReleaseProgrammaticViewLock(nextView);
-      });
+      plannerReleaseProgrammaticViewLock(nextView);
       return;
     }
     if(options.syncOnly){
@@ -4440,37 +4438,25 @@
   }
   function plannerReleaseProgrammaticViewLock(resolvedView){
     plannerProgrammaticViewLocked = false;
-    plannerQueuedProgrammaticView = null;
-  }
-  function plannerAfterViewSettled(callback){
-    if(typeof callback !== "function") return;
-    const waitForSettle = () => {
-      if(plannerViewTransitionActive){
-        requestAnimationFrame(waitForSettle);
-        return;
-      }
+    if(
+      plannerQueuedProgrammaticView &&
+      plannerQueuedProgrammaticView !== resolvedView
+    ){
+      const queuedView = plannerQueuedProgrammaticView;
+      plannerQueuedProgrammaticView = null;
       requestAnimationFrame(() => {
-        if(plannerViewTransitionActive){
-          waitForSettle();
-          return;
-        }
-        requestAnimationFrame(() => {
-          if(plannerViewTransitionActive){
-            waitForSettle();
-            return;
-          }
-          callback();
-        });
+        plannerProgrammaticViewChange(queuedView);
       });
-    };
-    waitForSettle();
+      return;
+    }
+    plannerQueuedProgrammaticView = null;
   }
   function plannerProgrammaticViewChange(view, options = {}){
     const nextView = plannerFrauenViewOrder.includes(view) ? view : "front";
 
     if(plannerProgrammaticViewLocked){
-      plannerQueuedProgrammaticView = null;
-      plannerDebugScrollLog("programmaticScrollIgnored", { targetView:nextView });
+      plannerQueuedProgrammaticView = nextView;
+      plannerDebugScrollLog("programmaticScrollQueued", { targetView:nextView });
       return;
     }
 
@@ -6431,18 +6417,6 @@
     if(plannerViewTransport !== "scroll-snap" || plannerScrollSnapMuted) return;
     if(!(plannerFigureViewportScroll instanceof HTMLElement)) return;
     plannerScrollSnapLastKnownLeft = plannerFigureViewportScroll.scrollLeft || 0;
-    if(plannerProgrammaticViewLocked && plannerScrollSnapPendingView){
-      plannerDebugScrollLog("scrollLocked", {
-        scrollLeft:plannerScrollSnapLastKnownLeft,
-        pendingView:plannerScrollSnapPendingView,
-        pointerDown:plannerScrollSnapPointerDown
-      });
-      if(plannerScrollSnapPointerDown){
-        plannerSetSwipingState(true);
-      }
-      plannerScheduleScrollSnapSettle(220);
-      return;
-    }
     const calculatedIndex = plannerScrollSnapIndex();
     const pendingView = plannerFrauenViewOrder[calculatedIndex] || "front";
     plannerScrollSnapPendingView = pendingView;

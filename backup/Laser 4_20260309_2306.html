@@ -734,7 +734,7 @@
       border:none;
       background:transparent;
       overflow-x:hidden;
-      overflow-y:visible;
+      overflow-y:auto;
       touch-action:pan-y;
       cursor:grab;
       scrollbar-width:none;
@@ -1363,7 +1363,7 @@
       scroll-snap-type:x mandatory;
       -webkit-overflow-scrolling:touch;
       overscroll-behavior-x:contain;
-      overscroll-behavior-y:auto;
+      overscroll-behavior-y:none;
       scrollbar-width:none;
       -ms-overflow-style:none;
       z-index:0;
@@ -3966,6 +3966,7 @@
             <div class="plannerFigureInner">
               <div class="plannerBackSketch" id="plannerBackSketch"></div>
               <img src="img/INT/FRAUEN_FRONT/FR_FRONT_GR.svg" alt="Interaktive Körperzonen Frauen Front" loading="eager" decoding="sync" fetchpriority="high" id="plannerFigureImage" class="plannerFigureBase">
+              <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/webp/FR_RS_OBERLIPPE-1600.webp" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayUpperlip" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_HALS.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayChin" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_Brustbereich.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayChest" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_HANDE.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayHands" class="plannerFigureOverlayImage" aria-hidden="true">
@@ -4270,6 +4271,7 @@
   const plannerFaceUndoBtn = document.getElementById("plannerFaceUndoBtn");
   const plannerKonvaStageEl = document.getElementById("plannerKonvaStage");
   const plannerBackSketch = document.getElementById("plannerBackSketch");
+  const plannerFigureOverlayUpperlip = document.getElementById("plannerFigureOverlayUpperlip");
   const plannerFigureOverlayAxilla = document.getElementById("plannerFigureOverlayAxilla");
   const plannerFigureOverlayChin = document.getElementById("plannerFigureOverlayChin");
   const plannerFigureOverlayChest = document.getElementById("plannerFigureOverlayChest");
@@ -4288,6 +4290,7 @@
   const plannerFigureFrontline = document.getElementById("plannerFigureFrontline");
   const plannerFigureSceneViews = ["front", "back", "face"];
   const plannerFrontOverlayElsByPartKey = {
+    OBERLIPPE:plannerFigureOverlayUpperlip,
     HALS:plannerFigureOverlayChin,
     BRUSTBEREICH:plannerFigureOverlayChest,
     HANDE_L:plannerFigureOverlayHands,
@@ -4306,7 +4309,7 @@
     ACHSELN_GRAY:plannerFigureOverlayAxillaGray
   };
   const plannerScenePartKeysByView = {
-    front:["HALS", "BRUSTBEREICH", "HANDE_L", "HANDE_R", "FUSSE_L", "FUSSE_R", "ACHSELN_MAIN", "ACHSELN_GRAY", "OBERARME_MAIN", "UNTERARME_MAIN", "BAUCH_MEDIA_LN", "BAUCH", "BIKINI_MAIN", "OBERSCH_MAIN", "UNTERSCH_MAIN", "INTIM_KOM_POF"],
+    front:["OBERLIPPE", "HALS", "BRUSTBEREICH", "HANDE_L", "HANDE_R", "FUSSE_L", "FUSSE_R", "ACHSELN_MAIN", "ACHSELN_GRAY", "OBERARME_MAIN", "UNTERARME_MAIN", "BAUCH_MEDIA_LN", "BAUCH", "BIKINI_MAIN", "OBERSCH_MAIN", "UNTERSCH_MAIN", "INTIM_KOM_POF"],
     back:["NACKEN", "OBERER_RUECKEN", "UNTERER_RUECKEN", "POBACKEN", "OBERARME_MAIN", "UNTERARME_MAIN", "HANDE_L", "HANDE_R", "FUSSE_L", "FUSSE_R", "OBERSCH_MAIN", "UNTERSCH_MAIN", "INTIM_KOM_POF", "ACHSELN_MAIN", "ACHSELN_GRAY"],
     face:["HALS", "NACKEN", "KINN", "WANGEN", "KOTELETTEN", "ZWISCHENBRAUEN", "OBERLIPPE"]
   };
@@ -4328,8 +4331,6 @@
   let plannerScrollSnapLastKnownLeft = 0;
   let plannerScrollSnapMuteTimer = null;
   let plannerScrollSnapCommitView = null;
-  let plannerProgrammaticViewLocked = false;
-  let plannerQueuedProgrammaticView = null;
   let plannerTapFeedbackTimer = null;
   let plannerModeSwitchUsesTransform = false;
   function plannerAllRenderedSketchHosts(){
@@ -4406,10 +4407,7 @@
   }
   function plannerCommitScrollSnapSettledView(options = {}){
     if(plannerViewTransport !== "scroll-snap") return;
-    const nextView =
-      plannerScrollSnapPendingView ||
-      plannerFrauenViewOrder[plannerScrollSnapIndex()] ||
-      "front";
+    const nextView = plannerScrollSnapPendingView || plannerFrauenViewOrder[plannerScrollSnapIndex()] || "front";
     plannerScrollSnapPendingView = null;
     plannerSetSwipingState(false);
     if(plannerScrollSnapCommitView === nextView){
@@ -4417,7 +4415,6 @@
       if(options.syncOnly && nextView === plannerFrauenView){
         plannerSyncScrollSnapHotspots(activeLaserMode());
       }
-      plannerReleaseProgrammaticViewLock(nextView);
       return;
     }
     plannerScrollSnapCommitView = nextView;
@@ -4428,54 +4425,14 @@
     });
     if(nextView !== plannerFrauenView){
       setPlannerFrauenView(nextView, { sourceTransport:"scroll-snap" });
-      plannerAfterViewSettled(() => {
-        plannerReleaseProgrammaticViewLock(nextView);
-      });
       return;
     }
     if(options.syncOnly){
       plannerSyncScrollSnapHotspots(activeLaserMode());
     }
-    plannerReleaseProgrammaticViewLock(nextView);
-  }
-  function plannerReleaseProgrammaticViewLock(resolvedView){
-    plannerProgrammaticViewLocked = false;
-    plannerQueuedProgrammaticView = null;
-  }
-  function plannerAfterViewSettled(callback){
-    if(typeof callback !== "function") return;
-    const waitForSettle = () => {
-      if(plannerViewTransitionActive){
-        requestAnimationFrame(waitForSettle);
-        return;
-      }
-      requestAnimationFrame(() => {
-        if(plannerViewTransitionActive){
-          waitForSettle();
-          return;
-        }
-        requestAnimationFrame(() => {
-          if(plannerViewTransitionActive){
-            waitForSettle();
-            return;
-          }
-          callback();
-        });
-      });
-    };
-    waitForSettle();
   }
   function plannerProgrammaticViewChange(view, options = {}){
     const nextView = plannerFrauenViewOrder.includes(view) ? view : "front";
-
-    if(plannerProgrammaticViewLocked){
-      plannerQueuedProgrammaticView = null;
-      plannerDebugScrollLog("programmaticScrollIgnored", { targetView:nextView });
-      return;
-    }
-
-    plannerProgrammaticViewLocked = true;
-    plannerQueuedProgrammaticView = null;
     plannerScrollSnapPendingView = nextView;
     plannerSetSwipingState(false);
     plannerDebugScrollLog("programmaticScroll", { targetView:nextView });
@@ -4788,23 +4745,19 @@
     const ghostScene = plannerCreateModeSwitchGhostScene(targetMode, "front");
     const gapPx = plannerSyncSceneGap(currentView);
     const transition = plannerTrackTransitionConfig();
-    let startOffsetX = 0;
-    let targetOffsetX = 0;
     if(targetMode === "frauen"){
       const currentScene = plannerViewScenes[currentView] && plannerViewScenes[currentView].container;
       plannerFigureTrack.insertBefore(ghostScene, currentScene || plannerFigureTrack.firstChild || null);
-      startOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
-      targetOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
+      const startOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
+      const targetOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
+      plannerRunModeSwitchTransform(startOffsetX, targetOffsetX, transition);
     } else {
       const currentScene = plannerViewScenes[currentView] && plannerViewScenes[currentView].container;
       plannerFigureTrack.insertBefore(ghostScene, currentScene ? currentScene.nextSibling : null);
-      startOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
-      targetOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
-    }
-    plannerModeSwitchFrame1 = requestAnimationFrame(() => {
-      plannerModeSwitchFrame1 = null;
+      const startOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
+      const targetOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
       plannerRunModeSwitchTransform(startOffsetX, targetOffsetX, transition);
-    });
+    }
     plannerModeSwitchTimer = setTimeout(() => {
       plannerModeSwitchTimer = null;
       if(typeof onDone === "function") onDone();
@@ -4826,6 +4779,7 @@
     });
     [
       plannerFigureImage,
+      plannerFigureOverlayUpperlip,
       plannerFigureOverlayAxilla,
       plannerFigureOverlayChin,
       plannerFigureOverlayChest,
@@ -5962,6 +5916,7 @@
   const plannerHoverOverlaySrcByModeAndView = {
     frauen:{
       front:{
+        OBERLIPPE:"img/INT/FRAUEN_FRONT/webp/FR_RS_OBERLIPPE-1600.webp",
         HALS:"img/INT/FRAUEN_FRONT/FR_RS_HALS.svg",
         BRUSTBEREICH:"img/INT/FRAUEN_FRONT/FR_RS_Brustbereich.svg",
         HANDE_L:"img/INT/FRAUEN_FRONT/FR_RS_HANDE.svg",
@@ -6055,6 +6010,7 @@
   };
   const plannerStaticFrontOverlaySrcByMode = {
     frauen:{
+      upperlip:"img/INT/FRAUEN_FRONT/webp/FR_RS_OBERLIPPE-1600.webp",
       axilla:"img/INT/FRAUEN_FRONT/FR_RS_ACHSELN.svg",
       chin:"img/INT/FRAUEN_FRONT/FR_RS_HALS.svg",
       chest:"img/INT/FRAUEN_FRONT/FR_RS_Brustbereich.svg",
@@ -6431,18 +6387,6 @@
     if(plannerViewTransport !== "scroll-snap" || plannerScrollSnapMuted) return;
     if(!(plannerFigureViewportScroll instanceof HTMLElement)) return;
     plannerScrollSnapLastKnownLeft = plannerFigureViewportScroll.scrollLeft || 0;
-    if(plannerProgrammaticViewLocked && plannerScrollSnapPendingView){
-      plannerDebugScrollLog("scrollLocked", {
-        scrollLeft:plannerScrollSnapLastKnownLeft,
-        pendingView:plannerScrollSnapPendingView,
-        pointerDown:plannerScrollSnapPointerDown
-      });
-      if(plannerScrollSnapPointerDown){
-        plannerSetSwipingState(true);
-      }
-      plannerScheduleScrollSnapSettle(220);
-      return;
-    }
     const calculatedIndex = plannerScrollSnapIndex();
     const pendingView = plannerFrauenViewOrder[calculatedIndex] || "front";
     plannerScrollSnapPendingView = pendingView;
@@ -7615,8 +7559,7 @@
     return idx >= 0 ? idx : 0;
   }
   function movePlannerFrauenView(step){
-    const baseView = plannerQueuedProgrammaticView || plannerScrollSnapPendingView || plannerFrauenView;
-    const current = plannerFrauenViewOrder.indexOf(baseView);
+    const current = plannerFrauenViewIndex();
     const next = Math.max(0, Math.min(plannerFrauenViewOrder.length - 1, current + step));
     if(next === current) return;
     try{
@@ -13037,7 +12980,8 @@
     const existing = document.head.querySelector(`link[data-laser-video-preload="${src}"]`);
     if(existing) return;
     const preload = document.createElement("link");
-    preload.rel = "prefetch";
+    preload.rel = "preload";
+    preload.as = "video";
     preload.href = src;
     preload.setAttribute("data-laser-video-preload", src);
     document.head.appendChild(preload);

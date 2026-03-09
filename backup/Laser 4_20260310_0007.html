@@ -734,7 +734,7 @@
       border:none;
       background:transparent;
       overflow-x:hidden;
-      overflow-y:visible;
+      overflow-y:auto;
       touch-action:pan-y;
       cursor:grab;
       scrollbar-width:none;
@@ -1363,7 +1363,7 @@
       scroll-snap-type:x mandatory;
       -webkit-overflow-scrolling:touch;
       overscroll-behavior-x:contain;
-      overscroll-behavior-y:auto;
+      overscroll-behavior-y:none;
       scrollbar-width:none;
       -ms-overflow-style:none;
       z-index:0;
@@ -4428,9 +4428,7 @@
     });
     if(nextView !== plannerFrauenView){
       setPlannerFrauenView(nextView, { sourceTransport:"scroll-snap" });
-      plannerAfterViewSettled(() => {
-        plannerReleaseProgrammaticViewLock(nextView);
-      });
+      plannerReleaseProgrammaticViewLock(nextView);
       return;
     }
     if(options.syncOnly){
@@ -4440,37 +4438,25 @@
   }
   function plannerReleaseProgrammaticViewLock(resolvedView){
     plannerProgrammaticViewLocked = false;
-    plannerQueuedProgrammaticView = null;
-  }
-  function plannerAfterViewSettled(callback){
-    if(typeof callback !== "function") return;
-    const waitForSettle = () => {
-      if(plannerViewTransitionActive){
-        requestAnimationFrame(waitForSettle);
-        return;
-      }
+    if(
+      plannerQueuedProgrammaticView &&
+      plannerQueuedProgrammaticView !== resolvedView
+    ){
+      const queuedView = plannerQueuedProgrammaticView;
+      plannerQueuedProgrammaticView = null;
       requestAnimationFrame(() => {
-        if(plannerViewTransitionActive){
-          waitForSettle();
-          return;
-        }
-        requestAnimationFrame(() => {
-          if(plannerViewTransitionActive){
-            waitForSettle();
-            return;
-          }
-          callback();
-        });
+        plannerProgrammaticViewChange(queuedView);
       });
-    };
-    waitForSettle();
+      return;
+    }
+    plannerQueuedProgrammaticView = null;
   }
   function plannerProgrammaticViewChange(view, options = {}){
     const nextView = plannerFrauenViewOrder.includes(view) ? view : "front";
 
     if(plannerProgrammaticViewLocked){
-      plannerQueuedProgrammaticView = null;
-      plannerDebugScrollLog("programmaticScrollIgnored", { targetView:nextView });
+      plannerQueuedProgrammaticView = nextView;
+      plannerDebugScrollLog("programmaticScrollQueued", { targetView:nextView });
       return;
     }
 
@@ -4788,23 +4774,19 @@
     const ghostScene = plannerCreateModeSwitchGhostScene(targetMode, "front");
     const gapPx = plannerSyncSceneGap(currentView);
     const transition = plannerTrackTransitionConfig();
-    let startOffsetX = 0;
-    let targetOffsetX = 0;
     if(targetMode === "frauen"){
       const currentScene = plannerViewScenes[currentView] && plannerViewScenes[currentView].container;
       plannerFigureTrack.insertBefore(ghostScene, currentScene || plannerFigureTrack.firstChild || null);
-      startOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
-      targetOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
+      const startOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
+      const targetOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
+      plannerRunModeSwitchTransform(startOffsetX, targetOffsetX, transition);
     } else {
       const currentScene = plannerViewScenes[currentView] && plannerViewScenes[currentView].container;
       plannerFigureTrack.insertBefore(ghostScene, currentScene ? currentScene.nextSibling : null);
-      startOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
-      targetOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
-    }
-    plannerModeSwitchFrame1 = requestAnimationFrame(() => {
-      plannerModeSwitchFrame1 = null;
+      const startOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
+      const targetOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
       plannerRunModeSwitchTransform(startOffsetX, targetOffsetX, transition);
-    });
+    }
     plannerModeSwitchTimer = setTimeout(() => {
       plannerModeSwitchTimer = null;
       if(typeof onDone === "function") onDone();
@@ -6431,18 +6413,6 @@
     if(plannerViewTransport !== "scroll-snap" || plannerScrollSnapMuted) return;
     if(!(plannerFigureViewportScroll instanceof HTMLElement)) return;
     plannerScrollSnapLastKnownLeft = plannerFigureViewportScroll.scrollLeft || 0;
-    if(plannerProgrammaticViewLocked && plannerScrollSnapPendingView){
-      plannerDebugScrollLog("scrollLocked", {
-        scrollLeft:plannerScrollSnapLastKnownLeft,
-        pendingView:plannerScrollSnapPendingView,
-        pointerDown:plannerScrollSnapPointerDown
-      });
-      if(plannerScrollSnapPointerDown){
-        plannerSetSwipingState(true);
-      }
-      plannerScheduleScrollSnapSettle(220);
-      return;
-    }
     const calculatedIndex = plannerScrollSnapIndex();
     const pendingView = plannerFrauenViewOrder[calculatedIndex] || "front";
     plannerScrollSnapPendingView = pendingView;

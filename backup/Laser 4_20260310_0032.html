@@ -4440,6 +4440,17 @@
   }
   function plannerReleaseProgrammaticViewLock(resolvedView){
     plannerProgrammaticViewLocked = false;
+    if(
+      plannerQueuedProgrammaticView &&
+      plannerQueuedProgrammaticView !== resolvedView
+    ){
+      const queuedView = plannerQueuedProgrammaticView;
+      plannerQueuedProgrammaticView = null;
+      requestAnimationFrame(() => {
+        plannerProgrammaticViewChange(queuedView);
+      });
+      return;
+    }
     plannerQueuedProgrammaticView = null;
   }
   function plannerAfterViewSettled(callback){
@@ -4469,8 +4480,8 @@
     const nextView = plannerFrauenViewOrder.includes(view) ? view : "front";
 
     if(plannerProgrammaticViewLocked){
-      plannerQueuedProgrammaticView = null;
-      plannerDebugScrollLog("programmaticScrollIgnored", { targetView:nextView });
+      plannerQueuedProgrammaticView = nextView;
+      plannerDebugScrollLog("programmaticScrollQueued", { targetView:nextView });
       return;
     }
 
@@ -6431,18 +6442,6 @@
     if(plannerViewTransport !== "scroll-snap" || plannerScrollSnapMuted) return;
     if(!(plannerFigureViewportScroll instanceof HTMLElement)) return;
     plannerScrollSnapLastKnownLeft = plannerFigureViewportScroll.scrollLeft || 0;
-    if(plannerProgrammaticViewLocked && plannerScrollSnapPendingView){
-      plannerDebugScrollLog("scrollLocked", {
-        scrollLeft:plannerScrollSnapLastKnownLeft,
-        pendingView:plannerScrollSnapPendingView,
-        pointerDown:plannerScrollSnapPointerDown
-      });
-      if(plannerScrollSnapPointerDown){
-        plannerSetSwipingState(true);
-      }
-      plannerScheduleScrollSnapSettle(220);
-      return;
-    }
     const calculatedIndex = plannerScrollSnapIndex();
     const pendingView = plannerFrauenViewOrder[calculatedIndex] || "front";
     plannerScrollSnapPendingView = pendingView;

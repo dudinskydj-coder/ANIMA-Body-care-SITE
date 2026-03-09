@@ -734,7 +734,7 @@
       border:none;
       background:transparent;
       overflow-x:hidden;
-      overflow-y:visible;
+      overflow-y:auto;
       touch-action:pan-y;
       cursor:grab;
       scrollbar-width:none;
@@ -1363,7 +1363,7 @@
       scroll-snap-type:x mandatory;
       -webkit-overflow-scrolling:touch;
       overscroll-behavior-x:contain;
-      overscroll-behavior-y:auto;
+      overscroll-behavior-y:none;
       scrollbar-width:none;
       -ms-overflow-style:none;
       z-index:0;
@@ -3966,6 +3966,7 @@
             <div class="plannerFigureInner">
               <div class="plannerBackSketch" id="plannerBackSketch"></div>
               <img src="img/INT/FRAUEN_FRONT/FR_FRONT_GR.svg" alt="Interaktive Körperzonen Frauen Front" loading="eager" decoding="sync" fetchpriority="high" id="plannerFigureImage" class="plannerFigureBase">
+              <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/webp/FR_RS_OBERLIPPE-1600.webp" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayUpperlip" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_HALS.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayChin" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_Brustbereich.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayChest" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_HANDE.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayHands" class="plannerFigureOverlayImage" aria-hidden="true">
@@ -4270,6 +4271,7 @@
   const plannerFaceUndoBtn = document.getElementById("plannerFaceUndoBtn");
   const plannerKonvaStageEl = document.getElementById("plannerKonvaStage");
   const plannerBackSketch = document.getElementById("plannerBackSketch");
+  const plannerFigureOverlayUpperlip = document.getElementById("plannerFigureOverlayUpperlip");
   const plannerFigureOverlayAxilla = document.getElementById("plannerFigureOverlayAxilla");
   const plannerFigureOverlayChin = document.getElementById("plannerFigureOverlayChin");
   const plannerFigureOverlayChest = document.getElementById("plannerFigureOverlayChest");
@@ -4288,6 +4290,7 @@
   const plannerFigureFrontline = document.getElementById("plannerFigureFrontline");
   const plannerFigureSceneViews = ["front", "back", "face"];
   const plannerFrontOverlayElsByPartKey = {
+    OBERLIPPE:plannerFigureOverlayUpperlip,
     HALS:plannerFigureOverlayChin,
     BRUSTBEREICH:plannerFigureOverlayChest,
     HANDE_L:plannerFigureOverlayHands,
@@ -4306,7 +4309,7 @@
     ACHSELN_GRAY:plannerFigureOverlayAxillaGray
   };
   const plannerScenePartKeysByView = {
-    front:["HALS", "BRUSTBEREICH", "HANDE_L", "HANDE_R", "FUSSE_L", "FUSSE_R", "ACHSELN_MAIN", "ACHSELN_GRAY", "OBERARME_MAIN", "UNTERARME_MAIN", "BAUCH_MEDIA_LN", "BAUCH", "BIKINI_MAIN", "OBERSCH_MAIN", "UNTERSCH_MAIN", "INTIM_KOM_POF"],
+    front:["OBERLIPPE", "HALS", "BRUSTBEREICH", "HANDE_L", "HANDE_R", "FUSSE_L", "FUSSE_R", "ACHSELN_MAIN", "ACHSELN_GRAY", "OBERARME_MAIN", "UNTERARME_MAIN", "BAUCH_MEDIA_LN", "BAUCH", "BIKINI_MAIN", "OBERSCH_MAIN", "UNTERSCH_MAIN", "INTIM_KOM_POF"],
     back:["NACKEN", "OBERER_RUECKEN", "UNTERER_RUECKEN", "POBACKEN", "OBERARME_MAIN", "UNTERARME_MAIN", "HANDE_L", "HANDE_R", "FUSSE_L", "FUSSE_R", "OBERSCH_MAIN", "UNTERSCH_MAIN", "INTIM_KOM_POF", "ACHSELN_MAIN", "ACHSELN_GRAY"],
     face:["HALS", "NACKEN", "KINN", "WANGEN", "KOTELETTEN", "ZWISCHENBRAUEN", "OBERLIPPE"]
   };
@@ -4343,6 +4346,20 @@
     if(plannerFigureWrap){
       plannerFigureWrap.classList.toggle("is-planner-swiping", isActive);
     }
+  }
+  function plannerDebugScrollStateSnapshot(extra = {}){
+    return {
+      currentView:plannerFrauenView,
+      pendingView:plannerScrollSnapPendingView,
+      queuedView:plannerQueuedProgrammaticView,
+      commitView:plannerScrollSnapCommitView,
+      locked:plannerProgrammaticViewLocked,
+      controlsLocked:plannerViewSwitchControlsLocked,
+      transitionActive:plannerViewTransitionActive,
+      scrollLeft:plannerScrollSnapLastKnownLeft,
+      now:Math.round(performance.now()),
+      ...extra
+    };
   }
   function plannerDebugScrollLog(label, payload){
     if(!plannerDebugScrollSnap) return;
@@ -4410,6 +4427,10 @@
       plannerScrollSnapPendingView ||
       plannerFrauenViewOrder[plannerScrollSnapIndex()] ||
       "front";
+    plannerDebugScrollLog("commitStart", plannerDebugScrollStateSnapshot({
+      nextView,
+      syncOnly:!!options.syncOnly
+    }));
     plannerScrollSnapPendingView = null;
     plannerSetSwipingState(false);
     if(plannerScrollSnapCommitView === nextView){
@@ -4428,9 +4449,7 @@
     });
     if(nextView !== plannerFrauenView){
       setPlannerFrauenView(nextView, { sourceTransport:"scroll-snap" });
-      plannerAfterViewSettled(() => {
-        plannerReleaseProgrammaticViewLock(nextView);
-      });
+      plannerReleaseProgrammaticViewLock(nextView);
       return;
     }
     if(options.syncOnly){
@@ -4440,37 +4459,27 @@
   }
   function plannerReleaseProgrammaticViewLock(resolvedView){
     plannerProgrammaticViewLocked = false;
-    plannerQueuedProgrammaticView = null;
-  }
-  function plannerAfterViewSettled(callback){
-    if(typeof callback !== "function") return;
-    const waitForSettle = () => {
-      if(plannerViewTransitionActive){
-        requestAnimationFrame(waitForSettle);
-        return;
-      }
+    if(
+      plannerQueuedProgrammaticView &&
+      plannerQueuedProgrammaticView !== resolvedView
+    ){
+      const queuedView = plannerQueuedProgrammaticView;
+      plannerQueuedProgrammaticView = null;
       requestAnimationFrame(() => {
-        if(plannerViewTransitionActive){
-          waitForSettle();
-          return;
-        }
-        requestAnimationFrame(() => {
-          if(plannerViewTransitionActive){
-            waitForSettle();
-            return;
-          }
-          callback();
-        });
+        plannerProgrammaticViewChange(queuedView);
       });
-    };
-    waitForSettle();
+      return;
+    }
+    plannerQueuedProgrammaticView = null;
   }
   function plannerProgrammaticViewChange(view, options = {}){
     const nextView = plannerFrauenViewOrder.includes(view) ? view : "front";
 
     if(plannerProgrammaticViewLocked){
-      plannerQueuedProgrammaticView = null;
-      plannerDebugScrollLog("programmaticScrollIgnored", { targetView:nextView });
+      plannerQueuedProgrammaticView = nextView;
+      plannerDebugScrollLog("programmaticScrollQueued", plannerDebugScrollStateSnapshot({
+        targetView:nextView
+      }));
       return;
     }
 
@@ -4478,7 +4487,10 @@
     plannerQueuedProgrammaticView = null;
     plannerScrollSnapPendingView = nextView;
     plannerSetSwipingState(false);
-    plannerDebugScrollLog("programmaticScroll", { targetView:nextView });
+    plannerDebugScrollLog("programmaticScroll", plannerDebugScrollStateSnapshot({
+      targetView:nextView,
+      source:options.source || ""
+    }));
     plannerSyncScrollSnapPosition(nextView, {
       instant:false,
       force:true,
@@ -4788,23 +4800,19 @@
     const ghostScene = plannerCreateModeSwitchGhostScene(targetMode, "front");
     const gapPx = plannerSyncSceneGap(currentView);
     const transition = plannerTrackTransitionConfig();
-    let startOffsetX = 0;
-    let targetOffsetX = 0;
     if(targetMode === "frauen"){
       const currentScene = plannerViewScenes[currentView] && plannerViewScenes[currentView].container;
       plannerFigureTrack.insertBefore(ghostScene, currentScene || plannerFigureTrack.firstChild || null);
-      startOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
-      targetOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
+      const startOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
+      const targetOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
+      plannerRunModeSwitchTransform(startOffsetX, targetOffsetX, transition);
     } else {
       const currentScene = plannerViewScenes[currentView] && plannerViewScenes[currentView].container;
       plannerFigureTrack.insertBefore(ghostScene, currentScene ? currentScene.nextSibling : null);
-      startOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
-      targetOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
-    }
-    plannerModeSwitchFrame1 = requestAnimationFrame(() => {
-      plannerModeSwitchFrame1 = null;
+      const startOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
+      const targetOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
       plannerRunModeSwitchTransform(startOffsetX, targetOffsetX, transition);
-    });
+    }
     plannerModeSwitchTimer = setTimeout(() => {
       plannerModeSwitchTimer = null;
       if(typeof onDone === "function") onDone();
@@ -4826,6 +4834,7 @@
     });
     [
       plannerFigureImage,
+      plannerFigureOverlayUpperlip,
       plannerFigureOverlayAxilla,
       plannerFigureOverlayChin,
       plannerFigureOverlayChest,
@@ -5962,6 +5971,7 @@
   const plannerHoverOverlaySrcByModeAndView = {
     frauen:{
       front:{
+        OBERLIPPE:"img/INT/FRAUEN_FRONT/webp/FR_RS_OBERLIPPE-1600.webp",
         HALS:"img/INT/FRAUEN_FRONT/FR_RS_HALS.svg",
         BRUSTBEREICH:"img/INT/FRAUEN_FRONT/FR_RS_Brustbereich.svg",
         HANDE_L:"img/INT/FRAUEN_FRONT/FR_RS_HANDE.svg",
@@ -6055,6 +6065,7 @@
   };
   const plannerStaticFrontOverlaySrcByMode = {
     frauen:{
+      upperlip:"img/INT/FRAUEN_FRONT/webp/FR_RS_OBERLIPPE-1600.webp",
       axilla:"img/INT/FRAUEN_FRONT/FR_RS_ACHSELN.svg",
       chin:"img/INT/FRAUEN_FRONT/FR_RS_HALS.svg",
       chest:"img/INT/FRAUEN_FRONT/FR_RS_Brustbereich.svg",
@@ -6431,18 +6442,6 @@
     if(plannerViewTransport !== "scroll-snap" || plannerScrollSnapMuted) return;
     if(!(plannerFigureViewportScroll instanceof HTMLElement)) return;
     plannerScrollSnapLastKnownLeft = plannerFigureViewportScroll.scrollLeft || 0;
-    if(plannerProgrammaticViewLocked && plannerScrollSnapPendingView){
-      plannerDebugScrollLog("scrollLocked", {
-        scrollLeft:plannerScrollSnapLastKnownLeft,
-        pendingView:plannerScrollSnapPendingView,
-        pointerDown:plannerScrollSnapPointerDown
-      });
-      if(plannerScrollSnapPointerDown){
-        plannerSetSwipingState(true);
-      }
-      plannerScheduleScrollSnapSettle(220);
-      return;
-    }
     const calculatedIndex = plannerScrollSnapIndex();
     const pendingView = plannerFrauenViewOrder[calculatedIndex] || "front";
     plannerScrollSnapPendingView = pendingView;
@@ -6462,12 +6461,13 @@
     if(!(plannerFigureViewportScroll instanceof HTMLElement)) return;
     if(options.source === "scroll-snap") return;
     const left = plannerViewIndex(view) * ((plannerFigureViewportScroll.clientWidth || 0) + plannerSceneGapPx(view, "scroll-snap"));
-    plannerDebugScrollLog("programmaticScrollTo", {
+    plannerDebugScrollLog("programmaticScrollTo", plannerDebugScrollStateSnapshot({
       view,
       left,
+      currentScrollLeft:plannerFigureViewportScroll.scrollLeft || 0,
       instant:options.instant !== false,
       source:options.source || ""
-    });
+    }));
     plannerFigureViewportScroll.scrollTo({
       left,
       behavior:options.instant === false ? "smooth" : "auto"
@@ -9521,6 +9521,13 @@
     const nextView = plannerFrauenViewOrder.includes(view) ? view : "front";
     const changed = plannerFrauenView !== nextView;
     const prevView = plannerFrauenView;
+    plannerDebugScrollLog("setViewStart", plannerDebugScrollStateSnapshot({
+      prevView,
+      nextView,
+      changed,
+      sourceTransport:options.sourceTransport || "",
+      mode:options.mode || activeLaserMode()
+    }));
     plannerFrauenView = nextView;
     plannerViewButtons.forEach((btn) => {
       const active = btn.dataset.plannerView === plannerFrauenView;
@@ -9548,6 +9555,10 @@
           updatePlannerFigureOverlay(mode);
         },
         onVisualSettled:() => {
+          plannerDebugScrollLog("setViewVisualSettled", plannerDebugScrollStateSnapshot({
+            view:nextView,
+            mode
+          }));
           plannerViewTransitionActive = false;
           plannerReleaseFrontStaticOverlaySources();
           // Do full interactive re-render only after slide completes.
@@ -12287,6 +12298,7 @@
     plannerSyncKonvaEditor(mode);
   }
   function renderPlanner(mode){
+    plannerDebugScrollLog("renderPlanner", plannerDebugScrollStateSnapshot({ mode }));
     renderPlannerText();
     renderPlannerSketch(mode);
     plannerSyncScrollSnapHotspots(mode);
@@ -12438,6 +12450,13 @@
     syncPlannerInteractivePaneWidth();
     if(plannerViewButtons.length){
       plannerViewButtons.forEach((btn) => {
+        ["mousedown", "mouseup", "click"].forEach((eventName) => {
+          btn.addEventListener(eventName, () => {
+            plannerDebugScrollLog(`viewButton:${eventName}`, plannerDebugScrollStateSnapshot({
+              targetView:btn.dataset.plannerView || "front"
+            }));
+          });
+        });
         btn.addEventListener("click", () => {
           const nextView = btn.dataset.plannerView || "front";
           if(nextView !== plannerFrauenView){
@@ -12447,6 +12466,11 @@
         });
       });
     if(plannerViewPrevBtn){
+      ["mousedown", "mouseup", "click"].forEach((eventName) => {
+        plannerViewPrevBtn.addEventListener(eventName, () => {
+          plannerDebugScrollLog(`prevButton:${eventName}`, plannerDebugScrollStateSnapshot());
+        });
+      });
       plannerViewPrevBtn.addEventListener("click", (event) => {
         event.preventDefault();
         try{
@@ -12457,6 +12481,11 @@
       });
     }
     if(plannerViewNextBtn){
+      ["mousedown", "mouseup", "click"].forEach((eventName) => {
+        plannerViewNextBtn.addEventListener(eventName, () => {
+          plannerDebugScrollLog(`nextButton:${eventName}`, plannerDebugScrollStateSnapshot());
+        });
+      });
       plannerViewNextBtn.addEventListener("click", (event) => {
         event.preventDefault();
         try{
@@ -13037,7 +13066,8 @@
     const existing = document.head.querySelector(`link[data-laser-video-preload="${src}"]`);
     if(existing) return;
     const preload = document.createElement("link");
-    preload.rel = "prefetch";
+    preload.rel = "preload";
+    preload.as = "video";
     preload.href = src;
     preload.setAttribute("data-laser-video-preload", src);
     document.head.appendChild(preload);
