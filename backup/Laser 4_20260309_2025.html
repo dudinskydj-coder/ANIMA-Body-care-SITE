@@ -1378,7 +1378,7 @@
       display:flex;
       width:100%;
       height:100%;
-      column-gap:var(--planner-scroll-scene-gap, 28px);
+      column-gap:var(--planner-scroll-scene-gap, 8px);
     }
     .plannerFigureSceneScroll{
       position:relative;
@@ -1420,7 +1420,7 @@
       display:flex;
       width:100%;
       height:100%;
-      column-gap:var(--planner-scene-gap, 28px);
+      column-gap:var(--planner-scene-gap, 8px);
       transform:translate3d(0, 0, 0);
       transition:transform .34s cubic-bezier(.22, 1, .36, 1);
       will-change:transform;
@@ -3719,14 +3719,6 @@
         max-width:100%;
         aspect-ratio:var(--planner-scene-aspect, 2200 / 5500);
       }
-      .plannerFigureScene[data-view="front"] .plannerFigureSceneFrame,
-      .plannerFigureSceneScroll[data-view="front"] .plannerFigureSceneFrame{
-        transform:translateX(clamp(20px, 5vw, 44px));
-      }
-      .plannerFigureScene[data-view="back"] .plannerFigureSceneFrame,
-      .plannerFigureSceneScroll[data-view="back"] .plannerFigureSceneFrame{
-        transform:translateX(clamp(-44px, -5vw, -20px));
-      }
       .plannerSketch,
       .plannerBackSketch{
         left:50%;
@@ -4486,7 +4478,7 @@
     if(safeTransport === "scroll-snap"){
       void isSlideMode;
       void viewportWidth;
-      return 28;
+      return 8;
     }
     if(isSlideMode){
       return Math.max(72, Math.min(96, Math.round(viewportWidth * 0.2)));
