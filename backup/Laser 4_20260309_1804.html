@@ -6101,8 +6101,15 @@
     const deferCommit = options.deferCommit !== undefined
       ? !!options.deferCommit
       : (!!options.animate && plannerViewTransitionActive && committedView !== nextView);
-    void committedView;
-    plannerKeepTrackScenesReady();
+    plannerFigureSceneViews.forEach((sceneView) => {
+      const scene = plannerViewScenes[sceneView];
+      if(!scene || !scene.container) return;
+      const isVisibleDuringTransition = deferCommit
+        ? (sceneView === committedView || sceneView === nextView)
+        : sceneView === nextView;
+      scene.container.classList.toggle("is-active", isVisibleDuringTransition);
+      scene.container.setAttribute("aria-hidden", isVisibleDuringTransition ? "false" : "true");
+    });
     if(!deferCommit){
       plannerCommittedSceneView = nextView;
     }
@@ -6152,7 +6159,6 @@
         scene.custom.classList.toggle("is-visible", !!(customSrc && visibleCustomId && activeSet.has(visibleCustomId)));
       }
     });
-    plannerKeepTrackScenesReady();
     if(options.syncActiveScene !== false){
       plannerSetActiveScene(plannerFrauenView, {
         animate:options.animateTrack,
@@ -9293,18 +9299,14 @@
     if(targetIndex === currentIndex) return null;
     return plannerFrauenViewOrder[targetIndex] || null;
   }
-  function plannerKeepTrackScenesReady(){
+  function plannerSetSwipePreviewScenes(fromView, toView){
     plannerFigureSceneViews.forEach((sceneView) => {
       const scene = plannerViewScenes[sceneView];
       if(!scene || !scene.container) return;
-      scene.container.classList.add("is-active");
-      scene.container.setAttribute("aria-hidden", "false");
+      const isVisible = sceneView === fromView || sceneView === toView;
+      scene.container.classList.toggle("is-active", isVisible);
+      scene.container.setAttribute("aria-hidden", isVisible ? "false" : "true");
     });
-  }
-  function plannerSetSwipePreviewScenes(fromView, toView){
-    void fromView;
-    void toView;
-    plannerKeepTrackScenesReady();
   }
   function plannerBeginInteractiveSwipe(targetView){
     if(!(plannerFigureTrack instanceof HTMLElement) || !(plannerFigureViewport instanceof HTMLElement)) return false;
