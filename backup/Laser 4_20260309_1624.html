@@ -5373,7 +5373,6 @@
   let plannerDragLastTs = 0;
   let plannerDragVelocityX = 0;
   let plannerDragVelocityY = 0;
-  let plannerDragGestureLock = "";
   let plannerTouchPanActive = false;
   let plannerTouchStartX = 0;
   let plannerTouchStartY = 0;
@@ -12756,9 +12755,10 @@
       cancelPlannerZoomAnimation();
       plannerDragActive = true;
       plannerDragMoved = false;
-      plannerDragGestureLock = "";
       plannerDragStartX = e.clientX;
       plannerDragStartY = e.clientY;
+      plannerDragStartScrollLeft = plannerFigure.scrollLeft;
+      plannerDragStartScrollTop = plannerFigure.scrollTop;
       plannerDragLastX = e.clientX;
       plannerDragLastY = e.clientY;
       plannerDragLastTs = performance.now();
@@ -12775,34 +12775,31 @@
       if(!plannerDragActive || !plannerFigure) return;
       const dx = e.clientX - plannerDragStartX;
       const dy = e.clientY - plannerDragStartY;
-      const absDx = Math.abs(dx);
-      const absDy = Math.abs(dy);
-      if(absDx > 3 || absDy > 3) plannerDragMoved = true;
-      if(!plannerDragGestureLock){
-        if(absDx > PLANNER_SWIPE_PREVIEW_START_X && absDx > absDy){
-          plannerDragGestureLock = "horizontal";
-        } else if(absDy > PLANNER_SWIPE_PREVIEW_START_X && absDy > absDx){
-          plannerDragGestureLock = "vertical";
-        }
-      }
-      if(plannerDragGestureLock === "horizontal"){
-        const swipeStep = dx < 0 ? 1 : -1;
-        const targetView = absDx > 0 ? plannerInteractiveSwipeNeighbor(swipeStep) : null;
-        if(targetView && (!plannerInteractiveSwipeActive || plannerInteractiveSwipeTargetView !== targetView)){
-          if(plannerInteractiveSwipeActive){
-            const startView = plannerInteractiveSwipeStartView || plannerCommittedSceneView || plannerFrauenView;
-            plannerClearInteractiveSwipeState();
-            plannerSetSwipePreviewScenes(startView, startView);
-            plannerSetTrackOffset(plannerViewIndex(startView), { animate:false, view:startView });
-          }
-          plannerSuppressClickUntil = Date.now() + 320;
-          plannerBeginInteractiveSwipe(targetView);
-        }
-        if(plannerInteractiveSwipeActive){
-          plannerSuppressClickUntil = Date.now() + 320;
-          plannerUpdateInteractiveSwipe(dx);
-        }
-        return;
+      if(Math.abs(dx) > 3 || Math.abs(dy) > 3) plannerDragMoved = true;
+      const speed = plannerPanSpeedFactor();
+      const now = performance.now();
+      const dt = Math.max(1, now - plannerDragLastTs);
+      const incDx = e.clientX - plannerDragLastX;
+      const incDy = e.clientY - plannerDragLastY;
+      plannerDragVelocityX = (-(incDx * speed)) / dt;
+      plannerDragVelocityY = (-(incDy * speed)) / dt;
+      plannerDragLastX = e.clientX;
+      plannerDragLastY = e.clientY;
+      plannerDragLastTs = now;
+      const mode = activeLaserMode();
+      plannerFigure.scrollLeft = plannerDragStartScrollLeft - (dx * speed);
+      clampPlannerPanX(mode);
+      const yRange = plannerVerticalRange(mode);
+      const rawTop = plannerDragStartScrollTop - (dy * speed);
+      if(rawTop < yRange.min){
+        plannerFigure.scrollTop = yRange.min;
+        setPlannerEdgeOffsetY((rawTop - yRange.min) * 0.22);
+      } else if(rawTop > yRange.max){
+        plannerFigure.scrollTop = yRange.max;
+        setPlannerEdgeOffsetY((rawTop - yRange.max) * 0.22);
+      } else {
+        plannerFigure.scrollTop = rawTop;
+        setPlannerEdgeOffsetY(0);
       }
     });
     window.addEventListener("mouseup", () => {
@@ -12812,21 +12809,13 @@
       }
       if(!plannerDragActive || !plannerFigure) return;
       plannerDragActive = false;
-      plannerDragGestureLock = "";
       plannerFigure.classList.remove("is-dragging");
       if(plannerDragMoved){
         plannerSuppressClickUntil = Date.now() + 180;
       }
-      if(plannerInteractiveSwipeActive){
-        plannerSuppressClickUntil = Date.now() + 320;
-        if(
-          plannerInteractiveSwipeProgress >= PLANNER_SWIPE_COMMIT_PROGRESS &&
-          Math.abs(plannerInteractiveSwipeLastDx) >= PLANNER_SWIPE_MIN_X
-        ){
-          plannerCompleteInteractiveSwipe();
-        } else {
-          plannerCancelInteractiveSwipe();
-        }
+      const v = Math.hypot(plannerDragVelocityX, plannerDragVelocityY);
+      if(v > 0.06){
+        startPlannerInertia(plannerDragVelocityX, plannerDragVelocityY);
       } else {
         bouncePlannerEdgeToRest();
         snapPlannerVerticalExtremes(activeLaserMode(), 0.18);
