@@ -780,21 +780,19 @@
       position:absolute;
       top:50%;
       transform:translateY(-50%);
-      width:36px;
-      height:36px;
-      border:1px solid rgba(255,255,255,.68);
+      width:42px;
+      height:42px;
+      border:none;
       border-radius:999px;
-      background:rgba(248,249,252,.76);
-      color:#1b1e27;
+      background:rgba(241,243,247,.92);
+      color:#111218;
       display:flex;
       align-items:center;
       justify-content:center;
       cursor:pointer;
       z-index:6;
-      box-shadow:0 8px 20px rgba(17,24,35,.10), inset 0 1px 0 rgba(255,255,255,.82);
-      backdrop-filter:blur(14px) saturate(1.04);
-      -webkit-backdrop-filter:blur(14px) saturate(1.04);
-      transition:background-color .2s ease, transform .18s ease, opacity .18s ease, box-shadow .2s ease, border-color .2s ease;
+      box-shadow:0 4px 12px rgba(0,0,0,.10);
+      transition:background-color .2s ease, transform .18s ease, opacity .18s ease, box-shadow .2s ease;
       -webkit-tap-highlight-color:transparent;
       -webkit-appearance:none;
       appearance:none;
@@ -802,9 +800,8 @@
       outline:none;
     }
     .plannerViewArrow:hover{
-      background:rgba(252,253,255,.88);
-      border-color:rgba(255,255,255,.9);
-      box-shadow:0 10px 24px rgba(17,24,35,.12), inset 0 1px 0 rgba(255,255,255,.88);
+      background:#fff;
+      box-shadow:0 6px 14px rgba(0,0,0,.12);
       transform:translateY(-50%) scale(1.02);
     }
     .plannerViewArrow:disabled{
@@ -818,24 +815,19 @@
     .plannerViewArrow:focus-visible,
     .plannerViewArrow:active{
       outline:none;
-      background:rgba(252,253,255,.9);
-      border-color:rgba(255,255,255,.92);
-      box-shadow:0 9px 22px rgba(17,24,35,.11), inset 0 1px 0 rgba(255,255,255,.9);
-    }
-    .plannerViewArrow:active{
-      transform:translateY(-50%) scale(.985);
+      background:transparent;
+      box-shadow:none;
     }
     .plannerViewArrow--prev{ left:10px; }
     .plannerViewArrow--next{ right:10px; }
     .plannerViewArrow svg{
-      width:17px;
-      height:17px;
+      width:20px;
+      height:20px;
       stroke:currentColor;
-      stroke-width:2.1;
+      stroke-width:2.2;
       fill:none;
       stroke-linecap:round;
       stroke-linejoin:round;
-      opacity:.9;
     }
     .plannerFaceJoystick{
       position:absolute;
@@ -3669,21 +3661,23 @@
         margin:6px auto 0;
       }
       .plannerViewArrow{
-        width:32px;
-        height:32px;
+        width:42px;
+        height:42px;
         top:50%;
-        border-width:1px;
-        transition:background-color .2s ease, transform .18s ease, opacity .18s ease, box-shadow .2s ease, border-color .2s ease;
+        border-radius:0;
+        background:transparent;
+        box-shadow:none;
+        backdrop-filter:none;
+        -webkit-backdrop-filter:none;
+        transition:opacity .18s ease;
       }
       .plannerViewArrow:hover{
-        transform:translateY(-50%) scale(1.015);
+        background:transparent;
+        box-shadow:none;
+        transform:translateY(-50%);
       }
       .plannerViewArrow--prev{ left:6px; }
       .plannerViewArrow--next{ right:6px; }
-      .plannerViewArrow svg{
-        width:15px;
-        height:15px;
-      }
       .plannerFaceJoystick{
         right:8px;
         bottom:62px;
