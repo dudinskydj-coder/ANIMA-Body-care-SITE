@@ -3723,6 +3723,12 @@
         max-width:100%;
         aspect-ratio:var(--planner-scene-aspect, 2200 / 5500);
       }
+      .plannerFigureWrap[data-active-view="front"] .plannerFigureSceneScroll[data-view="back"] .plannerFigureSceneFrame{
+        transform:translateX(clamp(-64px, -8vw, -32px));
+      }
+      .plannerFigureWrap[data-active-view="back"] .plannerFigureSceneScroll[data-view="front"] .plannerFigureSceneFrame{
+        transform:translateX(clamp(32px, 8vw, 64px));
+      }
       .plannerSketch,
       .plannerBackSketch{
         left:50%;
@@ -4420,17 +4426,15 @@
   }
   function plannerProgrammaticViewChange(view, options = {}){
     const nextView = plannerFrauenViewOrder.includes(view) ? view : "front";
-    if(nextView === plannerFrauenView){
-      plannerSyncScrollSnapHotspots(options.mode || activeLaserMode());
-      return;
-    }
     plannerScrollSnapPendingView = nextView;
     plannerSetSwipingState(false);
     plannerDebugScrollLog("programmaticScroll", { targetView:nextView });
-    setPlannerFrauenView(nextView, {
-      ...options,
-      sourceTransport:"programmatic"
+    plannerSyncScrollSnapPosition(nextView, {
+      instant:false,
+      force:true,
+      source:"programmatic"
     });
+    plannerMuteScrollSnapDuringProgrammaticScroll(420, "programmatic-scroll");
   }
   function plannerSetModeSwitchTransformState(active){
     plannerModeSwitchUsesTransform = !!active;
