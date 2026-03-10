@@ -4397,8 +4397,6 @@
   let plannerScrollSnapCandidateIndex = null;
   let plannerScrollSnapCandidateFrames = 0;
   let plannerScrollSnapGestureStartIndex = null;
-  let plannerScrollSnapGestureSource = "";
-  let plannerScrollSnapWheelTravel = 0;
   let plannerScrollSnapWheelGestureTimer = null;
   let plannerProgrammaticViewLocked = false;
   let plannerQueuedProgrammaticView = null;
@@ -4432,8 +4430,6 @@
   }
   function plannerClearScrollSnapGestureAnchor(){
     plannerScrollSnapGestureStartIndex = null;
-    plannerScrollSnapGestureSource = "";
-    plannerScrollSnapWheelTravel = 0;
     if(plannerScrollSnapWheelGestureTimer){
       clearTimeout(plannerScrollSnapWheelGestureTimer);
       plannerScrollSnapWheelGestureTimer = null;
@@ -4444,7 +4440,6 @@
     if(plannerScrollSnapGestureStartIndex === null){
       plannerScrollSnapGestureStartIndex = plannerCommittedScrollSnapIndex();
     }
-    plannerScrollSnapGestureSource = source === "wheel" ? "wheel" : "pointer";
     if(source === "wheel"){
       if(plannerScrollSnapWheelGestureTimer){
         clearTimeout(plannerScrollSnapWheelGestureTimer);
@@ -4454,15 +4449,6 @@
         plannerScheduleScrollSnapSettle(120);
       }, 160);
     }
-  }
-  function plannerRegisterScrollSnapWheelDelta(event){
-    if(plannerViewTransport !== "scroll-snap" || !(event instanceof WheelEvent)) return;
-    const primaryDelta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
-    if(!Number.isFinite(primaryDelta) || primaryDelta === 0) return;
-    if(Math.sign(plannerScrollSnapWheelTravel) !== Math.sign(primaryDelta) && Math.abs(plannerScrollSnapWheelTravel) > 6){
-      plannerScrollSnapWheelTravel = 0;
-    }
-    plannerScrollSnapWheelTravel += primaryDelta;
   }
   function plannerScheduleScrollSnapSettle(delay = 220){
     void delay;
@@ -4717,8 +4703,7 @@
       plannerFigureViewportScroll.appendChild(plannerFigureTrackScroll);
       plannerFigureInner.insertBefore(plannerFigureViewportScroll, plannerBackSketch || null);
       plannerFigureViewportScroll.addEventListener("scroll", plannerHandleScrollSnapScroll, { passive:true });
-      plannerFigureViewportScroll.addEventListener("wheel", (event) => {
-        plannerRegisterScrollSnapWheelDelta(event);
+      plannerFigureViewportScroll.addEventListener("wheel", () => {
         plannerBeginScrollSnapGesture("wheel");
       }, { passive:true });
       if("onscrollend" in plannerFigureViewportScroll){
@@ -6664,16 +6649,8 @@
     const rawIndex = bestIndex;
     const rawDistance = bestDistance;
     if(plannerScrollSnapGestureStartIndex !== null){
-      let maxJump = 1;
-      if(plannerScrollSnapGestureSource === "wheel"){
-        const wheelTravel = Math.abs(plannerScrollSnapWheelTravel);
-        const rawJump = Math.abs(rawIndex - plannerScrollSnapGestureStartIndex);
-        if(wheelTravel >= step * 1.1 || rawJump > 1){
-          maxJump = 2;
-        }
-      }
-      const minIndex = Math.max(0, plannerScrollSnapGestureStartIndex - maxJump);
-      const maxIndex = Math.min(plannerFrauenViewOrder.length - 1, plannerScrollSnapGestureStartIndex + maxJump);
+      const minIndex = Math.max(0, plannerScrollSnapGestureStartIndex - 1);
+      const maxIndex = Math.min(plannerFrauenViewOrder.length - 1, plannerScrollSnapGestureStartIndex + 1);
       bestIndex = Math.max(minIndex, Math.min(maxIndex, bestIndex));
       if(bestIndex !== rawIndex){
         bestDistance = Math.abs(scrollLeft - (bestIndex * step));
