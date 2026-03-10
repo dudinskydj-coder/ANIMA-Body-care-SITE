@@ -1314,23 +1314,56 @@
       justify-content:space-between;
       gap:10px;
       pointer-events:none;
+      opacity:var(--planner-mobile-info-opacity, 1);
+      transition:opacity .16s ease;
     }
     .plannerMobileInfoZones{
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+      gap:4px;
+      flex:1 1 auto;
+      min-width:0;
+      max-width:min(54vw, 240px);
+      padding-right:4px;
+      mask-image:linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 62%, rgba(0,0,0,.42) 82%, rgba(0,0,0,0) 100%);
+      -webkit-mask-image:linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 62%, rgba(0,0,0,.42) 82%, rgba(0,0,0,0) 100%);
+      max-height:calc((1.18em * 4) + 14px);
+      overflow:hidden;
+    }
+    .plannerMobileInfoZoneRow{
       display:block;
-      max-width:34vw;
-      min-width:92px;
+      min-width:0;
       font-size:12px;
-      line-height:1.25;
+      line-height:1.18;
       color:rgba(17,18,24,.88);
       letter-spacing:-.01em;
-      font-weight:580;
-      white-space:pre-line;
+      font-weight:560;
+      white-space:normal;
       overflow-wrap:anywhere;
       word-break:break-word;
     }
+    .plannerMobileInfoZoneRow--latest{
+      font-size:14px;
+      line-height:1.12;
+      font-weight:650;
+      color:#111218;
+    }
+    .plannerMobileInfoZoneRow:nth-child(2){
+      opacity:.92;
+    }
+    .plannerMobileInfoZoneRow:nth-child(3){
+      opacity:.76;
+    }
+    .plannerMobileInfoZoneRow:nth-child(4){
+      opacity:.5;
+    }
+    .plannerMobileInfoZoneRow:nth-child(n+5){
+      opacity:.24;
+    }
     .plannerMobileInfoPrice{
-      min-width:104px;
-      max-width:34vw;
+      min-width:112px;
+      max-width:36vw;
       display:flex;
       flex-direction:column;
       text-align:right;
@@ -1348,22 +1381,22 @@
       display:block;
       order:2;
       margin-top:1px;
-      font-size:12px;
+      font-size:14px;
       line-height:1.08;
-      color:rgba(17,18,24,.78);
+      color:#111218;
       letter-spacing:-.01em;
-      font-weight:600;
+      font-weight:650;
       white-space:nowrap;
     }
     .plannerMobileInfoSaved{
       display:block;
       order:1;
       margin-top:0;
-      font-size:12px;
+      font-size:13px;
       line-height:1.2;
       color:#00b300;
       letter-spacing:-.01em;
-      font-weight:560;
+      font-weight:600;
       white-space:nowrap;
     }
     .plannerMobileInfo.is-empty .plannerMobileInfoPriceCurrent{
@@ -4010,7 +4043,7 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
           </button>
           <div class="plannerMobileInfo" id="plannerMobileInfo" aria-hidden="true">
-            <span class="plannerMobileInfoZones" id="plannerMobileInfoZones"></span>
+            <div class="plannerMobileInfoZones" id="plannerMobileInfoZones"></div>
             <span class="plannerMobileInfoPrice" id="plannerMobileInfoPrice">
               <span class="plannerMobileInfoPriceOld" id="plannerMobileInfoPriceOld"></span>
               <strong class="plannerMobileInfoPriceCurrent" id="plannerMobileInfoPriceCurrent"></strong>
@@ -4452,6 +4485,7 @@
     if(plannerViewTransport === "scroll-snap"){
       plannerSetViewButtonState(nextView);
     }
+    plannerApplyMobileInfoOpacity();
     if(options.log){
       plannerDebugScrollLog("liveView", {
         view:nextView,
@@ -4647,6 +4681,7 @@
     if(options.syncOnly){
       plannerSyncScrollSnapHotspots(activeLaserMode());
     }
+    plannerApplyMobileInfoOpacity();
     plannerReleaseProgrammaticViewLock(nextView);
   }
   function plannerReleaseProgrammaticViewLock(resolvedView){
@@ -6696,6 +6731,7 @@
     if(!(plannerFigureViewportScroll instanceof HTMLElement)) return;
     plannerScrollSnapLastKnownLeft = plannerFigureViewportScroll.scrollLeft || 0;
     plannerSetLiveScrollSnapView(plannerVisibleScrollSnapView(), { source:"scroll", log:true });
+    plannerApplyMobileInfoOpacity();
     if(plannerProgrammaticViewLocked && plannerScrollSnapPendingView){
       plannerDebugScrollLog("scrollLocked", {
         scrollLeft:plannerScrollSnapLastKnownLeft,
@@ -6731,6 +6767,10 @@
     plannerFigureViewportScroll.scrollTo({
       left,
       behavior:options.instant === false ? "smooth" : "auto"
+    });
+    requestAnimationFrame(() => {
+      plannerScrollSnapLastKnownLeft = plannerFigureViewportScroll.scrollLeft || left || 0;
+      plannerApplyMobileInfoOpacity();
     });
     if(options.instant === false){
       plannerMuteScrollSnapDuringProgrammaticScroll(420, options.source || "scrollTo");
@@ -10859,31 +10899,48 @@
     if(lang === "en") return mode === "herren" ? "Men" : "Women";
     return mode === "herren" ? "Herren" : "Frauen";
   }
-  function plannerMobileZoneNames(mode, selected){
-    if(!Array.isArray(selected) || !selected.length) return "";
-    const labels = selected
-      .map((item) => plannerLabel(item.label))
-      .filter(Boolean);
-    if(!labels.length) return "";
-    const first = labels[0].trim();
-    if(labels.length === 1) return first || "—";
-    const rest = labels
-      .slice(1)
-      .map((label) => label.trim())
-      .filter(Boolean)
-      .join(" + ");
-    if(!rest) return first || "—";
-    return `${first}\n+ ${rest}`;
+  function plannerMobileInfoVisualProgress(){
+    if(!(plannerFigureViewportScroll instanceof HTMLElement) || plannerViewTransport !== "scroll-snap"){
+      return 1;
+    }
+    const width = plannerFigureViewportScroll.clientWidth || 1;
+    const gap = plannerSceneGapPx(plannerFrauenView, "scroll-snap");
+    const step = Math.max(1, width + gap);
+    const scrollLeft = plannerFigureViewportScroll.scrollLeft || 0;
+    const rawIndex = scrollLeft / step;
+    const distanceToCenter = Math.abs(rawIndex - Math.round(rawIndex));
+    const progress = 1 - Math.min(1, distanceToCenter / 0.5);
+    return Math.max(0, Math.min(1, progress));
+  }
+  function plannerApplyMobileInfoOpacity(){
+    if(!plannerMobileInfo) return;
+    const progress = plannerMobileInfoVisualProgress();
+    const opacity = 0.14 + (progress * 0.86);
+    plannerMobileInfo.style.setProperty("--planner-mobile-info-opacity", opacity.toFixed(3));
+  }
+  function plannerRenderMobileZoneNames(selected){
+    if(!plannerMobileInfoZones) return;
+    plannerMobileInfoZones.replaceChildren();
+    if(!Array.isArray(selected) || !selected.length) return;
+    selected.forEach((item, index) => {
+      const label = plannerLabel(item.label).trim();
+      if(!label) return;
+      const row = document.createElement("span");
+      row.className = `plannerMobileInfoZoneRow${index === 0 ? " plannerMobileInfoZoneRow--latest" : ""}`;
+      row.textContent = label;
+      plannerMobileInfoZones.appendChild(row);
+    });
   }
   function updatePlannerMobileInfo(mode, selectedSet, selected, displayTotal){
     if(!plannerMobileInfo || !plannerMobileInfoZones || !plannerMobileInfoPriceOld || !plannerMobileInfoPriceCurrent || !plannerMobileInfoSaved) return;
     const selectedCount = selectedSet ? selectedSet.size : 0;
     if(!selectedCount){
       plannerMobileInfo.classList.add("is-empty");
-      plannerMobileInfoZones.textContent = "";
+      plannerMobileInfoZones.replaceChildren();
       plannerMobileInfoPriceCurrent.textContent = "";
       plannerMobileInfoPriceOld.textContent = "";
       plannerMobileInfoSaved.textContent = "";
+      plannerApplyMobileInfoOpacity();
       return;
     }
     const originalSessionTotal = Array.isArray(selected)
@@ -10894,10 +10951,11 @@
       : originalSessionTotal;
     const saved = Math.max(0, oldTotal - displayTotal);
     plannerMobileInfo.classList.remove("is-empty");
-    plannerMobileInfoZones.textContent = plannerMobileZoneNames(mode, selected);
+    plannerRenderMobileZoneNames(selected);
     plannerMobileInfoPriceCurrent.textContent = formatEuro(displayTotal);
     plannerMobileInfoPriceOld.textContent = saved > 0 ? formatEuro(oldTotal) : "";
     plannerMobileInfoSaved.textContent = saved > 0 ? plannerSavedLabel(saved) : "";
+    plannerApplyMobileInfoOpacity();
   }
   function plannerSelectionCopyText(mode, selectedSet){
     const selected = plannerOrderItems(mode, selectedSet || new Set());
@@ -13376,6 +13434,7 @@
     clampPlannerPan(activeLaserMode());
     schedulePlannerRender(activeLaserMode());
     maybeStartPlannerGuideEffect();
+    plannerApplyMobileInfoOpacity();
     positionPlannerViewArrows();
   });
   window.addEventListener("scroll", () => {
