@@ -729,6 +729,7 @@
       display:flex;
       flex-direction:column;
       min-width:0;
+      min-height:0;
     }
     .plannerPane--zones{
       border:none;
@@ -1326,8 +1327,8 @@
       min-width:0;
       max-width:min(54vw, 240px);
       padding-right:4px;
-      mask-image:linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 62%, rgba(0,0,0,.42) 82%, rgba(0,0,0,0) 100%);
-      -webkit-mask-image:linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 62%, rgba(0,0,0,.42) 82%, rgba(0,0,0,0) 100%);
+      mask-image:linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 78%, rgba(0,0,0,.42) 91%, rgba(0,0,0,0) 100%);
+      -webkit-mask-image:linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 78%, rgba(0,0,0,.42) 91%, rgba(0,0,0,0) 100%);
       max-height:calc((1.18em * 4) + 14px);
       overflow:hidden;
     }
@@ -1381,6 +1382,19 @@
       font-weight:600;
       white-space:nowrap;
     }
+    .plannerMobileInfoPriceOld,
+    .plannerMobileInfoPriceCurrent,
+    .plannerMobileInfoSaved{
+      opacity:var(--planner-mobile-price-opacity, 1);
+      transform:translateY(var(--planner-mobile-price-shift, 0px));
+      filter:blur(var(--planner-mobile-price-blur, 0px));
+    }
+    .plannerMobileInfoPriceOld.is-animating,
+    .plannerMobileInfoPriceCurrent.is-animating,
+    .plannerMobileInfoSaved.is-animating{
+      animation:plannerMobileInfoPriceSlide .42s cubic-bezier(.22,.8,.24,1) both;
+      animation-delay:var(--planner-mobile-price-delay, 0ms);
+    }
     .plannerMobileInfoPriceCurrent{
       display:block;
       order:2;
@@ -1410,6 +1424,18 @@
     .plannerMobileInfo.is-empty .plannerMobileInfoSaved{
       color:rgba(17,18,24,.45);
       font-weight:540;
+    }
+    @keyframes plannerMobileInfoPriceSlide{
+      from{
+        opacity:0;
+        transform:translateY(-12px);
+        filter:blur(2px);
+      }
+      to{
+        opacity:var(--planner-mobile-price-opacity, 1);
+        transform:translateY(var(--planner-mobile-price-shift, 0px));
+        filter:blur(var(--planner-mobile-price-blur, 0px));
+      }
     }
     .plannerFigure::-webkit-scrollbar{
       width:0;
@@ -2418,7 +2444,9 @@
       display:flex;
       flex-direction:column;
       gap:0;
-      max-height:46vh;
+      flex:1 1 auto;
+      min-height:0;
+      max-height:none;
       overflow:auto;
     }
     .orderItem{
@@ -2675,6 +2703,8 @@
       color:rgba(17,18,24,.56);
       font-size:14px;
       line-height:1.45;
+      flex:1 1 auto;
+      min-height:0;
     }
     .orderSummary{
       margin-top:auto;
@@ -10922,12 +10952,62 @@
     const opacity = 0.14 + (progress * 0.86);
     plannerMobileInfo.style.setProperty("--planner-mobile-info-opacity", opacity.toFixed(3));
   }
+  function plannerMobileSummaryLines(selected){
+    if(!Array.isArray(selected) || !selected.length) return [];
+    const lines = [];
+    selected.forEach((item) => {
+      const itemId = String(item && item.id || "");
+      if(itemId === "premium_bundle"){
+        const lang = currentLang();
+        if(lang === "ru"){
+          lines.push("Руки-компл.+", "Ноги компл.");
+          return;
+        }
+        if(lang === "en"){
+          lines.push("Arms pack+", "Legs pack");
+          return;
+        }
+        lines.push("Arme-Kompl.+", "Beine-Kompl.");
+        return;
+      }
+      if(itemId === "arms_bundle"){
+        lines.push(currentLang() === "ru" ? "Руки компл." : (currentLang() === "en" ? "Arms pack" : "Arme-Kompl."));
+        return;
+      }
+      if(itemId === "legs_bundle"){
+        lines.push(currentLang() === "ru" ? "Ноги компл." : (currentLang() === "en" ? "Legs pack" : "Beine-Kompl."));
+        return;
+      }
+      const label = plannerLabel(item.label).trim();
+      if(label) lines.push(label);
+    });
+    return lines;
+  }
+  function plannerAnimateMobilePriceBlock(){
+    const priceLines = [
+      plannerMobileInfoPriceOld,
+      plannerMobileInfoPriceCurrent,
+      plannerMobileInfoSaved
+    ].filter((el) => el instanceof HTMLElement);
+    priceLines.forEach((el, index) => {
+      el.classList.remove("is-animating");
+      el.style.setProperty("--planner-mobile-price-opacity", el.textContent ? "1" : "0");
+      el.style.setProperty("--planner-mobile-price-shift", `${Math.min(index, 2) * 2.5}px`);
+      el.style.setProperty("--planner-mobile-price-blur", index === 2 ? "0.2px" : "0px");
+      el.style.setProperty("--planner-mobile-price-delay", `${index * 36}ms`);
+    });
+    requestAnimationFrame(() => {
+      priceLines.forEach((el) => {
+        if(el.textContent) el.classList.add("is-animating");
+      });
+    });
+  }
   function plannerRenderMobileZoneNames(selected){
     if(!plannerMobileInfoZones) return;
     plannerMobileInfoZones.replaceChildren();
-    if(!Array.isArray(selected) || !selected.length) return;
-    selected.forEach((item, index) => {
-      const label = plannerLabel(item.label).trim();
+    const lines = plannerMobileSummaryLines(selected);
+    if(!lines.length) return;
+    lines.forEach((label, index) => {
       if(!label) return;
       const row = document.createElement("span");
       row.className = `plannerMobileInfoZoneRow${index === 0 ? " plannerMobileInfoZoneRow--latest" : ""}`;
@@ -10951,6 +11031,10 @@
       plannerMobileInfoPriceCurrent.textContent = "";
       plannerMobileInfoPriceOld.textContent = "";
       plannerMobileInfoSaved.textContent = "";
+      [plannerMobileInfoPriceOld, plannerMobileInfoPriceCurrent, plannerMobileInfoSaved].forEach((el) => {
+        if(!(el instanceof HTMLElement)) return;
+        el.classList.remove("is-animating");
+      });
       plannerApplyMobileInfoOpacity();
       return;
     }
@@ -10966,6 +11050,7 @@
     plannerMobileInfoPriceCurrent.textContent = formatEuro(displayTotal);
     plannerMobileInfoPriceOld.textContent = saved > 0 ? formatEuro(oldTotal) : "";
     plannerMobileInfoSaved.textContent = saved > 0 ? plannerSavedLabel(saved) : "";
+    plannerAnimateMobilePriceBlock();
     plannerApplyMobileInfoOpacity();
   }
   function plannerSelectionCopyText(mode, selectedSet){
