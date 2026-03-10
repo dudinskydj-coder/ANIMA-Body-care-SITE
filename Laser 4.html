@@ -4539,21 +4539,6 @@
         }
         const isNeighborTransition = Math.abs(resolved.index - committedIndex) === 1;
         const candidateReady = !isNeighborTransition || plannerScrollSnapCandidateFrames >= candidateFrameTarget;
-        if(plannerScrollSnapStableFrames >= stableFrameTarget && resolved.limitExceeded){
-          plannerDebugScrollLog("settleClamp", {
-            scrollLeft:plannerScrollSnapLastKnownLeft,
-            view:resolved.view,
-            rawIndex:resolved.rawIndex,
-            clampedIndex:resolved.index
-          });
-          plannerSyncScrollSnapPosition(resolved.view, {
-            instant:false,
-            force:true,
-            source:"gesture-limit"
-          });
-          plannerMuteScrollSnapDuringProgrammaticScroll(260, "gesture-limit");
-          return;
-        }
         if(plannerScrollSnapStableFrames >= stableFrameTarget && resolved.settled && candidateReady){
           plannerDebugScrollLog("settleStable", {
             scrollLeft:plannerScrollSnapLastKnownLeft,
@@ -6695,25 +6680,15 @@
         bestIndex = i;
       }
     }
-    const rawIndex = bestIndex;
-    const rawDistance = bestDistance;
-    if(plannerScrollSnapGestureStartIndex !== null){
-      const minIndex = Math.max(0, plannerScrollSnapGestureStartIndex - 1);
-      const maxIndex = Math.min(plannerFrauenViewOrder.length - 1, plannerScrollSnapGestureStartIndex + 1);
-      bestIndex = Math.max(minIndex, Math.min(maxIndex, bestIndex));
-      if(bestIndex !== rawIndex){
-        bestDistance = Math.abs(scrollLeft - (bestIndex * step));
-      }
-    }
     const snapTolerance = isMobileSnap ? Math.max(16, step * 0.1) : Math.max(10, step * 0.06);
     return {
       view:plannerFrauenViewOrder[bestIndex] || "front",
       index:bestIndex,
       distance:bestDistance,
       settled:bestDistance <= snapTolerance,
-      rawIndex,
-      rawDistance,
-      limitExceeded:bestIndex !== rawIndex
+      rawIndex:bestIndex,
+      rawDistance:bestDistance,
+      limitExceeded:false
     };
   }
   function plannerHandleScrollSnapScroll(){
