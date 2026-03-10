@@ -788,7 +788,7 @@
       padding:0 4px;
       border:none;
       background:transparent;
-      overflow-x:auto;
+      overflow-x:hidden;
       overflow-y:visible;
       touch-action:pan-y;
       cursor:grab;
@@ -4408,7 +4408,6 @@
   let plannerScrollSnapWheelGestureTimer = null;
   let plannerScrollSnapPagingLocked = false;
   let plannerScrollSnapPagingLockTimer = null;
-  const PLANNER_SCROLL_SNAP_GESTURE_COOLDOWN_MS = 1000;
   let plannerProgrammaticViewLocked = false;
   let plannerQueuedProgrammaticView = null;
   let plannerTapFeedbackTimer = null;
@@ -4464,20 +4463,16 @@
     }
   }
   function plannerSetScrollSnapPagingLock(active, releaseDelay = 0){
+    void releaseDelay;
     if(plannerScrollSnapPagingLockTimer){
       clearTimeout(plannerScrollSnapPagingLockTimer);
       plannerScrollSnapPagingLockTimer = null;
     }
     plannerScrollSnapPagingLocked = !!active;
-    if(plannerScrollSnapPagingLocked && releaseDelay > 0){
-      plannerScrollSnapPagingLockTimer = setTimeout(() => {
-        plannerScrollSnapPagingLockTimer = null;
-        plannerScrollSnapPagingLocked = false;
-      }, releaseDelay);
-    }
   }
   function plannerRefreshScrollSnapPagingLock(releaseDelay = 520){
-    plannerSetScrollSnapPagingLock(true, releaseDelay);
+    void releaseDelay;
+    plannerSetScrollSnapPagingLock(true);
   }
   function plannerBeginScrollSnapGesture(source = "pointer"){
     void source;
@@ -4524,22 +4519,6 @@
     plannerFigureViewportScroll.scrollLeft = targetLeft;
     plannerScrollSnapLastKnownLeft = targetLeft;
   }
-  function plannerResolvePagedTouchTargetIndex(){
-    const currentIndex = plannerScrollSnapGestureStartIndex !== null
-      ? plannerScrollSnapGestureStartIndex
-      : plannerCommittedScrollSnapIndex();
-    if(!(plannerFigureViewportScroll instanceof HTMLElement)) return currentIndex;
-    if(plannerScrollSnapGestureLockedTargetIndex === null) return currentIndex;
-    const startLeft = plannerScrollSnapTouchStartLeft ?? plannerScrollSnapTargetLeft(currentIndex);
-    const currentLeft = plannerFigureViewportScroll.scrollLeft || 0;
-    const movedDistance = Math.abs(currentLeft - startLeft);
-    const step = plannerScrollSnapMetrics().step;
-    const progress = step > 0 ? (movedDistance / step) : 0;
-    if(progress >= 0.5 || movedDistance >= (step * 0.18)){
-      return plannerScrollSnapGestureLockedTargetIndex;
-    }
-    return currentIndex;
-  }
   function plannerStartPagedScroll(targetIndex, options = {}){
     if(plannerViewTransport !== "scroll-snap") return false;
     if(!(plannerFigureViewportScroll instanceof HTMLElement)) return false;
@@ -4551,7 +4530,7 @@
     plannerScrollSnapGestureLockedTargetIndex = clampedTargetIndex;
     plannerScrollSnapGestureDirection = clampedTargetIndex === currentIndex ? 0 : (clampedTargetIndex > currentIndex ? 1 : -1);
     plannerScrollSnapPendingView = plannerFrauenViewOrder[clampedTargetIndex] || "front";
-    plannerSetScrollSnapPagingLock(true, PLANNER_SCROLL_SNAP_GESTURE_COOLDOWN_MS);
+    plannerSetScrollSnapPagingLock(true);
     plannerScrollSnapPageToLockedTarget(options.behavior === "auto" ? "auto" : "smooth");
     return true;
   }
@@ -4698,7 +4677,7 @@
       plannerScrollSnapCandidateIndex = null;
       plannerScrollSnapCandidateFrames = 0;
       plannerClearScrollSnapGestureAnchor();
-      plannerRefreshScrollSnapPagingLock(PLANNER_SCROLL_SNAP_GESTURE_COOLDOWN_MS);
+      plannerSetScrollSnapPagingLock(false);
       plannerReleaseProgrammaticViewLock(nextView);
       return;
     }
@@ -4706,7 +4685,7 @@
     plannerScrollSnapCandidateIndex = null;
     plannerScrollSnapCandidateFrames = 0;
     plannerClearScrollSnapGestureAnchor();
-    plannerRefreshScrollSnapPagingLock(PLANNER_SCROLL_SNAP_GESTURE_COOLDOWN_MS);
+    plannerSetScrollSnapPagingLock(false);
     plannerDebugScrollLog("commitScene", {
       view:nextView,
       scrollLeft:plannerScrollSnapLastKnownLeft,
@@ -6745,13 +6724,11 @@
     });
   }
   function plannerClampScrollSnapGestureLeft(scrollLeft){
-    const baseIndex = plannerScrollSnapGestureStartIndex !== null
-      ? plannerScrollSnapGestureStartIndex
-      : plannerCommittedScrollSnapIndex();
+    if(plannerScrollSnapGestureStartIndex === null) return scrollLeft;
     const { step, maxScrollLeft } = plannerScrollSnapMetrics();
     const startLeft = plannerScrollSnapGestureStartLeft !== null
       ? plannerScrollSnapGestureStartLeft
-      : (baseIndex * step);
+      : (plannerScrollSnapGestureStartIndex * step);
     if(plannerScrollSnapGestureLockedTargetIndex === null){
       const minUnlockedLeft = Math.max(0, startLeft - step);
       const maxUnlockedLeft = Math.min(maxScrollLeft, startLeft + step);
@@ -6791,12 +6768,9 @@
     if(plannerScrollSnapGestureLockedTargetIndex !== null){
       bestIndex = plannerScrollSnapGestureLockedTargetIndex;
       bestDistance = Math.abs(scrollLeft - (bestIndex * step));
-    } else {
-      const baseIndex = plannerScrollSnapGestureStartIndex !== null
-        ? plannerScrollSnapGestureStartIndex
-        : plannerCommittedScrollSnapIndex();
-      const minIndex = Math.max(0, baseIndex - 1);
-      const maxIndex = Math.min(plannerFrauenViewOrder.length - 1, baseIndex + 1);
+    } else if(plannerScrollSnapGestureStartIndex !== null){
+      const minIndex = Math.max(0, plannerScrollSnapGestureStartIndex - 1);
+      const maxIndex = Math.min(plannerFrauenViewOrder.length - 1, plannerScrollSnapGestureStartIndex + 1);
       bestIndex = Math.max(minIndex, Math.min(maxIndex, bestIndex));
       if(bestIndex !== rawIndex){
         bestDistance = Math.abs(scrollLeft - (bestIndex * step));
@@ -6816,10 +6790,12 @@
     if(plannerViewTransport !== "scroll-snap" || plannerScrollSnapMuted) return;
     if(!(plannerFigureViewportScroll instanceof HTMLElement)) return;
     plannerScrollSnapLastKnownLeft = plannerFigureViewportScroll.scrollLeft || 0;
-    const clampedLeft = plannerClampScrollSnapGestureLeft(plannerScrollSnapLastKnownLeft);
-    if(Math.abs(clampedLeft - plannerScrollSnapLastKnownLeft) > 0.5){
-      plannerFigureViewportScroll.scrollLeft = clampedLeft;
-      plannerScrollSnapLastKnownLeft = clampedLeft;
+    if(plannerScrollSnapGestureStartIndex !== null){
+      const clampedLeft = plannerClampScrollSnapGestureLeft(plannerScrollSnapLastKnownLeft);
+      if(Math.abs(clampedLeft - plannerScrollSnapLastKnownLeft) > 0.5){
+        plannerFigureViewportScroll.scrollLeft = clampedLeft;
+        plannerScrollSnapLastKnownLeft = clampedLeft;
+      }
     }
     if(plannerProgrammaticViewLocked && plannerScrollSnapPendingView){
       plannerDebugScrollLog("scrollLocked", {
@@ -13506,6 +13482,14 @@
     }, { passive:false });
     plannerFigure.addEventListener("touchend", () => {
       if(plannerViewTransport === "scroll-snap"){
+        const currentIndex = plannerCommittedScrollSnapIndex();
+        const targetIndex = plannerScrollSnapGestureLockedTargetIndex;
+        const startLeft = plannerScrollSnapTouchStartLeft ?? plannerScrollSnapTargetLeft(currentIndex);
+        const currentLeft = plannerFigureViewportScroll instanceof HTMLElement
+          ? (plannerFigureViewportScroll.scrollLeft || 0)
+          : startLeft;
+        const movedDistance = Math.abs(currentLeft - startLeft);
+        const threshold = plannerScrollSnapMetrics().step * 0.18;
         plannerScrollSnapPointerDown = false;
         plannerDebugScrollLog("pointerUp", { type:"touch", scrollLeft:plannerScrollSnapLastKnownLeft });
         plannerSetSwipingState(false);
@@ -13513,9 +13497,13 @@
           plannerClearScrollSnapGestureAnchor();
           return;
         }
-        const targetIndex = plannerResolvePagedTouchTargetIndex();
+        if(plannerScrollSnapTouchDragging && targetIndex !== null && movedDistance >= threshold && targetIndex !== currentIndex){
+          plannerClearScrollSnapGestureAnchor();
+          plannerStartPagedScroll(targetIndex, { behavior:"smooth" });
+          return;
+        }
         plannerClearScrollSnapGestureAnchor();
-        plannerStartPagedScroll(targetIndex, { behavior:"smooth" });
+        plannerStartPagedScroll(currentIndex, { behavior:"smooth" });
         return;
       }
       plannerFinalizeSwipeGesture();

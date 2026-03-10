@@ -4516,7 +4516,6 @@
     const targetLeft = plannerScrollSnapTargetLeft(plannerScrollSnapGestureLockedTargetIndex);
     plannerFigureViewportScroll.scrollTo({ left:targetLeft, behavior });
     plannerScrollSnapPendingView = plannerFrauenViewOrder[plannerScrollSnapGestureLockedTargetIndex] || "front";
-    plannerScheduleScrollSnapSettle(120);
   }
   function plannerForceScrollSnapToIndex(index){
     if(!(plannerFigureViewportScroll instanceof HTMLElement)) return;
@@ -6776,32 +6775,14 @@
     const isMobileSnap = window.matchMedia("(max-width: 1024px)").matches;
     const { step } = plannerScrollSnapMetrics();
     const scrollLeft = plannerFigureViewportScroll.scrollLeft || 0;
-    let bestIndex = 0;
-    let bestDistance = Infinity;
-    for(let i = 0; i < plannerFrauenViewOrder.length; i += 1){
-      const targetLeft = i * step;
-      const distance = Math.abs(scrollLeft - targetLeft);
-      if(distance < bestDistance){
-        bestDistance = distance;
-        bestIndex = i;
-      }
-    }
+    const bestIndex = plannerScrollSnapGestureLockedTargetIndex !== null
+      ? plannerScrollSnapGestureLockedTargetIndex
+      : (plannerScrollSnapGestureStartIndex !== null
+        ? plannerScrollSnapGestureStartIndex
+        : plannerCommittedScrollSnapIndex());
+    const bestDistance = Math.abs(scrollLeft - (bestIndex * step));
     const rawIndex = bestIndex;
     const rawDistance = bestDistance;
-    if(plannerScrollSnapGestureLockedTargetIndex !== null){
-      bestIndex = plannerScrollSnapGestureLockedTargetIndex;
-      bestDistance = Math.abs(scrollLeft - (bestIndex * step));
-    } else {
-      const baseIndex = plannerScrollSnapGestureStartIndex !== null
-        ? plannerScrollSnapGestureStartIndex
-        : plannerCommittedScrollSnapIndex();
-      const minIndex = Math.max(0, baseIndex - 1);
-      const maxIndex = Math.min(plannerFrauenViewOrder.length - 1, baseIndex + 1);
-      bestIndex = Math.max(minIndex, Math.min(maxIndex, bestIndex));
-      if(bestIndex !== rawIndex){
-        bestDistance = Math.abs(scrollLeft - (bestIndex * step));
-      }
-    }
     const snapTolerance = isMobileSnap ? Math.max(16, step * 0.1) : Math.max(10, step * 0.06);
     return {
       view:plannerFrauenViewOrder[bestIndex] || "front",
@@ -6840,7 +6821,6 @@
     if(plannerScrollSnapPointerDown){
       plannerSetSwipingState(true);
     }
-    plannerScheduleScrollSnapSettle();
   }
   function plannerSyncScrollSnapPosition(view, options = {}){
     if(plannerViewTransport !== "scroll-snap" && !options.force) return;
@@ -9998,10 +9978,12 @@
     if(plannerViewTransport === "scroll-snap"){
       renderPlannerViewState(mode);
     }
-    plannerSyncScrollSnapPosition(plannerFrauenView, {
-      instant:!changed,
-      source:options.sourceTransport || ""
-    });
+    if(options.sourceTransport !== "scroll-snap"){
+      plannerSyncScrollSnapPosition(plannerFrauenView, {
+        instant:!changed,
+        source:options.sourceTransport || ""
+      });
+    }
     // Keep next/prev view assets warm so switching is instant.
     if(!skipNeighborWarmup){
       plannerWarmupNeighborViews(mode, plannerFrauenView);

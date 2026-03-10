@@ -788,7 +788,7 @@
       padding:0 4px;
       border:none;
       background:transparent;
-      overflow-x:auto;
+      overflow-x:hidden;
       overflow-y:visible;
       touch-action:pan-y;
       cursor:grab;
@@ -4524,22 +4524,6 @@
     plannerFigureViewportScroll.scrollLeft = targetLeft;
     plannerScrollSnapLastKnownLeft = targetLeft;
   }
-  function plannerResolvePagedTouchTargetIndex(){
-    const currentIndex = plannerScrollSnapGestureStartIndex !== null
-      ? plannerScrollSnapGestureStartIndex
-      : plannerCommittedScrollSnapIndex();
-    if(!(plannerFigureViewportScroll instanceof HTMLElement)) return currentIndex;
-    if(plannerScrollSnapGestureLockedTargetIndex === null) return currentIndex;
-    const startLeft = plannerScrollSnapTouchStartLeft ?? plannerScrollSnapTargetLeft(currentIndex);
-    const currentLeft = plannerFigureViewportScroll.scrollLeft || 0;
-    const movedDistance = Math.abs(currentLeft - startLeft);
-    const step = plannerScrollSnapMetrics().step;
-    const progress = step > 0 ? (movedDistance / step) : 0;
-    if(progress >= 0.5 || movedDistance >= (step * 0.18)){
-      return plannerScrollSnapGestureLockedTargetIndex;
-    }
-    return currentIndex;
-  }
   function plannerStartPagedScroll(targetIndex, options = {}){
     if(plannerViewTransport !== "scroll-snap") return false;
     if(!(plannerFigureViewportScroll instanceof HTMLElement)) return false;
@@ -4559,7 +4543,7 @@
     if(plannerViewTransport !== "scroll-snap" || plannerScrollSnapMuted) return;
     if(!(plannerFigureViewportScroll instanceof HTMLElement)) return;
     const primaryDelta = Math.abs(event.deltaX) >= Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
-    if(Math.abs(primaryDelta) < 4) return;
+    if(Math.abs(primaryDelta) < 2) return;
     event.preventDefault();
     if(plannerScrollSnapPagingLocked) return;
     const currentIndex = plannerCommittedScrollSnapIndex();
@@ -13462,7 +13446,7 @@
           const deltaX = touch.clientX - (plannerScrollSnapTouchStartX ?? touch.clientX);
           const deltaY = touch.clientY - (plannerScrollSnapTouchStartY ?? touch.clientY);
           if(!plannerScrollSnapTouchDragging){
-            if(Math.abs(deltaX) < 8 && Math.abs(deltaY) < 8) return;
+            if(Math.abs(deltaX) < 4 && Math.abs(deltaY) < 4) return;
             if(Math.abs(deltaX) <= Math.abs(deltaY)){
               plannerScrollSnapPointerDown = false;
               plannerClearScrollSnapGestureAnchor();
@@ -13506,6 +13490,14 @@
     }, { passive:false });
     plannerFigure.addEventListener("touchend", () => {
       if(plannerViewTransport === "scroll-snap"){
+        const currentIndex = plannerCommittedScrollSnapIndex();
+        const targetIndex = plannerScrollSnapGestureLockedTargetIndex;
+        const startLeft = plannerScrollSnapTouchStartLeft ?? plannerScrollSnapTargetLeft(currentIndex);
+        const currentLeft = plannerFigureViewportScroll instanceof HTMLElement
+          ? (plannerFigureViewportScroll.scrollLeft || 0)
+          : startLeft;
+        const movedDistance = Math.abs(currentLeft - startLeft);
+        const threshold = plannerScrollSnapMetrics().step * 0.1;
         plannerScrollSnapPointerDown = false;
         plannerDebugScrollLog("pointerUp", { type:"touch", scrollLeft:plannerScrollSnapLastKnownLeft });
         plannerSetSwipingState(false);
@@ -13513,9 +13505,13 @@
           plannerClearScrollSnapGestureAnchor();
           return;
         }
-        const targetIndex = plannerResolvePagedTouchTargetIndex();
+        if(plannerScrollSnapTouchDragging && targetIndex !== null && movedDistance >= threshold && targetIndex !== currentIndex){
+          plannerClearScrollSnapGestureAnchor();
+          plannerStartPagedScroll(targetIndex, { behavior:"smooth" });
+          return;
+        }
         plannerClearScrollSnapGestureAnchor();
-        plannerStartPagedScroll(targetIndex, { behavior:"smooth" });
+        plannerStartPagedScroll(currentIndex, { behavior:"smooth" });
         return;
       }
       plannerFinalizeSwipeGesture();
