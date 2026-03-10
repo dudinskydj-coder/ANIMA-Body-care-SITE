@@ -1441,6 +1441,7 @@
       min-width:100%;
       height:100%;
       scroll-snap-align:center;
+      scroll-snap-stop:always;
       padding-inline:0;
       box-sizing:border-box;
       pointer-events:none;
@@ -4390,8 +4391,6 @@
   let plannerScrollSnapPointerDown = false;
   let plannerScrollSnapPendingView = null;
   let plannerScrollSnapLastKnownLeft = 0;
-  let plannerScrollSnapLastSettlingLeft = 0;
-  let plannerScrollSnapStableFrames = 0;
   let plannerScrollSnapMuteTimer = null;
   let plannerScrollSnapCommitView = null;
   let plannerProgrammaticViewLocked = false;
@@ -4419,47 +4418,20 @@
     console.info(`[planner] ${label}:`, payload);
   }
   function plannerScheduleScrollSnapSettle(delay = 220){
-    void delay;
     if(plannerScrollSnapSettleTimer){
       clearTimeout(plannerScrollSnapSettleTimer);
+    }
+    plannerScrollSnapSettleTimer = setTimeout(() => {
       plannerScrollSnapSettleTimer = null;
-    }
-    if(plannerScrollSnapRaf){
-      cancelAnimationFrame(plannerScrollSnapRaf);
-      plannerScrollSnapRaf = null;
-    }
-    plannerScrollSnapStableFrames = 0;
-    plannerScrollSnapLastSettlingLeft = plannerScrollSnapLastKnownLeft;
-    const settleTick = () => {
-      plannerScrollSnapRaf = null;
-      if(plannerViewTransport !== "scroll-snap" || plannerScrollSnapMuted) return;
-      if(!(plannerFigureViewportScroll instanceof HTMLElement)) return;
-      const currentLeft = plannerFigureViewportScroll.scrollLeft || 0;
-      plannerScrollSnapLastKnownLeft = currentLeft;
-      if(plannerScrollSnapPointerDown){
-        plannerScrollSnapStableFrames = 0;
-        plannerScrollSnapLastSettlingLeft = currentLeft;
-        plannerScrollSnapRaf = requestAnimationFrame(settleTick);
-        return;
-      }
-      if(Math.abs(currentLeft - plannerScrollSnapLastSettlingLeft) <= 0.5){
-        plannerScrollSnapStableFrames += 1;
-      } else {
-        plannerScrollSnapStableFrames = 0;
-      }
-      plannerScrollSnapLastSettlingLeft = currentLeft;
-      if(plannerScrollSnapStableFrames >= 3){
-        plannerDebugScrollLog("settleStable", {
+      if(!plannerScrollSnapPointerDown){
+        plannerDebugScrollLog("settleTimerFire", {
           scrollLeft:plannerScrollSnapLastKnownLeft,
           pendingView:plannerScrollSnapPendingView,
           muted:plannerScrollSnapMuted
         });
         plannerCommitScrollSnapSettledView({ syncOnly:true });
-        return;
       }
-      plannerScrollSnapRaf = requestAnimationFrame(settleTick);
-    };
-    plannerScrollSnapRaf = requestAnimationFrame(settleTick);
+    }, delay);
   }
   function plannerSetScrollSnapMuted(active, reason = ""){
     plannerScrollSnapMuted = !!active;
@@ -4499,14 +4471,9 @@
   }
   function plannerCommitScrollSnapSettledView(options = {}){
     if(plannerViewTransport !== "scroll-snap") return;
-    if(plannerScrollSnapRaf){
-      cancelAnimationFrame(plannerScrollSnapRaf);
-      plannerScrollSnapRaf = null;
-    }
-    plannerScrollSnapStableFrames = 0;
     const nextView =
-      plannerFrauenViewOrder[plannerScrollSnapIndex()] ||
       plannerScrollSnapPendingView ||
+      plannerFrauenViewOrder[plannerScrollSnapIndex()] ||
       "front";
     plannerScrollSnapPendingView = null;
     plannerSetSwipingState(false);
@@ -6528,7 +6495,7 @@
     const gap = plannerSceneGapPx(plannerFrauenView, "scroll-snap");
     const step = Math.max(1, width + gap);
     const scrollLeft = plannerFigureViewportScroll.scrollLeft || 0;
-    return Math.max(0, Math.min(plannerFrauenViewOrder.length - 1, Math.round(scrollLeft / step)));
+    return Math.max(0, Math.min(plannerFrauenViewOrder.length - 1, Math.floor((scrollLeft + (step * 0.35)) / step)));
   }
   function plannerHandleScrollSnapScroll(){
     if(plannerViewTransport !== "scroll-snap" || plannerScrollSnapMuted) return;
@@ -6543,7 +6510,7 @@
       if(plannerScrollSnapPointerDown){
         plannerSetSwipingState(true);
       }
-      plannerScheduleScrollSnapSettle();
+      plannerScheduleScrollSnapSettle(220);
       return;
     }
     const calculatedIndex = plannerScrollSnapIndex();
@@ -6558,7 +6525,7 @@
     if(plannerScrollSnapPointerDown){
       plannerSetSwipingState(true);
     }
-    plannerScheduleScrollSnapSettle();
+    plannerScheduleScrollSnapSettle(220);
   }
   function plannerSyncScrollSnapPosition(view, options = {}){
     if(plannerViewTransport !== "scroll-snap" && !options.force) return;

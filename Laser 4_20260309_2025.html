@@ -4,15 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Laser — ANIMA</title>
-  <meta name="application-name" content="ANIMA" />
-  <meta name="apple-mobile-web-app-title" content="ANIMA" />
-  <meta name="theme-color" content="#72163b" />
-  <link rel="icon" href="./favicon.svg?v=20260310" type="image/svg+xml" />
-  <link rel="icon" href="./favicon-32x32.png?v=20260310" sizes="32x32" type="image/png" />
-  <link rel="icon" href="./favicon-16x16.png?v=20260310" sizes="16x16" type="image/png" />
-  <link rel="shortcut icon" href="./favicon-32x32.png?v=20260310" type="image/png" />
-  <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=20260310" sizes="180x180" />
-  <link rel="manifest" href="./site.webmanifest?v=20260310" />
 
   <style>
     :root{
@@ -314,52 +305,6 @@
       min-width:160px;
     }
     .btn:hover{background:rgba(0,0,0,.04)}
-    .bookingPromptModal{
-      position:fixed;
-      inset:0;
-      z-index:120;
-      padding:28px;
-      background:rgba(241,243,247,.26);
-      backdrop-filter:blur(4px);
-      -webkit-backdrop-filter:blur(4px);
-      opacity:0;
-      transition:opacity .22s ease;
-    }
-    .bookingPromptModal[hidden]{display:none}
-    .bookingPromptModal.is-open{opacity:1}
-    .bookingPromptBackdrop{
-      position:absolute;
-      inset:0;
-    }
-    .bookingPromptDialog{
-      position:absolute;
-      left:var(--booking-prompt-left, 50vw);
-      top:50vh;
-      width:min(100%, 360px);
-      padding:22px 22px 18px;
-      border-radius:28px;
-      background:rgba(255,255,255,.92);
-      border:1px solid rgba(17,18,24,.08);
-      box-shadow:0 24px 70px rgba(15,19,32,.14);
-      transform:translate(-50%, calc(-50% + 14px)) scale(.985);
-      transition:transform .26s cubic-bezier(.22,.8,.24,1);
-      text-align:center;
-    }
-    .bookingPromptModal.is-open .bookingPromptDialog{
-      transform:translate(-50%, -50%) scale(1);
-    }
-    .bookingPromptTitle{
-      margin:0;
-      font-size:24px;
-      line-height:1.12;
-      letter-spacing:-.03em;
-      color:#111218;
-    }
-    .bookingPromptActions{
-      display:flex;
-      justify-content:center;
-      margin-top:18px;
-    }
     .btn.primary{
       background:var(--accent);
       color:var(--accentText);
@@ -789,7 +734,7 @@
       border:none;
       background:transparent;
       overflow-x:hidden;
-      overflow-y:visible;
+      overflow-y:auto;
       touch-action:pan-y;
       cursor:grab;
       scrollbar-width:none;
@@ -1418,7 +1363,7 @@
       scroll-snap-type:x mandatory;
       -webkit-overflow-scrolling:touch;
       overscroll-behavior-x:contain;
-      overscroll-behavior-y:auto;
+      overscroll-behavior-y:none;
       scrollbar-width:none;
       -ms-overflow-style:none;
       z-index:0;
@@ -1433,7 +1378,7 @@
       display:flex;
       width:100%;
       height:100%;
-      column-gap:var(--planner-scroll-scene-gap, 0px);
+      column-gap:var(--planner-scroll-scene-gap, 8px);
     }
     .plannerFigureSceneScroll{
       position:relative;
@@ -1441,6 +1386,7 @@
       min-width:100%;
       height:100%;
       scroll-snap-align:center;
+      scroll-snap-stop:always;
       padding-inline:0;
       box-sizing:border-box;
       pointer-events:none;
@@ -1470,24 +1416,11 @@
       opacity:1;
       pointer-events:auto;
     }
-    .plannerFigureViewport,
-    .plannerFigureViewportScroll{
-      will-change:opacity;
-      backface-visibility:hidden;
-      transform:translateZ(0);
-    }
-    .plannerFigureViewportScroll{
-      transition:none;
-    }
-    .plannerFigureWrap.is-mode-switching .plannerFigureViewport,
-    .plannerFigureWrap.is-mode-switching .plannerFigureViewportScroll{
-      transition:none !important;
-    }
     .plannerFigureTrack{
       display:flex;
       width:100%;
       height:100%;
-      column-gap:var(--planner-scene-gap, 4px);
+      column-gap:var(--planner-scene-gap, 8px);
       transform:translate3d(0, 0, 0);
       transition:transform .34s cubic-bezier(.22, 1, .36, 1);
       will-change:transform;
@@ -1507,10 +1440,6 @@
       -webkit-user-drag:none;
       user-drag:none;
       pointer-events:none;
-    }
-    .plannerFigure img[src="data:,"],
-    .plannerFigure img[src=""]{
-      visibility:hidden;
     }
     .plannerFigureBase{
       position:relative;
@@ -1606,19 +1535,19 @@
       z-index:0;
     }
     .plannerFigureOverlayImage--axilla-gray{
-      z-index:10;
+      z-index:5;
     }
     .plannerFigureOverlayImage--dynamic{
       z-index:3;
     }
     .plannerFigureOverlayImage--dynamic.plannerFigureOverlayImage--axilla-main{
-      z-index:11 !important;
+      z-index:50 !important;
     }
     .plannerFigureOverlayImage--dynamic.plannerFigureOverlayImage--axilla-gray-dynamic{
       z-index:10 !important;
     }
     #plannerFigureOverlayAxilla{
-      z-index:11;
+      z-index:7;
     }
     .plannerSketch{
       position:absolute;
@@ -3099,9 +3028,8 @@
       right:var(--legalCloseInset);
       width:38px;
       height:38px;
-      background:#fff;
+      background:#f3f3f7;
       color:#1b1b1f;
-      box-shadow:0 0 0 1px rgba(17,18,24,.06);
     }
     .legalDoc{
       background:#fff;
@@ -3136,12 +3064,11 @@
       margin-bottom:32px;
     }
     .legalDocCard{
-      background:#fff;
+      background:var(--menuLayer);
       border:none;
       border-radius:28px;
       padding:0;
       margin:0;
-      box-shadow:0 0 0 1px rgba(17,18,24,.05);
     }
     .legalTextZone{
       --textZonePad:clamp(29px, 6.5vw, 49px);
@@ -3161,7 +3088,7 @@
       font-size:18px;
       line-height:1.4;
       letter-spacing:-.01em;
-      font-weight:400;
+      font-weight:520;
     }
     .legalDoc p{margin:0 0 12px}
     .legalDoc h2{margin:0 0 12px}
@@ -3947,6 +3874,7 @@
     <video class="videoPlayer" id="laserVideoPlayer" playsinline preload="metadata"></video>
   </div>
 </div>
+
 <div class="heroPromoStrip" id="hero_promo_strip">Erhalte 150 bis 450 € Rabatt auf Laser-Haarentfernung bei Vorauszahlung eines Kurses.</div>
 
 <div class="wrap" id="top">
@@ -4017,24 +3945,18 @@
               <span class="plannerMobileInfoSaved" id="plannerMobileInfoSaved"></span>
             </span>
           </div>
-          <div class="bookingPromptModal" id="bookingPromptModal" hidden role="dialog" aria-labelledby="bookingPromptTitle">
-            <div class="bookingPromptBackdrop" data-booking-prompt-close></div>
-            <div class="bookingPromptDialog">
-              <h3 class="bookingPromptTitle" id="bookingPromptTitle"></h3>
-              <div class="bookingPromptActions">
-                <button type="button" class="btn primary" id="bookingPromptActionBtn"></button>
-              </div>
-            </div>
-          </div>
           <div class="plannerFigure">
             <div class="plannerFigureInner">
               <div class="plannerBackSketch" id="plannerBackSketch"></div>
               <img src="img/INT/FRAUEN_FRONT/FR_FRONT_GR.svg" alt="Interaktive Körperzonen Frauen Front" loading="eager" decoding="sync" fetchpriority="high" id="plannerFigureImage" class="plannerFigureBase">
+              <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_OBERLIPPE.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayUpperlip" class="plannerFigureOverlayImage" aria-hidden="true">
+              <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_ACHSELN.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayAxilla" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_HALS.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayChin" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_Brustbereich.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayChest" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_HANDE.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayHands" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_FUSSE.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayFeet" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_OBERARME_MAIN.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayUpperarms" class="plannerFigureOverlayImage" aria-hidden="true">
+              <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_GR_ACHSELN_MAIN.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayAxillaGray" class="plannerFigureOverlayImage plannerFigureOverlayImage--axilla-gray" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_UNTERARME_MAIN.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayUnderarms" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_BAUCH_MEDIA_LN.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayBauchMedia" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_BAUCH.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayBauchFull" class="plannerFigureOverlayImage" aria-hidden="true">
@@ -4043,8 +3965,6 @@
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_UNTERSCH_MAIN.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayUntersch" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM_POF.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayImage" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="data:," alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayCustom" class="plannerFigureOverlayImage" aria-hidden="true">
-              <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_GR_ACHSELN_MAIN.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayAxillaGray" class="plannerFigureOverlayImage plannerFigureOverlayImage--axilla-gray" aria-hidden="true">
-              <img src="data:," data-int-svg-original="img/INT/FRAUEN_FRONT/FR_RS_ACHSELN.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureOverlayAxilla" class="plannerFigureOverlayImage" aria-hidden="true">
               <img src="img/INT/FRAUEN_FRONT/FR_FRONT_GR_KONTUR.svg" alt="" loading="lazy" decoding="async" fetchpriority="low" id="plannerFigureFrontline" class="plannerFigureFrontline" aria-hidden="true">
               <div class="plannerSketch" id="plannerSketch"></div>
             </div>
@@ -4334,6 +4254,7 @@
   const plannerFaceUndoBtn = document.getElementById("plannerFaceUndoBtn");
   const plannerKonvaStageEl = document.getElementById("plannerKonvaStage");
   const plannerBackSketch = document.getElementById("plannerBackSketch");
+  const plannerFigureOverlayUpperlip = document.getElementById("plannerFigureOverlayUpperlip");
   const plannerFigureOverlayAxilla = document.getElementById("plannerFigureOverlayAxilla");
   const plannerFigureOverlayChin = document.getElementById("plannerFigureOverlayChin");
   const plannerFigureOverlayChest = document.getElementById("plannerFigureOverlayChest");
@@ -4352,6 +4273,7 @@
   const plannerFigureFrontline = document.getElementById("plannerFigureFrontline");
   const plannerFigureSceneViews = ["front", "back", "face"];
   const plannerFrontOverlayElsByPartKey = {
+    OBERLIPPE:plannerFigureOverlayUpperlip,
     HALS:plannerFigureOverlayChin,
     BRUSTBEREICH:plannerFigureOverlayChest,
     HANDE_L:plannerFigureOverlayHands,
@@ -4370,7 +4292,7 @@
     ACHSELN_GRAY:plannerFigureOverlayAxillaGray
   };
   const plannerScenePartKeysByView = {
-    front:["HALS", "BRUSTBEREICH", "HANDE_L", "HANDE_R", "FUSSE_L", "FUSSE_R", "ACHSELN_MAIN", "ACHSELN_GRAY", "OBERARME_MAIN", "UNTERARME_MAIN", "BAUCH_MEDIA_LN", "BAUCH", "BIKINI_MAIN", "OBERSCH_MAIN", "UNTERSCH_MAIN", "INTIM_KOM_POF"],
+    front:["OBERLIPPE", "HALS", "BRUSTBEREICH", "HANDE_L", "HANDE_R", "FUSSE_L", "FUSSE_R", "ACHSELN_MAIN", "ACHSELN_GRAY", "OBERARME_MAIN", "UNTERARME_MAIN", "BAUCH_MEDIA_LN", "BAUCH", "BIKINI_MAIN", "OBERSCH_MAIN", "UNTERSCH_MAIN", "INTIM_KOM_POF"],
     back:["NACKEN", "OBERER_RUECKEN", "UNTERER_RUECKEN", "POBACKEN", "OBERARME_MAIN", "UNTERARME_MAIN", "HANDE_L", "HANDE_R", "FUSSE_L", "FUSSE_R", "OBERSCH_MAIN", "UNTERSCH_MAIN", "INTIM_KOM_POF", "ACHSELN_MAIN", "ACHSELN_GRAY"],
     face:["HALS", "NACKEN", "KINN", "WANGEN", "KOTELETTEN", "ZWISCHENBRAUEN", "OBERLIPPE"]
   };
@@ -4390,12 +4312,8 @@
   let plannerScrollSnapPointerDown = false;
   let plannerScrollSnapPendingView = null;
   let plannerScrollSnapLastKnownLeft = 0;
-  let plannerScrollSnapLastSettlingLeft = 0;
-  let plannerScrollSnapStableFrames = 0;
   let plannerScrollSnapMuteTimer = null;
   let plannerScrollSnapCommitView = null;
-  let plannerProgrammaticViewLocked = false;
-  let plannerQueuedProgrammaticView = null;
   let plannerTapFeedbackTimer = null;
   let plannerModeSwitchUsesTransform = false;
   function plannerAllRenderedSketchHosts(){
@@ -4419,47 +4337,20 @@
     console.info(`[planner] ${label}:`, payload);
   }
   function plannerScheduleScrollSnapSettle(delay = 220){
-    void delay;
     if(plannerScrollSnapSettleTimer){
       clearTimeout(plannerScrollSnapSettleTimer);
+    }
+    plannerScrollSnapSettleTimer = setTimeout(() => {
       plannerScrollSnapSettleTimer = null;
-    }
-    if(plannerScrollSnapRaf){
-      cancelAnimationFrame(plannerScrollSnapRaf);
-      plannerScrollSnapRaf = null;
-    }
-    plannerScrollSnapStableFrames = 0;
-    plannerScrollSnapLastSettlingLeft = plannerScrollSnapLastKnownLeft;
-    const settleTick = () => {
-      plannerScrollSnapRaf = null;
-      if(plannerViewTransport !== "scroll-snap" || plannerScrollSnapMuted) return;
-      if(!(plannerFigureViewportScroll instanceof HTMLElement)) return;
-      const currentLeft = plannerFigureViewportScroll.scrollLeft || 0;
-      plannerScrollSnapLastKnownLeft = currentLeft;
-      if(plannerScrollSnapPointerDown){
-        plannerScrollSnapStableFrames = 0;
-        plannerScrollSnapLastSettlingLeft = currentLeft;
-        plannerScrollSnapRaf = requestAnimationFrame(settleTick);
-        return;
-      }
-      if(Math.abs(currentLeft - plannerScrollSnapLastSettlingLeft) <= 0.5){
-        plannerScrollSnapStableFrames += 1;
-      } else {
-        plannerScrollSnapStableFrames = 0;
-      }
-      plannerScrollSnapLastSettlingLeft = currentLeft;
-      if(plannerScrollSnapStableFrames >= 3){
-        plannerDebugScrollLog("settleStable", {
+      if(!plannerScrollSnapPointerDown){
+        plannerDebugScrollLog("settleTimerFire", {
           scrollLeft:plannerScrollSnapLastKnownLeft,
           pendingView:plannerScrollSnapPendingView,
           muted:plannerScrollSnapMuted
         });
         plannerCommitScrollSnapSettledView({ syncOnly:true });
-        return;
       }
-      plannerScrollSnapRaf = requestAnimationFrame(settleTick);
-    };
-    plannerScrollSnapRaf = requestAnimationFrame(settleTick);
+    }, delay);
   }
   function plannerSetScrollSnapMuted(active, reason = ""){
     plannerScrollSnapMuted = !!active;
@@ -4499,15 +4390,7 @@
   }
   function plannerCommitScrollSnapSettledView(options = {}){
     if(plannerViewTransport !== "scroll-snap") return;
-    if(plannerScrollSnapRaf){
-      cancelAnimationFrame(plannerScrollSnapRaf);
-      plannerScrollSnapRaf = null;
-    }
-    plannerScrollSnapStableFrames = 0;
-    const nextView =
-      plannerFrauenViewOrder[plannerScrollSnapIndex()] ||
-      plannerScrollSnapPendingView ||
-      "front";
+    const nextView = plannerScrollSnapPendingView || plannerFrauenViewOrder[plannerScrollSnapIndex()] || "front";
     plannerScrollSnapPendingView = null;
     plannerSetSwipingState(false);
     if(plannerScrollSnapCommitView === nextView){
@@ -4515,7 +4398,6 @@
       if(options.syncOnly && nextView === plannerFrauenView){
         plannerSyncScrollSnapHotspots(activeLaserMode());
       }
-      plannerReleaseProgrammaticViewLock(nextView);
       return;
     }
     plannerScrollSnapCommitView = nextView;
@@ -4526,54 +4408,14 @@
     });
     if(nextView !== plannerFrauenView){
       setPlannerFrauenView(nextView, { sourceTransport:"scroll-snap" });
-      plannerAfterViewSettled(() => {
-        plannerReleaseProgrammaticViewLock(nextView);
-      });
       return;
     }
     if(options.syncOnly){
       plannerSyncScrollSnapHotspots(activeLaserMode());
     }
-    plannerReleaseProgrammaticViewLock(nextView);
-  }
-  function plannerReleaseProgrammaticViewLock(resolvedView){
-    plannerProgrammaticViewLocked = false;
-    plannerQueuedProgrammaticView = null;
-  }
-  function plannerAfterViewSettled(callback){
-    if(typeof callback !== "function") return;
-    const waitForSettle = () => {
-      if(plannerViewTransitionActive){
-        requestAnimationFrame(waitForSettle);
-        return;
-      }
-      requestAnimationFrame(() => {
-        if(plannerViewTransitionActive){
-          waitForSettle();
-          return;
-        }
-        requestAnimationFrame(() => {
-          if(plannerViewTransitionActive){
-            waitForSettle();
-            return;
-          }
-          callback();
-        });
-      });
-    };
-    waitForSettle();
   }
   function plannerProgrammaticViewChange(view, options = {}){
     const nextView = plannerFrauenViewOrder.includes(view) ? view : "front";
-
-    if(plannerProgrammaticViewLocked){
-      plannerQueuedProgrammaticView = null;
-      plannerDebugScrollLog("programmaticScrollIgnored", { targetView:nextView });
-      return;
-    }
-
-    plannerProgrammaticViewLocked = true;
-    plannerQueuedProgrammaticView = null;
     plannerScrollSnapPendingView = nextView;
     plannerSetSwipingState(false);
     plannerDebugScrollLog("programmaticScroll", { targetView:nextView });
@@ -4588,7 +4430,6 @@
     plannerModeSwitchUsesTransform = !!active;
     if(plannerFigureWrap){
       plannerFigureWrap.dataset.plannerTransport = active ? "transform" : "scroll-snap";
-      plannerFigureWrap.classList.toggle("is-mode-switching", !!active);
     }
   }
   function plannerScenePartKeysForView(view){
@@ -4637,7 +4478,7 @@
     if(safeTransport === "scroll-snap"){
       void isSlideMode;
       void viewportWidth;
-      return 0;
+      return 8;
     }
     if(isSlideMode){
       return Math.max(72, Math.min(96, Math.round(viewportWidth * 0.2)));
@@ -4747,27 +4588,15 @@
       const base = plannerCreateSceneImage("plannerFigureBase");
       frame.appendChild(base);
       const overlayElsByPartKey = {};
-      let axillaMainOverlay = null;
-      let axillaGrayOverlay = null;
       plannerScenePartKeysForView(view).forEach((partKey) => {
         const overlay = plannerCreateSceneImage("plannerFigureOverlayImage");
         if(partKey === "ACHSELN_MAIN") overlay.classList.add("plannerFigureOverlayImage--axilla-main");
         if(partKey === "ACHSELN_GRAY") overlay.classList.add("plannerFigureOverlayImage--axilla-gray-dynamic");
         overlayElsByPartKey[partKey] = overlay;
-        if(partKey === "ACHSELN_MAIN"){
-          axillaMainOverlay = overlay;
-          return;
-        }
-        if(partKey === "ACHSELN_GRAY"){
-          axillaGrayOverlay = overlay;
-          return;
-        }
         frame.appendChild(overlay);
       });
       const custom = plannerCreateSceneImage("plannerFigureOverlayImage");
       frame.appendChild(custom);
-      if(axillaGrayOverlay) frame.appendChild(axillaGrayOverlay);
-      if(axillaMainOverlay) frame.appendChild(axillaMainOverlay);
       const frontline = plannerCreateSceneImage("plannerFigureFrontline");
       frame.appendChild(frontline);
       plannerFigureTrackScroll.appendChild(scene);
@@ -4841,8 +4670,6 @@
     frame.appendChild(base);
     const selectedSet = plannerSelectedByMode[safeMode] || new Set();
     const overlaySrcMap = ((plannerHoverOverlaySrcByModeAndView[safeMode] || {})[safeView]) || {};
-    let axillaMainOverlay = null;
-    let axillaGrayOverlay = null;
     plannerActivePartKeysForView(safeMode, safeView, selectedSet).forEach((partKey) => {
       const src = overlaySrcMap[partKey] || "";
       if(!src) return;
@@ -4851,18 +4678,8 @@
       if(partKey === "ACHSELN_GRAY") overlay.classList.add("plannerFigureOverlayImage--axilla-gray-dynamic");
       setIntResponsiveImageSrc(overlay, src);
       overlay.classList.add("is-visible");
-      if(partKey === "ACHSELN_MAIN"){
-        axillaMainOverlay = overlay;
-        return;
-      }
-      if(partKey === "ACHSELN_GRAY"){
-        axillaGrayOverlay = overlay;
-        return;
-      }
       frame.appendChild(overlay);
     });
-    if(axillaGrayOverlay) frame.appendChild(axillaGrayOverlay);
-    if(axillaMainOverlay) frame.appendChild(axillaMainOverlay);
     const frontline = plannerCreateSceneImage("plannerFigureFrontline");
     const frontlineSrc = ((plannerFrontlineByModeAndView[safeMode] || {})[safeView]) || "";
     if(frontlineSrc){
@@ -4886,23 +4703,19 @@
     const ghostScene = plannerCreateModeSwitchGhostScene(targetMode, "front");
     const gapPx = plannerSyncSceneGap(currentView);
     const transition = plannerTrackTransitionConfig();
-    let startOffsetX = 0;
-    let targetOffsetX = 0;
     if(targetMode === "frauen"){
       const currentScene = plannerViewScenes[currentView] && plannerViewScenes[currentView].container;
       plannerFigureTrack.insertBefore(ghostScene, currentScene || plannerFigureTrack.firstChild || null);
-      startOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
-      targetOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
+      const startOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
+      const targetOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
+      plannerRunModeSwitchTransform(startOffsetX, targetOffsetX, transition);
     } else {
       const currentScene = plannerViewScenes[currentView] && plannerViewScenes[currentView].container;
       plannerFigureTrack.insertBefore(ghostScene, currentScene ? currentScene.nextSibling : null);
-      startOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
-      targetOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
-    }
-    plannerModeSwitchFrame1 = requestAnimationFrame(() => {
-      plannerModeSwitchFrame1 = null;
+      const startOffsetX = plannerTrackOffsetPx(currentIndex, { gapPx, view:currentView });
+      const targetOffsetX = plannerTrackOffsetPx(currentIndex + 1, { gapPx, view:currentView });
       plannerRunModeSwitchTransform(startOffsetX, targetOffsetX, transition);
-    });
+    }
     plannerModeSwitchTimer = setTimeout(() => {
       plannerModeSwitchTimer = null;
       if(typeof onDone === "function") onDone();
@@ -4924,6 +4737,7 @@
     });
     [
       plannerFigureImage,
+      plannerFigureOverlayUpperlip,
       plannerFigureOverlayAxilla,
       plannerFigureOverlayChin,
       plannerFigureOverlayChest,
@@ -4964,27 +4778,15 @@
       const base = plannerCreateSceneImage("plannerFigureBase");
       const overlayElsByPartKey = {};
       frame.appendChild(base);
-      let axillaMainOverlay = null;
-      let axillaGrayOverlay = null;
       plannerScenePartKeysForView(view).forEach((partKey) => {
         const overlay = plannerCreateSceneImage("plannerFigureOverlayImage");
         if(partKey === "ACHSELN_MAIN") overlay.classList.add("plannerFigureOverlayImage--axilla-main");
         if(partKey === "ACHSELN_GRAY") overlay.classList.add("plannerFigureOverlayImage--axilla-gray-dynamic");
         overlayElsByPartKey[partKey] = overlay;
-        if(partKey === "ACHSELN_MAIN"){
-          axillaMainOverlay = overlay;
-          return;
-        }
-        if(partKey === "ACHSELN_GRAY"){
-          axillaGrayOverlay = overlay;
-          return;
-        }
         frame.appendChild(overlay);
       });
       const custom = plannerCreateSceneImage("plannerFigureOverlayImage");
       frame.appendChild(custom);
-      if(axillaGrayOverlay) frame.appendChild(axillaGrayOverlay);
-      if(axillaMainOverlay) frame.appendChild(axillaMainOverlay);
       const frontline = plannerCreateSceneImage("plannerFigureFrontline");
       frame.appendChild(frontline);
       plannerFigureTrack.appendChild(scene);
@@ -5037,10 +4839,6 @@
   const plannerCopyBtn = document.getElementById("plannerCopyBtn");
   const plannerBuyBtn = document.getElementById("plannerBuyBtn");
   const plannerTermBtn = document.getElementById("plannerTermBtn");
-  const bookingPromptModal = document.getElementById("bookingPromptModal");
-  const bookingPromptDialog = bookingPromptModal ? bookingPromptModal.querySelector(".bookingPromptDialog") : null;
-  const bookingPromptTitle = document.getElementById("bookingPromptTitle");
-  const bookingPromptActionBtn = document.getElementById("bookingPromptActionBtn");
   const plannerZonesTitle = document.getElementById("planner_zones_title");
   const plannerZonesSub = document.getElementById("planner_zones_sub");
   const plannerOrderTitle = document.getElementById("planner_order_title");
@@ -5071,7 +4869,6 @@
   let videoTouchStartY = null;
   let videoMouseTimer = null;
   let videoScrollLockY = 0;
-  let bookingPromptOpenTimer = null;
   let plannerFrauenView = "front";
   let plannerCommittedSceneView = "front";
   let plannerViewSwitchOutTimer = null;
@@ -6065,6 +5862,7 @@
   const plannerHoverOverlaySrcByModeAndView = {
     frauen:{
       front:{
+        OBERLIPPE:"img/INT/FRAUEN_FRONT/FR_RS_OBERLIPPE.svg",
         HALS:"img/INT/FRAUEN_FRONT/FR_RS_HALS.svg",
         BRUSTBEREICH:"img/INT/FRAUEN_FRONT/FR_RS_Brustbereich.svg",
         HANDE_L:"img/INT/FRAUEN_FRONT/FR_RS_HANDE.svg",
@@ -6072,7 +5870,6 @@
         FUSSE_L:"img/INT/FRAUEN_FRONT/FR_RS_FUSSE.svg",
         FUSSE_R:"img/INT/FRAUEN_FRONT/FR_RS_FUSSE.svg",
         ACHSELN_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_ACHSELN.svg",
-        ACHSELN_GRAY:"img/INT/FRAUEN_FRONT/FR_GR_ACHSELN_MAIN.svg",
         OBERARME_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_OBERARME_MAIN.svg",
         UNTERARME_MAIN:"img/INT/FRAUEN_FRONT/FR_RS_UNTERARME_MAIN.svg",
         BAUCH_MEDIA_LN:"img/INT/FRAUEN_FRONT/FR_RS_BAUCH_MEDIA_LN.svg",
@@ -6117,8 +5914,7 @@
         HANDE_R:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_HANDEN.svg",
         FUSSE_L:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_FUSSE.svg",
         FUSSE_R:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_FUSSE.svg",
-        ACHSELN_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASHELN.svg",
-        ACHSELN_GRAY:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_GR_ASHELN_NEW.svg",
+        ACHSELN_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASHELN.svg.svg",
         OBERARME_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_OBERARME.svg",
         UNTERARME_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_UNTERARME.svg",
         BAUCH_MEDIA_LN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_BAUCH_MEDELINE.svg",
@@ -6142,7 +5938,7 @@
         OBERSCH_MAIN:"img/INT/HERREN_BACK/HERREN_BACK_BR_OBERSCH.svg",
         UNTERSCH_MAIN:"img/INT/HERREN_BACK/HERREN_BACK_BR_UNTERSCH.svg",
         INTIM_KOM_POF:"img/INT/HERREN_BACK/HERREN_BACK_BR_INTIM_PROF.svg",
-        ACHSELN_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASHELN.svg",
+        ACHSELN_MAIN:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASHELN.svg.svg",
         ACHSELN_GRAY:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_GR_ASHELN_NEW.svg"
       },
       face:{
@@ -6158,6 +5954,7 @@
   };
   const plannerStaticFrontOverlaySrcByMode = {
     frauen:{
+      upperlip:"img/INT/FRAUEN_FRONT/FR_RS_OBERLIPPE.svg",
       axilla:"img/INT/FRAUEN_FRONT/FR_RS_ACHSELN.svg",
       chin:"img/INT/FRAUEN_FRONT/FR_RS_HALS.svg",
       chest:"img/INT/FRAUEN_FRONT/FR_RS_Brustbereich.svg",
@@ -6174,7 +5971,7 @@
       intim:"img/INT/FRAUEN_FRONT/FR_RS_INTIM_KOM_POF.svg"
     },
     herren:{
-      axilla:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASHELN.svg",
+      axilla:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_ASHELN.svg.svg",
       axillaGray:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_GR_ASHELN_NEW.svg",
       chin:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_HALS.svg.svg",
       chest:"img/INT/HERREN_FRONT/HERREN%20-%20FRONT_BR_BRUST.svg",
@@ -6353,6 +6150,13 @@
       const zoneParts = zoneMap[zoneId] || [];
       zoneParts.forEach((partKey) => parts.add(partKey));
     });
+    if(view === "back"){
+      const backKeepsAxilla = safeSelected.has("upperback");
+      const backUpperarmsKeepAxilla = !backKeepsAxilla && safeSelected.has("upperarms") && !safeSelected.has("axilla");
+      if(backKeepsAxilla || backUpperarmsKeepAxilla){
+        parts.add("ACHSELN_GRAY");
+      }
+    }
     return parts;
   }
   function plannerSelectedOverlaySourcesForView(mode, view, selectedSet){
@@ -6389,20 +6193,21 @@
       if(safeSelected.has("untersch")) activeParts.add("UNTERSCH_MAIN");
       if(safeSelected.has("bikini")) activeParts.add("BIKINI_MAIN");
       if(safeSelected.has("intim")) activeParts.add("INTIM_KOM_POF");
+      const chestKeepsAxillaGray = safeSelected.has("chest");
+      const frontUpperarmsKeepAxillaGray = !chestKeepsAxillaGray && safeSelected.has("upperarms") && !safeSelected.has("axilla");
+      if(chestKeepsAxillaGray || frontUpperarmsKeepAxillaGray){
+        activeParts.add("ACHSELN_GRAY");
+      }
       return activeParts;
     }
     plannerSelectedPartsForView(mode, view, safeSelected).forEach((partKey) => activeParts.add(partKey));
     return activeParts;
   }
   function plannerSceneOverlayElementsForPartKey(view, partKey){
-    const result = [];
-    [plannerViewScenes, plannerScrollViewScenes].forEach((sceneGroup) => {
-      const scene = sceneGroup[view];
-      if(!scene || !scene.overlayElsByPartKey) return;
-      const el = scene.overlayElsByPartKey[partKey];
-      if(el) result.push(el);
-    });
-    return result;
+    const scene = plannerViewScenes[view];
+    if(!scene || !scene.overlayElsByPartKey) return [];
+    const el = scene.overlayElsByPartKey[partKey];
+    return el ? [el] : [];
   }
   function plannerSceneSourceGroupSync(sceneGroup, mode){
     plannerFigureSceneViews.forEach((view) => {
@@ -6475,10 +6280,6 @@
           const el = scene.overlayElsByPartKey && scene.overlayElsByPartKey[partKey];
           if(el) plannerSetOverlayVisible(el, true);
         });
-        if(view === "front" || view === "back"){
-          const passiveAxillaGray = scene.overlayElsByPartKey && scene.overlayElsByPartKey.ACHSELN_GRAY;
-          if(passiveAxillaGray) plannerSetOverlayVisible(passiveAxillaGray, true);
-        }
         if(scene.frontline){
           scene.frontline.classList.add("is-visible");
         }
@@ -6528,24 +6329,12 @@
     const gap = plannerSceneGapPx(plannerFrauenView, "scroll-snap");
     const step = Math.max(1, width + gap);
     const scrollLeft = plannerFigureViewportScroll.scrollLeft || 0;
-    return Math.max(0, Math.min(plannerFrauenViewOrder.length - 1, Math.round(scrollLeft / step)));
+    return Math.max(0, Math.min(plannerFrauenViewOrder.length - 1, Math.floor((scrollLeft + (step * 0.35)) / step)));
   }
   function plannerHandleScrollSnapScroll(){
     if(plannerViewTransport !== "scroll-snap" || plannerScrollSnapMuted) return;
     if(!(plannerFigureViewportScroll instanceof HTMLElement)) return;
     plannerScrollSnapLastKnownLeft = plannerFigureViewportScroll.scrollLeft || 0;
-    if(plannerProgrammaticViewLocked && plannerScrollSnapPendingView){
-      plannerDebugScrollLog("scrollLocked", {
-        scrollLeft:plannerScrollSnapLastKnownLeft,
-        pendingView:plannerScrollSnapPendingView,
-        pointerDown:plannerScrollSnapPointerDown
-      });
-      if(plannerScrollSnapPointerDown){
-        plannerSetSwipingState(true);
-      }
-      plannerScheduleScrollSnapSettle();
-      return;
-    }
     const calculatedIndex = plannerScrollSnapIndex();
     const pendingView = plannerFrauenViewOrder[calculatedIndex] || "front";
     plannerScrollSnapPendingView = pendingView;
@@ -6558,7 +6347,7 @@
     if(plannerScrollSnapPointerDown){
       plannerSetSwipingState(true);
     }
-    plannerScheduleScrollSnapSettle();
+    plannerScheduleScrollSnapSettle(220);
   }
   function plannerSyncScrollSnapPosition(view, options = {}){
     if(plannerViewTransport !== "scroll-snap" && !options.force) return;
@@ -6870,9 +6659,7 @@
       premiumTag:"Premium Paket",
       mergeArms:"Arme komplett",
       mergeLegs:"Beine komplett",
-      premiumExtraSaved:"Um 30 € günstiger",
-      termPromptTitle:"Bitte zuerst Zonen waehlen",
-      termPromptAction:"OK"
+      premiumExtraSaved:"Um 30 € günstiger"
     },
     en:{
       zonesTitle:"Choose zones",
@@ -6894,9 +6681,7 @@
       premiumTag:"Premium Package",
       mergeArms:"Arms pack",
       mergeLegs:"Legs pack",
-      premiumExtraSaved:"Better value by €30",
-      termPromptTitle:"Please choose zones first",
-      termPromptAction:"OK"
+      premiumExtraSaved:"Better value by €30"
     },
     ru:{
       zonesTitle:"Выберите зоны",
@@ -6918,9 +6703,7 @@
       premiumTag:"Премиум пакет",
       mergeArms:"Руки комплект",
       mergeLegs:"Ноги комплект",
-      premiumExtraSaved:"Выгоднее на 30 €",
-      termPromptTitle:"Пожалуйста, сначала выберите зоны",
-      termPromptAction:"OK"
+      premiumExtraSaved:"Выгоднее на 30 €"
     }
   };
 
@@ -7554,10 +7337,6 @@
       closeVideoModal();
       return;
     }
-    if(bookingPromptModal && !bookingPromptModal.hidden){
-      closeBookingPrompt({ startGuide:false });
-      return;
-    }
     if(legalModal && !legalModal.hidden){
       closeLegalModal();
       return;
@@ -7728,8 +7507,7 @@
     return idx >= 0 ? idx : 0;
   }
   function movePlannerFrauenView(step){
-    const baseView = plannerQueuedProgrammaticView || plannerScrollSnapPendingView || plannerFrauenView;
-    const current = plannerFrauenViewOrder.indexOf(baseView);
+    const current = plannerFrauenViewIndex();
     const next = Math.max(0, Math.min(plannerFrauenViewOrder.length - 1, current + step));
     if(next === current) return;
     try{
@@ -8108,32 +7886,10 @@
     );
   }
   function plannerKonvaAvailable(){
-    return !!(plannerIsEditMode() && window.Konva && plannerKonvaStageEl instanceof HTMLElement && plannerFaceJoystick instanceof HTMLElement);
-  }
-  function plannerDisposeKonvaStage(){
-    if(plannerKonvaTransformer && typeof plannerKonvaTransformer.destroy === "function"){
-      plannerKonvaTransformer.destroy();
-    }
-    if(plannerKonvaLayer && typeof plannerKonvaLayer.destroy === "function"){
-      plannerKonvaLayer.destroy();
-    }
-    if(plannerKonvaStage && typeof plannerKonvaStage.destroy === "function"){
-      plannerKonvaStage.destroy();
-    }
-    if(plannerKonvaStageEl instanceof HTMLElement){
-      plannerKonvaStageEl.innerHTML = "";
-    }
-    plannerKonvaStage = null;
-    plannerKonvaLayer = null;
-    plannerKonvaTransformer = null;
-    plannerKonvaBoundMode = "";
-    plannerKonvaBoundView = "";
+    return !!(window.Konva && plannerKonvaStageEl instanceof HTMLElement && plannerFaceJoystick instanceof HTMLElement);
   }
   function plannerEnsureKonvaStage(){
-    if(!plannerKonvaAvailable()){
-      plannerDisposeKonvaStage();
-      return false;
-    }
+    if(!plannerKonvaAvailable()) return false;
     const width = Math.max(1, Math.floor(plannerKonvaStageEl.clientWidth || 160));
     const height = Math.max(1, Math.floor(plannerKonvaStageEl.clientHeight || 138));
     if(!plannerKonvaStage){
@@ -8192,10 +7948,6 @@
     schedulePlannerRender(mode);
   }
   function plannerSyncKonvaEditor(mode = activeLaserMode()){
-    if(!plannerIsEditMode()){
-      plannerDisposeKonvaStage();
-      return;
-    }
     if(!plannerEnsureKonvaStage() || !plannerKonvaLayer || !plannerKonvaTransformer) return;
     const width = plannerKonvaStage.width();
     const height = plannerKonvaStage.height();
@@ -9445,7 +9197,6 @@
     };
   }
   function plannerHistoryPush(_reason = ""){
-    if(!plannerIsEditMode()) return;
     if(plannerHistoryRestoring) return;
     const snapshot = plannerHistorySnapshot();
     const serialized = JSON.stringify(snapshot);
@@ -9515,7 +9266,6 @@
     }
   }
   function plannerUndoLastAction(){
-    if(!plannerIsEditMode()) return false;
     if(!plannerUndoStack.length) return false;
     const currentSnapshot = plannerHistorySnapshot();
     const snapshot = plannerUndoStack.pop();
@@ -9529,7 +9279,6 @@
     return applied;
   }
   function plannerRedoLastAction(){
-    if(!plannerIsEditMode()) return false;
     if(!plannerRedoStack.length) return false;
     const currentSnapshot = plannerHistorySnapshot();
     const snapshot = plannerRedoStack.pop();
@@ -10020,18 +9769,16 @@
     clearPlannerGuideOverlay();
   }
   function clearPlannerGuideOverlay(){
-    [plannerViewScenes, plannerScrollViewScenes].forEach((sceneGroup) => {
-      plannerFigureSceneViews.forEach((view) => {
-        const scene = sceneGroup[view];
-        if(!scene) return;
-        Object.values(scene.overlayElsByPartKey || {}).forEach((el) => {
-          if(!el) return;
-          el.classList.remove("is-guide-visible", "is-guide-bikini", "is-guide-intim");
-        });
-        if(scene.custom){
-          scene.custom.classList.remove("is-guide-visible");
-        }
+    plannerFigureSceneViews.forEach((view) => {
+      const scene = plannerViewScenes[view];
+      if(!scene) return;
+      Object.values(scene.overlayElsByPartKey || {}).forEach((el) => {
+        if(!el) return;
+        el.classList.remove("is-guide-visible", "is-guide-bikini", "is-guide-intim");
       });
+      if(scene.custom){
+        scene.custom.classList.remove("is-guide-visible");
+      }
     });
     plannerClearDynamicOverlayClasses({ clearVisible:false, clearGuide:true });
   }
@@ -10061,15 +9808,13 @@
   function plannerClearDynamicOverlayClasses(options = {}){
     const clearVisible = options.clearVisible !== false;
     const clearGuide = options.clearGuide !== false;
-    [plannerViewScenes, plannerScrollViewScenes].forEach((sceneGroup) => {
-      plannerFigureSceneViews.forEach((view) => {
-        const scene = sceneGroup[view];
-        if(!scene) return;
-        Object.values(scene.overlayElsByPartKey || {}).forEach((el) => {
-          if(!el) return;
-          if(clearVisible) el.classList.remove("is-visible");
-          if(clearGuide) el.classList.remove("is-guide-visible");
-        });
+    plannerFigureSceneViews.forEach((view) => {
+      const scene = plannerViewScenes[view];
+      if(!scene) return;
+      Object.values(scene.overlayElsByPartKey || {}).forEach((el) => {
+        if(!el) return;
+        if(clearVisible) el.classList.remove("is-visible");
+        if(clearGuide) el.classList.remove("is-guide-visible");
       });
     });
   }
@@ -10142,6 +9887,12 @@
   function plannerHoverPartsForZone(mode, zoneId){
     const map = plannerHoverPartsByZone[mode] || {};
     const baseParts = Array.isArray(map[zoneId]) ? [...map[zoneId]] : [];
+    if((mode === "frauen" || mode === "herren") && plannerFrauenView === "back" && (zoneId === "upperarms" || zoneId === "upperback")){
+      const selectedSet = plannerSelectedByMode[mode] || new Set();
+      if(!selectedSet.has("axilla") && !baseParts.includes("ACHSELN_GRAY")){
+        baseParts.push("ACHSELN_GRAY");
+      }
+    }
     return baseParts;
   }
   function partKeyFromFrauenHoverRatio(rx, ry){
@@ -10547,45 +10298,6 @@
       text = text.replace(`{${name}}`, params[name]);
     });
     return text;
-  }
-  function syncBookingPromptCopy(){
-    if(bookingPromptTitle) bookingPromptTitle.textContent = plannerText("termPromptTitle");
-    if(bookingPromptActionBtn) bookingPromptActionBtn.textContent = plannerText("termPromptAction");
-  }
-  function positionBookingPromptOverFigure(){
-    if(!bookingPromptModal || !bookingPromptDialog) return;
-    const vw = window.innerWidth || document.documentElement.clientWidth || 0;
-    let left = vw * 0.5;
-    if(plannerFigureWrap){
-      const rect = plannerFigureWrap.getBoundingClientRect();
-      if(rect.width > 0 && rect.height > 0){
-        left = rect.left + (rect.width * 0.5);
-      }
-    }
-    bookingPromptModal.style.setProperty("--booking-prompt-left", `${Math.round(left)}px`);
-  }
-  function openBookingPrompt(){
-    if(bookingPromptOpenTimer){
-      clearTimeout(bookingPromptOpenTimer);
-      bookingPromptOpenTimer = null;
-    }
-    if(!bookingPromptModal) return;
-    syncBookingPromptCopy();
-    positionBookingPromptOverFigure();
-    bookingPromptModal.hidden = false;
-    requestAnimationFrame(() => bookingPromptModal.classList.add("is-open"));
-  }
-  function closeBookingPrompt(options = {}){
-    if(bookingPromptOpenTimer){
-      clearTimeout(bookingPromptOpenTimer);
-      bookingPromptOpenTimer = null;
-    }
-    if(!bookingPromptModal || bookingPromptModal.hidden) return;
-    void options;
-    bookingPromptModal.classList.remove("is-open");
-    window.setTimeout(() => {
-      if(bookingPromptModal) bookingPromptModal.hidden = true;
-    }, 220);
   }
   function plannerPersistState(){
     const payload = {
@@ -12559,27 +12271,11 @@
     if(afterGhost){
       plannerSetModeSwitchTransformState(true);
       applyPlannerFigureMode(mode, { animate:false });
-      plannerSyncScrollSnapPosition("front", {
-        instant:true,
-        force:true,
-        source:"mode-switch-afterghost"
-      });
+      plannerSyncScrollSnapPosition("front", { instant:true, force:true, source:"mode-switch-afterghost" });
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          plannerSetModeSwitchTransformState(false);
-          renderPlannerViewState(mode);
-          schedulePlannerRender(mode);
-        });
+        plannerSetModeSwitchTransformState(false);
       });
       plannerFocusInteractiveForSwitch(mode);
-      applyModePricing(mode);
-      plannerEnsurePreparedDynamicOverlays(mode, plannerFrauenView);
-      warmupPlannerResponsiveAssets({ mode, view:plannerFrauenView });
-      plannerPruneDynamicOverlays(mode, plannerFrauenView);
-      clampPlannerPan(mode);
-      document.documentElement.dataset.laserMode = mode;
-      plannerPersistState();
-      return true;
     } else if(!shouldResetViewToFront){
       applyPlannerFigureMode(mode);
     }
@@ -12894,37 +12590,10 @@
     plannerTermBtn.addEventListener("click", (event) => {
       const mode = activeLaserMode();
       const selectedSet = plannerSelectedByMode[mode] || new Set();
-      if(!selectedSet.size){
-        event.preventDefault();
-        if(typeof plannerTermBtn.blur === "function") plannerTermBtn.blur();
-        if(mobileVideoMq && mobileVideoMq.matches && interactiveSection){
-          interactiveSection.scrollIntoView({ behavior:"smooth", block:"start" });
-          if(bookingPromptOpenTimer){
-            clearTimeout(bookingPromptOpenTimer);
-          }
-          bookingPromptOpenTimer = window.setTimeout(() => {
-            bookingPromptOpenTimer = null;
-            openBookingPrompt();
-          }, 260);
-        } else {
-          openBookingPrompt();
-        }
-        return;
-      }
       const url = plannerResolveTermUrl(mode, selectedSet);
       event.preventDefault();
       if(typeof plannerTermBtn.blur === "function") plannerTermBtn.blur();
       openPlannerExternalUrl(url);
-    });
-  }
-  if(bookingPromptModal){
-    bookingPromptModal.addEventListener("click", (event) => {
-      if(event.target.closest("[data-booking-prompt-close]")) closeBookingPrompt({ startGuide:false });
-    });
-  }
-  if(bookingPromptActionBtn){
-    bookingPromptActionBtn.addEventListener("click", () => {
-      closeBookingPrompt({ startGuide:false });
     });
   }
   if(plannerOrderList){
@@ -13245,7 +12914,8 @@
     const existing = document.head.querySelector(`link[data-laser-video-preload="${src}"]`);
     if(existing) return;
     const preload = document.createElement("link");
-    preload.rel = "prefetch";
+    preload.rel = "preload";
+    preload.as = "video";
     preload.href = src;
     preload.setAttribute("data-laser-video-preload", src);
     document.head.appendChild(preload);
@@ -13374,15 +13044,11 @@
   }
 
   window.addEventListener("scroll", () => {
-    if(bookingPromptModal && !bookingPromptModal.hidden) positionBookingPromptOverFigure();
     if(menuOverlay.hidden) return;
     const y = window.scrollY;
     if(y > menuLastScrollY + 2) closeMenuOverlay();
     menuLastScrollY = y;
   }, { passive:true });
-  window.addEventListener("resize", () => {
-    if(bookingPromptModal && !bookingPromptModal.hidden) positionBookingPromptOverFigure();
-  });
 
   function normalizeText(text){
     return text
@@ -13804,7 +13470,6 @@
     if(searchEmpty) searchEmpty.textContent = m.search_empty;
     applyModePricing(activeLaserMode());
     renderPlanner(activeLaserMode());
-    syncBookingPromptCopy();
     invalidateSearchIndex();
     renderSearch(searchInput ? searchInput.value : "");
 
