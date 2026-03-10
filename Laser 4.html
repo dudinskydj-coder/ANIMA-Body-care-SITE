@@ -2848,12 +2848,27 @@
     }
     .laserSwitchSection{
       padding:26px 0 8px;
+      position:sticky;
+      top:calc(var(--headerH, 72px) + 10px);
+      z-index:18;
+      pointer-events:none;
     }
     .laserSwitchWrap{
       display:flex;
       flex-direction:column;
       align-items:center;
       gap:12px;
+      width:fit-content;
+      max-width:100%;
+      margin:0 auto;
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.82);
+      border:1px solid rgba(17,18,24,.08);
+      box-shadow:0 12px 36px rgba(17,18,24,.12);
+      backdrop-filter:saturate(160%) blur(14px);
+      -webkit-backdrop-filter:saturate(160%) blur(14px);
+      pointer-events:auto;
     }
     .laserSwitch{
       display:inline-flex;
@@ -2898,6 +2913,11 @@
       }
       .laserSwitchBtn.is-active:hover{
         color:#fff;
+      }
+    }
+    @media (min-width:921px){
+      .plannerPane:not(.plannerPane--zones) .plannerCtaRow{
+        display:grid;
       }
     }
     .laserSwitchHint{
