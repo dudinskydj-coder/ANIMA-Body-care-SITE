@@ -2440,14 +2440,14 @@
     .orderList{
       margin:18px 0 0;
       padding:0;
+      padding-right:16px;
       list-style:none;
       display:flex;
       flex-direction:column;
       gap:0;
-      flex:1 1 auto;
-      min-height:0;
-      max-height:none;
+      max-height:58vh;
       overflow:auto;
+      scrollbar-gutter:stable;
     }
     .orderItem{
       display:grid;
@@ -2703,8 +2703,6 @@
       color:rgba(17,18,24,.56);
       font-size:14px;
       line-height:1.45;
-      flex:1 1 auto;
-      min-height:0;
     }
     .orderSummary{
       margin-top:auto;
@@ -3618,6 +3616,9 @@
       opacity:1 !important;
       transform:none !important;
       transition:none !important;
+    }
+    #laser-switches{
+      scroll-margin-top:calc(var(--headerH, 72px) + 18px);
     }
     #interactive-placeholder .plannerFigureOverlayImage,
     #interactive-placeholder .plannerFigureFrontline{
