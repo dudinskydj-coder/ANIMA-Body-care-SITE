@@ -10563,19 +10563,23 @@
     const effectiveSet = selectedSet || new Set();
     const zonesById = new Map(zones.map((zone) => [zone.id, zone]));
     const activeBundles = plannerSelectedBundles(mode, effectiveSet);
-    const activeBundleByFirstZone = new Map();
-    const bundledZoneIdsToSkip = new Set();
+    const activeBundleByZoneId = new Map();
     activeBundles.forEach((bundle) => {
-      const [firstZoneId, ...restZoneIds] = bundle.zoneIds;
-      if(firstZoneId) activeBundleByFirstZone.set(firstZoneId, bundle);
-      restZoneIds.forEach((zoneId) => bundledZoneIdsToSkip.add(zoneId));
+      bundle.zoneIds.forEach((zoneId) => {
+        activeBundleByZoneId.set(zoneId, bundle);
+      });
     });
     const items = [];
+    const renderedBundleIds = new Set();
+    const selectedZoneIdsNewestFirst = Array.from(effectiveSet).reverse();
     let orderIndex = 0;
-    zones.forEach((zone) => {
-      if(!effectiveSet.has(zone.id)) return;
-      const activeBundle = activeBundleByFirstZone.get(zone.id);
+    selectedZoneIdsNewestFirst.forEach((zoneId) => {
+      const zone = zonesById.get(zoneId);
+      if(!zone) return;
+      const activeBundle = activeBundleByZoneId.get(zone.id);
       if(activeBundle){
+        if(renderedBundleIds.has(activeBundle.id)) return;
+        renderedBundleIds.add(activeBundle.id);
         const bundleZones = activeBundle.zoneIds.map((zoneId) => zonesById.get(zoneId)).filter(Boolean);
         const bundleOriginalPrice = bundleZones.reduce((sum, bundleZone) => sum + bundleZone.price, 0);
         items.push({
@@ -10589,7 +10593,6 @@
         });
         return;
       }
-      if(bundledZoneIdsToSkip.has(zone.id)) return;
       items.push({
         id:zone.id,
         label:zone.label,
@@ -10598,21 +10601,7 @@
         _orderIndex:orderIndex++
       });
     });
-    // Order rule:
-    // 1) bundles/packages first
-    // 2) larger bundles first
-    // 3) singles after bundles, preserving their normal zone order
-    const sortedItems = items.slice().sort((a, b) => {
-      const aIsBundle = (a.id || "").endsWith("_bundle");
-      const bIsBundle = (b.id || "").endsWith("_bundle");
-      if(aIsBundle !== bIsBundle) return aIsBundle ? -1 : 1;
-      if(aIsBundle && bIsBundle){
-        const sizeDiff = (b._bundleSize || 0) - (a._bundleSize || 0);
-        if(sizeDiff !== 0) return sizeDiff;
-      }
-      return (a._orderIndex || 0) - (b._orderIndex || 0);
-    });
-    return sortedItems.map((item) => {
+    return items.map((item) => {
       const { _bundleSize, _orderIndex, ...cleanItem } = item;
       return cleanItem;
     });
