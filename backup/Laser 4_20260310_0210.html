@@ -5029,7 +5029,6 @@
   let videoTouchStartY = null;
   let videoMouseTimer = null;
   let videoScrollLockY = 0;
-  let bookingPromptOpenTimer = null;
   let plannerFrauenView = "front";
   let plannerCommittedSceneView = "front";
   let plannerViewSwitchOutTimer = null;
@@ -10523,10 +10522,6 @@
     bookingPromptModal.style.setProperty("--booking-prompt-left", `${Math.round(left)}px`);
   }
   function openBookingPrompt(){
-    if(bookingPromptOpenTimer){
-      clearTimeout(bookingPromptOpenTimer);
-      bookingPromptOpenTimer = null;
-    }
     if(!bookingPromptModal) return;
     syncBookingPromptCopy();
     positionBookingPromptOverFigure();
@@ -10534,10 +10529,6 @@
     requestAnimationFrame(() => bookingPromptModal.classList.add("is-open"));
   }
   function closeBookingPrompt(options = {}){
-    if(bookingPromptOpenTimer){
-      clearTimeout(bookingPromptOpenTimer);
-      bookingPromptOpenTimer = null;
-    }
     if(!bookingPromptModal || bookingPromptModal.hidden) return;
     void options;
     bookingPromptModal.classList.remove("is-open");
@@ -12855,18 +12846,7 @@
       if(!selectedSet.size){
         event.preventDefault();
         if(typeof plannerTermBtn.blur === "function") plannerTermBtn.blur();
-        if(mobileVideoMq && mobileVideoMq.matches && interactiveSection){
-          interactiveSection.scrollIntoView({ behavior:"smooth", block:"start" });
-          if(bookingPromptOpenTimer){
-            clearTimeout(bookingPromptOpenTimer);
-          }
-          bookingPromptOpenTimer = window.setTimeout(() => {
-            bookingPromptOpenTimer = null;
-            openBookingPrompt();
-          }, 260);
-        } else {
-          openBookingPrompt();
-        }
+        openBookingPrompt();
         return;
       }
       const url = plannerResolveTermUrl(mode, selectedSet);
