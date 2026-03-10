@@ -2847,46 +2847,13 @@
       100%{ transform:translateY(0) scale(1); }
     }
     .laserSwitchSection{
-      padding:8px 0 0;
-      position:sticky;
-      top:0;
-      z-index:18;
-      pointer-events:none;
+      padding:26px 0 8px;
     }
     .laserSwitchWrap{
       display:flex;
       flex-direction:column;
       align-items:center;
       gap:12px;
-      width:fit-content;
-      max-width:100%;
-      margin:0 auto;
-      pointer-events:auto;
-      opacity:0;
-      visibility:hidden;
-      transform:translateY(calc(-100% - 26px)) scale(.94);
-      transition:
-        opacity .28s ease,
-        transform .62s cubic-bezier(.16,.84,.22,1),
-        visibility 0s linear .62s;
-      will-change:opacity, transform;
-    }
-    .laserSwitchSection.is-visible .laserSwitchWrap{
-      opacity:1;
-      visibility:visible;
-      transform:translateY(0) scale(1);
-      transition-delay:0s;
-    }
-    .laserSwitchSection.is-collapsed .laserSwitchWrap{
-      opacity:.1;
-      visibility:visible;
-      transform:translateY(calc(-100% - 18px)) scale(.9);
-      transition-duration:.24s, .34s, 0s;
-    }
-    .laserSwitchSection.is-collapsed:hover .laserSwitchWrap,
-    .laserSwitchSection.is-collapsed:focus-within .laserSwitchWrap{
-      opacity:1;
-      transform:translateY(0) scale(1);
     }
     .laserSwitch{
       display:inline-flex;
@@ -2894,12 +2861,8 @@
       gap:8px;
       padding:6px;
       border-radius:999px;
-      background:rgba(237,237,241,.96);
-      border:1px solid rgba(17,18,24,.08);
-      box-shadow:0 10px 28px rgba(17,18,24,.08);
-    }
-    .laserSwitchSection.is-collapsed .laserSwitch{
-      box-shadow:none;
+      background:#f3f3f6;
+      border:1px solid rgba(0,0,0,.08);
     }
     .laserSwitchBtn{
       min-width:146px;
@@ -2919,13 +2882,6 @@
       touch-action:manipulation;
       user-select:none;
     }
-    .laserSwitchSection.is-collapsed .laserSwitchBtn{
-      pointer-events:none;
-    }
-    .laserSwitchSection.is-collapsed:hover .laserSwitchBtn,
-    .laserSwitchSection.is-collapsed:focus-within .laserSwitchBtn{
-      pointer-events:auto;
-    }
     .laserSwitchBtn:hover{
       color:#111218;
     }
@@ -2942,11 +2898,6 @@
       }
       .laserSwitchBtn.is-active:hover{
         color:#fff;
-      }
-    }
-    @media (min-width:921px){
-      .plannerPane:not(.plannerPane--zones) .plannerCtaRow{
-        display:grid;
       }
     }
     .laserSwitchHint{
@@ -3669,9 +3620,6 @@
     #laser-switches{
       scroll-margin-top:calc(var(--headerH, 72px) + 18px);
     }
-    #laser-switches:not(.is-visible){
-      z-index:0;
-    }
     #interactive-placeholder .plannerFigureOverlayImage,
     #interactive-placeholder .plannerFigureFrontline{
       transition:none !important;
@@ -3866,7 +3814,7 @@
     }
     @media (max-width:767px){
       #laser-switches.section{
-        padding:6px 0 12px;
+        padding:6px 0 60px;
       }
       #interactive-placeholder.section{
         padding:0;
@@ -4111,7 +4059,7 @@
   </section>
 
   <section class="section laserSwitchSection" id="laser-switches">
-    <div class="laserSwitchWrap">
+    <div class="laserSwitchWrap reveal">
       <div class="laserSwitch" role="tablist" aria-label="Laser area selection">
         <button class="laserSwitchBtn is-active" type="button" id="laser-frauen-switch" data-laser-switch="frauen">Frauen</button>
         <button class="laserSwitchBtn" type="button" id="laser-herren-switch" data-laser-switch="herren">Herren</button>
@@ -4403,8 +4351,6 @@
   const videoClose = document.getElementById("videoClose");
   const menuFaqLink = document.getElementById("menu_faq");
   const heroBottomDock = document.getElementById("heroBottomDock");
-  const laserVideoSection = document.getElementById("laser-video-section");
-  const laserSwitchSection = document.getElementById("laser-switches");
   const interactiveSection = document.getElementById("interactive-placeholder");
   const laserSwitchButtons = Array.from(document.querySelectorAll("[data-laser-switch]"));
   const heroPrice = document.getElementById("hero_price");
@@ -4437,53 +4383,6 @@
   const plannerFaceRotateCcwBtn = document.getElementById("plannerFaceRotateCcwBtn");
   const plannerFaceRotateCwBtn = document.getElementById("plannerFaceRotateCwBtn");
   const plannerButtonInspector = document.getElementById("plannerButtonInspector");
-  let laserSwitchCollapsedAtY = 0;
-
-  function setLaserSwitchCollapsed(collapsed){
-    if(!laserSwitchSection) return;
-    const canCollapse = laserSwitchSection.classList.contains("is-visible");
-    const next = !!collapsed && canCollapse;
-    laserSwitchSection.classList.toggle("is-collapsed", next);
-    if(next){
-      laserSwitchCollapsedAtY = window.scrollY || window.pageYOffset || 0;
-    }
-  }
-
-  function collapseLaserSwitchForInteraction(){
-    if(window.innerWidth <= 920) return;
-    setLaserSwitchCollapsed(true);
-  }
-
-  function syncLaserSwitchVisibility(){
-    if(!laserSwitchSection || !interactiveSection) return;
-    const headerOffset = Math.round((headerEl ? headerEl.offsetHeight : 62) + 10);
-    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
-    const videoRect = laserVideoSection ? laserVideoSection.getBoundingClientRect() : null;
-    const interactiveRect = interactiveSection.getBoundingClientRect();
-    const videoPassed = !videoRect || videoRect.bottom <= headerOffset + 28;
-    const interactiveReached = interactiveRect.top <= viewportHeight * 0.97;
-    const interactiveStillVisible = interactiveRect.bottom >= headerOffset + 120;
-    const shouldShow = videoPassed && interactiveReached && interactiveStillVisible;
-    laserSwitchSection.classList.toggle("is-visible", shouldShow);
-    if(!shouldShow){
-      setLaserSwitchCollapsed(false);
-    }
-  }
-  syncLaserSwitchVisibility();
-
-  if(laserSwitchSection){
-    laserSwitchSection.addEventListener("mouseenter", () => {
-      setLaserSwitchCollapsed(false);
-    });
-    laserSwitchSection.addEventListener("focusin", () => {
-      setLaserSwitchCollapsed(false);
-    });
-  }
-  if(plannerFigureWrap){
-    plannerFigureWrap.addEventListener("pointerdown", () => {
-      collapseLaserSwitchForInteraction();
-    }, { passive:true });
-  }
   const plannerButtonInspectorTitle = document.getElementById("plannerButtonInspectorTitle");
   const plannerButtonInspectorData = document.getElementById("plannerButtonInspectorData");
   const plannerRotateModeBtn = document.getElementById("plannerRotateModeBtn");
@@ -10582,7 +10481,6 @@
   }
   function markPlannerInteracted(){
     plannerGuideDisabled = true;
-    collapseLaserSwitchForInteraction();
   }
   function updatePlannerFigureOverlay(mode){
     if(mode !== "frauen" && plannerFrauenView === "front") stopPlannerGuideEffect();
@@ -13238,17 +13136,9 @@
     });
   }
   window.addEventListener("resize", () => {
-    syncLaserSwitchVisibility();
     plannerSyncKonvaEditor(activeLaserMode());
     plannerSyncScrollSnapPosition(plannerFrauenView, { instant:true });
   });
-  window.addEventListener("scroll", () => {
-    syncLaserSwitchVisibility();
-    const currentY = window.scrollY || window.pageYOffset || 0;
-    if(laserSwitchSection && laserSwitchSection.classList.contains("is-collapsed") && currentY <= laserSwitchCollapsedAtY - 64){
-      setLaserSwitchCollapsed(false);
-    }
-  }, { passive:true });
   plannerSetEditMode(false);
   plannerSetMouseDragMode("move");
   plannerSetJoystickTarget("kinn");
