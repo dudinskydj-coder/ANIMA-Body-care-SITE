@@ -305,51 +305,28 @@
       min-width:160px;
     }
     .btn:hover{background:rgba(0,0,0,.04)}
-    .bookingPromptModal{
+    .plannerTermHint{
       position:fixed;
-      inset:0;
+      left:0;
+      top:0;
       z-index:120;
-      padding:28px;
-      background:rgba(241,243,247,.26);
-      backdrop-filter:blur(4px);
-      -webkit-backdrop-filter:blur(4px);
+      max-width:min(280px, calc(100vw - 24px));
+      padding:10px 14px;
+      border-radius:16px;
+      background:rgba(17,18,24,.94);
+      color:#fff;
+      font-size:13px;
+      line-height:1.35;
+      box-shadow:0 16px 40px rgba(0,0,0,.18);
       opacity:0;
-      transition:opacity .22s ease;
+      transform:translate3d(0, 8px, 0) scale(.98);
+      transform-origin:center;
+      pointer-events:none;
+      transition:opacity .18s ease, transform .18s ease;
     }
-    .bookingPromptModal[hidden]{display:none}
-    .bookingPromptModal.is-open{opacity:1}
-    .bookingPromptBackdrop{
-      position:absolute;
-      inset:0;
-    }
-    .bookingPromptDialog{
-      position:absolute;
-      left:50vw;
-      top:50vh;
-      width:min(100%, 360px);
-      padding:22px 22px 18px;
-      border-radius:28px;
-      background:rgba(255,255,255,.92);
-      border:1px solid rgba(17,18,24,.08);
-      box-shadow:0 24px 70px rgba(15,19,32,.14);
-      transform:translate(-50%, calc(-50% + 14px)) scale(.985);
-      transition:transform .26s cubic-bezier(.22,.8,.24,1);
-      text-align:center;
-    }
-    .bookingPromptModal.is-open .bookingPromptDialog{
-      transform:translate(-50%, -50%) scale(1);
-    }
-    .bookingPromptTitle{
-      margin:0;
-      font-size:24px;
-      line-height:1.12;
-      letter-spacing:-.03em;
-      color:#111218;
-    }
-    .bookingPromptActions{
-      display:flex;
-      justify-content:center;
-      margin-top:18px;
+    .plannerTermHint.is-visible{
+      opacity:1;
+      transform:translate3d(0, 0, 0) scale(1);
     }
     .btn.primary{
       background:var(--accent);
@@ -3939,6 +3916,8 @@
     <video class="videoPlayer" id="laserVideoPlayer" playsinline preload="metadata"></video>
   </div>
 </div>
+<div class="plannerTermHint" id="plannerTermHint" aria-hidden="true"></div>
+
 <div class="heroPromoStrip" id="hero_promo_strip">Erhalte 150 bis 450 € Rabatt auf Laser-Haarentfernung bei Vorauszahlung eines Kurses.</div>
 
 <div class="wrap" id="top">
@@ -4008,15 +3987,6 @@
               <strong class="plannerMobileInfoPriceCurrent" id="plannerMobileInfoPriceCurrent"></strong>
               <span class="plannerMobileInfoSaved" id="plannerMobileInfoSaved"></span>
             </span>
-          </div>
-          <div class="bookingPromptModal" id="bookingPromptModal" hidden role="dialog" aria-labelledby="bookingPromptTitle">
-            <div class="bookingPromptBackdrop" data-booking-prompt-close></div>
-            <div class="bookingPromptDialog">
-              <h3 class="bookingPromptTitle" id="bookingPromptTitle"></h3>
-              <div class="bookingPromptActions">
-                <button type="button" class="btn primary" id="bookingPromptActionBtn"></button>
-              </div>
-            </div>
           </div>
           <div class="plannerFigure">
             <div class="plannerFigureInner">
@@ -4995,10 +4965,7 @@
   const plannerCopyBtn = document.getElementById("plannerCopyBtn");
   const plannerBuyBtn = document.getElementById("plannerBuyBtn");
   const plannerTermBtn = document.getElementById("plannerTermBtn");
-  const bookingPromptModal = document.getElementById("bookingPromptModal");
-  const bookingPromptDialog = bookingPromptModal ? bookingPromptModal.querySelector(".bookingPromptDialog") : null;
-  const bookingPromptTitle = document.getElementById("bookingPromptTitle");
-  const bookingPromptActionBtn = document.getElementById("bookingPromptActionBtn");
+  const plannerTermHint = document.getElementById("plannerTermHint");
   const plannerZonesTitle = document.getElementById("planner_zones_title");
   const plannerZonesSub = document.getElementById("planner_zones_sub");
   const plannerOrderTitle = document.getElementById("planner_order_title");
@@ -5029,6 +4996,7 @@
   let videoTouchStartY = null;
   let videoMouseTimer = null;
   let videoScrollLockY = 0;
+  let plannerTermHintTimer = null;
   let plannerFrauenView = "front";
   let plannerCommittedSceneView = "front";
   let plannerViewSwitchOutTimer = null;
@@ -6828,8 +6796,7 @@
       mergeArms:"Arme komplett",
       mergeLegs:"Beine komplett",
       premiumExtraSaved:"Um 30 € günstiger",
-      termPromptTitle:"Bitte zuerst Zonen waehlen",
-      termPromptAction:"OK"
+      termSelectHint:"Bitte waehle Zonen fuer die Buchung"
     },
     en:{
       zonesTitle:"Choose zones",
@@ -6852,8 +6819,7 @@
       mergeArms:"Arms pack",
       mergeLegs:"Legs pack",
       premiumExtraSaved:"Better value by €30",
-      termPromptTitle:"Please choose zones first",
-      termPromptAction:"OK"
+      termSelectHint:"Please choose zones for booking"
     },
     ru:{
       zonesTitle:"Выберите зоны",
@@ -6876,8 +6842,7 @@
       mergeArms:"Руки комплект",
       mergeLegs:"Ноги комплект",
       premiumExtraSaved:"Выгоднее на 30 €",
-      termPromptTitle:"Пожалуйста, сначала выберите зоны",
-      termPromptAction:"OK"
+      termSelectHint:"Пожалуйста, выберите зоны для записи"
     }
   };
 
@@ -7509,10 +7474,6 @@
     if(e.key !== "Escape") return;
     if(videoModal && !videoModal.hidden){
       closeVideoModal();
-      return;
-    }
-    if(bookingPromptModal && !bookingPromptModal.hidden){
-      closeBookingPrompt({ startGuide:false });
       return;
     }
     if(legalModal && !legalModal.hidden){
@@ -10505,23 +10466,49 @@
     });
     return text;
   }
-  function syncBookingPromptCopy(){
-    if(bookingPromptTitle) bookingPromptTitle.textContent = plannerText("termPromptTitle");
-    if(bookingPromptActionBtn) bookingPromptActionBtn.textContent = plannerText("termPromptAction");
+  function hidePlannerTermHint(){
+    if(plannerTermHintTimer){
+      clearTimeout(plannerTermHintTimer);
+      plannerTermHintTimer = null;
+    }
+    if(!plannerTermHint) return;
+    plannerTermHint.classList.remove("is-visible");
   }
-  function openBookingPrompt(){
-    if(!bookingPromptModal) return;
-    syncBookingPromptCopy();
-    bookingPromptModal.hidden = false;
-    requestAnimationFrame(() => bookingPromptModal.classList.add("is-open"));
-  }
-  function closeBookingPrompt(options = {}){
-    if(!bookingPromptModal || bookingPromptModal.hidden) return;
-    void options;
-    bookingPromptModal.classList.remove("is-open");
-    window.setTimeout(() => {
-      if(bookingPromptModal) bookingPromptModal.hidden = true;
-    }, 220);
+  function showPlannerTermHint(trigger){
+    if(!plannerTermHint) return;
+    hidePlannerTermHint();
+    plannerTermHint.textContent = plannerText("termSelectHint");
+    const vw = window.innerWidth || document.documentElement.clientWidth || 0;
+    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    let x = vw * 0.5;
+    let y = vh * 0.5;
+    if(trigger && Number.isFinite(trigger.clientX) && Number.isFinite(trigger.clientY)){
+      x = trigger.clientX;
+      y = trigger.clientY;
+    }else if(plannerTermBtn){
+      const rect = plannerTermBtn.getBoundingClientRect();
+      x = rect.left + (rect.width / 2);
+      y = rect.top - 12;
+    }
+    plannerTermHint.style.left = "0px";
+    plannerTermHint.style.top = "0px";
+    plannerTermHint.style.transform = "translate3d(0, 8px, 0) scale(.98)";
+    plannerTermHint.classList.add("is-visible");
+    const hintRect = plannerTermHint.getBoundingClientRect();
+    const clampedLeft = Math.min(
+      Math.max(12, x - (hintRect.width / 2)),
+      Math.max(12, vw - hintRect.width - 12)
+    );
+    const preferredTop = y - hintRect.height - 18;
+    const fallbackTop = y + 18;
+    const clampedTop = preferredTop >= 12
+      ? preferredTop
+      : Math.min(Math.max(12, fallbackTop), Math.max(12, vh - hintRect.height - 12));
+    plannerTermHint.style.left = `${clampedLeft}px`;
+    plannerTermHint.style.top = `${clampedTop}px`;
+    plannerTermHintTimer = window.setTimeout(() => {
+      hidePlannerTermHint();
+    }, 1800);
   }
   function plannerPersistState(){
     const payload = {
@@ -12833,23 +12820,13 @@
       if(!selectedSet.size){
         event.preventDefault();
         if(typeof plannerTermBtn.blur === "function") plannerTermBtn.blur();
-        openBookingPrompt();
+        showPlannerTermHint(event);
         return;
       }
       const url = plannerResolveTermUrl(mode, selectedSet);
       event.preventDefault();
       if(typeof plannerTermBtn.blur === "function") plannerTermBtn.blur();
       openPlannerExternalUrl(url);
-    });
-  }
-  if(bookingPromptModal){
-    bookingPromptModal.addEventListener("click", (event) => {
-      if(event.target.closest("[data-booking-prompt-close]")) closeBookingPrompt({ startGuide:false });
-    });
-  }
-  if(bookingPromptActionBtn){
-    bookingPromptActionBtn.addEventListener("click", () => {
-      closeBookingPrompt({ startGuide:false });
     });
   }
   if(plannerOrderList){
@@ -13299,11 +13276,13 @@
   }
 
   window.addEventListener("scroll", () => {
+    hidePlannerTermHint();
     if(menuOverlay.hidden) return;
     const y = window.scrollY;
     if(y > menuLastScrollY + 2) closeMenuOverlay();
     menuLastScrollY = y;
   }, { passive:true });
+  window.addEventListener("resize", hidePlannerTermHint);
 
   function normalizeText(text){
     return text
@@ -13725,7 +13704,6 @@
     if(searchEmpty) searchEmpty.textContent = m.search_empty;
     applyModePricing(activeLaserMode());
     renderPlanner(activeLaserMode());
-    syncBookingPromptCopy();
     invalidateSearchIndex();
     renderSearch(searchInput ? searchInput.value : "");
 

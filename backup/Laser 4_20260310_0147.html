@@ -309,10 +309,10 @@
       position:fixed;
       inset:0;
       z-index:120;
-      padding:28px;
-      background:rgba(241,243,247,.26);
-      backdrop-filter:blur(4px);
-      -webkit-backdrop-filter:blur(4px);
+      display:grid;
+      place-items:center;
+      padding:24px;
+      background:rgba(10,10,14,.38);
       opacity:0;
       transition:opacity .22s ease;
     }
@@ -323,26 +323,23 @@
       inset:0;
     }
     .bookingPromptDialog{
-      position:absolute;
-      left:50vw;
-      top:50vh;
-      width:min(100%, 360px);
-      padding:22px 22px 18px;
+      position:relative;
+      width:min(100%, 420px);
+      padding:28px;
       border-radius:28px;
-      background:rgba(255,255,255,.92);
-      border:1px solid rgba(17,18,24,.08);
-      box-shadow:0 24px 70px rgba(15,19,32,.14);
-      transform:translate(-50%, calc(-50% + 14px)) scale(.985);
+      background:rgba(255,255,255,.97);
+      box-shadow:0 32px 90px rgba(15,19,32,.18);
+      transform:translateY(14px) scale(.985);
       transition:transform .26s cubic-bezier(.22,.8,.24,1);
       text-align:center;
     }
     .bookingPromptModal.is-open .bookingPromptDialog{
-      transform:translate(-50%, -50%) scale(1);
+      transform:translateY(0) scale(1);
     }
     .bookingPromptTitle{
-      margin:0;
-      font-size:24px;
-      line-height:1.12;
+      margin:0 0 10px;
+      font-size:28px;
+      line-height:1.06;
       letter-spacing:-.03em;
       color:#111218;
     }
@@ -350,6 +347,35 @@
       display:flex;
       justify-content:center;
       margin-top:18px;
+    }
+    .plannerPane--zones.is-guide-focus{
+      animation:plannerGuidePanePulse 1.15s ease;
+    }
+    .zoneSketchBtn.is-guide-wave{
+      animation:plannerZoneGuideWave .56s cubic-bezier(.22, 1, .36, 1);
+      animation-delay:var(--guide-delay, 0ms);
+    }
+    @keyframes plannerGuidePanePulse{
+      0%{box-shadow:0 0 0 0 rgba(45,141,214,0)}
+      25%{box-shadow:0 0 0 14px rgba(45,141,214,.10)}
+      72%{box-shadow:0 0 0 26px rgba(45,141,214,0)}
+      100%{box-shadow:0 0 0 0 rgba(45,141,214,0)}
+    }
+    @keyframes plannerZoneGuideWave{
+      0%{
+        transform:translateY(0) scale(1);
+        box-shadow:0 0 0 0 rgba(45,141,214,0);
+      }
+      35%{
+        transform:translateY(-2px) scale(1.04);
+        box-shadow:
+          0 0 0 1px rgba(255,255,255,.76) inset,
+          0 0 0 10px rgba(45,141,214,.14);
+      }
+      100%{
+        transform:translateY(0) scale(1);
+        box-shadow:0 0 0 0 rgba(45,141,214,0);
+      }
     }
     .btn.primary{
       background:var(--accent);
@@ -3939,6 +3965,16 @@
     <video class="videoPlayer" id="laserVideoPlayer" playsinline preload="metadata"></video>
   </div>
 </div>
+<div class="bookingPromptModal" id="bookingPromptModal" hidden aria-modal="true" role="dialog" aria-labelledby="bookingPromptTitle">
+  <div class="bookingPromptBackdrop" data-booking-prompt-close></div>
+  <div class="bookingPromptDialog">
+    <h3 class="bookingPromptTitle" id="bookingPromptTitle"></h3>
+    <div class="bookingPromptActions">
+      <button type="button" class="btn primary" id="bookingPromptActionBtn"></button>
+    </div>
+  </div>
+</div>
+
 <div class="heroPromoStrip" id="hero_promo_strip">Erhalte 150 bis 450 € Rabatt auf Laser-Haarentfernung bei Vorauszahlung eines Kurses.</div>
 
 <div class="wrap" id="top">
@@ -4008,15 +4044,6 @@
               <strong class="plannerMobileInfoPriceCurrent" id="plannerMobileInfoPriceCurrent"></strong>
               <span class="plannerMobileInfoSaved" id="plannerMobileInfoSaved"></span>
             </span>
-          </div>
-          <div class="bookingPromptModal" id="bookingPromptModal" hidden role="dialog" aria-labelledby="bookingPromptTitle">
-            <div class="bookingPromptBackdrop" data-booking-prompt-close></div>
-            <div class="bookingPromptDialog">
-              <h3 class="bookingPromptTitle" id="bookingPromptTitle"></h3>
-              <div class="bookingPromptActions">
-                <button type="button" class="btn primary" id="bookingPromptActionBtn"></button>
-              </div>
-            </div>
           </div>
           <div class="plannerFigure">
             <div class="plannerFigureInner">
@@ -4996,7 +5023,6 @@
   const plannerBuyBtn = document.getElementById("plannerBuyBtn");
   const plannerTermBtn = document.getElementById("plannerTermBtn");
   const bookingPromptModal = document.getElementById("bookingPromptModal");
-  const bookingPromptDialog = bookingPromptModal ? bookingPromptModal.querySelector(".bookingPromptDialog") : null;
   const bookingPromptTitle = document.getElementById("bookingPromptTitle");
   const bookingPromptActionBtn = document.getElementById("bookingPromptActionBtn");
   const plannerZonesTitle = document.getElementById("planner_zones_title");
@@ -5029,6 +5055,7 @@
   let videoTouchStartY = null;
   let videoMouseTimer = null;
   let videoScrollLockY = 0;
+  let plannerGuideWaveTimer = null;
   let plannerFrauenView = "front";
   let plannerCommittedSceneView = "front";
   let plannerViewSwitchOutTimer = null;
@@ -10193,6 +10220,7 @@
   }
   function markPlannerInteracted(){
     plannerGuideDisabled = true;
+    stopPlannerBookingGuide();
   }
   function updatePlannerFigureOverlay(mode){
     if(mode !== "frauen" && plannerFrauenView === "front") stopPlannerGuideEffect();
@@ -10505,6 +10533,45 @@
     });
     return text;
   }
+  function stopPlannerBookingGuide(){
+    if(plannerGuideWaveTimer){
+      clearTimeout(plannerGuideWaveTimer);
+      plannerGuideWaveTimer = null;
+    }
+    if(plannerZonesPane) plannerZonesPane.classList.remove("is-guide-focus");
+    document.querySelectorAll(".zoneSketchBtn.is-guide-wave").forEach((btn) => {
+      btn.classList.remove("is-guide-wave");
+      btn.style.removeProperty("--guide-delay");
+    });
+  }
+  function startPlannerBookingGuide(){
+    stopPlannerBookingGuide();
+    ensureInteractiveInViewForInteraction();
+    if(plannerZonesPane){
+      void plannerZonesPane.offsetWidth;
+      plannerZonesPane.classList.add("is-guide-focus");
+    }
+    const buttons = Array.from(document.querySelectorAll(".zoneSketchBtn"))
+      .filter((btn) => btn instanceof HTMLElement)
+      .filter((btn) => {
+        const rect = btn.getBoundingClientRect();
+        return rect.width > 8 && rect.height > 8;
+      })
+      .sort((a, b) => {
+        const ra = a.getBoundingClientRect();
+        const rb = b.getBoundingClientRect();
+        if(Math.abs(ra.top - rb.top) > 18) return ra.top - rb.top;
+        return ra.left - rb.left;
+      })
+      .slice(0, 12);
+    buttons.forEach((btn, index) => {
+      btn.style.setProperty("--guide-delay", `${index * 65}ms`);
+      btn.classList.add("is-guide-wave");
+    });
+    plannerGuideWaveTimer = window.setTimeout(() => {
+      stopPlannerBookingGuide();
+    }, 1700);
+  }
   function syncBookingPromptCopy(){
     if(bookingPromptTitle) bookingPromptTitle.textContent = plannerText("termPromptTitle");
     if(bookingPromptActionBtn) bookingPromptActionBtn.textContent = plannerText("termPromptAction");
@@ -10517,10 +10584,11 @@
   }
   function closeBookingPrompt(options = {}){
     if(!bookingPromptModal || bookingPromptModal.hidden) return;
-    void options;
+    const startGuide = options.startGuide !== false;
     bookingPromptModal.classList.remove("is-open");
     window.setTimeout(() => {
       if(bookingPromptModal) bookingPromptModal.hidden = true;
+      if(startGuide) startPlannerBookingGuide();
     }, 220);
   }
   function plannerPersistState(){
@@ -12842,14 +12910,14 @@
       openPlannerExternalUrl(url);
     });
   }
-  if(bookingPromptModal){
-    bookingPromptModal.addEventListener("click", (event) => {
-      if(event.target.closest("[data-booking-prompt-close]")) closeBookingPrompt({ startGuide:false });
-    });
-  }
   if(bookingPromptActionBtn){
     bookingPromptActionBtn.addEventListener("click", () => {
-      closeBookingPrompt({ startGuide:false });
+      closeBookingPrompt({ startGuide:true });
+    });
+  }
+  if(bookingPromptModal){
+    bookingPromptModal.addEventListener("click", (event) => {
+      if(event.target.closest("[data-booking-prompt-close]")) closeBookingPrompt({ startGuide:true });
     });
   }
   if(plannerOrderList){
@@ -13299,11 +13367,13 @@
   }
 
   window.addEventListener("scroll", () => {
+    stopPlannerBookingGuide();
     if(menuOverlay.hidden) return;
     const y = window.scrollY;
     if(y > menuLastScrollY + 2) closeMenuOverlay();
     menuLastScrollY = y;
   }, { passive:true });
+  window.addEventListener("resize", stopPlannerBookingGuide);
 
   function normalizeText(text){
     return text

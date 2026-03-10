@@ -305,52 +305,6 @@
       min-width:160px;
     }
     .btn:hover{background:rgba(0,0,0,.04)}
-    .bookingPromptModal{
-      position:fixed;
-      inset:0;
-      z-index:120;
-      padding:28px;
-      background:rgba(241,243,247,.26);
-      backdrop-filter:blur(4px);
-      -webkit-backdrop-filter:blur(4px);
-      opacity:0;
-      transition:opacity .22s ease;
-    }
-    .bookingPromptModal[hidden]{display:none}
-    .bookingPromptModal.is-open{opacity:1}
-    .bookingPromptBackdrop{
-      position:absolute;
-      inset:0;
-    }
-    .bookingPromptDialog{
-      position:absolute;
-      left:50vw;
-      top:50vh;
-      width:min(100%, 360px);
-      padding:22px 22px 18px;
-      border-radius:28px;
-      background:rgba(255,255,255,.92);
-      border:1px solid rgba(17,18,24,.08);
-      box-shadow:0 24px 70px rgba(15,19,32,.14);
-      transform:translate(-50%, calc(-50% + 14px)) scale(.985);
-      transition:transform .26s cubic-bezier(.22,.8,.24,1);
-      text-align:center;
-    }
-    .bookingPromptModal.is-open .bookingPromptDialog{
-      transform:translate(-50%, -50%) scale(1);
-    }
-    .bookingPromptTitle{
-      margin:0;
-      font-size:24px;
-      line-height:1.12;
-      letter-spacing:-.03em;
-      color:#111218;
-    }
-    .bookingPromptActions{
-      display:flex;
-      justify-content:center;
-      margin-top:18px;
-    }
     .btn.primary{
       background:var(--accent);
       color:var(--accentText);
@@ -3939,6 +3893,7 @@
     <video class="videoPlayer" id="laserVideoPlayer" playsinline preload="metadata"></video>
   </div>
 </div>
+
 <div class="heroPromoStrip" id="hero_promo_strip">Erhalte 150 bis 450 € Rabatt auf Laser-Haarentfernung bei Vorauszahlung eines Kurses.</div>
 
 <div class="wrap" id="top">
@@ -4008,15 +3963,6 @@
               <strong class="plannerMobileInfoPriceCurrent" id="plannerMobileInfoPriceCurrent"></strong>
               <span class="plannerMobileInfoSaved" id="plannerMobileInfoSaved"></span>
             </span>
-          </div>
-          <div class="bookingPromptModal" id="bookingPromptModal" hidden role="dialog" aria-labelledby="bookingPromptTitle">
-            <div class="bookingPromptBackdrop" data-booking-prompt-close></div>
-            <div class="bookingPromptDialog">
-              <h3 class="bookingPromptTitle" id="bookingPromptTitle"></h3>
-              <div class="bookingPromptActions">
-                <button type="button" class="btn primary" id="bookingPromptActionBtn"></button>
-              </div>
-            </div>
           </div>
           <div class="plannerFigure">
             <div class="plannerFigureInner">
@@ -4995,10 +4941,6 @@
   const plannerCopyBtn = document.getElementById("plannerCopyBtn");
   const plannerBuyBtn = document.getElementById("plannerBuyBtn");
   const plannerTermBtn = document.getElementById("plannerTermBtn");
-  const bookingPromptModal = document.getElementById("bookingPromptModal");
-  const bookingPromptDialog = bookingPromptModal ? bookingPromptModal.querySelector(".bookingPromptDialog") : null;
-  const bookingPromptTitle = document.getElementById("bookingPromptTitle");
-  const bookingPromptActionBtn = document.getElementById("bookingPromptActionBtn");
   const plannerZonesTitle = document.getElementById("planner_zones_title");
   const plannerZonesSub = document.getElementById("planner_zones_sub");
   const plannerOrderTitle = document.getElementById("planner_order_title");
@@ -6827,9 +6769,7 @@
       premiumTag:"Premium Paket",
       mergeArms:"Arme komplett",
       mergeLegs:"Beine komplett",
-      premiumExtraSaved:"Um 30 € günstiger",
-      termPromptTitle:"Bitte zuerst Zonen waehlen",
-      termPromptAction:"OK"
+      premiumExtraSaved:"Um 30 € günstiger"
     },
     en:{
       zonesTitle:"Choose zones",
@@ -6851,9 +6791,7 @@
       premiumTag:"Premium Package",
       mergeArms:"Arms pack",
       mergeLegs:"Legs pack",
-      premiumExtraSaved:"Better value by €30",
-      termPromptTitle:"Please choose zones first",
-      termPromptAction:"OK"
+      premiumExtraSaved:"Better value by €30"
     },
     ru:{
       zonesTitle:"Выберите зоны",
@@ -6875,9 +6813,7 @@
       premiumTag:"Премиум пакет",
       mergeArms:"Руки комплект",
       mergeLegs:"Ноги комплект",
-      premiumExtraSaved:"Выгоднее на 30 €",
-      termPromptTitle:"Пожалуйста, сначала выберите зоны",
-      termPromptAction:"OK"
+      premiumExtraSaved:"Выгоднее на 30 €"
     }
   };
 
@@ -7509,10 +7445,6 @@
     if(e.key !== "Escape") return;
     if(videoModal && !videoModal.hidden){
       closeVideoModal();
-      return;
-    }
-    if(bookingPromptModal && !bookingPromptModal.hidden){
-      closeBookingPrompt({ startGuide:false });
       return;
     }
     if(legalModal && !legalModal.hidden){
@@ -10505,24 +10437,6 @@
     });
     return text;
   }
-  function syncBookingPromptCopy(){
-    if(bookingPromptTitle) bookingPromptTitle.textContent = plannerText("termPromptTitle");
-    if(bookingPromptActionBtn) bookingPromptActionBtn.textContent = plannerText("termPromptAction");
-  }
-  function openBookingPrompt(){
-    if(!bookingPromptModal) return;
-    syncBookingPromptCopy();
-    bookingPromptModal.hidden = false;
-    requestAnimationFrame(() => bookingPromptModal.classList.add("is-open"));
-  }
-  function closeBookingPrompt(options = {}){
-    if(!bookingPromptModal || bookingPromptModal.hidden) return;
-    void options;
-    bookingPromptModal.classList.remove("is-open");
-    window.setTimeout(() => {
-      if(bookingPromptModal) bookingPromptModal.hidden = true;
-    }, 220);
-  }
   function plannerPersistState(){
     const payload = {
       mode:activeLaserMode(),
@@ -12830,26 +12744,10 @@
     plannerTermBtn.addEventListener("click", (event) => {
       const mode = activeLaserMode();
       const selectedSet = plannerSelectedByMode[mode] || new Set();
-      if(!selectedSet.size){
-        event.preventDefault();
-        if(typeof plannerTermBtn.blur === "function") plannerTermBtn.blur();
-        openBookingPrompt();
-        return;
-      }
       const url = plannerResolveTermUrl(mode, selectedSet);
       event.preventDefault();
       if(typeof plannerTermBtn.blur === "function") plannerTermBtn.blur();
       openPlannerExternalUrl(url);
-    });
-  }
-  if(bookingPromptModal){
-    bookingPromptModal.addEventListener("click", (event) => {
-      if(event.target.closest("[data-booking-prompt-close]")) closeBookingPrompt({ startGuide:false });
-    });
-  }
-  if(bookingPromptActionBtn){
-    bookingPromptActionBtn.addEventListener("click", () => {
-      closeBookingPrompt({ startGuide:false });
     });
   }
   if(plannerOrderList){
@@ -13725,7 +13623,6 @@
     if(searchEmpty) searchEmpty.textContent = m.search_empty;
     applyModePricing(activeLaserMode());
     renderPlanner(activeLaserMode());
-    syncBookingPromptCopy();
     invalidateSearchIndex();
     renderSearch(searchInput ? searchInput.value : "");
 

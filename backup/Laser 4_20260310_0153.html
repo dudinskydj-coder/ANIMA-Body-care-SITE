@@ -324,8 +324,8 @@
     }
     .bookingPromptDialog{
       position:absolute;
-      left:50vw;
-      top:50vh;
+      left:var(--booking-prompt-left, 50vw);
+      top:var(--booking-prompt-top, 50vh);
       width:min(100%, 360px);
       padding:22px 22px 18px;
       border-radius:28px;
@@ -10509,9 +10509,26 @@
     if(bookingPromptTitle) bookingPromptTitle.textContent = plannerText("termPromptTitle");
     if(bookingPromptActionBtn) bookingPromptActionBtn.textContent = plannerText("termPromptAction");
   }
+  function positionBookingPromptOverFigure(){
+    if(!bookingPromptModal || !bookingPromptDialog) return;
+    const vw = window.innerWidth || document.documentElement.clientWidth || 0;
+    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    let left = vw * 0.5;
+    let top = vh * 0.5;
+    if(plannerFigureWrap){
+      const rect = plannerFigureWrap.getBoundingClientRect();
+      if(rect.width > 0 && rect.height > 0){
+        left = rect.left + (rect.width * 0.5);
+        top = rect.top + Math.min(rect.height * 0.34, Math.max(120, rect.height * 0.28));
+      }
+    }
+    bookingPromptModal.style.setProperty("--booking-prompt-left", `${Math.round(left)}px`);
+    bookingPromptModal.style.setProperty("--booking-prompt-top", `${Math.round(top)}px`);
+  }
   function openBookingPrompt(){
     if(!bookingPromptModal) return;
     syncBookingPromptCopy();
+    positionBookingPromptOverFigure();
     bookingPromptModal.hidden = false;
     requestAnimationFrame(() => bookingPromptModal.classList.add("is-open"));
   }
@@ -13299,11 +13316,15 @@
   }
 
   window.addEventListener("scroll", () => {
+    if(bookingPromptModal && !bookingPromptModal.hidden) positionBookingPromptOverFigure();
     if(menuOverlay.hidden) return;
     const y = window.scrollY;
     if(y > menuLastScrollY + 2) closeMenuOverlay();
     menuLastScrollY = y;
   }, { passive:true });
+  window.addEventListener("resize", () => {
+    if(bookingPromptModal && !bookingPromptModal.hidden) positionBookingPromptOverFigure();
+  });
 
   function normalizeText(text){
     return text
