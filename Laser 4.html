@@ -1343,7 +1343,7 @@
       overflow-wrap:anywhere;
       word-break:break-word;
       opacity:var(--planner-mobile-row-opacity, 1);
-      transform:translateY(var(--planner-mobile-row-shift, 0px)) scale(var(--planner-mobile-row-scale, 1));
+      transform:translateY(var(--planner-mobile-row-shift, 0px));
       filter:blur(var(--planner-mobile-row-blur, 0px));
       animation:plannerMobileInfoRowSlide .42s cubic-bezier(.22,.8,.24,1) both;
       animation-delay:var(--planner-mobile-row-delay, 0ms);
@@ -1354,12 +1354,12 @@
     @keyframes plannerMobileInfoRowSlide{
       from{
         opacity:0;
-        transform:translateY(-12px) scale(.985);
+        transform:translateY(-12px);
         filter:blur(2px);
       }
       to{
         opacity:var(--planner-mobile-row-opacity, 1);
-        transform:translateY(var(--planner-mobile-row-shift, 0px)) scale(var(--planner-mobile-row-scale, 1));
+        transform:translateY(var(--planner-mobile-row-shift, 0px));
         filter:blur(var(--planner-mobile-row-blur, 0px));
       }
     }
@@ -10933,11 +10933,9 @@
       row.className = `plannerMobileInfoZoneRow${index === 0 ? " plannerMobileInfoZoneRow--latest" : ""}`;
       const opacity = index < 3 ? 1 : (index === 3 ? 0.5 : 0.24);
       const shift = Math.min(index, 4) * 2.5;
-      const scale = index >= 4 ? 0.985 : 1;
       const blur = index >= 4 ? 0.35 : 0;
       row.style.setProperty("--planner-mobile-row-opacity", String(opacity));
       row.style.setProperty("--planner-mobile-row-shift", `${shift}px`);
-      row.style.setProperty("--planner-mobile-row-scale", String(scale));
       row.style.setProperty("--planner-mobile-row-blur", `${blur}px`);
       row.style.setProperty("--planner-mobile-row-delay", `${Math.min(index, 4) * 36}ms`);
       row.textContent = label;
