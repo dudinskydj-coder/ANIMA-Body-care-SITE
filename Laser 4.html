@@ -2570,6 +2570,40 @@
       font-weight:600;
       white-space:nowrap;
     }
+    .orderItemDetailRow--group{
+      align-items:flex-start;
+      flex-direction:column;
+      gap:4px;
+    }
+    .orderItemDetailTree{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      width:100%;
+    }
+    .orderItemDetailTreeChildren{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      margin-left:14px;
+      padding-left:10px;
+      border-left:1px dashed rgba(17,18,24,.12);
+    }
+    .orderItemDetailBadge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      min-height:18px;
+      padding:0 8px;
+      border-radius:999px;
+      background:rgba(17,18,24,.06);
+      color:rgba(17,18,24,.58);
+      font-size:10px;
+      line-height:1.6;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
     .orderItemPremiumTag{
       align-self:flex-start;
       display:inline-flex;
@@ -6146,31 +6180,78 @@
     },
     herren:{}
   };
+  const LASER_ZONE_GROUPS_FRAUEN = {
+    face:["upperlip", "kinn", "glabella", "wangen", "koteletten", "chin", "nacken"],
+    arms:["upperarms", "underarms", "hands"],
+    legs:["obersch", "untersch", "feet"],
+    body_front:["chest", "medialinebauch", "bauchfull"],
+    body_back:["upperback", "lowerback", "pobacken"],
+    intimate:["bikini", "intim"],
+    axilla:["axilla"]
+  };
+  const LASER_ZONE_LABELS_FRAUEN = {
+    upperlip:{ de:"Oberlippe", en:"Upper lip", ru:"Верхняя губа" },
+    kinn:{ de:"Kinn", en:"Chin", ru:"Подбородок" },
+    glabella:{ de:"Zwischenbrauen", en:"Between brows", ru:"Межбровье" },
+    wangen:{ de:"Wangen", en:"Cheeks", ru:"Щёки" },
+    koteletten:{ de:"Kieferlinie + Koteletten", en:"Jawline + sideburns", ru:"Линия челюсти + бакенбарды" },
+    chin:{ de:"Hals vorne", en:"Front neck", ru:"Шея спереди" },
+    nacken:{ de:"Hals hinten", en:"Back neck", ru:"Шея сзади" },
+    axilla:{ de:"Achseln", en:"Underarms", ru:"Подмышки" },
+    upperarms:{ de:"Oberarme", en:"Upper arms", ru:"Верхняя часть рук" },
+    underarms:{ de:"Unterarme", en:"Lower arms", ru:"Нижняя часть рук" },
+    hands:{ de:"Hände", en:"Hands", ru:"Кисти рук" },
+    obersch:{ de:"Oberschenkel", en:"Upper legs", ru:"Верхняя часть ног" },
+    untersch:{ de:"Unterschenkel inkl. Knie", en:"Lower legs incl. knees", ru:"Нижняя часть ног, включая колени" },
+    feet:{ de:"Füße", en:"Feet", ru:"Ступни" },
+    chest:{ de:"Brust", en:"Chest", ru:"Грудь" },
+    medialinebauch:{ de:"Bauchlinie", en:"Belly line", ru:"Линия живота" },
+    bauchfull:{ de:"Bauch", en:"Belly", ru:"Живот" },
+    upperback:{ de:"Rücken oben inkl. Schultern", en:"Upper back incl. shoulders", ru:"Верх спины, включая плечи" },
+    lowerback:{ de:"Rücken unten", en:"Lower back", ru:"Низ спины" },
+    pobacken:{ de:"Gesäß", en:"Buttocks", ru:"Ягодицы" },
+    bikini:{ de:"Bikini", en:"Bikini", ru:"Бикини" },
+    intim:{ de:"Intim komplett inkl. Pofalte", en:"Intimate full incl. gluteal fold", ru:"Интим полностью, включая межъягодичную зону" }
+  };
+  const LASER_ZONE_PRICES_FRAUEN = {
+    upperlip:25,
+    kinn:25,
+    glabella:25,
+    wangen:40,
+    koteletten:40,
+    chin:45,
+    nacken:45,
+    axilla:45,
+    upperarms:45,
+    underarms:45,
+    hands:25,
+    obersch:90,
+    untersch:90,
+    feet:25,
+    chest:50,
+    medialinebauch:35,
+    bauchfull:65,
+    upperback:70,
+    lowerback:70,
+    pobacken:65,
+    bikini:40,
+    intim:85
+  };
+  const LASER_ZONE_ORDER_FRAUEN = [
+    ...LASER_ZONE_GROUPS_FRAUEN.face,
+    ...LASER_ZONE_GROUPS_FRAUEN.axilla,
+    ...LASER_ZONE_GROUPS_FRAUEN.arms,
+    ...LASER_ZONE_GROUPS_FRAUEN.legs,
+    ...LASER_ZONE_GROUPS_FRAUEN.body_front,
+    ...LASER_ZONE_GROUPS_FRAUEN.body_back,
+    ...LASER_ZONE_GROUPS_FRAUEN.intimate
+  ];
   const plannerZonesByMode = {
-    frauen: [
-      { id:"chin", label:{ de:"Hals", en:"Neck", ru:"Шея" }, price:25 },
-      { id:"nacken", label:{ de:"Nacken", en:"Nape", ru:"Затылок" }, price:25 },
-      { id:"kinn", label:{ de:"Kinn", en:"Chin", ru:"Подбородок" }, price:25 },
-      { id:"wangen", label:{ de:"Wangenknochen", en:"Cheekbones", ru:"Скулы" }, price:25 },
-      { id:"koteletten", label:{ de:"Kieferlinie + Koteletten", en:"Jawline + sideburns", ru:"Линия челюсти + бакенбарды" }, price:25 },
-      { id:"glabella", label:{ de:"Zwischenbrauen", en:"Between brows", ru:"Межбровье" }, price:25 },
-      { id:"upperlip", label:{ de:"Oberlippe", en:"Upper lip", ru:"Верхняя губа" }, price:25 },
-      { id:"chest", label:{ de:"Brustbereich", en:"Chest area", ru:"Зона груди" }, price:45 },
-      { id:"upperback", label:{ de:"Oberrücken + Schultern", en:"Upper back + shoulders", ru:"Верхняя часть спины + плечи" }, price:45 },
-      { id:"lowerback", label:{ de:"Unterer Rücken", en:"Lower back", ru:"Нижняя часть спины" }, price:45 },
-      { id:"hands", label:{ de:"Hände", en:"Hands", ru:"Кисти рук" }, price:35 },
-      { id:"feet", label:{ de:"Füße", en:"Feet", ru:"Ступни" }, price:35 },
-      { id:"axilla", label:{ de:"Achseln", en:"Underarms", ru:"Подмышки" }, price:45 },
-      { id:"upperarms", label:{ de:"Oberarme", en:"Upper arms", ru:"Верхняя часть рук" }, price:45 },
-      { id:"underarms", label:{ de:"Unterarme", en:"Lower arms", ru:"Нижняя часть рук" }, price:45 },
-      { id:"bauchfull", label:{ de:"Bauch", en:"Belly", ru:"Живот" }, price:45 },
-      { id:"pobacken", label:{ de:"Pobacken", en:"Buttocks", ru:"Ягодицы" }, price:45 },
-      { id:"medialinebauch", label:{ de:"Mediale Bauchlinie", en:"Median belly line", ru:"Медиальная линия живота" }, price:45 },
-      { id:"obersch", label:{ de:"Oberschenkel", en:"Upper legs", ru:"Верхняя часть ног" }, price:90 },
-      { id:"untersch", label:{ de:"Unterschenkel + Knie", en:"Lower legs + knees", ru:"Нижняя часть ног + колени" }, price:90 },
-      { id:"bikini", label:{ de:"Bikini", en:"Bikini line", ru:"Бикини" }, price:40 },
-      { id:"intim", label:{ de:"Intim komplett (inkl pofale)", en:"Intimate full (incl gluteal)", ru:"Интим полностью (вкл. межъягодичную зону)" }, price:85 }
-    ],
+    frauen: LASER_ZONE_ORDER_FRAUEN.map((zoneId) => ({
+      id:zoneId,
+      label:LASER_ZONE_LABELS_FRAUEN[zoneId],
+      price:LASER_ZONE_PRICES_FRAUEN[zoneId]
+    })),
     herren: [
       { id:"chin", label:{ de:"Hals", en:"Neck", ru:"Шея" }, price:25 },
       { id:"nacken", label:{ de:"Nacken", en:"Nape", ru:"Затылок" }, price:25 },
@@ -7005,82 +7086,263 @@
     frauen:new Set(),
     herren:new Set()
   };
-  const plannerBundleConfigsByMode = {
-    frauen:[
-      {
-        id:"arms_bundle",
-        zoneIds:["upperarms", "underarms"],
-        price:80,
-        label:{ de:"Arme komplett", en:"Arms komplett", ru:"Руки комплект" },
-        fx:{ de:"Um 10 € günstiger", en:"Better value by €10", ru:"Выгоднее на 10 €" }
+  const PLANNER_PACKAGE_DEBUG = false;
+  let plannerLastPackageDebugSnapshot = null;
+  const plannerPricingConfigByMode = {
+    frauen:{
+      singles:{},
+      // TODO: replace null overrides with approved package prices from business.
+      packagePriceOverrides:{
+        smart_arms_complete:80,
+        smart_legs_complete:160,
+        premium_legs_arms:210,
+        smart_face_small:null,
+        smart_neck_complete:null,
+        smart_arms_complete_with_hands:null,
+        smart_legs_complete_with_feet:null,
+        smart_bauch_complete:null,
+        smart_back_complete:null,
+        premium_bikini_axilla:null,
+        premium_axilla_intim:null,
+        premium_bikini_intim_pofalte:null,
+        premium_legs_axilla:null,
+        premium_legs_intim:null,
+        premium_legs_intim_axilla:null,
+        premium_all_zones:null
       },
-      {
-        id:"legs_bundle",
-        zoneIds:["obersch", "untersch"],
-        price:160,
-        label:{ de:"Beine komplett", en:"Legs komplett", ru:"Ноги комплект" },
-        fx:{ de:"Um 20 € günstiger", en:"Better value by €20", ru:"Выгоднее на 20 €" }
-      },
-      {
-        id:"premium_bundle",
-        zoneIds:["upperarms", "underarms", "obersch", "untersch"],
-        price:210,
-        label:{ de:"Arme-Kompl. + Beine-Kompl.", en:"Arms pack + legs pack", ru:"Руки комплект + ноги комплект" },
-        fx:{ de:"Um 60 € günstiger", en:"Better value by €60", ru:"Выгоднее на 60 €" }
-      }
-    ],
-    herren:[
-      {
-        id:"arms_bundle",
-        zoneIds:["upperarms", "underarms"],
-        price:155,
-        label:{ de:"Arme komplett", en:"Arms complete", ru:"Руки полностью" },
-        fx:{ de:"Um 15 € günstiger", en:"Better value by €15", ru:"Выгоднее на 15 €" }
-      },
-      {
-        id:"legs_bundle",
-        zoneIds:["obersch", "untersch"],
-        price:210,
-        label:{ de:"Beine komplett", en:"Legs complete", ru:"Ноги полностью" },
-        fx:{ de:"Um 40 € günstiger", en:"Better value by €40", ru:"Выгоднее на 40 €" }
-      },
-      {
-        id:"upperbody_bundle",
-        zoneIds:["chest", "bauchfull", "medialinebauch", "lowerback", "upperback"],
-        price:260,
-        label:{ de:"Oberkörper komplett", en:"Upper body complete", ru:"Верх тела полностью" }
-      },
-      {
-        id:"intim_pobacken_bundle",
-        zoneIds:["intim", "pobacken"],
-        price:230,
-        label:{ de:"Intim + Pobacken", en:"Intimate + buttocks", ru:"Интим + ягодицы" }
-      },
-      {
-        id:"intim_pobacken_axilla_bundle",
-        zoneIds:["intim", "pobacken", "axilla"],
-        price:265,
-        label:{ de:"Intim + Pobacken + Achseln", en:"Intimate + buttocks + underarms", ru:"Интим + ягодицы + подмышки" }
-      },
-      {
-        id:"upperbody_axilla_bundle",
-        zoneIds:["chest", "bauchfull", "medialinebauch", "lowerback", "upperback", "axilla"],
-        price:285,
-        label:{ de:"Oberkörper + Achseln", en:"Upper body + underarms", ru:"Верх тела + подмышки" }
-      },
-      {
-        id:"upperbody_axilla_intim_bundle",
-        zoneIds:["chest", "bauchfull", "medialinebauch", "lowerback", "upperback", "axilla", "intim", "pobacken"],
-        price:420,
-        label:{ de:"Oberkörper + Achseln + Intim (inkl. Pobacken)", en:"Upper body + underarms + intimate (incl. buttocks)", ru:"Верх тела + подмышки + интим (вкл. ягодицы)" }
-      },
-      {
-        id:"premium_bundle",
-        zoneIds:["chin", "nacken", "kinn", "wangen", "koteletten", "glabella", "upperlip", "axilla", "intim", "pobacken", "bikini", "upperarms", "underarms", "obersch", "untersch", "chest", "bauchfull", "medialinebauch", "lowerback", "upperback"],
-        price:495,
-        label:{ de:"Alle Zonen", en:"All zones", ru:"Все зоны" }
-      }
-    ]
+      packages:[
+        {
+          id:"smart_face_small",
+          level:2,
+          priority:420,
+          displayGroup:"smart",
+          zoneIds:["upperlip", "kinn"],
+          componentIds:["upperlip", "kinn"],
+          label:{ de:"Face Small", en:"Face Small", ru:"Face Small" }
+        },
+        {
+          id:"smart_neck_complete",
+          level:2,
+          priority:410,
+          displayGroup:"smart",
+          zoneIds:["chin", "nacken"],
+          componentIds:["chin", "nacken"],
+          label:{ de:"Hals komplett", en:"Neck complete", ru:"Шея полностью" }
+        },
+        {
+          id:"smart_arms_complete",
+          level:2,
+          priority:400,
+          displayGroup:"smart",
+          zoneIds:["upperarms", "underarms"],
+          componentIds:["upperarms", "underarms"],
+          label:{ de:"Arme komplett", en:"Arms complete", ru:"Руки полностью" }
+        },
+        {
+          id:"smart_arms_complete_with_hands",
+          level:2,
+          priority:405,
+          displayGroup:"smart",
+          zoneIds:["upperarms", "underarms", "hands"],
+          componentIds:["smart_arms_complete", "hands"],
+          label:{ de:"Arme komplett + Hände", en:"Arms complete + hands", ru:"Руки полностью + кисти" }
+        },
+        {
+          id:"smart_legs_complete",
+          level:2,
+          priority:390,
+          displayGroup:"smart",
+          zoneIds:["obersch", "untersch"],
+          componentIds:["obersch", "untersch"],
+          label:{ de:"Beine komplett", en:"Legs complete", ru:"Ноги полностью" }
+        },
+        {
+          id:"smart_legs_complete_with_feet",
+          level:2,
+          priority:395,
+          displayGroup:"smart",
+          zoneIds:["obersch", "untersch", "feet"],
+          componentIds:["smart_legs_complete", "feet"],
+          label:{ de:"Beine komplett + Füße", en:"Legs complete + feet", ru:"Ноги полностью + стопы" }
+        },
+        {
+          id:"smart_bauch_complete",
+          level:2,
+          priority:380,
+          displayGroup:"smart",
+          zoneIds:["bauchfull", "medialinebauch"],
+          componentIds:["bauchfull", "medialinebauch"],
+          label:{ de:"Bauch komplett", en:"Belly complete", ru:"Живот полностью" }
+        },
+        {
+          id:"smart_back_complete",
+          level:2,
+          priority:370,
+          displayGroup:"smart",
+          zoneIds:["upperback", "lowerback"],
+          componentIds:["upperback", "lowerback"],
+          label:{ de:"Rücken komplett", en:"Back complete", ru:"Спина полностью" }
+        },
+        {
+          id:"premium_bikini_axilla",
+          level:3,
+          priority:320,
+          displayGroup:"premium",
+          zoneIds:["bikini", "axilla"],
+          componentIds:["bikini", "axilla"],
+          label:{ de:"Bikini + Achseln", en:"Bikini + underarms", ru:"Бикини + подмышки" }
+        },
+        {
+          id:"premium_axilla_intim",
+          level:3,
+          priority:330,
+          displayGroup:"premium",
+          zoneIds:["axilla", "intim"],
+          componentIds:["axilla", "intim"],
+          label:{ de:"Achseln + Intim", en:"Underarms + intimate", ru:"Подмышки + интим" }
+        },
+        {
+          id:"premium_bikini_intim_pofalte",
+          level:3,
+          priority:340,
+          displayGroup:"premium",
+          zoneIds:["bikini", "intim"],
+          componentIds:["bikini", "intim"],
+          label:{ de:"Bikini + Intim", en:"Bikini + intimate", ru:"Бикини + интим" }
+        },
+        {
+          id:"premium_legs_axilla",
+          level:3,
+          priority:350,
+          displayGroup:"premium",
+          zoneIds:["obersch", "untersch", "axilla"],
+          componentIds:["smart_legs_complete", "axilla"],
+          label:{ de:"Beine + Achseln", en:"Legs + underarms", ru:"Ноги + подмышки" }
+        },
+        {
+          id:"premium_legs_intim",
+          level:3,
+          priority:360,
+          displayGroup:"premium",
+          zoneIds:["obersch", "untersch", "intim"],
+          componentIds:["smart_legs_complete", "intim"],
+          label:{ de:"Beine + Intim", en:"Legs + intimate", ru:"Ноги + интим" }
+        },
+        {
+          id:"premium_legs_intim_axilla",
+          level:3,
+          priority:365,
+          displayGroup:"premium",
+          zoneIds:["obersch", "untersch", "intim", "axilla"],
+          componentIds:["smart_legs_complete", "intim", "axilla"],
+          label:{ de:"Beine + Intim + Achseln", en:"Legs + intimate + underarms", ru:"Ноги + интим + подмышки" }
+        },
+        {
+          id:"premium_legs_arms",
+          level:3,
+          priority:370,
+          displayGroup:"premium",
+          zoneIds:["obersch", "untersch", "upperarms", "underarms"],
+          componentIds:["smart_legs_complete", "smart_arms_complete"],
+          label:{ de:"Beine + Arme", en:"Legs + arms", ru:"Ноги + руки" }
+        },
+        {
+          id:"premium_all_zones",
+          level:3,
+          priority:1000,
+          displayGroup:"premium",
+          zoneIds:["chin", "nacken", "kinn", "wangen", "koteletten", "glabella", "upperlip", "chest", "upperback", "lowerback", "hands", "feet", "axilla", "upperarms", "underarms", "bauchfull", "pobacken", "medialinebauch", "obersch", "untersch", "bikini", "intim"],
+          componentIds:["premium_bikini_intim_pofalte", "premium_legs_arms", "smart_bauch_complete", "pobacken", "axilla", "feet", "hands", "smart_back_complete", "chest", "smart_face_small", "glabella", "koteletten", "wangen", "smart_neck_complete"],
+          label:{ de:"Alle Zonen", en:"All zones", ru:"Все зоны" }
+        }
+      ]
+    },
+    herren:{
+      singles:{},
+      packagePriceOverrides:{},
+      packages:[
+        {
+          id:"arms_bundle",
+          level:2,
+          priority:400,
+          displayGroup:"smart",
+          zoneIds:["upperarms", "underarms"],
+          componentIds:["upperarms", "underarms"],
+          packagePrice:155,
+          label:{ de:"Arme komplett", en:"Arms complete", ru:"Руки полностью" }
+        },
+        {
+          id:"legs_bundle",
+          level:2,
+          priority:390,
+          displayGroup:"smart",
+          zoneIds:["obersch", "untersch"],
+          componentIds:["obersch", "untersch"],
+          packagePrice:210,
+          label:{ de:"Beine komplett", en:"Legs complete", ru:"Ноги полностью" }
+        },
+        {
+          id:"upperbody_bundle",
+          level:3,
+          priority:370,
+          displayGroup:"premium",
+          zoneIds:["chest", "bauchfull", "medialinebauch", "lowerback", "upperback"],
+          componentIds:["chest", "bauchfull", "medialinebauch", "lowerback", "upperback"],
+          packagePrice:260,
+          label:{ de:"Oberkörper komplett", en:"Upper body complete", ru:"Верх тела полностью" }
+        },
+        {
+          id:"intim_pobacken_bundle",
+          level:3,
+          priority:360,
+          displayGroup:"premium",
+          zoneIds:["intim", "pobacken"],
+          componentIds:["intim", "pobacken"],
+          packagePrice:230,
+          label:{ de:"Intim + Pobacken", en:"Intimate + buttocks", ru:"Интим + ягодицы" }
+        },
+        {
+          id:"intim_pobacken_axilla_bundle",
+          level:3,
+          priority:350,
+          displayGroup:"premium",
+          zoneIds:["intim", "pobacken", "axilla"],
+          componentIds:["intim_pobacken_bundle", "axilla"],
+          packagePrice:265,
+          label:{ de:"Intim + Pobacken + Achseln", en:"Intimate + buttocks + underarms", ru:"Интим + ягодицы + подмышки" }
+        },
+        {
+          id:"upperbody_axilla_bundle",
+          level:3,
+          priority:340,
+          displayGroup:"premium",
+          zoneIds:["chest", "bauchfull", "medialinebauch", "lowerback", "upperback", "axilla"],
+          componentIds:["upperbody_bundle", "axilla"],
+          packagePrice:285,
+          label:{ de:"Oberkörper + Achseln", en:"Upper body + underarms", ru:"Верх тела + подмышки" }
+        },
+        {
+          id:"upperbody_axilla_intim_bundle",
+          level:3,
+          priority:330,
+          displayGroup:"premium",
+          zoneIds:["chest", "bauchfull", "medialinebauch", "lowerback", "upperback", "axilla", "intim", "pobacken"],
+          componentIds:["upperbody_bundle", "intim_pobacken_axilla_bundle"],
+          packagePrice:420,
+          label:{ de:"Oberkörper + Achseln + Intim (inkl. Pobacken)", en:"Upper body + underarms + intimate (incl. buttocks)", ru:"Верх тела + подмышки + интим (вкл. ягодицы)" }
+        },
+        {
+          id:"premium_bundle",
+          level:3,
+          priority:1000,
+          displayGroup:"premium",
+          zoneIds:["chin", "nacken", "kinn", "wangen", "koteletten", "glabella", "upperlip", "axilla", "intim", "pobacken", "bikini", "upperarms", "underarms", "obersch", "untersch", "chest", "bauchfull", "medialinebauch", "lowerback", "upperback"],
+          componentIds:["upperbody_axilla_intim_bundle", "arms_bundle", "legs_bundle", "chin", "nacken", "kinn", "wangen", "koteletten", "glabella", "upperlip", "bikini"],
+          packagePrice:495,
+          label:{ de:"Alle Zonen", en:"All zones", ru:"Все зоны" }
+        }
+      ]
+    }
   };
   const plannerCopy = {
     de:{
@@ -7099,6 +7361,7 @@
       courseTagPremium:"Premium 6er Kur Paket",
       buyCourse:"Kurs kaufen",
       savedWord:"günstiger",
+      packageTag:"Smart Paket",
       premiumBadge:"Premium Paket",
       premiumTag:"Premium Paket",
       mergeArms:"Arme komplett",
@@ -7123,6 +7386,7 @@
       courseTagPremium:"Premium 6-session course pack",
       buyCourse:"Buy course",
       savedWord:"better value",
+      packageTag:"Smart package",
       premiumBadge:"Premium package",
       premiumTag:"Premium Package",
       mergeArms:"Arms pack",
@@ -7147,6 +7411,7 @@
       courseTagPremium:"Премиум курс 6 визитов",
       buyCourse:"Купить курс",
       savedWord:"выгоднее",
+      packageTag:"Smart пакет",
       premiumBadge:"Премиум пакет",
       premiumTag:"Премиум пакет",
       mergeArms:"Руки комплект",
@@ -10596,34 +10861,309 @@
     const lang = currentLang();
     return (labelMap && (labelMap[lang] || labelMap.de)) || "";
   }
+  function plannerPricingConfig(mode){
+    return plannerPricingConfigByMode[mode] || plannerPricingConfigByMode.frauen;
+  }
+  function plannerZonesMap(mode){
+    return new Map((plannerZonesByMode[mode] || []).map((zone) => [zone.id, zone]));
+  }
   function plannerBundlesForMode(mode){
-    return plannerBundleConfigsByMode[mode] || [];
-  }
-  function plannerActiveBundles(mode, selectedSet){
-    const effectiveSet = selectedSet || new Set();
-    return plannerBundlesForMode(mode).filter((bundle) => bundle.zoneIds.every((id) => effectiveSet.has(id)));
-  }
-  function plannerSelectedBundles(mode, selectedSet){
-    const candidates = plannerActiveBundles(mode, selectedSet).sort((a, b) => b.zoneIds.length - a.zoneIds.length);
-    const selected = [];
-    const usedZoneIds = new Set();
-    candidates.forEach((bundle) => {
-      if(bundle.zoneIds.some((zoneId) => usedZoneIds.has(zoneId))) return;
-      selected.push(bundle);
-      bundle.zoneIds.forEach((zoneId) => usedZoneIds.add(zoneId));
-    });
-    return selected;
-  }
-  function plannerActiveBundleIds(mode, selectedSet){
-    return new Set(plannerSelectedBundles(mode, selectedSet).map((bundle) => bundle.id));
-  }
-  function plannerBundleFxLabel(mode, bundleId){
-    const bundle = plannerBundlesForMode(mode).find((candidate) => candidate.id === bundleId);
-    if(!bundle || !bundle.fx) return "";
-    return plannerLabel(bundle.fx);
+    return plannerPricingConfig(mode).packages || [];
   }
   function plannerBundleById(mode, bundleId){
     return plannerBundlesForMode(mode).find((bundle) => bundle.id === bundleId) || null;
+  }
+  function plannerPackageResolvedPrice(mode, pkg, zonesById, visited = new Set()){
+    if(!pkg) return null;
+    if(Number.isFinite(pkg.packagePrice)) return Number(pkg.packagePrice);
+    const pricing = plannerPricingConfig(mode);
+    const override = pricing.packagePriceOverrides ? pricing.packagePriceOverrides[pkg.id] : null;
+    if(Number.isFinite(override)) return Number(override);
+    if(visited.has(pkg.id)) return null;
+    const nextVisited = new Set(visited);
+    nextVisited.add(pkg.id);
+    const fallbackToSum = pkg.fallbackToSum !== false;
+    if(!fallbackToSum) return null;
+    const componentIds = Array.isArray(pkg.componentIds) && pkg.componentIds.length ? pkg.componentIds : [];
+    if(componentIds.length){
+      let componentTotal = 0;
+      let hasAnyComponent = false;
+      for(const componentId of componentIds){
+        const childPkg = plannerBundleById(mode, componentId);
+        if(childPkg){
+          const childPrice = plannerPackageResolvedPrice(mode, childPkg, zonesById, nextVisited);
+          if(!Number.isFinite(childPrice)) return null;
+          componentTotal += childPrice;
+          hasAnyComponent = true;
+          continue;
+        }
+        const zone = zonesById.get(componentId);
+        if(!zone) continue;
+        componentTotal += zone.price;
+        hasAnyComponent = true;
+      }
+      if(hasAnyComponent) return componentTotal;
+    }
+    return pkg.zoneIds.reduce((sum, zoneId) => {
+      const zone = zonesById.get(zoneId);
+      return sum + (zone ? zone.price : 0);
+    }, 0);
+  }
+  function plannerPackageOriginalPrice(pkg, zonesById){
+    if(!pkg) return 0;
+    return pkg.zoneIds.reduce((sum, zoneId) => {
+      const zone = zonesById.get(zoneId);
+      return sum + (zone ? zone.price : 0);
+    }, 0);
+  }
+  function plannerPackageIsTodoPrice(mode, pkg){
+    if(!pkg) return false;
+    if(Number.isFinite(pkg.packagePrice)) return false;
+    const pricing = plannerPricingConfig(mode);
+    return !Number.isFinite(pricing.packagePriceOverrides ? pricing.packagePriceOverrides[pkg.id] : null);
+  }
+  function plannerPackageTreeNodeForZone(zone){
+    if(!zone) return null;
+    return {
+      type:"single",
+      id:zone.id,
+      label:zone.label,
+      price:zone.price,
+      children:[]
+    };
+  }
+  function plannerPackageTreeNode(mode, entry, zonesById, visited = new Set()){
+    if(!entry) return null;
+    if(entry.type === "single"){
+      return plannerPackageTreeNodeForZone(zonesById.get(entry.id));
+    }
+    const pkg = plannerBundleById(mode, entry.id);
+    if(!pkg || visited.has(pkg.id)) return null;
+    const nextVisited = new Set(visited);
+    nextVisited.add(pkg.id);
+    const componentIds = Array.isArray(pkg.componentIds) && pkg.componentIds.length ? pkg.componentIds : pkg.zoneIds;
+    const children = [];
+    const consumedZoneIds = new Set();
+    componentIds.forEach((componentId) => {
+      const childPkg = plannerBundleById(mode, componentId);
+      if(childPkg){
+        const childNode = plannerPackageTreeNode(mode, { type:"package", id:childPkg.id }, zonesById, nextVisited);
+        if(childNode){
+          children.push(childNode);
+          childPkg.zoneIds.forEach((zoneId) => consumedZoneIds.add(zoneId));
+        }
+        return;
+      }
+      const zone = zonesById.get(componentId);
+      if(!zone || consumedZoneIds.has(zone.id)) return;
+      children.push(plannerPackageTreeNodeForZone(zone));
+      consumedZoneIds.add(zone.id);
+    });
+    pkg.zoneIds.forEach((zoneId) => {
+      if(consumedZoneIds.has(zoneId)) return;
+      const zone = zonesById.get(zoneId);
+      if(zone) children.push(plannerPackageTreeNodeForZone(zone));
+    });
+    return {
+      type:"package",
+      id:pkg.id,
+      label:pkg.label,
+      level:pkg.level || 2,
+      price:Number(entry.price) || 0,
+      displayGroup:pkg.displayGroup || "",
+      isTodoPrice:plannerPackageIsTodoPrice(mode, pkg),
+      children
+    };
+  }
+  function plannerPackageDebugLog(snapshot){
+    plannerLastPackageDebugSnapshot = snapshot;
+    const runtimeDebug = typeof window !== "undefined" && window && window.__ANIMA_PLANNER_PACKAGE_DEBUG__ === true;
+    if(!PLANNER_PACKAGE_DEBUG && !runtimeDebug) return;
+    try{
+      console.debug("[planner-package]", snapshot);
+    } catch(_error){
+      // ignore console issues
+    }
+  }
+  function plannerSummarySnapshot(mode, selectedSet){
+    const effectiveSet = selectedSet || new Set();
+    const zonesById = plannerZonesMap(mode);
+    const selectedZoneIds = Array.from(effectiveSet).filter((zoneId) => zonesById.has(zoneId));
+    const selectedOrder = new Map(selectedZoneIds.map((zoneId, index) => [zoneId, index]));
+    if(!selectedZoneIds.length){
+      const emptySnapshot = {
+        mode,
+        selectedZoneIds:[],
+        candidates:[],
+        items:[],
+        total:0,
+        originalTotal:0,
+        savedTotal:0,
+        packageIds:[]
+      };
+      plannerPackageDebugLog(emptySnapshot);
+      return emptySnapshot;
+    }
+    const selectedZoneIdSet = new Set(selectedZoneIds);
+    const zoneIndexById = new Map(selectedZoneIds.map((zoneId, index) => [zoneId, index]));
+    const fullMask = (1 << selectedZoneIds.length) - 1;
+    const buildMask = (zoneIds) => zoneIds.reduce((mask, zoneId) => {
+      const index = zoneIndexById.get(zoneId);
+      if(typeof index !== "number") return mask;
+      return mask | (1 << index);
+    }, 0);
+    const candidates = selectedZoneIds.map((zoneId) => {
+      const zone = zonesById.get(zoneId);
+      return {
+        id:zone.id,
+        type:"single",
+        level:1,
+        priority:0,
+        zoneIds:[zone.id],
+        price:zone.price,
+        originalPrice:zone.price,
+        mask:buildMask([zone.id]),
+        label:zone.label,
+        displayGroup:"single",
+        isTodoPrice:false
+      };
+    });
+    plannerBundlesForMode(mode).forEach((pkg) => {
+      if(!Array.isArray(pkg.zoneIds) || !pkg.zoneIds.length) return;
+      if(pkg.zoneIds.some((zoneId) => !selectedZoneIdSet.has(zoneId))) return;
+      const resolvedPrice = plannerPackageResolvedPrice(mode, pkg, zonesById);
+      if(!Number.isFinite(resolvedPrice)) return;
+      candidates.push({
+        id:pkg.id,
+        type:"package",
+        level:pkg.level || 2,
+        priority:Number(pkg.priority) || 0,
+        zoneIds:[...pkg.zoneIds],
+        price:resolvedPrice,
+        originalPrice:plannerPackageOriginalPrice(pkg, zonesById),
+        mask:buildMask(pkg.zoneIds),
+        label:pkg.label,
+        displayGroup:pkg.displayGroup || "",
+        isTodoPrice:plannerPackageIsTodoPrice(mode, pkg)
+      });
+    });
+    const candidatesByBit = Array.from({ length:selectedZoneIds.length }, () => []);
+    candidates.forEach((candidate) => {
+      for(let bit = 0; bit < selectedZoneIds.length; bit += 1){
+        if(candidate.mask & (1 << bit)) candidatesByBit[bit].push(candidate);
+      }
+    });
+    const compareResults = (a, b) => {
+      if(!a) return b;
+      if(!b) return a;
+      if(a.totalPrice !== b.totalPrice) return a.totalPrice < b.totalPrice ? a : b;
+      if(a.maxRank !== b.maxRank) return a.maxRank > b.maxRank ? a : b;
+      if(a.itemCount !== b.itemCount) return a.itemCount < b.itemCount ? a : b;
+      if(a.priorityScore !== b.priorityScore) return a.priorityScore > b.priorityScore ? a : b;
+      if(a.packageZoneScore !== b.packageZoneScore) return a.packageZoneScore > b.packageZoneScore ? a : b;
+      return a.idKey <= b.idKey ? a : b;
+    };
+    const memo = new Map();
+    const solve = (mask) => {
+      if(mask === fullMask){
+        return {
+          totalPrice:0,
+          maxRank:0,
+          priorityScore:0,
+          packageZoneScore:0,
+          itemCount:0,
+          idKey:"",
+          items:[]
+        };
+      }
+      if(memo.has(mask)) return memo.get(mask);
+      let firstMissingBit = 0;
+      while((mask & (1 << firstMissingBit)) && firstMissingBit < selectedZoneIds.length){
+        firstMissingBit += 1;
+      }
+      let best = null;
+      (candidatesByBit[firstMissingBit] || []).forEach((candidate) => {
+        if(mask & candidate.mask) return;
+        const next = solve(mask | candidate.mask);
+        if(!next) return;
+        const candidateRank = ((candidate.level || 1) * 100000) + (candidate.priority || 0);
+        const nextResult = {
+          totalPrice:candidate.price + next.totalPrice,
+          maxRank:Math.max(candidateRank, next.maxRank || 0),
+          priorityScore:((candidate.level || 1) * 10000) + (candidate.priority || 0) + next.priorityScore,
+          packageZoneScore:(candidate.type === "package" ? candidate.zoneIds.length : 0) + next.packageZoneScore,
+          itemCount:1 + next.itemCount,
+          idKey:`${candidate.id}|${next.idKey}`,
+          items:[candidate, ...next.items]
+        };
+        best = compareResults(best, nextResult);
+      });
+      memo.set(mask, best);
+      return best;
+    };
+    const solved = solve(0);
+    const normalizedItems = (solved ? solved.items : []).map((candidate) => {
+      const earliestSelectionOrder = candidate.zoneIds.reduce((earliest, zoneId) => {
+        const order = selectedOrder.has(zoneId) ? selectedOrder.get(zoneId) : -1;
+        if(order < 0) return earliest;
+        if(earliest < 0) return Number(order);
+        return Math.min(earliest, Number(order));
+      }, -1);
+      const tree = plannerPackageTreeNode(mode, candidate, zonesById);
+      return {
+        id:candidate.id,
+        type:candidate.type,
+        level:candidate.level,
+        priority:candidate.priority,
+        label:candidate.label,
+        price:candidate.price,
+        originalPrice:candidate.originalPrice,
+        zoneIds:[...candidate.zoneIds],
+        parts:candidate.zoneIds.map((zoneId) => zonesById.get(zoneId)).filter(Boolean).map((zone) => zone.label),
+        displayGroup:candidate.displayGroup,
+        isTodoPrice:candidate.isTodoPrice,
+        children:tree && Array.isArray(tree.children) ? tree.children : [],
+        earliestSelectionOrder
+      };
+    }).sort((a, b) => {
+      if(a.earliestSelectionOrder !== b.earliestSelectionOrder) return a.earliestSelectionOrder - b.earliestSelectionOrder;
+      if(a.level !== b.level) return a.level - b.level;
+      if((a.zoneIds || []).length !== (b.zoneIds || []).length) return (a.zoneIds || []).length - (b.zoneIds || []).length;
+      return String(a.id).localeCompare(String(b.id));
+    });
+    const total = normalizedItems.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+    const originalTotal = normalizedItems.reduce((sum, item) => sum + (Number(item.originalPrice) || Number(item.price) || 0), 0);
+    const snapshot = {
+      mode,
+      selectedZoneIds,
+      candidates:candidates.map((candidate) => ({
+        id:candidate.id,
+        type:candidate.type,
+        price:candidate.price,
+        originalPrice:candidate.originalPrice,
+        zoneIds:[...candidate.zoneIds]
+      })),
+      items:normalizedItems,
+      total,
+      originalTotal,
+      savedTotal:Math.max(0, originalTotal - total),
+      packageIds:normalizedItems.filter((item) => item.type === "package").map((item) => item.id)
+    };
+    plannerPackageDebugLog(snapshot);
+    return snapshot;
+  }
+  function plannerSelectedBundles(mode, selectedSet){
+    return plannerSummarySnapshot(mode, selectedSet).items.filter((item) => item.type === "package");
+  }
+  function plannerActiveBundleIds(mode, selectedSet){
+    return new Set(plannerSummarySnapshot(mode, selectedSet).packageIds);
+  }
+  function plannerBundleFxLabel(mode, bundleId){
+    const snapshot = plannerSummarySnapshot(mode, plannerSelectedByMode[mode] || new Set());
+    const item = snapshot.items.find((entry) => entry.id === bundleId);
+    if(!item) return "";
+    const saved = Math.max(0, (Number(item.originalPrice) || 0) - (Number(item.price) || 0));
+    return saved > 0 ? plannerSavedLabel(saved) : "";
   }
   function plannerBundleCompleteInSet(bundle, selectedSet){
     if(!bundle || !selectedSet) return false;
@@ -10634,52 +11174,43 @@
     return plannerBundleCompleteInSet(bundle, selectedSet);
   }
   function plannerOrderItems(mode, selectedSet){
-    const zones = plannerZonesByMode[mode] || [];
-    const effectiveSet = selectedSet || new Set();
-    const zonesById = new Map(zones.map((zone) => [zone.id, zone]));
-    const activeBundles = plannerSelectedBundles(mode, effectiveSet);
-    const activeBundleByZoneId = new Map();
-    activeBundles.forEach((bundle) => {
-      bundle.zoneIds.forEach((zoneId) => {
-        activeBundleByZoneId.set(zoneId, bundle);
-      });
-    });
-    const items = [];
-    const renderedBundleIds = new Set();
-    const selectedZoneIdsNewestFirst = Array.from(effectiveSet).reverse();
-    let orderIndex = 0;
-    selectedZoneIdsNewestFirst.forEach((zoneId) => {
-      const zone = zonesById.get(zoneId);
-      if(!zone) return;
-      const activeBundle = activeBundleByZoneId.get(zone.id);
-      if(activeBundle){
-        if(renderedBundleIds.has(activeBundle.id)) return;
-        renderedBundleIds.add(activeBundle.id);
-        const bundleZones = activeBundle.zoneIds.map((zoneId) => zonesById.get(zoneId)).filter(Boolean);
-        const bundleOriginalPrice = bundleZones.reduce((sum, bundleZone) => sum + bundleZone.price, 0);
-        items.push({
-          id:activeBundle.id,
-          label:activeBundle.label,
-          price:activeBundle.price,
-          originalPrice:bundleOriginalPrice,
-          parts:bundleZones.map((bundleZone) => bundleZone.label),
-          _bundleSize:bundleZones.length,
-          _orderIndex:orderIndex++
-        });
-        return;
-      }
-      items.push({
-        id:zone.id,
-        label:zone.label,
-        price:zone.price,
-        _bundleSize:0,
-        _orderIndex:orderIndex++
-      });
-    });
-    return items.map((item) => {
-      const { _bundleSize, _orderIndex, ...cleanItem } = item;
-      return cleanItem;
-    });
+    return plannerSummarySnapshot(mode, selectedSet).items.map((item) => ({
+      id:item.id,
+      label:item.label,
+      price:item.price,
+      originalPrice:item.originalPrice,
+      parts:item.parts,
+      type:item.type,
+      zoneIds:item.zoneIds,
+      level:item.level,
+      children:item.children,
+      displayGroup:item.displayGroup,
+      isTodoPrice:item.isTodoPrice
+    }));
+  }
+  function plannerSummaryMetaParts(item){
+    if(!item || item.type !== "package") return [];
+    if(Array.isArray(item.children) && item.children.length){
+      return item.children
+        .map((child) => ({
+          label:plannerLabel(child.label).trim(),
+          isSingle:child.type === "single"
+        }))
+        .filter((entry) => entry.label);
+    }
+    return (item.parts || [])
+      .map((labelMap) => ({
+        label:plannerLabel(labelMap).trim(),
+        isSingle:true
+      }))
+      .filter((entry) => entry.label);
+  }
+  function plannerSummaryMetaText(item){
+    const entries = plannerSummaryMetaParts(item);
+    if(!entries.length) return "";
+    const allSingles = entries.every((entry) => entry.isSingle);
+    const separator = allSingles ? " + " : " · ";
+    return entries.map((entry) => entry.label).join(separator);
   }
   function spawnPlannerComboFx(text, options = {}){
     if(plannerIsLowPerfMode()) return 0;
@@ -10755,20 +11286,17 @@
   function plannerSavedLabel(value){
     const amount = formatEuro(value);
     const lang = currentLang();
-    if(lang === "ru") return `Выгоднее на ${amount}`;
-    if(lang === "en") return `Better value by €${value}`;
-    return `Um ${amount} günstiger`;
+    if(lang === "ru") return `Пакетная скидка ${amount}`;
+    if(lang === "en") return `Package saving ${amount}`;
+    return `Paketrabatt ${amount}`;
   }
   function plannerBundleSavedAmount(mode, bundleId){
     const bundle = plannerBundleById(mode, bundleId);
     if(!bundle) return 0;
-    const zones = plannerZonesByMode[mode] || [];
-    const zonesById = new Map(zones.map((zone) => [zone.id, zone]));
-    const originalPrice = bundle.zoneIds.reduce((sum, zoneId) => {
-      const zone = zonesById.get(zoneId);
-      return sum + (zone ? zone.price : 0);
-    }, 0);
-    return Math.max(0, originalPrice - bundle.price);
+    const zonesById = plannerZonesMap(mode);
+    const resolvedPrice = plannerPackageResolvedPrice(mode, bundle, zonesById);
+    const originalPrice = plannerPackageOriginalPrice(bundle, zonesById);
+    return Math.max(0, originalPrice - (Number(resolvedPrice) || 0));
   }
   function plannerText(key){
     const lang = currentLang();
@@ -10955,34 +11483,9 @@
   }
   function plannerMobileSummaryLines(selected){
     if(!Array.isArray(selected) || !selected.length) return [];
-    const lines = [];
-    selected.forEach((item) => {
-      const itemId = String(item && item.id || "");
-      if(itemId === "premium_bundle"){
-        const lang = currentLang();
-        if(lang === "ru"){
-          lines.push("Руки-компл.+", "Ноги компл.");
-          return;
-        }
-        if(lang === "en"){
-          lines.push("Arms pack+", "Legs pack");
-          return;
-        }
-        lines.push("Arme-Kompl.+", "Beine-Kompl.");
-        return;
-      }
-      if(itemId === "arms_bundle"){
-        lines.push(currentLang() === "ru" ? "Руки компл." : (currentLang() === "en" ? "Arms pack" : "Arme-Kompl."));
-        return;
-      }
-      if(itemId === "legs_bundle"){
-        lines.push(currentLang() === "ru" ? "Ноги компл." : (currentLang() === "en" ? "Legs pack" : "Beine-Kompl."));
-        return;
-      }
-      const label = plannerLabel(item.label).trim();
-      if(label) lines.push(label);
-    });
-    return lines;
+    return selected
+      .map((item) => plannerLabel(item.label).trim())
+      .filter(Boolean);
   }
   function plannerAnimateMobilePriceBlock(){
     const priceLines = [
@@ -11116,79 +11619,43 @@
       plannerLastToggleAtByKey.set(toggleKey, now);
     }
     plannerHistoryPush("toggle-zone");
+    const prevSnapshot = plannerSummarySnapshot(mode, selectedSet);
     if(wasSelected){
       selectedSet.delete(zoneId);
       const suppressedParts = plannerHoverPartsForZone(mode, zoneId);
       plannerHoverSuppressed = true;
       plannerHoverSuppressedKey = suppressedParts.join("|");
-      const hasBundleIdsAfterRemove = plannerActiveBundleIds(mode, selectedSet);
-      if(!hasBundleIdsAfterRemove.has("premium_bundle") && plannerPremiumSequencePhase !== "idle"){
-        clearPlannerPremiumSequence();
-      }
+      clearPlannerPremiumSequence();
+      clearPlannerBundleSequencesForMode(mode);
       updatePlannerFigureOverlay(mode);
       updatePlannerOrder(mode);
+      maybeStartPlannerGuideEffect();
+      plannerPersistState();
       return true;
     }
-    const hadBundleIds = plannerActiveBundleIds(mode, selectedSet);
     selectedSet.add(zoneId);
     plannerHoverSuppressed = false;
     plannerHoverSuppressedKey = null;
+    clearPlannerPremiumSequence();
+    clearPlannerBundleSequencesForMode(mode);
     updatePlannerFigureOverlay(mode);
     updatePlannerOrder(mode);
-    const hasBundleIds = plannerActiveBundleIds(mode, selectedSet);
-    const newlyActivatedBundleIds = Array.from(hasBundleIds).filter((bundleId) => !hadBundleIds.has(bundleId));
-    const armsBundle = plannerBundleById(mode, "arms_bundle");
-    const legsBundle = plannerBundleById(mode, "legs_bundle");
-    const hadArmsBundle = plannerBundleCompleteInSet(armsBundle, prevSelectedSet);
-    const hasArmsBundle = plannerBundleCompleteInSet(armsBundle, selectedSet);
-    const hadLegsBundle = plannerBundleCompleteInSet(legsBundle, prevSelectedSet);
-    const hasLegsBundle = plannerBundleCompleteInSet(legsBundle, selectedSet);
-    Array.from(hadBundleIds).forEach((bundleId) => {
-      if(hasBundleIds.has(bundleId)) return;
-      clearPlannerBundleSequence(mode, bundleId);
+    const nextSnapshot = plannerSummarySnapshot(mode, selectedSet);
+    const prevPackageIds = new Set(prevSnapshot.packageIds || []);
+    const activatedItems = (nextSnapshot.items || []).filter((item) => item.type === "package" && !prevPackageIds.has(item.id));
+    activatedItems.sort((a, b) => {
+      if((b.level || 0) !== (a.level || 0)) return (b.level || 0) - (a.level || 0);
+      if((b.zoneIds || []).length !== (a.zoneIds || []).length) return (b.zoneIds || []).length - (a.zoneIds || []).length;
+      return String(a.id).localeCompare(String(b.id));
     });
-    const premiumActivated = hasBundleIds.has("premium_bundle") && !hadBundleIds.has("premium_bundle");
-    if(!hasBundleIds.has("premium_bundle") && plannerPremiumSequencePhase !== "idle"){
-      clearPlannerPremiumSequence();
-    }
-    if(premiumActivated){
-      if(!wasSelected){
-        const newlyActivatedBaseBundleId = (hasArmsBundle && !hadArmsBundle)
-          ? "arms_bundle"
-          : ((hasLegsBundle && !hadLegsBundle) ? "legs_bundle" : null);
-        const premiumSavedTotal = plannerBundleSavedAmount(mode, "premium_bundle");
-        const armsSaved = plannerBundleSavedAmount(mode, "arms_bundle");
-        const legsSaved = plannerBundleSavedAmount(mode, "legs_bundle");
-        const premiumExtraSaved = Math.max(0, premiumSavedTotal - armsSaved - legsSaved);
-        plannerPremiumSequenceMode = mode;
-        plannerPremiumSequencePhase = "merge";
-        plannerPremiumBaseBundleId = newlyActivatedBaseBundleId;
-        schedulePlannerRender(mode);
-
-        // On second bundle completion: enable premium immediately and show one combined saved amount.
-        startPlannerPremiumSequence(mode);
-        if(newlyActivatedBaseBundleId){
-          const addedBundleSaved = plannerBundleSavedAmount(mode, newlyActivatedBaseBundleId);
-          const instantSaved = addedBundleSaved + premiumExtraSaved;
-          if(instantSaved > 0) spawnPlannerComboFx(plannerSavedLabel(instantSaved), { premium:true });
-        } else if(premiumExtraSaved > 0){
-          spawnPlannerComboFx(plannerSavedLabel(premiumExtraSaved), { premium:true });
-        }
-      } else {
-        startPlannerPremiumSequence(mode);
+    const activatedLead = activatedItems[0] || null;
+    if(activatedLead){
+      const saved = Math.max(0, (Number(activatedLead.originalPrice) || 0) - (Number(activatedLead.price) || 0));
+      if(saved > 0){
+        spawnPlannerComboFx(plannerSavedLabel(saved), {
+          premium:(activatedLead.level || 0) >= 3
+        });
       }
-    } else {
-      newlyActivatedBundleIds.forEach((bundleId) => {
-        // Play bundle-merge animation only on adding zones.
-        // On reverse flow (deselect), enable bundle immediately.
-        if(wasSelected) return;
-        if(bundleId === "arms_bundle" || bundleId === "legs_bundle"){
-          const bundleFxLabel = plannerBundleFxLabel(mode, bundleId);
-          // Single bundle (arms/legs) should merge instantly and show discount immediately.
-          startPlannerBundleSequence(mode, bundleId, 0, 350);
-          if(bundleFxLabel) spawnPlannerComboFx(bundleFxLabel);
-        }
-      });
     }
     maybeStartPlannerGuideEffect();
     plannerPersistState();
@@ -11197,32 +11664,9 @@
   function updatePlannerOrder(mode){
     if(!plannerOrderList || !plannerOrderEmpty || !plannerTotalValue) return;
     const isCourseMode = plannerPricingView === "course";
-    const zonesById = new Map((plannerZonesByMode[mode] || []).map((zone) => [zone.id, zone]));
     const expandedBundleRows = plannerExpandedBundleRowsByMode[mode] || new Set();
-    const bundleDetailItems = (bundleId) => {
-      const bundle = plannerBundleById(mode, bundleId);
-      if(!bundle) return [];
-      return bundle.zoneIds
-        .map((zoneId) => zonesById.get(zoneId))
-        .filter(Boolean)
-        .map((zone) => ({
-          label:plannerLabel(zone.label),
-          price:zone.price
-        }));
-    };
-    const bundlePreviewItem = (bundleId) => {
-      const bundle = plannerBundleById(mode, bundleId);
-      if(!bundle) return null;
-      const bundleZones = bundle.zoneIds.map((zoneId) => zonesById.get(zoneId)).filter(Boolean);
-      const originalPrice = bundleZones.reduce((sum, zone) => sum + zone.price, 0);
-      return {
-        id:bundle.id,
-        label:bundle.label,
-        price:bundle.price,
-        originalPrice,
-        parts:bundleZones.map((zone) => zone.label)
-      };
-    };
+    const selectedSet = plannerSelectedByMode[mode] || new Set();
+    const snapshot = plannerSummarySnapshot(mode, selectedSet);
     const displayPriceMeta = (basePrice, originalPrice) => {
       if(!isCourseMode){
         return {
@@ -11239,182 +11683,93 @@
         saved:Math.max(0, courseOriginal - coursePrice)
       };
     };
-    const renderBundleRow = (zone, options = {}) => {
+    const renderTreeNode = (node) => {
+      if(!node) return "";
+      const label = plannerLabel(node.label);
+      if(!label) return "";
+      if(!Array.isArray(node.children) || !node.children.length){
+        const nodePrice = Number(node.price) || 0;
+        const nodePriceHtml = isCourseMode
+          ? plannerTextTemplate("courseDetail", { count:String(PLANNER_COURSE_SESSIONS), value:formatEuro(nodePrice) })
+          : formatEuro(nodePrice);
+        return `<div class="orderItemDetailRow"><span class="orderItemDetailName">${label}</span><span class="orderItemDetailPrice">${nodePriceHtml}</span></div>`;
+      }
+      const badgeText = node.type === "package"
+        ? plannerText(node.level >= 3 ? "premiumTag" : "packageTag")
+        : "";
+      const childrenHtml = node.children.map((child) => renderTreeNode(child)).filter(Boolean).join("");
+      return `<div class="orderItemDetailTree"><div class="orderItemDetailRow orderItemDetailRow--group"><span class="orderItemDetailName">${label}</span>${badgeText ? `<span class="orderItemDetailBadge">${badgeText}</span>` : ""}</div><div class="orderItemDetailTreeChildren">${childrenHtml}</div></div>`;
+    };
+    const renderSummaryRow = (item) => {
       const li = document.createElement("li");
       li.className = "orderItem";
-      if(options.premiumSoftIn) li.classList.add("orderItem--premium");
-      const isBundleRow = (zone.id || "").endsWith("_bundle");
-      const detailItems = isBundleRow ? bundleDetailItems(zone.id) : [];
-      const hasMultiParts = Array.isArray(zone.parts) && zone.parts.length > 1;
-      const canExpand = isBundleRow && (detailItems.length > 1 || hasMultiParts);
-      const isExpanded = canExpand && expandedBundleRows.has(zone.id);
-      const partsText = Array.isArray(zone.parts) ? zone.parts.map((partLabel) => plannerLabel(partLabel)).join(" + ") : "";
-      const basePrice = zone.price;
-      const originalPrice = Number(zone.originalPrice) || basePrice;
+      if((item.level || 0) >= 3) li.classList.add("orderItem--premium");
+      const isPackageRow = item.type === "package";
+      const canExpand = isPackageRow && Array.isArray(item.children) && item.children.length > 0;
+      const isExpanded = canExpand && expandedBundleRows.has(item.id);
+      const partsText = isPackageRow ? plannerSummaryMetaText(item) : "";
+      const basePrice = item.price;
+      const originalPrice = Number(item.originalPrice) || basePrice;
       const priceMeta = displayPriceMeta(basePrice, originalPrice);
       const calcUnitPrice = isCourseMode ? (priceMeta.original / PLANNER_COURSE_SESSIONS) : basePrice;
       const saved = priceMeta.saved;
-      const premiumTagHtml = (!isCourseMode && options.showPremiumTag) ? `<span class="orderItemPremiumTag">${plannerText("premiumTag")}</span>` : "";
+      const premiumTagHtml = (!isCourseMode && (item.level || 0) >= 3)
+        ? `<span class="orderItemPremiumTag">${plannerText("premiumTag")}</span>`
+        : (!isCourseMode && isPackageRow)
+          ? `<span class="orderItemPremiumTag">${plannerText("packageTag")}</span>`
+          : "";
       const courseTagHtml = isCourseMode
-        ? `<span class="orderItemPremiumTag">${plannerText(zone.id === "premium_bundle" ? "courseTagPremium" : "courseTag")}</span>`
+        ? `<span class="orderItemPremiumTag">${plannerText((item.level || 0) >= 3 ? "courseTagPremium" : "courseTag")}</span>`
         : "";
-      const mergeFxHtml = isCourseMode ? "" : (options.mergeFxHtml || "");
       const expandHintHtml = canExpand
-        ? `<button type="button" class="orderItemSaveHintBtn${isExpanded ? " is-open" : ""}" data-bundle-id="${zone.id}" aria-expanded="${isExpanded ? "true" : "false"}" aria-label="Toggle details"><span class="orderItemSaveHintIcon" aria-hidden="true"></span></button>`
+        ? `<button type="button" class="orderItemSaveHintBtn${isExpanded ? " is-open" : ""}" data-bundle-id="${item.id}" aria-expanded="${isExpanded ? "true" : "false"}" aria-label="Toggle details"><span class="orderItemSaveHintIcon" aria-hidden="true"></span></button>`
         : "";
-      const showSaveRow = saved > 0;
-      const mergeFxResolved = showSaveRow
-        ? ""
-        : ((canExpand && mergeFxHtml)
-          ? `<span class="orderSavingLine">${mergeFxHtml}${expandHintHtml}</span>`
-          : mergeFxHtml);
-      const saveHtml = showSaveRow
+      const todoPriceHtml = (isPackageRow && item.isTodoPrice)
+        ? `<span class="orderItemMeta">Preis folgt nach Freigabe, aktuell Paket zum Zonenpreis.</span>`
+        : "";
+      const saveHtml = saved > 0
         ? `<span class="orderItemSave">${plannerSavedLabel(saved)}${expandHintHtml}</span>`
-        : "";
+        : (canExpand ? `<span class="orderSavingLine">${expandHintHtml}</span>` : "")
+      ;
       const detailsHtml = (canExpand && isExpanded)
-        ? `<div class="orderItemDetails">${detailItems.map((part) => `<div class="orderItemDetailRow"><span class="orderItemDetailName">${part.label}</span><span class="orderItemDetailPrice">${isCourseMode ? plannerTextTemplate("courseDetail", { count:String(PLANNER_COURSE_SESSIONS), value:formatEuro(part.price) }) : formatEuro(part.price)}</span></div>`).join("")}</div>`
+        ? `<div class="orderItemDetails">${item.children.map((child) => renderTreeNode(child)).filter(Boolean).join("")}</div>`
         : "";
-      const titleText = plannerLabel(zone.label);
+      const titleText = plannerLabel(item.label);
       const oldPriceHtml = (priceMeta.original > priceMeta.price)
         ? (isCourseMode
           ? `<span class="orderItemPriceOldLine"><span class="orderItemPriceCalc">${plannerTextTemplate("courseDetail", { count:String(PLANNER_COURSE_SESSIONS), value:formatEuro(calcUnitPrice) })}</span><span class="orderItemPriceEq">= <span class="orderItemPriceEqValue">${formatEuro(priceMeta.original)}</span></span></span>`
           : `<span class="orderItemPriceOld">${formatEuro(priceMeta.original)}</span>`)
         : "";
-      li.innerHTML = `<span class="orderItemNameWrap">${courseTagHtml}${premiumTagHtml}<span class="orderItemNameLine"><span class="orderItemName">${titleText}</span></span>${partsText ? `<span class="orderItemMeta">${partsText}</span>` : ""}${mergeFxResolved}${saveHtml}${detailsHtml}</span><span class="orderItemPriceWrap">${oldPriceHtml}<strong class="orderItemPrice">${formatEuro(priceMeta.price)}</strong></span>`;
+      li.innerHTML = `<span class="orderItemNameWrap">${courseTagHtml}${premiumTagHtml}<span class="orderItemNameLine"><span class="orderItemName">${titleText}</span></span>${partsText ? `<span class="orderItemMeta">${partsText}</span>` : ""}${todoPriceHtml}${saveHtml}${detailsHtml}</span><span class="orderItemPriceWrap">${oldPriceHtml}<strong class="orderItemPrice">${formatEuro(priceMeta.price)}</strong></span>`;
       plannerOrderList.appendChild(li);
     };
-    const renderSingleRow = (labelMap, basePrice) => {
-      const li = document.createElement("li");
-      li.className = "orderItem";
-      const courseTagHtml = isCourseMode ? `<span class="orderItemPremiumTag">${plannerText("courseTag")}</span>` : "";
-      const price = isCourseMode ? (basePrice * PLANNER_COURSE_PAYABLE_SESSIONS) : basePrice;
-      const oldPrice = isCourseMode ? (basePrice * PLANNER_COURSE_SESSIONS) : 0;
-      const saved = Math.max(0, oldPrice - price);
-      const saveHtml = (isCourseMode && saved > 0) ? `<span class="orderItemSave">${plannerSavedLabel(saved)}</span>` : "";
-      const oldPriceHtml = oldPrice > price
-        ? `<span class="orderItemPriceOldLine"><span class="orderItemPriceCalc">${plannerTextTemplate("courseDetail", { count:String(PLANNER_COURSE_SESSIONS), value:formatEuro(basePrice) })}</span><span class="orderItemPriceEq">= <span class="orderItemPriceEqValue">${formatEuro(oldPrice)}</span></span></span>`
-        : "";
-      li.innerHTML = `<span class="orderItemNameWrap">${courseTagHtml}<span class="orderItemNameLine"><span class="orderItemName">${plannerLabel(labelMap)}</span></span>${saveHtml}</span><span class="orderItemPriceWrap">${oldPriceHtml}<strong class="orderItemPrice">${formatEuro(price)}</strong></span>`;
-      plannerOrderList.appendChild(li);
-    };
-    const selectedSet = plannerSelectedByMode[mode] || new Set();
     updatePlannerTermLink(mode, selectedSet);
     if(!selectedSet.size && plannerPricingView === "course"){
       setPlannerPricingView("single");
     }
-    const selected = plannerOrderItems(mode, selectedSet);
-    const sessionTotal = selected.reduce((sum, zone) => sum + zone.price, 0);
+    const selected = snapshot.items;
+    const sessionTotal = snapshot.total;
     updatePlannerCourseOffer(mode, selectedSet, sessionTotal);
-    const visibleBundleIds = new Set(selected.filter((zone) => (zone.id || "").endsWith("_bundle")).map((zone) => zone.id));
+    const visibleBundleIds = new Set(selected.filter((item) => item.type === "package").map((item) => item.id));
     Array.from(expandedBundleRows).forEach((bundleId) => {
       if(visibleBundleIds.has(bundleId)) return;
       expandedBundleRows.delete(bundleId);
     });
-    const activeBundleIds = plannerActiveBundleIds(mode, selectedSet);
-    const isPremiumBundleActive = activeBundleIds.has("premium_bundle");
-    const isPremiumSplitPhase = isPremiumBundleActive && plannerPremiumSequenceMode === mode && plannerPremiumSequencePhase === "split";
-    const isPremiumMergePhase = isPremiumBundleActive && plannerPremiumSequenceMode === mode && plannerPremiumSequencePhase === "merge";
     let displayTotal = sessionTotal;
-
-    // During split-phase show pre-bundle totals (e.g. 90 before 80) so transition is clear.
-    selected.forEach((zone) => {
-      if(!(zone.id || "").endsWith("_bundle")) return;
-      if(zone.id === "premium_bundle"){
-        if(isPremiumSplitPhase){
-          const armsPreview = bundlePreviewItem("arms_bundle");
-          const legsPreview = bundlePreviewItem("legs_bundle");
-          const prePremiumTotal = (armsPreview ? armsPreview.price : 0) + (legsPreview ? legsPreview.price : 0);
-          displayTotal = (displayTotal - zone.price) + prePremiumTotal;
-        }
-        return;
-      }
-      const bundlePhase = plannerBundleSequencePhase(mode, zone.id);
-      if(bundlePhase === "split"){
-        const originalPrice = Number(zone.originalPrice) || zone.price;
-        displayTotal = (displayTotal - zone.price) + originalPrice;
-      }
-    });
     plannerOrderList.innerHTML = "";
     if(!selected.length){
       plannerOrderEmpty.hidden = false;
     } else {
       plannerOrderEmpty.hidden = true;
-      selected.forEach((zone) => {
-        if((zone.id || "").endsWith("_bundle")){
-          if(zone.id === "premium_bundle"){
-            if(isPremiumSplitPhase){
-              const baseBundleId = plannerPremiumBaseBundleId;
-              const secondBundleId = baseBundleId === "arms_bundle" ? "legs_bundle" : "arms_bundle";
-              const renderBundleByPhase = (bundleId) => {
-                const preview = bundlePreviewItem(bundleId);
-                if(!preview) return;
-                const phase = plannerBundleSequencePhase(mode, bundleId);
-                if(phase === "split"){
-                  const splitBundle = plannerBundleById(mode, bundleId);
-                  if(splitBundle){
-                    splitBundle.zoneIds.forEach((zoneId) => {
-                      const zonePart = zonesById.get(zoneId);
-                      if(!zonePart) return;
-                      renderSingleRow(zonePart.label, zonePart.price);
-                    });
-                    return;
-                  }
-                }
-                if(phase === "merge"){
-                  renderBundleRow(preview, { premiumSoftIn:true });
-                  return;
-                }
-                renderBundleRow(preview);
-              };
-              if(baseBundleId) renderBundleByPhase(baseBundleId);
-              if(secondBundleId) renderBundleByPhase(secondBundleId);
-            } else if(isPremiumMergePhase){
-              const premiumSavedValue = plannerBundleSavedAmount(mode, "premium_bundle");
-              const mergeFx = `<span class="orderMergeFx"><span class="orderMergeTotal orderMergeTotal--static">${plannerSavedLabel(premiumSavedValue)}</span></span>`;
-              renderBundleRow(zone, { showPremiumTag:true, mergeFxHtml:mergeFx, hideSaved:true });
-            } else {
-              const premiumSavedValue = plannerBundleSavedAmount(mode, "premium_bundle");
-              const mergeFx = `<span class="orderMergeFx"><span class="orderMergeTotal orderMergeTotal--static">${plannerSavedLabel(premiumSavedValue)}</span></span>`;
-              renderBundleRow(zone, { showPremiumTag:true, mergeFxHtml:mergeFx, hideSaved:true });
-            }
-          } else {
-            const bundlePhase = plannerBundleSequencePhase(mode, zone.id);
-            if(bundlePhase === "split"){
-              const splitBundle = plannerBundleById(mode, zone.id);
-              if(splitBundle){
-                splitBundle.zoneIds.forEach((zoneId) => {
-                  const zonePart = zonesById.get(zoneId);
-                  if(!zonePart) return;
-                  renderSingleRow(zonePart.label, zonePart.price);
-                });
-              } else {
-                renderBundleRow(zone);
-              }
-            } else if(bundlePhase === "merge"){
-              renderBundleRow(zone);
-            } else {
-              renderBundleRow(zone);
-            }
-          }
-        } else {
-          renderSingleRow(zone.label, zone.price);
-        }
-      });
+      selected.forEach((item) => renderSummaryRow(item));
     }
     if(plannerPremiumBadge){
       plannerPremiumBadge.hidden = true;
     }
-    const shouldAnimateTotalFlip = selected.some((zone) => {
-      if(!(zone.id || "").endsWith("_bundle")) return false;
-      if(zone.id === "premium_bundle"){
-        return isPremiumMergePhase;
-      }
-      return plannerBundleSequencePhase(mode, zone.id) === "merge";
-    });
     if(plannerPricingView === "course"){
       displayTotal = sessionTotal * PLANNER_COURSE_PAYABLE_SESSIONS;
     }
-    renderPlannerTotalValue(displayTotal, shouldAnimateTotalFlip);
+    renderPlannerTotalValue(displayTotal, false);
     updatePlannerMobileInfo(mode, selectedSet, selected, displayTotal);
   }
   function renderPlannerZones(mode){
