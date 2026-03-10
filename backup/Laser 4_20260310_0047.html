@@ -3045,9 +3045,8 @@
       right:var(--legalCloseInset);
       width:38px;
       height:38px;
-      background:#fff;
+      background:#f3f3f7;
       color:#1b1b1f;
-      box-shadow:0 0 0 1px rgba(17,18,24,.06);
     }
     .legalDoc{
       background:#fff;
@@ -3082,12 +3081,11 @@
       margin-bottom:32px;
     }
     .legalDocCard{
-      background:#fff;
+      background:var(--menuLayer);
       border:none;
       border-radius:28px;
       padding:0;
       margin:0;
-      box-shadow:0 0 0 1px rgba(17,18,24,.05);
     }
     .legalTextZone{
       --textZonePad:clamp(29px, 6.5vw, 49px);
@@ -3107,7 +3105,7 @@
       font-size:18px;
       line-height:1.4;
       letter-spacing:-.01em;
-      font-weight:400;
+      font-weight:520;
     }
     .legalDoc p{margin:0 0 12px}
     .legalDoc h2{margin:0 0 12px}
@@ -5809,6 +5807,16 @@
     { mode:"frauen", view:"face" },
     { mode:"herren", view:"front" }
   ];
+  const PLANNER_STARTUP_CRITICAL_PART_KEYS = {
+    frauen:{
+      front:["HALS", "BRUSTBEREICH", "HANDE_L", "HANDE_R", "FUSSE_L", "FUSSE_R", "ACHSELN_MAIN", "ACHSELN_GRAY", "OBERARME_MAIN", "UNTERARME_MAIN", "BAUCH_MEDIA_LN", "BAUCH", "BIKINI_MAIN", "OBERSCH_MAIN", "UNTERSCH_MAIN", "INTIM_KOM_POF"],
+      back:["NACKEN", "OBERER_RUECKEN", "UNTERER_RUECKEN", "POBACKEN", "OBERARME_MAIN", "UNTERARME_MAIN", "HANDE_L", "HANDE_R", "FUSSE_L", "FUSSE_R", "OBERSCH_MAIN", "UNTERSCH_MAIN", "INTIM_KOM_POF", "ACHSELN_MAIN", "ACHSELN_GRAY"],
+      face:["HALS", "NACKEN", "KINN", "WANGEN", "KOTELETTEN", "ZWISCHENBRAUEN", "OBERLIPPE"]
+    },
+    herren:{
+      front:["HALS", "BRUSTBEREICH", "HANDE_L", "HANDE_R", "FUSSE_L", "FUSSE_R", "ACHSELN_MAIN", "ACHSELN_GRAY", "OBERARME_MAIN", "UNTERARME_MAIN", "BAUCH_MEDIA_LN", "BAUCH", "BIKINI_MAIN", "OBERSCH_MAIN", "UNTERSCH_MAIN", "INTIM_KOM_POF"]
+    }
+  };
   const PLANNER_LOW_FPS_THRESHOLD = 42;
   const PLANNER_FACE_LOCAL_STATE_KEY = "anima_laser_face_adjustments_v1";
   const PLANNER_SWIPE_MIN_X = 22;
@@ -5830,9 +5838,6 @@
   const coarsePointerMq = window.matchMedia("(pointer: coarse)");
   const instantMenuMq = window.matchMedia("(max-width: 1024px)");
   const mobileVideoMq = window.matchMedia("(max-width: 767px)");
-  const fastNavUa = navigator.userAgent || "";
-  const fastNavConnection = navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
-  const fastNavIsTelegramWebView = /Telegram/i.test(fastNavUa);
   function plannerIsLowPerfMode(){
     return plannerIsMobilePerfMode() && plannerLowPerfMode;
   }
@@ -6154,15 +6159,19 @@
     const safeMode = mode === "herren" ? "herren" : "frauen";
     const safeView = plannerFrauenViewOrder.includes(view) ? view : "front";
     const includeAllOverlays = options.includeAllOverlays !== false;
+    const partKeys = Array.isArray(options.partKeys) ? options.partKeys.filter(Boolean) : null;
     const modeVisuals = plannerFigureByMode[safeMode] || plannerFigureByMode.frauen || {};
     const visual = modeVisuals[safeView];
     if(visual && visual.src) result.push({ src:visual.src, kind:"base" });
     const frontlineByView = plannerFrontlineByModeAndView[safeMode] || {};
     if(frontlineByView[safeView]) result.push({ src:frontlineByView[safeView], kind:"frontline" });
-    if(includeAllOverlays){
+    if(includeAllOverlays || partKeys){
       const hoverByView = plannerHoverOverlaySrcByModeAndView[safeMode] || {};
       const overlayMap = hoverByView[safeView] || {};
-      Object.values(overlayMap).forEach((src) => {
+      const overlaySources = partKeys
+        ? partKeys.map((partKey) => overlayMap[partKey]).filter(Boolean)
+        : Object.values(overlayMap);
+      overlaySources.forEach((src) => {
         if(src) result.push({ src, kind:"overlay" });
       });
     }
@@ -6173,7 +6182,8 @@
   function plannerStartupCriticalEntries(){
     const unique = new Map();
     PLANNER_STARTUP_SCENE_TARGETS.forEach(({ mode, view }) => {
-      plannerSceneAssetEntries(mode, view, { includeAllOverlays:true }).forEach((entry) => {
+      const partKeys = ((PLANNER_STARTUP_CRITICAL_PART_KEYS[mode] || {})[view]) || null;
+      plannerSceneAssetEntries(mode, view, { includeAllOverlays:false, partKeys }).forEach((entry) => {
         const resolved = plannerResolveAssetForPreload(entry.src);
         if(!resolved) return;
         const prev = unique.get(resolved);
@@ -6193,19 +6203,25 @@
     if(activeMode !== "frauen") return;
     plannerSyncSceneSources("frauen");
     const frauenStartupViews = new Set(["front", "back", "face"]);
-    plannerFigureSceneViews.forEach((view) => {
-      if(!frauenStartupViews.has(view)) return;
-      const scene = plannerViewScenes[view];
-      if(!scene) return;
-      [scene.base, scene.frontline, ...Object.values(scene.overlayElsByPartKey || {})].forEach((img) => {
-        if(!(img instanceof HTMLImageElement)) return;
-        if((img.getAttribute("src") || "") === "data:,"){
-          plannerEnsureImageSource(img);
-        }
-        const isCriticalFrameLayer = img === scene.base || img === scene.frontline;
-        img.loading = isCriticalFrameLayer ? "eager" : "auto";
-        img.decoding = "async";
-        img.fetchPriority = isCriticalFrameLayer ? "high" : "low";
+    [plannerViewScenes, plannerScrollViewScenes].forEach((sceneGroup) => {
+      plannerFigureSceneViews.forEach((view) => {
+        if(!frauenStartupViews.has(view)) return;
+        const scene = sceneGroup[view];
+        if(!scene) return;
+        const partKeys = ((PLANNER_STARTUP_CRITICAL_PART_KEYS.frauen || {})[view]) || [];
+        const overlayImages = partKeys
+          .map((partKey) => scene.overlayElsByPartKey && scene.overlayElsByPartKey[partKey])
+          .filter(Boolean);
+        [scene.base, scene.frontline, ...overlayImages].forEach((img) => {
+          if(!(img instanceof HTMLImageElement)) return;
+          if((img.getAttribute("src") || "") === "data:,"){
+            plannerEnsureImageSource(img);
+          }
+          const isCriticalFrameLayer = img === scene.base || img === scene.frontline;
+          img.loading = "eager";
+          img.decoding = "async";
+          img.fetchPriority = isCriticalFrameLayer ? "high" : "low";
+        });
       });
     });
   }
@@ -8000,32 +8016,10 @@
     );
   }
   function plannerKonvaAvailable(){
-    return !!(plannerIsEditMode() && window.Konva && plannerKonvaStageEl instanceof HTMLElement && plannerFaceJoystick instanceof HTMLElement);
-  }
-  function plannerDisposeKonvaStage(){
-    if(plannerKonvaTransformer && typeof plannerKonvaTransformer.destroy === "function"){
-      plannerKonvaTransformer.destroy();
-    }
-    if(plannerKonvaLayer && typeof plannerKonvaLayer.destroy === "function"){
-      plannerKonvaLayer.destroy();
-    }
-    if(plannerKonvaStage && typeof plannerKonvaStage.destroy === "function"){
-      plannerKonvaStage.destroy();
-    }
-    if(plannerKonvaStageEl instanceof HTMLElement){
-      plannerKonvaStageEl.innerHTML = "";
-    }
-    plannerKonvaStage = null;
-    plannerKonvaLayer = null;
-    plannerKonvaTransformer = null;
-    plannerKonvaBoundMode = "";
-    plannerKonvaBoundView = "";
+    return !!(window.Konva && plannerKonvaStageEl instanceof HTMLElement && plannerFaceJoystick instanceof HTMLElement);
   }
   function plannerEnsureKonvaStage(){
-    if(!plannerKonvaAvailable()){
-      plannerDisposeKonvaStage();
-      return false;
-    }
+    if(!plannerKonvaAvailable()) return false;
     const width = Math.max(1, Math.floor(plannerKonvaStageEl.clientWidth || 160));
     const height = Math.max(1, Math.floor(plannerKonvaStageEl.clientHeight || 138));
     if(!plannerKonvaStage){
@@ -8084,10 +8078,6 @@
     schedulePlannerRender(mode);
   }
   function plannerSyncKonvaEditor(mode = activeLaserMode()){
-    if(!plannerIsEditMode()){
-      plannerDisposeKonvaStage();
-      return;
-    }
     if(!plannerEnsureKonvaStage() || !plannerKonvaLayer || !plannerKonvaTransformer) return;
     const width = plannerKonvaStage.width();
     const height = plannerKonvaStage.height();
@@ -9337,7 +9327,6 @@
     };
   }
   function plannerHistoryPush(_reason = ""){
-    if(!plannerIsEditMode()) return;
     if(plannerHistoryRestoring) return;
     const snapshot = plannerHistorySnapshot();
     const serialized = JSON.stringify(snapshot);
@@ -9407,7 +9396,6 @@
     }
   }
   function plannerUndoLastAction(){
-    if(!plannerIsEditMode()) return false;
     if(!plannerUndoStack.length) return false;
     const currentSnapshot = plannerHistorySnapshot();
     const snapshot = plannerUndoStack.pop();
@@ -9421,7 +9409,6 @@
     return applied;
   }
   function plannerRedoLastAction(){
-    if(!plannerIsEditMode()) return false;
     if(!plannerRedoStack.length) return false;
     const currentSnapshot = plannerHistorySnapshot();
     const snapshot = plannerRedoStack.pop();
@@ -13075,82 +13062,6 @@
     preload.href = src;
     preload.setAttribute("data-laser-video-preload", src);
     document.head.appendChild(preload);
-  }
-  function canWarmInternalNavigation(){
-    if(fastNavConnection && fastNavConnection.saveData) return false;
-    const effectiveType = fastNavConnection && typeof fastNavConnection.effectiveType === "string"
-      ? fastNavConnection.effectiveType
-      : "";
-    if(effectiveType.includes("2g")) return false;
-    return true;
-  }
-  function resolveFastNavUrl(rawHref){
-    if(typeof rawHref !== "string" || !rawHref) return null;
-    const trimmed = rawHref.trim();
-    if(!trimmed || trimmed.startsWith("#")) return null;
-    if(/^(mailto:|tel:|javascript:|data:)/i.test(trimmed)) return null;
-    try{
-      const nextUrl = new URL(trimmed, window.location.href);
-      const currentUrl = new URL(window.location.href);
-      const sameFileProtocol = currentUrl.protocol === "file:" && nextUrl.protocol === "file:";
-      if(!sameFileProtocol && nextUrl.origin !== currentUrl.origin) return null;
-      if(nextUrl.href === currentUrl.href) return null;
-      return nextUrl;
-    }catch(_error){
-      return null;
-    }
-  }
-  const fastNavPrefetched = new Set();
-  function prefetchInternalPage(rawHref){
-    if(!canWarmInternalNavigation()) return;
-    const nextUrl = resolveFastNavUrl(rawHref);
-    if(!nextUrl) return;
-    const key = nextUrl.href;
-    if(fastNavPrefetched.has(key)) return;
-    const link = document.createElement("link");
-    link.rel = "prefetch";
-    link.href = key;
-    link.as = "document";
-    link.setAttribute("data-fast-nav-prefetch", key);
-    document.head.appendChild(link);
-    fastNavPrefetched.add(key);
-  }
-  function fastNavHrefFromEventTarget(target){
-    if(!(target instanceof Element)) return "";
-    const el = target.closest("a[href]");
-    if(!(el instanceof HTMLAnchorElement)) return "";
-    if(el.target && el.target !== "_self") return "";
-    if(el.hasAttribute("download")) return "";
-    return el.getAttribute("href") || "";
-  }
-  document.addEventListener("pointerover", (event) => {
-    const href = fastNavHrefFromEventTarget(event.target);
-    if(href) prefetchInternalPage(href);
-  }, { passive:true });
-  document.addEventListener("touchstart", (event) => {
-    const href = fastNavHrefFromEventTarget(event.target);
-    if(href) prefetchInternalPage(href);
-  }, { passive:true });
-  document.addEventListener("focusin", (event) => {
-    const href = fastNavHrefFromEventTarget(event.target);
-    if(href) prefetchInternalPage(href);
-  });
-  const fastNavCriticalHrefs = [
-    "index.html",
-    "detox-thermo.html",
-    "preise.html",
-    "impressum.html",
-    "datenschutz.html"
-  ];
-  if(canWarmInternalNavigation() && !fastNavIsTelegramWebView){
-    const warmFastNavLinks = () => {
-      fastNavCriticalHrefs.forEach(prefetchInternalPage);
-    };
-    if(typeof window.requestIdleCallback === "function"){
-      window.requestIdleCallback(warmFastNavLinks, { timeout:1500 });
-    }else{
-      setTimeout(warmFastNavLinks, 900);
-    }
   }
   function syncLaserVideoPreview(){
     if(!laserVideoPreview) return;

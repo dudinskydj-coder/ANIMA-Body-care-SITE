@@ -1360,6 +1360,9 @@
   const menuPerfIsIOS = /iPhone|iPad|iPod/i.test(menuPerfUa) || (/Macintosh/i.test(menuPerfUa) && menuPerfTouchPoints > 1);
   const menuPerfIsSafari = menuPerfIsIOS && /Safari/i.test(menuPerfUa) && !/(CriOS|FxiOS|EdgiOS)/i.test(menuPerfUa);
   const menuPerfIsAndroidChrome = /Android/i.test(menuPerfUa) && /Chrome/i.test(menuPerfUa) && !/EdgA|OPR|SamsungBrowser/i.test(menuPerfUa);
+  const fastNavUa = navigator.userAgent || "";
+  const fastNavConnection = navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
+  const fastNavIsTelegramWebView = /Telegram/i.test(fastNavUa);
   const menuUseLightMobileMode = () => instantMenuMq.matches && (menuPerfIsSafari || menuPerfIsAndroidChrome);
   document.documentElement.classList.toggle("ua-ios-safari", menuPerfIsSafari);
   document.documentElement.classList.toggle("ua-android-chrome", menuPerfIsAndroidChrome);
@@ -2131,6 +2134,91 @@
   searchInput.addEventListener("input", (e) => renderSearch(e.target.value));
   ensureSearchIndex();
   deactivateMenuTint();
+
+  function canWarmInternalNavigation(){
+    if(fastNavConnection && fastNavConnection.saveData) return false;
+    const effectiveType = fastNavConnection && typeof fastNavConnection.effectiveType === "string"
+      ? fastNavConnection.effectiveType
+      : "";
+    if(effectiveType.includes("2g")) return false;
+    return true;
+  }
+
+  function resolveFastNavUrl(rawHref){
+    if(typeof rawHref !== "string" || !rawHref) return null;
+    const trimmed = rawHref.trim();
+    if(!trimmed || trimmed.startsWith("#")) return null;
+    if(/^(mailto:|tel:|javascript:|data:)/i.test(trimmed)) return null;
+    try{
+      const nextUrl = new URL(trimmed, window.location.href);
+      const currentUrl = new URL(window.location.href);
+      const sameFileProtocol = currentUrl.protocol === "file:" && nextUrl.protocol === "file:";
+      if(!sameFileProtocol && nextUrl.origin !== currentUrl.origin) return null;
+      if(nextUrl.href === currentUrl.href) return null;
+      return nextUrl;
+    }catch(_error){
+      return null;
+    }
+  }
+
+  const fastNavPrefetched = new Set();
+  function prefetchInternalPage(rawHref){
+    if(!canWarmInternalNavigation()) return;
+    const nextUrl = resolveFastNavUrl(rawHref);
+    if(!nextUrl) return;
+    const key = nextUrl.href;
+    if(fastNavPrefetched.has(key)) return;
+    const link = document.createElement("link");
+    link.rel = "prefetch";
+    link.href = key;
+    link.as = "document";
+    link.setAttribute("data-fast-nav-prefetch", key);
+    document.head.appendChild(link);
+    fastNavPrefetched.add(key);
+  }
+
+  function fastNavHrefFromEventTarget(target){
+    if(!(target instanceof Element)) return "";
+    const el = target.closest("a[href]");
+    if(!(el instanceof HTMLAnchorElement)) return "";
+    if(el.target && el.target !== "_self") return "";
+    if(el.hasAttribute("download")) return "";
+    return el.getAttribute("href") || "";
+  }
+
+  document.addEventListener("pointerover", (event) => {
+    const href = fastNavHrefFromEventTarget(event.target);
+    if(href) prefetchInternalPage(href);
+  }, { passive:true });
+
+  document.addEventListener("touchstart", (event) => {
+    const href = fastNavHrefFromEventTarget(event.target);
+    if(href) prefetchInternalPage(href);
+  }, { passive:true });
+
+  document.addEventListener("focusin", (event) => {
+    const href = fastNavHrefFromEventTarget(event.target);
+    if(href) prefetchInternalPage(href);
+  });
+
+  const fastNavCriticalHrefs = [
+    "index.html",
+    "Laser%204.html?laser=frauen",
+    "Laser%204.html?laser=herren",
+    "preise.html",
+    "impressum.html",
+    "datenschutz.html"
+  ];
+  if(canWarmInternalNavigation() && !fastNavIsTelegramWebView){
+    const warmFastNavLinks = () => {
+      fastNavCriticalHrefs.forEach(prefetchInternalPage);
+    };
+    if(typeof window.requestIdleCallback === "function"){
+      window.requestIdleCallback(warmFastNavLinks, { timeout:1500 });
+    }else{
+      setTimeout(warmFastNavLinks, 900);
+    }
+  }
 
   // i18n
   const t = {

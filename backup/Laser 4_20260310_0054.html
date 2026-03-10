@@ -3045,9 +3045,8 @@
       right:var(--legalCloseInset);
       width:38px;
       height:38px;
-      background:#fff;
+      background:#f3f3f7;
       color:#1b1b1f;
-      box-shadow:0 0 0 1px rgba(17,18,24,.06);
     }
     .legalDoc{
       background:#fff;
@@ -3082,12 +3081,11 @@
       margin-bottom:32px;
     }
     .legalDocCard{
-      background:#fff;
+      background:var(--menuLayer);
       border:none;
       border-radius:28px;
       padding:0;
       margin:0;
-      box-shadow:0 0 0 1px rgba(17,18,24,.05);
     }
     .legalTextZone{
       --textZonePad:clamp(29px, 6.5vw, 49px);
@@ -3107,7 +3105,7 @@
       font-size:18px;
       line-height:1.4;
       letter-spacing:-.01em;
-      font-weight:400;
+      font-weight:520;
     }
     .legalDoc p{margin:0 0 12px}
     .legalDoc h2{margin:0 0 12px}
@@ -5830,9 +5828,6 @@
   const coarsePointerMq = window.matchMedia("(pointer: coarse)");
   const instantMenuMq = window.matchMedia("(max-width: 1024px)");
   const mobileVideoMq = window.matchMedia("(max-width: 767px)");
-  const fastNavUa = navigator.userAgent || "";
-  const fastNavConnection = navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
-  const fastNavIsTelegramWebView = /Telegram/i.test(fastNavUa);
   function plannerIsLowPerfMode(){
     return plannerIsMobilePerfMode() && plannerLowPerfMode;
   }
@@ -13075,82 +13070,6 @@
     preload.href = src;
     preload.setAttribute("data-laser-video-preload", src);
     document.head.appendChild(preload);
-  }
-  function canWarmInternalNavigation(){
-    if(fastNavConnection && fastNavConnection.saveData) return false;
-    const effectiveType = fastNavConnection && typeof fastNavConnection.effectiveType === "string"
-      ? fastNavConnection.effectiveType
-      : "";
-    if(effectiveType.includes("2g")) return false;
-    return true;
-  }
-  function resolveFastNavUrl(rawHref){
-    if(typeof rawHref !== "string" || !rawHref) return null;
-    const trimmed = rawHref.trim();
-    if(!trimmed || trimmed.startsWith("#")) return null;
-    if(/^(mailto:|tel:|javascript:|data:)/i.test(trimmed)) return null;
-    try{
-      const nextUrl = new URL(trimmed, window.location.href);
-      const currentUrl = new URL(window.location.href);
-      const sameFileProtocol = currentUrl.protocol === "file:" && nextUrl.protocol === "file:";
-      if(!sameFileProtocol && nextUrl.origin !== currentUrl.origin) return null;
-      if(nextUrl.href === currentUrl.href) return null;
-      return nextUrl;
-    }catch(_error){
-      return null;
-    }
-  }
-  const fastNavPrefetched = new Set();
-  function prefetchInternalPage(rawHref){
-    if(!canWarmInternalNavigation()) return;
-    const nextUrl = resolveFastNavUrl(rawHref);
-    if(!nextUrl) return;
-    const key = nextUrl.href;
-    if(fastNavPrefetched.has(key)) return;
-    const link = document.createElement("link");
-    link.rel = "prefetch";
-    link.href = key;
-    link.as = "document";
-    link.setAttribute("data-fast-nav-prefetch", key);
-    document.head.appendChild(link);
-    fastNavPrefetched.add(key);
-  }
-  function fastNavHrefFromEventTarget(target){
-    if(!(target instanceof Element)) return "";
-    const el = target.closest("a[href]");
-    if(!(el instanceof HTMLAnchorElement)) return "";
-    if(el.target && el.target !== "_self") return "";
-    if(el.hasAttribute("download")) return "";
-    return el.getAttribute("href") || "";
-  }
-  document.addEventListener("pointerover", (event) => {
-    const href = fastNavHrefFromEventTarget(event.target);
-    if(href) prefetchInternalPage(href);
-  }, { passive:true });
-  document.addEventListener("touchstart", (event) => {
-    const href = fastNavHrefFromEventTarget(event.target);
-    if(href) prefetchInternalPage(href);
-  }, { passive:true });
-  document.addEventListener("focusin", (event) => {
-    const href = fastNavHrefFromEventTarget(event.target);
-    if(href) prefetchInternalPage(href);
-  });
-  const fastNavCriticalHrefs = [
-    "index.html",
-    "detox-thermo.html",
-    "preise.html",
-    "impressum.html",
-    "datenschutz.html"
-  ];
-  if(canWarmInternalNavigation() && !fastNavIsTelegramWebView){
-    const warmFastNavLinks = () => {
-      fastNavCriticalHrefs.forEach(prefetchInternalPage);
-    };
-    if(typeof window.requestIdleCallback === "function"){
-      window.requestIdleCallback(warmFastNavLinks, { timeout:1500 });
-    }else{
-      setTimeout(warmFastNavLinks, 900);
-    }
   }
   function syncLaserVideoPreview(){
     if(!laserVideoPreview) return;
