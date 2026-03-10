@@ -26,6 +26,10 @@
     body{
       -webkit-tap-highlight-color:transparent;
     }
+    html.is-web-runtime,
+    html.is-web-runtime body{
+      overflow-x:hidden;
+    }
     a,
     button,
     [role="button"],
@@ -4995,6 +4999,10 @@
   const plannerCopyBtn = document.getElementById("plannerCopyBtn");
   const plannerBuyBtn = document.getElementById("plannerBuyBtn");
   const plannerTermBtn = document.getElementById("plannerTermBtn");
+  const isWebRuntime = /^https?:$/i.test(window.location.protocol);
+  if(isWebRuntime && document.documentElement){
+    document.documentElement.classList.add("is-web-runtime");
+  }
   const bookingPromptModal = document.getElementById("bookingPromptModal");
   const bookingPromptDialog = bookingPromptModal ? bookingPromptModal.querySelector(".bookingPromptDialog") : null;
   const bookingPromptTitle = document.getElementById("bookingPromptTitle");

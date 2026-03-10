@@ -324,7 +324,7 @@
     }
     .bookingPromptDialog{
       position:absolute;
-      left:var(--booking-prompt-left, 50vw);
+      left:50vw;
       top:50vh;
       width:min(100%, 360px);
       padding:22px 22px 18px;
@@ -10509,22 +10509,9 @@
     if(bookingPromptTitle) bookingPromptTitle.textContent = plannerText("termPromptTitle");
     if(bookingPromptActionBtn) bookingPromptActionBtn.textContent = plannerText("termPromptAction");
   }
-  function positionBookingPromptOverFigure(){
-    if(!bookingPromptModal || !bookingPromptDialog) return;
-    const vw = window.innerWidth || document.documentElement.clientWidth || 0;
-    let left = vw * 0.5;
-    if(plannerFigureWrap){
-      const rect = plannerFigureWrap.getBoundingClientRect();
-      if(rect.width > 0 && rect.height > 0){
-        left = rect.left + (rect.width * 0.5);
-      }
-    }
-    bookingPromptModal.style.setProperty("--booking-prompt-left", `${Math.round(left)}px`);
-  }
   function openBookingPrompt(){
     if(!bookingPromptModal) return;
     syncBookingPromptCopy();
-    positionBookingPromptOverFigure();
     bookingPromptModal.hidden = false;
     requestAnimationFrame(() => bookingPromptModal.classList.add("is-open"));
   }
@@ -13312,15 +13299,11 @@
   }
 
   window.addEventListener("scroll", () => {
-    if(bookingPromptModal && !bookingPromptModal.hidden) positionBookingPromptOverFigure();
     if(menuOverlay.hidden) return;
     const y = window.scrollY;
     if(y > menuLastScrollY + 2) closeMenuOverlay();
     menuLastScrollY = y;
   }, { passive:true });
-  window.addEventListener("resize", () => {
-    if(bookingPromptModal && !bookingPromptModal.hidden) positionBookingPromptOverFigure();
-  });
 
   function normalizeText(text){
     return text
