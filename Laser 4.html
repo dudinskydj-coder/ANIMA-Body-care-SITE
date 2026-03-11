@@ -387,69 +387,6 @@
       max-width:920px;
     }
     .modePriceNote[hidden]{display:none}
-    .laserWideFeature{
-      position:relative;
-      width:100vw;
-      left:50%;
-      margin-left:-50vw;
-      margin-right:-50vw;
-      min-height:100vh;
-      overflow:hidden;
-      background:#111;
-    }
-    .laserWideFeatureMedia{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-      filter:saturate(1.03) contrast(1.02);
-    }
-    .laserWideFeatureShade{
-      position:absolute;
-      inset:0;
-      background:linear-gradient(108deg, rgba(0,0,0,.56) 0%, rgba(0,0,0,.34) 44%, rgba(0,0,0,.16) 100%);
-    }
-    .laserWideFeatureContent{
-      position:relative;
-      z-index:1;
-      max-width:1120px;
-      margin:0 auto;
-      padding:clamp(48px,8vh,90px) 22px;
-      color:#fff;
-    }
-    .laserWideFeatureCard{
-      width:min(620px, 100%);
-      border-radius:24px;
-      background:rgba(16,17,24,.44);
-      backdrop-filter:saturate(132%) blur(6px);
-      -webkit-backdrop-filter:saturate(132%) blur(6px);
-      border:1px solid rgba(255,255,255,.18);
-      padding:20px 22px;
-    }
-    .laserWideFeatureCard .kicker{
-      color:rgba(255,255,255,.78);
-      margin-bottom:10px;
-    }
-    .laserWideFeatureCard .headline{
-      color:#fff;
-      margin:0 0 12px;
-    }
-    .laserWideFeatureCard .body{
-      color:rgba(255,255,255,.92);
-      max-width:none;
-      margin:0;
-    }
-    .laserWideFeatureList{
-      margin:14px 0 0;
-      padding-left:18px;
-      color:rgba(255,255,255,.9);
-      font-size:15px;
-      line-height:1.55;
-    }
-    .laserWideFeatureList li{margin:0 0 6px}
-    .laserWideFeatureList li:last-child{margin-bottom:0}
     .appleFeatureBand{
       margin:8px 0 0;
       border-radius:32px;
@@ -530,150 +467,6 @@
     }
     .techList li{margin:0 0 6px}
     .techList li:last-child{margin-bottom:0}
-    .laserVideoFrame{
-      border-radius:32px;
-      overflow:hidden;
-      border:none;
-      box-shadow:none;
-      background:transparent;
-      position:relative;
-      cursor:pointer;
-      width:100%;
-      margin:0 auto;
-    }
-    .laserVideoPreview{
-      width:100%;
-      aspect-ratio:16/9;
-      height:auto;
-      min-height:0;
-      max-height:none;
-      display:block;
-      object-fit:cover;
-      background:#000;
-      border-radius:32px;
-    }
-    .laserVideoPlay{
-      position:absolute;
-      left:50%;
-      top:50%;
-      transform:translate(-50%,-50%);
-      width:42px;
-      height:42px;
-      border:none;
-      border-radius:999px;
-      background:rgba(245,246,250,.92);
-      color:#111218;
-      box-shadow:0 10px 22px rgba(0,0,0,.18);
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      cursor:pointer;
-      transition:transform .2s ease, background-color .2s ease, opacity .2s ease;
-      pointer-events:none;
-    }
-    .laserVideoFrame:hover .laserVideoPlay{
-      transform:translate(-50%,-50%) scale(1.04);
-      background:rgba(255,255,255,.96);
-    }
-    .laserVideoPlay svg{
-      width:28px;
-      height:28px;
-      margin-left:4px;
-      fill:currentColor;
-      display:block;
-    }
-    .laserVideoHint{
-      position:absolute;
-      left:50%;
-      bottom:18px;
-      transform:translateX(-50%);
-      margin:0;
-      padding:7px 12px;
-      border-radius:999px;
-      background:rgba(0,0,0,.55);
-      color:rgba(255,255,255,.94);
-      font-size:12px;
-      line-height:1.2;
-      letter-spacing:.01em;
-      pointer-events:none;
-    }
-    .videoModal{
-      position:fixed;
-      inset:0;
-      z-index:90;
-      background:rgba(10,10,14,.94);
-      opacity:0;
-      transition:opacity .22s ease;
-    }
-    .videoModal[hidden]{display:none}
-    .videoModal.is-open{opacity:1}
-    .videoModalBackdrop{
-      position:absolute;
-      inset:0;
-      background:transparent;
-    }
-    .videoDialog{
-      position:absolute;
-      inset:0;
-      transform:translateY(16px) scale(.985);
-      transition:transform .26s cubic-bezier(.22,.8,.24,1);
-      background:#000;
-      overflow:hidden;
-    }
-    .videoModal.is-open .videoDialog{
-      transform:translateY(0) scale(1);
-    }
-    .videoPlayer{
-      width:100%;
-      height:100%;
-      display:block;
-      object-fit:cover;
-      background:transparent;
-    }
-    .videoClose{
-      position:absolute;
-      top:22px;
-      right:22px;
-      width:42px;
-      height:42px;
-      border:none;
-      border-radius:999px;
-      background:rgba(241,243,247,.92);
-      color:#111218;
-      cursor:pointer;
-      opacity:0;
-      transform:translateY(-4px);
-      pointer-events:none;
-      transition:opacity .2s ease, transform .2s ease, background-color .2s ease;
-      z-index:2;
-    }
-    .videoModal.video-close-visible .videoClose{
-      opacity:1;
-      transform:translateY(0);
-      pointer-events:auto;
-    }
-    @media (hover:none), (pointer:coarse){
-      .videoModal.is-open .videoClose{
-        opacity:1;
-        transform:translateY(0);
-        pointer-events:auto;
-      }
-    }
-    .videoClose::before,
-    .videoClose::after{
-      content:"";
-      position:absolute;
-      left:50%;
-      top:50%;
-      width:17px;
-      height:2px;
-      border-radius:2px;
-      background:currentColor;
-      transform-origin:center;
-    }
-    .videoClose::before{transform:translate(-50%,-50%) rotate(45deg)}
-    .videoClose::after{transform:translate(-50%,-50%) rotate(-45deg)}
-    body.video-open{overflow:hidden}
     .interactivePlaceholder{
       min-height:calc(100vh - var(--headerH) - 26px);
       border-radius:32px;
@@ -739,6 +532,7 @@
       box-shadow:none;
       min-width:0;
       overflow:visible;
+      position:relative;
     }
     .plannerPane--zones .plannerFigureWrap{
       margin-top:0;
@@ -1327,10 +1121,17 @@
       min-width:0;
       max-width:min(54vw, 240px);
       padding-right:4px;
+      pointer-events:auto;
       mask-image:linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 78%, rgba(0,0,0,.42) 91%, rgba(0,0,0,0) 100%);
       -webkit-mask-image:linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 78%, rgba(0,0,0,.42) 91%, rgba(0,0,0,0) 100%);
       max-height:calc((1.18em * 4) + 14px);
       overflow:hidden;
+    }
+    .plannerMobileInfoZones.is-expanded{
+      max-height:min(38vh, 280px);
+      overflow:auto;
+      mask-image:none;
+      -webkit-mask-image:none;
     }
     .plannerMobileInfoZoneRow{
       display:block;
@@ -1351,6 +1152,77 @@
     }
     .plannerMobileInfoZoneRow--latest{
       opacity:1;
+    }
+    .plannerMobileInfoZoneCard{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width:0;
+    }
+    .plannerMobileInfoZoneToggle{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:8px;
+      width:100%;
+      border:none;
+      padding:0;
+      margin:0;
+      background:transparent;
+      color:inherit;
+      font:inherit;
+      text-align:left;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .plannerMobileInfoZoneToggleText{
+      min-width:0;
+      flex:1 1 auto;
+      font:inherit;
+      color:inherit;
+    }
+    .plannerMobileInfoZoneChevron{
+      flex:0 0 auto;
+      width:11px;
+      height:11px;
+      margin-top:2px;
+      color:rgba(17,18,24,.58);
+      transition:transform .18s ease;
+    }
+    .plannerMobileInfoZoneCard.is-open .plannerMobileInfoZoneChevron{
+      transform:rotate(180deg);
+    }
+    .plannerMobileInfoZoneDetails{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      margin-left:10px;
+      padding-left:8px;
+      border-left:1px dashed rgba(17,18,24,.14);
+    }
+    .plannerMobileInfoZoneDetailRow{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+      min-width:0;
+      font-size:12px;
+      line-height:1.2;
+      color:rgba(17,18,24,.72);
+      letter-spacing:-.01em;
+      font-weight:560;
+    }
+    .plannerMobileInfoZoneDetailName{
+      min-width:0;
+      flex:1 1 auto;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+    .plannerMobileInfoZoneDetailPrice{
+      flex:0 0 auto;
+      white-space:nowrap;
+      color:rgba(17,18,24,.76);
+      font-weight:620;
     }
     @keyframes plannerMobileInfoRowSlide{
       from{
@@ -1789,6 +1661,10 @@
       -webkit-tap-highlight-color:transparent;
       -webkit-appearance:none;
       appearance:none;
+    }
+    .zoneSketchBtn--no-appear-anim{
+      transition:none !important;
+      animation:none !important;
     }
     .zoneSketchBtn:hover{
       background:rgba(255,255,255,.82);
@@ -2452,7 +2328,7 @@
     .orderItem{
       display:grid;
       grid-template-columns:minmax(0,1fr) auto;
-      align-items:center;
+      align-items:start;
       gap:16px;
       border-bottom:1px solid rgba(17,18,24,.14);
       padding:14px 0;
@@ -2581,6 +2457,9 @@
       gap:4px;
       width:100%;
     }
+    .orderItemDetailEntry{
+      width:100%;
+    }
     .orderItemDetailTreeChildren{
       display:flex;
       flex-direction:column;
@@ -2692,6 +2571,7 @@
       display:flex;
       flex-direction:column;
       align-items:flex-end;
+      align-self:start;
       gap:3px;
     }
     .orderItemPriceOld{
@@ -2737,6 +2617,83 @@
       color:rgba(17,18,24,.56);
       font-size:14px;
       line-height:1.45;
+    }
+    .plannerNextBenefit{
+      position:absolute;
+      top:18px;
+      right:18px;
+      z-index:8;
+      width:min(220px, calc(100% - 36px));
+      margin:0;
+      padding:10px 12px;
+      border:1px solid rgba(17,18,24,.08);
+      border-radius:16px;
+      background:rgba(255,255,255,.86);
+      box-shadow:0 8px 22px rgba(17,18,24,.06);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
+    .plannerNextBenefit[hidden]{display:none}
+    .plannerNextBenefitKicker{
+      font-size:10px;
+      line-height:1.2;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      color:rgba(17,18,24,.48);
+      font-weight:700;
+    }
+    .plannerNextBenefitNameRow{
+      margin-top:5px;
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .plannerNextBenefitName{
+      font-size:14px;
+      line-height:1.18;
+      letter-spacing:-.01em;
+      font-weight:680;
+      color:#111218;
+    }
+    .plannerNextBenefitSave{
+      flex:0 0 auto;
+      font-size:11px;
+      line-height:1.2;
+      color:#007a2c;
+      font-weight:700;
+      white-space:nowrap;
+      margin-top:0;
+    }
+    .plannerNextBenefitText{
+      margin:4px 0 0;
+      font-size:12px;
+      line-height:1.3;
+      color:rgba(17,18,24,.68);
+      font-weight:540;
+    }
+    .plannerNextBenefitBar{
+      margin-top:7px;
+      width:min(132px, 100%);
+      height:5px;
+      border-radius:999px;
+      background:rgba(17,18,24,.12);
+      overflow:hidden;
+    }
+    .plannerNextBenefitBarFill{
+      display:block;
+      height:100%;
+      width:0%;
+      border-radius:inherit;
+      background:linear-gradient(90deg, #22a447 0%, #39c86a 100%);
+      transition:width .22s ease;
+    }
+    .plannerNextBenefitProgress{
+      margin-top:5px;
+      font-size:11px;
+      line-height:1.25;
+      color:rgba(17,18,24,.52);
+      font-weight:600;
     }
     .orderSummary{
       margin-top:auto;
@@ -3677,20 +3634,6 @@
         font-size:16px;
         margin-top:20px;
       }
-      .laserWideFeature{
-        min-height:76vh;
-      }
-      .laserWideFeatureContent{
-        padding:38px 18px;
-      }
-      .laserWideFeatureCard{
-        padding:16px 16px;
-        border-radius:20px;
-      }
-      .laserWideFeatureList{
-        font-size:14px;
-        line-height:1.5;
-      }
       .headline{font-size:26px}
       .appleFeatureBand{
         padding:34px 20px;
@@ -3703,24 +3646,6 @@
       }
       .techCard{grid-template-columns:1fr}
       .techMedia{min-height:280px}
-      .laserVideoFrame{border-radius:24px}
-      .laserVideoPreview{
-        aspect-ratio:9/16;
-        max-height:none;
-        border-radius:24px;
-      }
-      .laserVideoPlay{
-        width:42px;
-        height:42px;
-      }
-      .laserVideoHint{
-        bottom:12px;
-        font-size:11px;
-      }
-      .videoClose{
-        top:14px;
-        right:14px;
-      }
       .interactivePlaceholder{
         min-height:68vh;
         border-radius:24px;
@@ -3738,6 +3663,10 @@
       }
       .plannerPane--zones{
         overflow:visible;
+      }
+      .plannerNextBenefit{
+        top:10px;
+        right:10px;
       }
       .plannerFigureWrap{
         overflow:visible;
@@ -3836,16 +3765,6 @@
         border-radius:20px;
       }
     }
-    @media (min-width:768px) and (max-width:1199px){
-      .videoDialog{
-        inset:5vh 6vw;
-        border-radius:24px;
-      }
-      .videoClose{
-        top:16px;
-        right:16px;
-      }
-    }
     @media (max-width:767px){
       #laser-switches.section{
         padding:6px 0 60px;
@@ -3870,6 +3789,12 @@
         width:100%;
         max-width:none;
         overflow:visible;
+      }
+      .plannerNextBenefit{
+        top:18px;
+        right:14px;
+        width:min(180px, calc(100vw - 28px));
+        padding:9px 10px;
       }
       .plannerPane--zones .plannerFigureWrap{
         height:calc(100svh + 84px);
@@ -4042,13 +3967,6 @@
     </div>
   </div>
 </div>
-<div class="videoModal" id="videoModal" hidden aria-modal="true" role="dialog" aria-label="Laser video fullscreen">
-  <div class="videoModalBackdrop" data-video-close></div>
-  <div class="videoDialog">
-    <button class="videoClose" id="videoClose" type="button" aria-label="Close video"></button>
-    <video class="videoPlayer" id="laserVideoPlayer" playsinline preload="metadata"></video>
-  </div>
-</div>
 <div class="heroPromoStrip" id="hero_promo_strip">Erhalte 150 bis 450 € Rabatt auf Laser-Haarentfernung bei Vorauszahlung eines Kurses.</div>
 
 <div class="wrap" id="top">
@@ -4065,33 +3983,6 @@
 
   </section>
 
-  <section class="laserWideFeature reveal" id="laser-tech">
-    <img class="laserWideFeatureMedia" src="img/PH_BASE/IMG_2484.JPG" alt="Motus AX laser session in studio" loading="eager">
-    <div class="laserWideFeatureShade"></div>
-    <div class="laserWideFeatureContent">
-      <div class="laserWideFeatureCard">
-        <div class="kicker" id="tech_kicker">Technologie</div>
-        <h2 class="headline" id="tech_title">Motus AX: schnell, präzise, hautschonend.</h2>
-        <p class="body" id="tech_text">Wir arbeiten mit modernem Alexandrit-Laser und integrierter Kontaktkühlung. Das macht die Behandlung spürbar angenehmer und gleichzeitig effektiv bei unterschiedlichen Haut- und Haartypen.</p>
-        <ul class="laserWideFeatureList">
-          <li id="tech_b1">Moderner Alexandrit-Laser mit Moveo-Technologie</li>
-          <li id="tech_b2">Konstante Kühlung für mehr Komfort</li>
-          <li id="tech_b3">Hohe Präzision auch bei empfindlichen Zonen</li>
-          <li id="tech_b4">Sicheres Protokoll mit individueller Einstellung</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="laser-video-section">
-    <div class="laserVideoFrame reveal" id="laserVideoFrame" aria-label="DEKA Epilation Video" role="button" tabindex="0">
-      <video class="laserVideoPreview" id="laserVideoPreview" playsinline preload="metadata" muted></video>
-      <span class="laserVideoPlay" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M8 6.5v11l9-5.5z"/></svg>
-      </span>
-    </div>
-  </section>
-
   <section class="section laserSwitchSection" id="laser-switches">
     <div class="laserSwitchWrap reveal">
       <div class="laserSwitch" role="tablist" aria-label="Laser area selection">
@@ -4104,6 +3995,18 @@
   <section class="section" id="interactive-placeholder">
     <div class="laserPlanner" aria-label="Interaktiver Zonenplaner">
       <div class="plannerPane plannerPane--zones">
+        <div class="plannerNextBenefit" id="plannerNextBenefit" hidden>
+          <div class="plannerNextBenefitKicker" id="plannerNextBenefitTitle">Dein nächster Vorteil</div>
+          <div class="plannerNextBenefitNameRow">
+            <strong class="plannerNextBenefitName" id="plannerNextBenefitName"></strong>
+            <span class="plannerNextBenefitSave" id="plannerNextBenefitSave"></span>
+          </div>
+          <p class="plannerNextBenefitText" id="plannerNextBenefitText"></p>
+          <div class="plannerNextBenefitBar" aria-hidden="true">
+            <span class="plannerNextBenefitBarFill" id="plannerNextBenefitBarFill"></span>
+          </div>
+          <div class="plannerNextBenefitProgress" id="plannerNextBenefitProgress"></div>
+        </div>
         <div class="plannerFigureWrap">
           <button type="button" class="plannerViewArrow plannerViewArrow--prev" id="plannerViewPrev" aria-label="Previous view">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
@@ -4381,16 +4284,11 @@
   const legalModal = document.getElementById("legalModal");
   const legalDoc = document.getElementById("legalDoc");
   const legalClose = document.getElementById("legalClose");
-  const videoModal = document.getElementById("videoModal");
-  const videoClose = document.getElementById("videoClose");
   const menuFaqLink = document.getElementById("menu_faq");
   const heroBottomDock = document.getElementById("heroBottomDock");
   const interactiveSection = document.getElementById("interactive-placeholder");
   const laserSwitchButtons = Array.from(document.querySelectorAll("[data-laser-switch]"));
   const heroPrice = document.getElementById("hero_price");
-  const laserVideoPreview = document.getElementById("laserVideoPreview");
-  const laserVideoPlayer = document.getElementById("laserVideoPlayer");
-  const laserVideoFrame = document.getElementById("laserVideoFrame");
   const laserPlanner = document.querySelector(".laserPlanner");
   const plannerZonesPane = document.querySelector(".plannerPane--zones");
   const plannerPricePane = document.querySelector(".plannerPane:not(.plannerPane--zones)");
@@ -4402,6 +4300,13 @@
   const plannerMobileInfoPriceOld = document.getElementById("plannerMobileInfoPriceOld");
   const plannerMobileInfoPriceCurrent = document.getElementById("plannerMobileInfoPriceCurrent");
   const plannerMobileInfoSaved = document.getElementById("plannerMobileInfoSaved");
+  const plannerNextBenefit = document.getElementById("plannerNextBenefit");
+  const plannerNextBenefitTitle = document.getElementById("plannerNextBenefitTitle");
+  const plannerNextBenefitName = document.getElementById("plannerNextBenefitName");
+  const plannerNextBenefitSave = document.getElementById("plannerNextBenefitSave");
+  const plannerNextBenefitText = document.getElementById("plannerNextBenefitText");
+  const plannerNextBenefitBarFill = document.getElementById("plannerNextBenefitBarFill");
+  const plannerNextBenefitProgress = document.getElementById("plannerNextBenefitProgress");
   const plannerFigureImage = document.getElementById("plannerFigureImage");
   const plannerViewPrevBtn = document.getElementById("plannerViewPrev");
   const plannerViewNextBtn = document.getElementById("plannerViewNext");
@@ -5294,10 +5199,6 @@
   let legalTouchStartX = null;
   let legalTouchStartY = null;
   let legalTouchStartScrollTop = 0;
-  let videoTouchStartX = null;
-  let videoTouchStartY = null;
-  let videoMouseTimer = null;
-  let videoScrollLockY = 0;
   let bookingPromptOpenTimer = null;
   let plannerFrauenView = "front";
   let plannerCommittedSceneView = "front";
@@ -6180,78 +6081,31 @@
     },
     herren:{}
   };
-  const LASER_ZONE_GROUPS_FRAUEN = {
-    face:["upperlip", "kinn", "glabella", "wangen", "koteletten", "chin", "nacken"],
-    arms:["upperarms", "underarms", "hands"],
-    legs:["obersch", "untersch", "feet"],
-    body_front:["chest", "medialinebauch", "bauchfull"],
-    body_back:["upperback", "lowerback", "pobacken"],
-    intimate:["bikini", "intim"],
-    axilla:["axilla"]
-  };
-  const LASER_ZONE_LABELS_FRAUEN = {
-    upperlip:{ de:"Oberlippe", en:"Upper lip", ru:"Верхняя губа" },
-    kinn:{ de:"Kinn", en:"Chin", ru:"Подбородок" },
-    glabella:{ de:"Zwischenbrauen", en:"Between brows", ru:"Межбровье" },
-    wangen:{ de:"Wangen", en:"Cheeks", ru:"Щёки" },
-    koteletten:{ de:"Kieferlinie + Koteletten", en:"Jawline + sideburns", ru:"Линия челюсти + бакенбарды" },
-    chin:{ de:"Hals vorne", en:"Front neck", ru:"Шея спереди" },
-    nacken:{ de:"Hals hinten", en:"Back neck", ru:"Шея сзади" },
-    axilla:{ de:"Achseln", en:"Underarms", ru:"Подмышки" },
-    upperarms:{ de:"Oberarme", en:"Upper arms", ru:"Верхняя часть рук" },
-    underarms:{ de:"Unterarme", en:"Lower arms", ru:"Нижняя часть рук" },
-    hands:{ de:"Hände", en:"Hands", ru:"Кисти рук" },
-    obersch:{ de:"Oberschenkel", en:"Upper legs", ru:"Верхняя часть ног" },
-    untersch:{ de:"Unterschenkel inkl. Knie", en:"Lower legs incl. knees", ru:"Нижняя часть ног, включая колени" },
-    feet:{ de:"Füße", en:"Feet", ru:"Ступни" },
-    chest:{ de:"Brust", en:"Chest", ru:"Грудь" },
-    medialinebauch:{ de:"Bauchlinie", en:"Belly line", ru:"Линия живота" },
-    bauchfull:{ de:"Bauch", en:"Belly", ru:"Живот" },
-    upperback:{ de:"Rücken oben inkl. Schultern", en:"Upper back incl. shoulders", ru:"Верх спины, включая плечи" },
-    lowerback:{ de:"Rücken unten", en:"Lower back", ru:"Низ спины" },
-    pobacken:{ de:"Gesäß", en:"Buttocks", ru:"Ягодицы" },
-    bikini:{ de:"Bikini", en:"Bikini", ru:"Бикини" },
-    intim:{ de:"Intim komplett inkl. Pofalte", en:"Intimate full incl. gluteal fold", ru:"Интим полностью, включая межъягодичную зону" }
-  };
-  const LASER_ZONE_PRICES_FRAUEN = {
-    upperlip:25,
-    kinn:25,
-    glabella:25,
-    wangen:40,
-    koteletten:40,
-    chin:45,
-    nacken:45,
-    axilla:45,
-    upperarms:45,
-    underarms:45,
-    hands:25,
-    obersch:90,
-    untersch:90,
-    feet:25,
-    chest:50,
-    medialinebauch:35,
-    bauchfull:65,
-    upperback:70,
-    lowerback:70,
-    pobacken:65,
-    bikini:40,
-    intim:85
-  };
-  const LASER_ZONE_ORDER_FRAUEN = [
-    ...LASER_ZONE_GROUPS_FRAUEN.face,
-    ...LASER_ZONE_GROUPS_FRAUEN.axilla,
-    ...LASER_ZONE_GROUPS_FRAUEN.arms,
-    ...LASER_ZONE_GROUPS_FRAUEN.legs,
-    ...LASER_ZONE_GROUPS_FRAUEN.body_front,
-    ...LASER_ZONE_GROUPS_FRAUEN.body_back,
-    ...LASER_ZONE_GROUPS_FRAUEN.intimate
-  ];
   const plannerZonesByMode = {
-    frauen: LASER_ZONE_ORDER_FRAUEN.map((zoneId) => ({
-      id:zoneId,
-      label:LASER_ZONE_LABELS_FRAUEN[zoneId],
-      price:LASER_ZONE_PRICES_FRAUEN[zoneId]
-    })),
+    frauen: [
+      { id:"chin", label:{ de:"Hals", en:"Neck", ru:"Шея" }, price:25 },
+      { id:"nacken", label:{ de:"Nacken", en:"Nape", ru:"Затылок" }, price:25 },
+      { id:"kinn", label:{ de:"Kinn", en:"Chin", ru:"Подбородок" }, price:25 },
+      { id:"wangen", label:{ de:"Wangenknochen", en:"Cheekbones", ru:"Скулы" }, price:25 },
+      { id:"koteletten", label:{ de:"Kieferlinie + Koteletten", en:"Jawline + sideburns", ru:"Линия челюсти + бакенбарды" }, price:25 },
+      { id:"glabella", label:{ de:"Zwischenbrauen", en:"Between brows", ru:"Межбровье" }, price:25 },
+      { id:"upperlip", label:{ de:"Oberlippe", en:"Upper lip", ru:"Верхняя губа" }, price:25 },
+      { id:"chest", label:{ de:"Brustbereich", en:"Chest area", ru:"Зона груди" }, price:45 },
+      { id:"upperback", label:{ de:"Oberrücken + Schultern", en:"Upper back + shoulders", ru:"Верхняя часть спины + плечи" }, price:45 },
+      { id:"lowerback", label:{ de:"Unterer Rücken", en:"Lower back", ru:"Нижняя часть спины" }, price:45 },
+      { id:"hands", label:{ de:"Hände", en:"Hands", ru:"Кисти рук" }, price:25 },
+      { id:"feet", label:{ de:"Füße", en:"Feet", ru:"Ступни" }, price:25 },
+      { id:"axilla", label:{ de:"Achseln", en:"Underarms", ru:"Подмышки" }, price:45 },
+      { id:"upperarms", label:{ de:"Oberarme", en:"Upper arms", ru:"Верхняя часть рук" }, price:45 },
+      { id:"underarms", label:{ de:"Unterarme", en:"Lower arms", ru:"Нижняя часть рук" }, price:45 },
+      { id:"bauchfull", label:{ de:"Bauch", en:"Belly", ru:"Живот" }, price:45 },
+      { id:"pobacken", label:{ de:"Pobacken", en:"Buttocks", ru:"Ягодицы" }, price:45 },
+      { id:"medialinebauch", label:{ de:"Medianlinie Bauch", en:"Median belly line", ru:"Срединная линия живота" }, price:25 },
+      { id:"obersch", label:{ de:"Oberschenkel", en:"Upper legs", ru:"Верхняя часть ног" }, price:90 },
+      { id:"untersch", label:{ de:"Unterschenkel inkl. Knie", en:"Lower legs incl. knees", ru:"Нижняя часть ног, включая колени" }, price:90 },
+      { id:"bikini", label:{ de:"Bikini", en:"Bikini line", ru:"Бикини" }, price:40 },
+      { id:"intim", label:{ de:"Intim komplett inkl. Pofalte", en:"Intimate full incl. gluteal fold", ru:"Интим полностью, включая межъягодичную зону" }, price:85 }
+    ],
     herren: [
       { id:"chin", label:{ de:"Hals", en:"Neck", ru:"Шея" }, price:25 },
       { id:"nacken", label:{ de:"Nacken", en:"Nape", ru:"Затылок" }, price:25 },
@@ -7082,7 +6936,15 @@
     frauen:new Set(),
     herren:new Set()
   };
-  const plannerExpandedBundleRowsByMode = {
+  const plannerMobileExpandedRowsByMode = {
+    frauen:new Set(),
+    herren:new Set()
+  };
+  const plannerCollapsedBundleRowsByMode = {
+    frauen:new Set(),
+    herren:new Set()
+  };
+  const plannerSeenDetailEntryKeysByMode = {
     frauen:new Set(),
     herren:new Set()
   };
@@ -7093,24 +6955,47 @@
       singles:{},
       // TODO: replace null overrides with approved package prices from business.
       packagePriceOverrides:{
+        smart_face_complete:69,
+        smart_face_complete_neck_complete:99,
         smart_arms_complete:80,
         smart_legs_complete:160,
         premium_legs_arms:210,
-        smart_face_small:null,
-        smart_neck_complete:null,
-        smart_arms_complete_with_hands:null,
-        smart_legs_complete_with_feet:null,
+        smart_face_small:39,
+        smart_neck_complete:39,
+        smart_arms_complete_with_hands:95,
+        smart_legs_complete_with_feet:175,
         smart_bauch_complete:null,
-        smart_back_complete:null,
-        premium_bikini_axilla:null,
-        premium_axilla_intim:null,
+        smart_back_complete:80,
+        premium_bikini_axilla:65,
+        premium_axilla_intim:115,
         premium_bikini_intim_pofalte:null,
-        premium_legs_axilla:null,
-        premium_legs_intim:null,
-        premium_legs_intim_axilla:null,
-        premium_all_zones:null
+        premium_legs_axilla:180,
+        premium_legs_intim:220,
+        premium_legs_intim_axilla:250,
+        premium_legs_arms_with_hands:225,
+        premium_legs_arms_with_feet:225,
+        premium_legs_arms_with_hands_feet:240,
+        premium_all_zones:390
       },
       packages:[
+        {
+          id:"smart_face_complete",
+          level:2,
+          priority:430,
+          displayGroup:"smart",
+          zoneIds:["glabella", "upperlip", "kinn", "wangen", "koteletten"],
+          componentIds:["glabella", "upperlip", "kinn", "wangen", "koteletten"],
+          label:{ de:"Gesicht komplett", en:"Full face", ru:"Лицо полностью" }
+        },
+        {
+          id:"smart_face_complete_neck_complete",
+          level:2,
+          priority:450,
+          displayGroup:"smart",
+          zoneIds:["glabella", "upperlip", "kinn", "wangen", "koteletten", "chin", "nacken"],
+          componentIds:["smart_face_complete", "smart_neck_complete"],
+          label:{ de:"Gesicht komplett + Hals komplett", en:"Full face + full neck", ru:"Лицо полностью + шея полностью" }
+        },
         {
           id:"smart_face_small",
           level:2,
@@ -7118,7 +7003,7 @@
           displayGroup:"smart",
           zoneIds:["upperlip", "kinn"],
           componentIds:["upperlip", "kinn"],
-          label:{ de:"Face Small", en:"Face Small", ru:"Face Small" }
+          label:{ de:"Mundbereich komplett", en:"Mouth area complete", ru:"Зона рта полностью" }
         },
         {
           id:"smart_neck_complete",
@@ -7181,7 +7066,7 @@
           displayGroup:"smart",
           zoneIds:["upperback", "lowerback"],
           componentIds:["upperback", "lowerback"],
-          label:{ de:"Rücken komplett", en:"Back complete", ru:"Спина полностью" }
+          label:{ de:"Rücken", en:"Back", ru:"Спина" }
         },
         {
           id:"premium_bikini_axilla",
@@ -7245,6 +7130,33 @@
           zoneIds:["obersch", "untersch", "upperarms", "underarms"],
           componentIds:["smart_legs_complete", "smart_arms_complete"],
           label:{ de:"Beine + Arme", en:"Legs + arms", ru:"Ноги + руки" }
+        },
+        {
+          id:"premium_legs_arms_with_hands",
+          level:3,
+          priority:371,
+          displayGroup:"premium",
+          zoneIds:["obersch", "untersch", "upperarms", "underarms", "hands"],
+          componentIds:["premium_legs_arms", "hands"],
+          label:{ de:"Beine + Arme + Hände", en:"Legs + arms + hands", ru:"Ноги + руки + кисти" }
+        },
+        {
+          id:"premium_legs_arms_with_feet",
+          level:3,
+          priority:372,
+          displayGroup:"premium",
+          zoneIds:["obersch", "untersch", "upperarms", "underarms", "feet"],
+          componentIds:["premium_legs_arms", "feet"],
+          label:{ de:"Beine + Arme + Füße", en:"Legs + arms + feet", ru:"Ноги + руки + стопы" }
+        },
+        {
+          id:"premium_legs_arms_with_hands_feet",
+          level:3,
+          priority:373,
+          displayGroup:"premium",
+          zoneIds:["obersch", "untersch", "upperarms", "underarms", "hands", "feet"],
+          componentIds:["premium_legs_arms", "hands", "feet"],
+          label:{ de:"Beine + Arme + Hände + Füße", en:"Legs + arms + hands + feet", ru:"Ноги + руки + кисти + стопы" }
         },
         {
           id:"premium_all_zones",
@@ -7361,6 +7273,12 @@
       courseTagPremium:"Premium 6er Kur Paket",
       buyCourse:"Kurs kaufen",
       savedWord:"günstiger",
+      nextBenefitTitle:"Dein nächster Vorteil",
+      nextBenefitNext:"Nächster Schritt",
+      nextBenefitOne:"Noch 1 Zone bis zum Paketpreis",
+      nextBenefitMany:"Noch {count} Zonen bis {name}",
+      nextBenefitSave:"Du sparst {value}",
+      plusWord:"plus",
       packageTag:"Smart Paket",
       premiumBadge:"Premium Paket",
       premiumTag:"Premium Paket",
@@ -7386,6 +7304,12 @@
       courseTagPremium:"Premium 6-session course pack",
       buyCourse:"Buy course",
       savedWord:"better value",
+      nextBenefitTitle:"Your next advantage",
+      nextBenefitNext:"Next step",
+      nextBenefitOne:"1 zone left until package price",
+      nextBenefitMany:"{count} zones left until {name}",
+      nextBenefitSave:"You save {value}",
+      plusWord:"plus",
       packageTag:"Smart package",
       premiumBadge:"Premium package",
       premiumTag:"Premium Package",
@@ -7411,6 +7335,12 @@
       courseTagPremium:"Премиум курс 6 визитов",
       buyCourse:"Купить курс",
       savedWord:"выгоднее",
+      nextBenefitTitle:"Ваше следующее преимущество",
+      nextBenefitNext:"Следующий шаг",
+      nextBenefitOne:"Еще 1 зона до пакетной цены",
+      nextBenefitMany:"Еще {count} зоны до {name}",
+      nextBenefitSave:"Вы экономите {value}",
+      plusWord:"плюс",
       packageTag:"Smart пакет",
       premiumBadge:"Премиум пакет",
       premiumTag:"Премиум пакет",
@@ -7420,6 +7350,91 @@
       termPromptTitle:"Пожалуйста, сначала выберите зоны",
       termPromptAction:"OK"
     }
+  };
+  const plannerNextBenefitConfigByMode = {
+    frauen:[
+      {
+        id:"face",
+        zoneIds:["glabella", "upperlip", "kinn", "wangen", "koteletten"],
+        steps:[
+          { type:"package", id:"smart_face_small" },
+          { type:"package", id:"smart_face_complete" }
+        ]
+      },
+      {
+        id:"neck",
+        zoneIds:["chin", "nacken"],
+        steps:[
+          { type:"zone", id:"chin" },
+          { type:"package", id:"smart_neck_complete" }
+        ]
+      },
+      {
+        id:"axilla",
+        zoneIds:["axilla"],
+        steps:[
+          { type:"zone", id:"axilla" }
+        ]
+      },
+      {
+        id:"arms",
+        zoneIds:["upperarms", "underarms", "hands"],
+        steps:[
+          { type:"package", id:"smart_arms_complete" },
+          { type:"zone", id:"hands" }
+        ]
+      },
+      {
+        id:"legs",
+        zoneIds:["obersch", "untersch", "feet"],
+        steps:[
+          { type:"package", id:"smart_legs_complete" },
+          { type:"zone", id:"feet" }
+        ]
+      },
+      {
+        id:"intimate",
+        zoneIds:["bikini", "intim"],
+        steps:[
+          { type:"zone", id:"bikini" },
+          { type:"zone", id:"intim" }
+        ]
+      }
+    ],
+    herren:[
+      {
+        id:"face",
+        zoneIds:["glabella", "upperlip", "kinn", "wangen", "koteletten"],
+        steps:[
+          { type:"zone", id:"upperlip" },
+          { type:"zone", id:"kinn" }
+        ]
+      },
+      {
+        id:"neck",
+        zoneIds:["chin", "nacken"],
+        steps:[
+          { type:"zone", id:"chin" },
+          { type:"zone", id:"nacken" }
+        ]
+      },
+      {
+        id:"arms",
+        zoneIds:["upperarms", "underarms", "hands"],
+        steps:[
+          { type:"package", id:"arms_bundle" },
+          { type:"zone", id:"hands" }
+        ]
+      },
+      {
+        id:"legs",
+        zoneIds:["obersch", "untersch", "feet"],
+        steps:[
+          { type:"package", id:"legs_bundle" },
+          { type:"zone", id:"feet" }
+        ]
+      }
+    ]
   };
 
   function clearPlannerPremiumSequence(){
@@ -7549,28 +7564,6 @@
     body.style.right = "";
     body.style.width = "";
     window.scrollTo(0, legalScrollLockY);
-    requestAnimationFrame(() => {
-      root.style.scrollBehavior = prevScrollBehavior;
-    });
-  }
-  function lockBodyForVideo(){
-    videoScrollLockY = window.scrollY || window.pageYOffset || 0;
-    body.style.position = "fixed";
-    body.style.top = `-${videoScrollLockY}px`;
-    body.style.left = "0";
-    body.style.right = "0";
-    body.style.width = "100%";
-  }
-  function unlockBodyForVideo(){
-    const root = document.documentElement;
-    const prevScrollBehavior = root.style.scrollBehavior;
-    root.style.scrollBehavior = "auto";
-    body.style.position = "";
-    body.style.top = "";
-    body.style.left = "";
-    body.style.right = "";
-    body.style.width = "";
-    window.scrollTo(0, videoScrollLockY);
     requestAnimationFrame(() => {
       root.style.scrollBehavior = prevScrollBehavior;
     });
@@ -8048,10 +8041,6 @@
 
   document.addEventListener("keydown", (e) => {
     if(e.key !== "Escape") return;
-    if(videoModal && !videoModal.hidden){
-      closeVideoModal();
-      return;
-    }
     if(bookingPromptModal && !bookingPromptModal.hidden){
       closeBookingPrompt({ startGuide:false });
       return;
@@ -10870,6 +10859,45 @@
   function plannerBundlesForMode(mode){
     return plannerPricingConfig(mode).packages || [];
   }
+  const plannerZoneDisplayOrderByMode = {
+    frauen:[
+      "chin", "nacken", "kinn", "wangen", "koteletten", "glabella", "upperlip",
+      "chest", "upperback", "lowerback",
+      "axilla",
+      "upperarms", "underarms", "hands",
+      "bauchfull", "pobacken", "medialinebauch",
+      "obersch", "untersch", "feet",
+      "bikini", "intim"
+    ],
+    herren:[
+      "chin", "nacken", "kinn", "wangen", "koteletten", "glabella", "upperlip",
+      "chest", "upperback", "lowerback",
+      "axilla",
+      "upperarms", "underarms", "hands",
+      "bauchfull", "pobacken", "medialinebauch",
+      "obersch", "untersch", "feet",
+      "bikini", "intim"
+    ]
+  };
+  function plannerZoneDisplayRank(mode, zoneId){
+    const displayOrder = plannerZoneDisplayOrderByMode[mode] || plannerZoneDisplayOrderByMode.frauen || [];
+    const index = displayOrder.indexOf(zoneId);
+    if(index >= 0) return index;
+    const zones = plannerZonesByMode[mode] || plannerZonesByMode.frauen || [];
+    const fallbackIndex = zones.findIndex((zone) => zone && zone.id === zoneId);
+    if(fallbackIndex >= 0) return displayOrder.length + fallbackIndex;
+    return Number.MAX_SAFE_INTEGER;
+  }
+  function plannerBundleDisplayRank(mode, bundleId){
+    const bundles = plannerBundlesForMode(mode);
+    const index = bundles.findIndex((bundle) => bundle && bundle.id === bundleId);
+    return index >= 0 ? index : Number.MAX_SAFE_INTEGER;
+  }
+  function plannerDisplayRankForZoneIds(mode, zoneIds = []){
+    return zoneIds.reduce((minRank, zoneId) => {
+      return Math.min(minRank, plannerZoneDisplayRank(mode, zoneId));
+    }, Number.MAX_SAFE_INTEGER);
+  }
   function plannerBundleById(mode, bundleId){
     return plannerBundlesForMode(mode).find((bundle) => bundle.id === bundleId) || null;
   }
@@ -10922,20 +10950,22 @@
     const pricing = plannerPricingConfig(mode);
     return !Number.isFinite(pricing.packagePriceOverrides ? pricing.packagePriceOverrides[pkg.id] : null);
   }
-  function plannerPackageTreeNodeForZone(zone){
+  function plannerPackageTreeNodeForZone(mode, zone, selectedOrder = null){
     if(!zone) return null;
     return {
       type:"single",
       id:zone.id,
       label:zone.label,
       price:zone.price,
+      displayRank:plannerDisplayRankForZoneIds(mode, [zone.id]),
+      selectionOrder:selectedOrder instanceof Map && selectedOrder.has(zone.id) ? Number(selectedOrder.get(zone.id)) : Number.MAX_SAFE_INTEGER,
       children:[]
     };
   }
-  function plannerPackageTreeNode(mode, entry, zonesById, visited = new Set()){
+  function plannerPackageTreeNode(mode, entry, zonesById, visited = new Set(), selectedOrder = null){
     if(!entry) return null;
     if(entry.type === "single"){
-      return plannerPackageTreeNodeForZone(zonesById.get(entry.id));
+      return plannerPackageTreeNodeForZone(mode, zonesById.get(entry.id), selectedOrder);
     }
     const pkg = plannerBundleById(mode, entry.id);
     if(!pkg || visited.has(pkg.id)) return null;
@@ -10947,7 +10977,7 @@
     componentIds.forEach((componentId) => {
       const childPkg = plannerBundleById(mode, componentId);
       if(childPkg){
-        const childNode = plannerPackageTreeNode(mode, { type:"package", id:childPkg.id }, zonesById, nextVisited);
+        const childNode = plannerPackageTreeNode(mode, { type:"package", id:childPkg.id }, zonesById, nextVisited, selectedOrder);
         if(childNode){
           children.push(childNode);
           childPkg.zoneIds.forEach((zoneId) => consumedZoneIds.add(zoneId));
@@ -10956,20 +10986,29 @@
       }
       const zone = zonesById.get(componentId);
       if(!zone || consumedZoneIds.has(zone.id)) return;
-      children.push(plannerPackageTreeNodeForZone(zone));
+      children.push(plannerPackageTreeNodeForZone(mode, zone, selectedOrder));
       consumedZoneIds.add(zone.id);
     });
     pkg.zoneIds.forEach((zoneId) => {
       if(consumedZoneIds.has(zoneId)) return;
       const zone = zonesById.get(zoneId);
-      if(zone) children.push(plannerPackageTreeNodeForZone(zone));
+      if(zone) children.push(plannerPackageTreeNodeForZone(mode, zone, selectedOrder));
     });
+    const selectionOrderValue = children.reduce((minOrder, child) => {
+      const childOrder = Number.isFinite(Number(child.selectionOrder)) ? Number(child.selectionOrder) : Number.MAX_SAFE_INTEGER;
+      return Math.min(minOrder, childOrder);
+    }, Number.MAX_SAFE_INTEGER);
     return {
       type:"package",
       id:pkg.id,
       label:pkg.label,
       level:pkg.level || 2,
       price:Number(entry.price) || 0,
+      displayRank:Math.min(
+        plannerBundleDisplayRank(mode, pkg.id),
+        ...children.map((child) => Number.isFinite(Number(child && child.displayRank)) ? Number(child.displayRank) : Number.MAX_SAFE_INTEGER)
+      ),
+      selectionOrder:selectionOrderValue,
       displayGroup:pkg.displayGroup || "",
       isTodoPrice:plannerPackageIsTodoPrice(mode, pkg),
       children
@@ -11103,13 +11142,11 @@
     };
     const solved = solve(0);
     const normalizedItems = (solved ? solved.items : []).map((candidate) => {
-      const earliestSelectionOrder = candidate.zoneIds.reduce((earliest, zoneId) => {
+      const latestSelectionOrder = candidate.zoneIds.reduce((latest, zoneId) => {
         const order = selectedOrder.has(zoneId) ? selectedOrder.get(zoneId) : -1;
-        if(order < 0) return earliest;
-        if(earliest < 0) return Number(order);
-        return Math.min(earliest, Number(order));
+        return Math.max(latest, Number(order));
       }, -1);
-      const tree = plannerPackageTreeNode(mode, candidate, zonesById);
+      const tree = plannerPackageTreeNode(mode, candidate, zonesById, new Set(), selectedOrder);
       return {
         id:candidate.id,
         type:candidate.type,
@@ -11123,12 +11160,16 @@
         displayGroup:candidate.displayGroup,
         isTodoPrice:candidate.isTodoPrice,
         children:tree && Array.isArray(tree.children) ? tree.children : [],
-        earliestSelectionOrder
+        earliestSelectionOrder:candidate.zoneIds.reduce((earliest, zoneId) => {
+          const order = selectedOrder.has(zoneId) ? Number(selectedOrder.get(zoneId)) : Number.MAX_SAFE_INTEGER;
+          return Math.min(earliest, order);
+        }, Number.MAX_SAFE_INTEGER),
+        latestSelectionOrder
       };
     }).sort((a, b) => {
-      if(a.earliestSelectionOrder !== b.earliestSelectionOrder) return a.earliestSelectionOrder - b.earliestSelectionOrder;
-      if(a.level !== b.level) return a.level - b.level;
-      if((a.zoneIds || []).length !== (b.zoneIds || []).length) return (a.zoneIds || []).length - (b.zoneIds || []).length;
+      if(b.latestSelectionOrder !== a.latestSelectionOrder) return b.latestSelectionOrder - a.latestSelectionOrder;
+      if(b.level !== a.level) return b.level - a.level;
+      if((b.zoneIds || []).length !== (a.zoneIds || []).length) return (b.zoneIds || []).length - (a.zoneIds || []).length;
       return String(a.id).localeCompare(String(b.id));
     });
     const total = normalizedItems.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
@@ -11174,7 +11215,7 @@
     return plannerBundleCompleteInSet(bundle, selectedSet);
   }
   function plannerOrderItems(mode, selectedSet){
-    return plannerSummarySnapshot(mode, selectedSet).items.map((item) => ({
+    return plannerDisplayItems(plannerSummarySnapshot(mode, selectedSet)).map((item) => ({
       id:item.id,
       label:item.label,
       price:item.price,
@@ -11187,6 +11228,148 @@
       displayGroup:item.displayGroup,
       isTodoPrice:item.isTodoPrice
     }));
+  }
+  function plannerCompositeLabel(baseItem, extraItems){
+    const baseLabel = plannerLabel(baseItem && baseItem.label).trim();
+    const extraLabels = (extraItems || []).map((item) => plannerLabel(item && item.label).trim()).filter(Boolean);
+    if(!baseLabel) return baseItem && baseItem.label;
+    if(!extraLabels.length) return baseItem.label;
+    const combined = [baseLabel, ...extraLabels].join(" + ");
+    return { de:combined, en:combined, ru:combined };
+  }
+  function plannerCloneDisplayNode(node){
+    if(!node) return null;
+    return {
+      ...node,
+      children:Array.isArray(node.children) ? node.children.map((child) => plannerCloneDisplayNode(child)).filter(Boolean) : []
+    };
+  }
+  function plannerSortDisplayNodes(nodes){
+    return [...(nodes || [])].sort((a, b) => {
+      const aOrder = Number(a && a.selectionOrder);
+      const bOrder = Number(b && b.selectionOrder);
+      if(aOrder !== bOrder) return aOrder - bOrder;
+      return String((a && a.id) || "").localeCompare(String((b && b.id) || ""));
+    });
+  }
+  function plannerDisplayNodesForItem(item){
+    if(!item) return [];
+    if(item.type === "single"){
+      return [{
+        type:"single",
+        id:item.id,
+        label:item.label,
+        price:item.originalPrice || item.price || 0,
+        selectionOrder:Number.isFinite(Number(item.earliestSelectionOrder))
+          ? Number(item.earliestSelectionOrder)
+          : (Number.isFinite(Number(item.latestSelectionOrder)) ? Number(item.latestSelectionOrder) : Number.MAX_SAFE_INTEGER),
+        children:[]
+      }];
+    }
+    const childNodes = Array.isArray(item.children) ? item.children.map((child) => plannerCloneDisplayNode(child)).filter(Boolean) : [];
+    if(childNodes.some((child) => child && child.type === "package")){
+      return plannerSortDisplayNodes(childNodes);
+    }
+    return [{
+      type:"package",
+      id:item.id,
+      label:item.label,
+      level:item.level || 2,
+      selectionOrder:Number.isFinite(Number(item.earliestSelectionOrder))
+        ? Number(item.earliestSelectionOrder)
+        : (Number.isFinite(Number(item.latestSelectionOrder)) ? Number(item.latestSelectionOrder) : Number.MAX_SAFE_INTEGER),
+      children:childNodes
+    }];
+  }
+  function plannerFindDisplayPackageNode(nodes, packageIds){
+    const list = Array.isArray(nodes) ? nodes : [];
+    for(const node of list){
+      if(node && node.type === "package" && packageIds.includes(node.id)) return node;
+      const nested = plannerFindDisplayPackageNode(node && node.children, packageIds);
+      if(nested) return nested;
+    }
+    return null;
+  }
+  function plannerMergeSupplementaryNodes(nodes){
+    const working = plannerSortDisplayNodes((nodes || []).map((node) => plannerCloneDisplayNode(node)).filter(Boolean));
+    const extractNode = (predicate) => {
+      const index = working.findIndex(predicate);
+      if(index < 0) return null;
+      return working.splice(index, 1)[0] || null;
+    };
+    const handsNode = extractNode((node) => node && node.type === "single" && node.id === "hands");
+    const feetNode = extractNode((node) => node && node.type === "single" && node.id === "feet");
+    const armsPackageNode = plannerFindDisplayPackageNode(working, ["smart_arms_complete", "arms_bundle"]);
+    const legsPackageNode = plannerFindDisplayPackageNode(working, ["smart_legs_complete", "legs_bundle"]);
+    if(handsNode && armsPackageNode){
+      const nextChildren = Array.isArray(armsPackageNode.children) ? [...armsPackageNode.children, handsNode] : [handsNode];
+      armsPackageNode.children = plannerSortDisplayNodes(nextChildren);
+      armsPackageNode.selectionOrder = Math.min(
+        Number.isFinite(Number(armsPackageNode.selectionOrder)) ? Number(armsPackageNode.selectionOrder) : Number.MAX_SAFE_INTEGER,
+        Number.isFinite(Number(handsNode.selectionOrder)) ? Number(handsNode.selectionOrder) : Number.MAX_SAFE_INTEGER
+      );
+    } else if(handsNode){
+      working.push(handsNode);
+    }
+    if(feetNode && legsPackageNode){
+      const nextChildren = Array.isArray(legsPackageNode.children) ? [...legsPackageNode.children, feetNode] : [feetNode];
+      legsPackageNode.children = plannerSortDisplayNodes(nextChildren);
+      legsPackageNode.selectionOrder = Math.min(
+        Number.isFinite(Number(legsPackageNode.selectionOrder)) ? Number(legsPackageNode.selectionOrder) : Number.MAX_SAFE_INTEGER,
+        Number.isFinite(Number(feetNode.selectionOrder)) ? Number(feetNode.selectionOrder) : Number.MAX_SAFE_INTEGER
+      );
+    } else if(feetNode){
+      working.push(feetNode);
+    }
+    return plannerSortDisplayNodes(working);
+  }
+  function plannerCompositeLabelFromNodes(nodes, fallbackLabel){
+    const sortedNodes = plannerSortDisplayNodes(nodes);
+    const suffixByLang = {
+      de:" komplett",
+      en:" complete",
+      ru:" полностью"
+    };
+    const composeForLang = (lang) => {
+      const labels = sortedNodes
+        .map((node) => {
+          if(!node || !node.label) return "";
+          return (node.label[lang] || node.label.de || "").trim();
+        })
+        .filter(Boolean);
+      if(!labels.length) return "";
+      if(labels.length === 1) return labels[0];
+      const suffix = suffixByLang[lang] || "";
+      const suffixCount = labels.filter((label) => label.endsWith(suffix)).length;
+      if(suffix && suffixCount >= 2){
+        const normalized = labels.map((label) => label.endsWith(suffix) ? label.slice(0, -suffix.length).trim() : label);
+        return `${normalized.join(" + ")}${suffix}`;
+      }
+      return labels.join(" + ");
+    };
+    const composed = {
+      de:composeForLang("de"),
+      en:composeForLang("en"),
+      ru:composeForLang("ru")
+    };
+    if(!composed.de && !composed.en && !composed.ru) return fallbackLabel;
+    if(sortedNodes.length === 1) return fallbackLabel || composed;
+    return composed;
+  }
+  function plannerDisplayItems(snapshot){
+    const items = snapshot && Array.isArray(snapshot.items) ? snapshot.items : [];
+    if(!items.length) return items;
+    const displayNodes = plannerMergeSupplementaryNodes(items.flatMap((item) => plannerDisplayNodesForItem(item)));
+    if(items.length === 1){
+      const singleItem = items[0];
+      if(!singleItem || singleItem.type !== "package") return items;
+      return [{
+        ...singleItem,
+        label:singleItem.label,
+        children:displayNodes
+      }];
+    }
+    return items;
   }
   function plannerSummaryMetaParts(item){
     if(!item || item.type !== "package") return [];
@@ -11462,6 +11645,89 @@
     if(lang === "en") return mode === "herren" ? "Men" : "Women";
     return mode === "herren" ? "Herren" : "Frauen";
   }
+  function plannerNextBenefitSections(mode){
+    return plannerNextBenefitConfigByMode[mode] || plannerNextBenefitConfigByMode.frauen || [];
+  }
+  function plannerNextBenefitStepMeta(mode, step, zonesById){
+    if(!step) return null;
+    if(step.type === "zone"){
+      const zone = zonesById.get(step.id);
+      if(!zone) return null;
+      return {
+        id:step.id,
+        type:"zone",
+        label:zone.label,
+        zoneIds:[step.id],
+        savings:0
+      };
+    }
+    const bundle = plannerBundleById(mode, step.id);
+    if(!bundle) return null;
+    return {
+      id:bundle.id,
+      type:"package",
+      label:bundle.label,
+      zoneIds:[...(bundle.zoneIds || [])],
+      savings:Math.max(0, plannerPackageOriginalPrice(bundle, zonesById) - (Number(plannerPackageResolvedPrice(mode, bundle, zonesById)) || 0))
+    };
+  }
+  function plannerNextBenefitRecommendation(mode, selectedSet){
+    const sections = plannerNextBenefitSections(mode);
+    if(!sections.length || !selectedSet || !selectedSet.size) return null;
+    const zonesById = plannerZonesMap(mode);
+    const selectedZoneIds = Array.from(selectedSet);
+    const latestSelectedZoneId = selectedZoneIds[selectedZoneIds.length - 1] || "";
+    let startIndex = sections.findIndex((section) => Array.isArray(section.zoneIds) && section.zoneIds.includes(latestSelectedZoneId));
+    if(startIndex < 0){
+      startIndex = sections.findIndex((section) => Array.isArray(section.zoneIds) && section.zoneIds.some((zoneId) => selectedSet.has(zoneId)));
+    }
+    if(startIndex < 0) startIndex = 0;
+    for(let sectionIndex = startIndex; sectionIndex < sections.length; sectionIndex += 1){
+      const section = sections[sectionIndex];
+      const steps = Array.isArray(section.steps) ? section.steps : [];
+      for(const step of steps){
+        const meta = plannerNextBenefitStepMeta(mode, step, zonesById);
+        if(!meta || !meta.zoneIds.length) continue;
+        const selectedCount = meta.zoneIds.filter((zoneId) => selectedSet.has(zoneId)).length;
+        const totalCount = meta.zoneIds.length;
+        if(selectedCount >= totalCount) continue;
+        return {
+          ...meta,
+          sectionId:section.id,
+          selectedCount,
+          totalCount,
+          missingCount:Math.max(0, totalCount - selectedCount)
+        };
+      }
+    }
+    return null;
+  }
+  function renderPlannerNextBenefit(mode, selectedSet){
+    if(!plannerNextBenefit || !plannerNextBenefitName || !plannerNextBenefitText || !plannerNextBenefitBarFill || !plannerNextBenefitProgress || !plannerNextBenefitSave) return;
+    const recommendation = plannerNextBenefitRecommendation(mode, selectedSet);
+    if(!recommendation){
+      plannerNextBenefit.hidden = true;
+      return;
+    }
+    const label = plannerLabel(recommendation.label).trim();
+    const progressRatio = recommendation.totalCount > 0 ? (recommendation.selectedCount / recommendation.totalCount) : 0;
+    plannerNextBenefit.hidden = false;
+    if(plannerNextBenefitTitle) plannerNextBenefitTitle.textContent = plannerText("nextBenefitTitle");
+    plannerNextBenefitName.textContent = label;
+    plannerNextBenefitBarFill.style.width = `${Math.max(0, Math.min(100, progressRatio * 100))}%`;
+    plannerNextBenefitProgress.textContent = `${recommendation.selectedCount} / ${recommendation.totalCount}`;
+    if(recommendation.type === "package"){
+      plannerNextBenefitText.textContent = recommendation.missingCount <= 1
+        ? plannerText("nextBenefitOne")
+        : plannerTextTemplate("nextBenefitMany", { count:String(recommendation.missingCount), name:label });
+      plannerNextBenefitSave.textContent = recommendation.savings > 0
+        ? plannerTextTemplate("nextBenefitSave", { value:formatEuro(recommendation.savings) })
+        : "";
+    } else {
+      plannerNextBenefitText.textContent = plannerText("nextBenefitNext");
+      plannerNextBenefitSave.textContent = "";
+    }
+  }
   function plannerMobileInfoVisualProgress(){
     if(!(plannerFigureViewportScroll instanceof HTMLElement) || plannerViewTransport !== "scroll-snap"){
       return 1;
@@ -11481,11 +11747,30 @@
     const opacity = 0.14 + (progress * 0.86);
     plannerMobileInfo.style.setProperty("--planner-mobile-info-opacity", opacity.toFixed(3));
   }
-  function plannerMobileSummaryLines(selected){
+  function plannerMobileSummaryItems(selected){
     if(!Array.isArray(selected) || !selected.length) return [];
-    return selected
-      .map((item) => plannerLabel(item.label).trim())
-      .filter(Boolean);
+    return selected.filter(Boolean);
+  }
+  function plannerMobileLeafRows(item){
+    const rows = [];
+    const visit = (node) => {
+      if(!node) return;
+      if(Array.isArray(node.children) && node.children.length){
+        node.children.forEach((child) => visit(child));
+        return;
+      }
+      const label = plannerLabel(node.label).trim();
+      if(!label) return;
+      rows.push({
+        id:node.id || label,
+        label,
+        price:Number(node.price) || 0
+      });
+    };
+    if(Array.isArray(item && item.children) && item.children.length){
+      item.children.forEach((child) => visit(child));
+    }
+    return rows;
   }
   function plannerAnimateMobilePriceBlock(){
     const priceLines = [
@@ -11506,14 +11791,26 @@
       });
     });
   }
-  function plannerRenderMobileZoneNames(selected){
+  function plannerRenderMobileZoneNames(mode, selected){
     if(!plannerMobileInfoZones) return;
     plannerMobileInfoZones.replaceChildren();
-    const lines = plannerMobileSummaryLines(selected);
-    if(!lines.length) return;
-    lines.forEach((label, index) => {
+    const items = plannerMobileSummaryItems(selected);
+    const expandedRows = plannerMobileExpandedRowsByMode[mode] || new Set();
+    let hasExpandedRow = false;
+    if(!items.length){
+      plannerMobileInfoZones.classList.remove("is-expanded");
+      return;
+    }
+    const visibleIds = new Set(items.map((item) => String(item.id || "")));
+    Array.from(expandedRows).forEach((rowId) => {
+      if(visibleIds.has(rowId)) return;
+      expandedRows.delete(rowId);
+    });
+    plannerMobileExpandedRowsByMode[mode] = expandedRows;
+    items.forEach((item, index) => {
+      const label = plannerLabel(item.label).trim();
       if(!label) return;
-      const row = document.createElement("span");
+      const row = document.createElement("div");
       row.className = `plannerMobileInfoZoneRow${index === 0 ? " plannerMobileInfoZoneRow--latest" : ""}`;
       const opacity = index < 3 ? 1 : (index === 3 ? 0.5 : 0.24);
       const shift = Math.min(index, 4) * 2.5;
@@ -11522,9 +11819,56 @@
       row.style.setProperty("--planner-mobile-row-shift", `${shift}px`);
       row.style.setProperty("--planner-mobile-row-blur", `${blur}px`);
       row.style.setProperty("--planner-mobile-row-delay", `${Math.min(index, 4) * 36}ms`);
-      row.textContent = label;
+      const packageRows = item.type === "package" ? plannerMobileLeafRows(item) : [];
+      const isExpandable = packageRows.length > 0;
+      const rowId = String(item.id || label);
+      const isOpen = isExpandable && expandedRows.has(rowId);
+      if(isExpandable){
+        row.classList.add("plannerMobileInfoZoneCard");
+        if(isOpen) row.classList.add("is-open");
+        const toggle = document.createElement("button");
+        toggle.type = "button";
+        toggle.className = "plannerMobileInfoZoneToggle";
+        toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        const toggleText = document.createElement("span");
+        toggleText.className = "plannerMobileInfoZoneToggleText";
+        toggleText.textContent = label;
+        const chevron = document.createElement("span");
+        chevron.className = "plannerMobileInfoZoneChevron";
+        chevron.textContent = "▾";
+        toggle.append(toggleText, chevron);
+        toggle.addEventListener("click", () => {
+          const nextExpandedRows = plannerMobileExpandedRowsByMode[mode] || new Set();
+          if(nextExpandedRows.has(rowId)) nextExpandedRows.delete(rowId);
+          else nextExpandedRows.add(rowId);
+          plannerMobileExpandedRowsByMode[mode] = nextExpandedRows;
+          updatePlannerOrder(mode);
+        });
+        row.appendChild(toggle);
+        if(isOpen){
+          hasExpandedRow = true;
+          const details = document.createElement("div");
+          details.className = "plannerMobileInfoZoneDetails";
+          packageRows.forEach((entry) => {
+            const detailRow = document.createElement("div");
+            detailRow.className = "plannerMobileInfoZoneDetailRow";
+            const name = document.createElement("span");
+            name.className = "plannerMobileInfoZoneDetailName";
+            name.textContent = entry.label;
+            const price = document.createElement("span");
+            price.className = "plannerMobileInfoZoneDetailPrice";
+            price.textContent = formatEuro(entry.price);
+            detailRow.append(name, price);
+            details.appendChild(detailRow);
+          });
+          row.appendChild(details);
+        }
+      } else {
+        row.textContent = label;
+      }
       plannerMobileInfoZones.appendChild(row);
     });
+    plannerMobileInfoZones.classList.toggle("is-expanded", hasExpandedRow);
   }
   function updatePlannerMobileInfo(mode, selectedSet, selected, displayTotal){
     if(!plannerMobileInfo || !plannerMobileInfoZones || !plannerMobileInfoPriceOld || !plannerMobileInfoPriceCurrent || !plannerMobileInfoSaved) return;
@@ -11550,7 +11894,7 @@
       : originalSessionTotal;
     const saved = Math.max(0, oldTotal - displayTotal);
     plannerMobileInfo.classList.remove("is-empty");
-    plannerRenderMobileZoneNames(selected);
+    plannerRenderMobileZoneNames(mode, selected);
     plannerMobileInfoPriceCurrent.textContent = formatEuro(displayTotal);
     plannerMobileInfoPriceOld.textContent = saved > 0 ? formatEuro(oldTotal) : "";
     plannerMobileInfoSaved.textContent = saved > 0 ? plannerSavedLabel(saved) : "";
@@ -11595,13 +11939,17 @@
     if(plannerZonesSub) plannerZonesSub.textContent = plannerText("zonesSub");
     if(plannerOrderTitle) plannerOrderTitle.textContent = plannerText("orderTitle");
     if(plannerOrderEmpty) plannerOrderEmpty.textContent = plannerText("empty");
+    if(plannerNextBenefitTitle) plannerNextBenefitTitle.textContent = plannerText("nextBenefitTitle");
     if(plannerTotalLabel) plannerTotalLabel.textContent = plannerText("total");
     if(plannerClearBtn) plannerClearBtn.textContent = plannerText("clear");
     if(plannerCopyBtn) plannerCopyBtn.textContent = plannerText("copy");
     if(plannerTermBtn) plannerTermBtn.textContent = plannerText("term");
     if(plannerCourseHint) plannerCourseHint.textContent = plannerText("courseHint");
     if(plannerBuyBtn) plannerBuyBtn.textContent = plannerPricingView === "course" ? plannerText("buyCourse") : plannerText("buy");
-    if(plannerPremiumBadge) plannerPremiumBadge.textContent = plannerText("premiumBadge");
+    if(plannerPremiumBadge){
+      plannerPremiumBadge.textContent = "";
+      plannerPremiumBadge.hidden = true;
+    }
   }
   function togglePlannerZone(mode, zoneId, options = null){
     markPlannerInteracted();
@@ -11664,9 +12012,11 @@
   function updatePlannerOrder(mode){
     if(!plannerOrderList || !plannerOrderEmpty || !plannerTotalValue) return;
     const isCourseMode = plannerPricingView === "course";
-    const expandedBundleRows = plannerExpandedBundleRowsByMode[mode] || new Set();
+    const collapsedBundleRows = plannerCollapsedBundleRowsByMode[mode] || new Set();
+    const seenDetailEntryKeys = plannerSeenDetailEntryKeysByMode[mode] || new Set();
     const selectedSet = plannerSelectedByMode[mode] || new Set();
     const snapshot = plannerSummarySnapshot(mode, selectedSet);
+    const activeDetailEntryKeys = new Set();
     const displayPriceMeta = (basePrice, originalPrice) => {
       if(!isCourseMode){
         return {
@@ -11683,56 +12033,77 @@
         saved:Math.max(0, courseOriginal - coursePrice)
       };
     };
-    const renderTreeNode = (node) => {
+    const renderTreeNode = (node, path = []) => {
       if(!node) return "";
       const label = plannerLabel(node.label);
-      if(!label) return "";
       if(!Array.isArray(node.children) || !node.children.length){
+        if(!label) return "";
         const nodePrice = Number(node.price) || 0;
         const nodePriceHtml = isCourseMode
           ? plannerTextTemplate("courseDetail", { count:String(PLANNER_COURSE_SESSIONS), value:formatEuro(nodePrice) })
           : formatEuro(nodePrice);
         return `<div class="orderItemDetailRow"><span class="orderItemDetailName">${label}</span><span class="orderItemDetailPrice">${nodePriceHtml}</span></div>`;
       }
-      const badgeText = node.type === "package"
-        ? plannerText(node.level >= 3 ? "premiumTag" : "packageTag")
-        : "";
-      const childrenHtml = node.children.map((child) => renderTreeNode(child)).filter(Boolean).join("");
+      const badgeText = "";
+      const childrenHtml = node.children.map((child, index) => {
+        const childPath = [...path, String(child && child.id ? child.id : `idx-${index}`)];
+        const childKey = childPath.join(">");
+        activeDetailEntryKeys.add(childKey);
+        const childHtml = renderTreeNode(child, childPath);
+        if(!childHtml) return "";
+        const shouldAnimate = false;
+        if(shouldAnimate) seenDetailEntryKeys.add(childKey);
+        const entryClassName = "orderItemDetailEntry";
+        const entryStyle = "";
+        return `<div class="${entryClassName}"${entryStyle}>${childHtml}</div>`;
+      }).filter(Boolean).join("");
+      if(!label) return "";
       return `<div class="orderItemDetailTree"><div class="orderItemDetailRow orderItemDetailRow--group"><span class="orderItemDetailName">${label}</span>${badgeText ? `<span class="orderItemDetailBadge">${badgeText}</span>` : ""}</div><div class="orderItemDetailTreeChildren">${childrenHtml}</div></div>`;
     };
     const renderSummaryRow = (item) => {
       const li = document.createElement("li");
       li.className = "orderItem";
-      if((item.level || 0) >= 3) li.classList.add("orderItem--premium");
       const isPackageRow = item.type === "package";
       const canExpand = isPackageRow && Array.isArray(item.children) && item.children.length > 0;
-      const isExpanded = canExpand && expandedBundleRows.has(item.id);
-      const partsText = isPackageRow ? plannerSummaryMetaText(item) : "";
+      const isExpanded = canExpand && collapsedBundleRows.has(item.id);
+      let detailNodes = item.children;
+      if(isPackageRow && item.displayGroup === "smart" && canExpand && item.children.every((child) => child && child.type === "single")){
+        detailNodes = [{
+          type:"package",
+          id:`${item.id}__details`,
+          label:item.label,
+          level:item.level || 2,
+          children:item.children
+        }];
+      } else if(isPackageRow && item.id === "smart_arms_complete_with_hands" && canExpand){
+        const [armsPackage, ...extraChildren] = item.children;
+        if(armsPackage && armsPackage.type === "package" && Array.isArray(armsPackage.children)){
+          detailNodes = [{
+            ...armsPackage,
+            children:[...armsPackage.children, ...extraChildren]
+          }];
+        }
+      }
+      const partsText = "";
       const basePrice = item.price;
       const originalPrice = Number(item.originalPrice) || basePrice;
       const priceMeta = displayPriceMeta(basePrice, originalPrice);
       const calcUnitPrice = isCourseMode ? (priceMeta.original / PLANNER_COURSE_SESSIONS) : basePrice;
       const saved = priceMeta.saved;
-      const premiumTagHtml = (!isCourseMode && (item.level || 0) >= 3)
-        ? `<span class="orderItemPremiumTag">${plannerText("premiumTag")}</span>`
-        : (!isCourseMode && isPackageRow)
-          ? `<span class="orderItemPremiumTag">${plannerText("packageTag")}</span>`
-          : "";
+      const premiumTagHtml = "";
       const courseTagHtml = isCourseMode
         ? `<span class="orderItemPremiumTag">${plannerText((item.level || 0) >= 3 ? "courseTagPremium" : "courseTag")}</span>`
         : "";
       const expandHintHtml = canExpand
         ? `<button type="button" class="orderItemSaveHintBtn${isExpanded ? " is-open" : ""}" data-bundle-id="${item.id}" aria-expanded="${isExpanded ? "true" : "false"}" aria-label="Toggle details"><span class="orderItemSaveHintIcon" aria-hidden="true"></span></button>`
         : "";
-      const todoPriceHtml = (isPackageRow && item.isTodoPrice)
-        ? `<span class="orderItemMeta">Preis folgt nach Freigabe, aktuell Paket zum Zonenpreis.</span>`
-        : "";
+      const todoPriceHtml = "";
       const saveHtml = saved > 0
         ? `<span class="orderItemSave">${plannerSavedLabel(saved)}${expandHintHtml}</span>`
         : (canExpand ? `<span class="orderSavingLine">${expandHintHtml}</span>` : "")
       ;
       const detailsHtml = (canExpand && isExpanded)
-        ? `<div class="orderItemDetails">${item.children.map((child) => renderTreeNode(child)).filter(Boolean).join("")}</div>`
+        ? `<div class="orderItemDetails">${premiumTagHtml}${detailNodes.map((child, index) => renderTreeNode(child, [String(item.id), String(child && child.id ? child.id : `idx-${index}`)])).filter(Boolean).join("")}</div>`
         : "";
       const titleText = plannerLabel(item.label);
       const oldPriceHtml = (priceMeta.original > priceMeta.price)
@@ -11740,20 +12111,25 @@
           ? `<span class="orderItemPriceOldLine"><span class="orderItemPriceCalc">${plannerTextTemplate("courseDetail", { count:String(PLANNER_COURSE_SESSIONS), value:formatEuro(calcUnitPrice) })}</span><span class="orderItemPriceEq">= <span class="orderItemPriceEqValue">${formatEuro(priceMeta.original)}</span></span></span>`
           : `<span class="orderItemPriceOld">${formatEuro(priceMeta.original)}</span>`)
         : "";
-      li.innerHTML = `<span class="orderItemNameWrap">${courseTagHtml}${premiumTagHtml}<span class="orderItemNameLine"><span class="orderItemName">${titleText}</span></span>${partsText ? `<span class="orderItemMeta">${partsText}</span>` : ""}${todoPriceHtml}${saveHtml}${detailsHtml}</span><span class="orderItemPriceWrap">${oldPriceHtml}<strong class="orderItemPrice">${formatEuro(priceMeta.price)}</strong></span>`;
+      li.innerHTML = `<span class="orderItemNameWrap">${courseTagHtml}<span class="orderItemNameLine"><span class="orderItemName">${titleText}</span></span>${partsText ? `<span class="orderItemMeta">${partsText}</span>` : ""}${todoPriceHtml}${saveHtml}${detailsHtml}</span><span class="orderItemPriceWrap">${oldPriceHtml}<strong class="orderItemPrice">${formatEuro(priceMeta.price)}</strong></span>`;
       plannerOrderList.appendChild(li);
     };
     updatePlannerTermLink(mode, selectedSet);
     if(!selectedSet.size && plannerPricingView === "course"){
       setPlannerPricingView("single");
     }
-    const selected = snapshot.items;
+    const selected = plannerDisplayItems(snapshot);
     const sessionTotal = snapshot.total;
     updatePlannerCourseOffer(mode, selectedSet, sessionTotal);
     const visibleBundleIds = new Set(selected.filter((item) => item.type === "package").map((item) => item.id));
-    Array.from(expandedBundleRows).forEach((bundleId) => {
+    const hasExpandedVisibleBundle = Array.from(collapsedBundleRows).some((bundleId) => visibleBundleIds.has(bundleId));
+    if(!hasExpandedVisibleBundle && collapsedBundleRows.size > 0 && visibleBundleIds.size === 1){
+      collapsedBundleRows.clear();
+      visibleBundleIds.forEach((bundleId) => collapsedBundleRows.add(bundleId));
+    }
+    Array.from(collapsedBundleRows).forEach((bundleId) => {
       if(visibleBundleIds.has(bundleId)) return;
-      expandedBundleRows.delete(bundleId);
+      collapsedBundleRows.delete(bundleId);
     });
     let displayTotal = sessionTotal;
     plannerOrderList.innerHTML = "";
@@ -11763,6 +12139,11 @@
       plannerOrderEmpty.hidden = true;
       selected.forEach((item) => renderSummaryRow(item));
     }
+    Array.from(seenDetailEntryKeys).forEach((key) => {
+      if(activeDetailEntryKeys.has(key)) return;
+      seenDetailEntryKeys.delete(key);
+    });
+    plannerSeenDetailEntryKeysByMode[mode] = seenDetailEntryKeys;
     if(plannerPremiumBadge){
       plannerPremiumBadge.hidden = true;
     }
@@ -11771,6 +12152,7 @@
     }
     renderPlannerTotalValue(displayTotal, false);
     updatePlannerMobileInfo(mode, selectedSet, selected, displayTotal);
+    renderPlannerNextBenefit(mode, selectedSet);
   }
   function renderPlannerZones(mode){
     if(!plannerZoneGrid) return;
@@ -12345,6 +12727,7 @@
         }
       }
       if(isFeetButton){
+        btn.classList.add("zoneSketchBtn--no-appear-anim");
         const unterschRaw = positions.untersch;
         const unterschArea = stretchArea(unterschRaw);
         btn.classList.add("zoneSketchBtn--upperarms");
@@ -12434,7 +12817,7 @@
         plannerButtonHoverPreviewActive = false;
         clearPlannerHoverPreview();
       });
-      if(isUpperarmsButton || isUnderarmsButton || isBauchFullButton || isLowerBackButton || isPobackenButton || isOberschButton || isUnterschButton || isBikiniButton || (isUpperBackButton && plannerFrauenView === "back")){
+      if(isUpperarmsButton || isUnderarmsButton || isBauchFullButton || isLowerBackButton || isPobackenButton || isOberschButton || isUnterschButton || isBikiniButton || isHandsButton || (isUpperBackButton && plannerFrauenView === "back")){
         // Upper arm top controls are rendered as a single merged button below.
       } else if(isBackButton && plannerBackSketch){
         plannerBackSketch.appendChild(btn);
@@ -12486,6 +12869,7 @@
         renderedFaceWarpHandles.add(zone.id);
       }
       if(isHandsButton){
+        btn.classList.add("zoneSketchBtn--no-appear-anim");
         const handsWidthScale = 1.6;
         const handsOutwardShift = 1.35;
         const handsUpShift = 0.7;
@@ -12523,7 +12907,7 @@
         const handsMirrorLeftShift = mode === "herren" ? 3 : 0;
         const mirrorBtn = document.createElement("button");
         mirrorBtn.type = "button";
-        mirrorBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms";
+        mirrorBtn.className = "zoneSketchBtn zoneSketchBtn--upperarms zoneSketchBtn--no-appear-anim";
         if(canToggleZone && selectedSet.has(actionZoneId)) mirrorBtn.classList.add("is-active");
         mirrorBtn.style.left = `calc(${leftHandLeft} - ${handsExtra}% - ${handsOutwardShift}% - ${handsMirrorLeftShift}%)`;
         mirrorBtn.style.top = `${anchorTop - handsUpShift}%`;
@@ -13613,10 +13997,10 @@
       const bundleId = toggleBtn.dataset.bundleId;
       if(!bundleId) return;
       const mode = activeLaserMode();
-      const expandedSet = plannerExpandedBundleRowsByMode[mode] || new Set();
-      if(expandedSet.has(bundleId)) expandedSet.delete(bundleId);
-      else expandedSet.add(bundleId);
-      plannerExpandedBundleRowsByMode[mode] = expandedSet;
+      const collapsedSet = plannerCollapsedBundleRowsByMode[mode] || new Set();
+      if(collapsedSet.has(bundleId)) collapsedSet.delete(bundleId);
+      else collapsedSet.add(bundleId);
+      plannerCollapsedBundleRowsByMode[mode] = collapsedSet;
       schedulePlannerRender(mode);
     });
   }
@@ -13918,143 +14302,6 @@
     heroBottomDock.classList.remove("is-hidden");
   }
 
-  function preferredLaserVideoSrc(){
-    return mobileVideoMq.matches ? LASER_VIDEO_MOBILE_SRC : LASER_VIDEO_DESKTOP_SRC;
-  }
-  function warmLaserVideoSource(){
-    const src = preferredLaserVideoSrc();
-    if(!src) return;
-    const existing = document.head.querySelector(`link[data-laser-video-preload="${src}"]`);
-    if(existing) return;
-    const preload = document.createElement("link");
-    preload.rel = "prefetch";
-    preload.href = src;
-    preload.setAttribute("data-laser-video-preload", src);
-    document.head.appendChild(preload);
-  }
-  function syncLaserVideoPreview(){
-    if(!laserVideoPreview) return;
-    const src = preferredLaserVideoSrc();
-    if(laserVideoPreview.getAttribute("src") === src) return;
-    laserVideoPreview.setAttribute("src", src);
-    laserVideoPreview.load();
-    laserVideoPreview.addEventListener("loadeddata", () => {
-      if(laserVideoPreview.readyState < 2) return;
-      const frameTime = Math.min(0.12, Math.max(0, (laserVideoPreview.duration || 0) * 0.02));
-      try{ laserVideoPreview.currentTime = frameTime; }catch(_e){}
-      laserVideoPreview.pause();
-    }, { once:true });
-  }
-  function clearVideoMouseTimer(){
-    if(!videoMouseTimer) return;
-    clearTimeout(videoMouseTimer);
-    videoMouseTimer = null;
-  }
-  function showVideoCloseOnMove(){
-    if(!videoModal || videoModal.hidden || !desktopHover.matches) return;
-    videoModal.classList.add("video-close-visible");
-    clearVideoMouseTimer();
-    videoMouseTimer = setTimeout(() => {
-      videoModal.classList.remove("video-close-visible");
-    }, 1250);
-  }
-  function openVideoModal(){
-    if(!videoModal || !laserVideoPlayer) return;
-    closeOverlays();
-    const src = preferredLaserVideoSrc();
-    if(laserVideoPlayer.getAttribute("src") !== src){
-      laserVideoPlayer.setAttribute("src", src);
-      laserVideoPlayer.load();
-    }
-    laserVideoPlayer.controls = false;
-    laserVideoPlayer.setAttribute("controlsList", "nodownload nofullscreen noremoteplayback");
-    laserVideoPlayer.setAttribute("disablePictureInPicture", "");
-    laserVideoPlayer.setAttribute("playsinline", "");
-    laserVideoPlayer.currentTime = 0;
-    videoModal.hidden = false;
-    body.classList.add("video-open");
-    lockBodyForVideo();
-    if(desktopHover.matches){
-      videoModal.classList.remove("video-close-visible");
-    } else {
-      videoModal.classList.remove("video-close-visible");
-    }
-    requestAnimationFrame(() => {
-      videoModal.classList.add("is-open");
-      laserVideoPlayer.play().catch(() => {});
-    });
-  }
-  function closeVideoModal(){
-    if(!videoModal || videoModal.hidden) return;
-    videoModal.classList.remove("is-open");
-    videoModal.classList.remove("video-close-visible");
-    clearVideoMouseTimer();
-    if(laserVideoPlayer){
-      laserVideoPlayer.pause();
-      laserVideoPlayer.currentTime = 0;
-    }
-    setTimeout(() => {
-      videoModal.hidden = true;
-      body.classList.remove("video-open");
-      unlockBodyForVideo();
-    }, 220);
-  }
-  syncLaserVideoPreview();
-  if("requestIdleCallback" in window){
-    window.requestIdleCallback(warmLaserVideoSource, { timeout:450 });
-  } else {
-    setTimeout(warmLaserVideoSource, 180);
-  }
-  if(mobileVideoMq && typeof mobileVideoMq.addEventListener === "function"){
-    mobileVideoMq.addEventListener("change", () => {
-      syncLaserVideoPreview();
-      warmLaserVideoSource();
-    });
-  } else if(mobileVideoMq && typeof mobileVideoMq.addListener === "function"){
-    mobileVideoMq.addListener(() => {
-      syncLaserVideoPreview();
-      warmLaserVideoSource();
-    });
-  }
-  if(laserVideoFrame){
-    laserVideoFrame.addEventListener("click", openVideoModal);
-    laserVideoFrame.addEventListener("keydown", (event) => {
-      if(event.key !== "Enter" && event.key !== " ") return;
-      event.preventDefault();
-      openVideoModal();
-    });
-  }
-  if(videoClose){
-    videoClose.addEventListener("click", closeVideoModal);
-  }
-  if(videoModal){
-    videoModal.addEventListener("click", (event) => {
-      if(event.target.closest("[data-video-close]")) closeVideoModal();
-    });
-    videoModal.addEventListener("mousemove", showVideoCloseOnMove);
-    videoModal.addEventListener("touchstart", (event) => {
-      if(videoModal.hidden || !event.touches || !event.touches.length) return;
-      const touch = event.touches[0];
-      videoTouchStartX = touch.clientX;
-      videoTouchStartY = touch.clientY;
-    }, { passive:true });
-    videoModal.addEventListener("touchend", (event) => {
-      if(videoModal.hidden || videoTouchStartY === null || !event.changedTouches || !event.changedTouches.length) return;
-      const touch = event.changedTouches[0];
-      const deltaX = touch.clientX - videoTouchStartX;
-      const deltaY = touch.clientY - videoTouchStartY;
-      videoTouchStartX = null;
-      videoTouchStartY = null;
-      if(Math.abs(deltaY) < 80) return;
-      if(Math.abs(deltaY) <= Math.abs(deltaX) * 1.2) return;
-      closeVideoModal();
-    }, { passive:true });
-    videoModal.addEventListener("touchcancel", () => {
-      videoTouchStartX = null;
-      videoTouchStartY = null;
-    }, { passive:true });
-  }
-
   window.addEventListener("scroll", () => {
     if(bookingPromptModal && !bookingPromptModal.hidden) positionBookingPromptOverFigure();
     if(menuOverlay.hidden) return;
@@ -14239,14 +14486,6 @@
       why_2:"Auch für dunklere Haut",
       why_3:"Wirksam bei feinem Haar",
       why_4:"4-6 Sitzungen statt 10+",
-      tech_kicker:"Technologie",
-      tech_title:"Motus AX: schnell, präzise, hautschonend.",
-      tech_text:"Wir arbeiten mit modernem Alexandrit-Laser und integrierter Kontaktkühlung. Das macht die Behandlung spürbar angenehmer und gleichzeitig effektiv bei unterschiedlichen Haut- und Haartypen.",
-      tech_b1:"Moderner Alexandrit-Laser mit Moveo-Technologie",
-      tech_b2:"Konstante Kühlung für mehr Komfort",
-      tech_b3:"Hohe Präzision auch bei empfindlichen Zonen",
-      tech_b4:"Sicheres Protokoll mit individueller Einstellung",
-      laser_video_hint:"Tippen/Klicken fuer Vollbild",
       interactive_title:"Interaktiver Zonen-Block kommt als Nächstes",
       interactive_sub:"Hier wird dein Haupt-Selling-Block sein: Körperzonen wählen, Preis live sehen, Pakete vergleichen und direkt buchen.",
       kicker_about:"Überblick",
@@ -14300,14 +14539,6 @@
       why_2:"Suitable for darker skin tones",
       why_3:"Effective on finer hair",
       why_4:"4-6 sessions instead of 10+",
-      tech_kicker:"Technology",
-      tech_title:"Motus AX: fast, precise, skin-friendly.",
-      tech_text:"We use a modern Alexandrite laser with integrated contact cooling. This keeps sessions more comfortable while staying effective across multiple skin and hair types.",
-      tech_b1:"Advanced Alexandrite laser with Moveo technology",
-      tech_b2:"Consistent cooling for better comfort",
-      tech_b3:"High precision even on sensitive areas",
-      tech_b4:"Safe protocol with individual settings",
-      laser_video_hint:"Tap/Click for fullscreen",
       interactive_title:"Interactive zones block is coming next",
       interactive_sub:"This will be your key selling block: choose body zones, see live pricing, compare bundles, and book directly.",
       kicker_about:"About",
@@ -14361,14 +14592,6 @@
       why_2:"Подходит для тёмной кожи",
       why_3:"Работает с тонкими волосами",
       why_4:"4-6 процедур вместо 10+",
-      tech_kicker:"Технология",
-      tech_title:"Motus AX: быстро, точно, бережно к коже.",
-      tech_text:"Мы работаем на современном александритовом лазере с контактным охлаждением. Это делает процедуру комфортнее и эффективно работает на разных фототипах кожи и типах волос.",
-      tech_b1:"Александритовый лазер с технологией Moveo",
-      tech_b2:"Постоянное охлаждение для комфорта",
-      tech_b3:"Высокая точность даже в чувствительных зонах",
-      tech_b4:"Безопасный протокол с индивидуальными настройками",
-      laser_video_hint:"Нажми, чтобы открыть видео на весь экран",
       interactive_title:"Интерактивный блок зон будет следующим этапом",
       interactive_sub:"Здесь будет главный вовлекающий блок: выбор зон, живой пересчёт цены, сравнение пакетов и запись.",
       kicker_about:"О процедуре",
@@ -14428,14 +14651,6 @@
     set("why_2", m.why_2);
     set("why_3", m.why_3);
     set("why_4", m.why_4);
-    set("tech_kicker", m.tech_kicker);
-    set("tech_title", m.tech_title);
-    set("tech_text", m.tech_text);
-    set("tech_b1", m.tech_b1);
-    set("tech_b2", m.tech_b2);
-    set("tech_b3", m.tech_b3);
-    set("tech_b4", m.tech_b4);
-    set("laser_video_hint", m.laser_video_hint);
     set("interactive_title", m.interactive_title);
     set("interactive_sub", m.interactive_sub);
 
