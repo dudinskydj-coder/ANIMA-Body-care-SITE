@@ -2623,11 +2623,11 @@
       top:18px;
       right:18px;
       z-index:8;
-      width:min(220px, calc(100% - 36px));
+      width:min(190px, calc(100% - 36px));
       margin:0;
-      padding:10px 12px;
+      padding:8px 10px;
       border:1px solid rgba(17,18,24,.08);
-      border-radius:16px;
+      border-radius:14px;
       background:rgba(255,255,255,.86);
       box-shadow:0 8px 22px rgba(17,18,24,.06);
       backdrop-filter:blur(10px);
@@ -2635,30 +2635,25 @@
     }
     .plannerNextBenefit[hidden]{display:none}
     .plannerNextBenefitKicker{
-      font-size:10px;
-      line-height:1.2;
-      letter-spacing:.06em;
-      text-transform:uppercase;
-      color:rgba(17,18,24,.48);
-      font-weight:700;
+      display:none;
     }
     .plannerNextBenefitNameRow{
-      margin-top:5px;
+      margin-top:0;
       display:flex;
       align-items:baseline;
       justify-content:space-between;
-      gap:10px;
+      gap:8px;
     }
     .plannerNextBenefitName{
-      font-size:14px;
-      line-height:1.18;
+      font-size:13px;
+      line-height:1.16;
       letter-spacing:-.01em;
-      font-weight:680;
+      font-weight:640;
       color:#111218;
     }
     .plannerNextBenefitSave{
       flex:0 0 auto;
-      font-size:11px;
+      font-size:10px;
       line-height:1.2;
       color:#007a2c;
       font-weight:700;
@@ -2666,18 +2661,23 @@
       margin-top:0;
     }
     .plannerNextBenefitText{
-      margin:4px 0 0;
-      font-size:12px;
-      line-height:1.3;
-      color:rgba(17,18,24,.68);
-      font-weight:540;
+      margin:3px 0 0;
+      font-size:11px;
+      line-height:1.25;
+      color:rgba(17,18,24,.62);
+      font-weight:560;
     }
     .plannerNextBenefitBar{
-      margin-top:7px;
-      width:min(132px, 100%);
-      height:5px;
+      margin-top:6px;
+      width:min(118px, 100%);
+      height:8px;
       border-radius:999px;
-      background:rgba(17,18,24,.12);
+      background:
+        repeating-linear-gradient(
+          90deg,
+          rgba(17,18,24,.12) 0 14px,
+          rgba(17,18,24,0) 14px 18px
+        );
       overflow:hidden;
     }
     .plannerNextBenefitBarFill{
@@ -2685,12 +2685,17 @@
       height:100%;
       width:0%;
       border-radius:inherit;
-      background:linear-gradient(90deg, #22a447 0%, #39c86a 100%);
+      background:
+        repeating-linear-gradient(
+          90deg,
+          #1f9b43 0 14px,
+          rgba(31,155,67,0) 14px 18px
+        );
       transition:width .22s ease;
     }
     .plannerNextBenefitProgress{
-      margin-top:5px;
-      font-size:11px;
+      margin-top:4px;
+      font-size:10px;
       line-height:1.25;
       color:rgba(17,18,24,.52);
       font-weight:600;
@@ -7275,7 +7280,7 @@
       savedWord:"günstiger",
       nextBenefitTitle:"Dein nächster Vorteil",
       nextBenefitNext:"Nächster Schritt",
-      nextBenefitOne:"Noch 1 Zone bis zum Paketpreis",
+      nextBenefitOne:"Noch 1 Zone bis zum Paket",
       nextBenefitMany:"Noch {count} Zonen bis {name}",
       nextBenefitSave:"Du sparst {value}",
       plusWord:"plus",
