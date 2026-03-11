@@ -6922,12 +6922,12 @@
       packagePriceOverrides:{
         smart_face_complete:69,
         smart_face_complete_neck_complete:99,
-        smart_arms_complete:80,
+        smart_arms_complete:79,
         smart_legs_complete:160,
         premium_legs_arms:210,
         smart_face_small:39,
         smart_neck_complete:39,
-        smart_arms_complete_with_hands:95,
+        smart_arms_complete_with_hands:99,
         smart_legs_complete_with_feet:175,
         smart_bauch_complete:null,
         smart_back_complete:80,
@@ -11669,13 +11669,15 @@
   }
   function renderPlannerNextBenefit(mode, selectedSet){
     if(!plannerNextBenefit || !plannerNextBenefitBarFill) return;
-    const zones = plannerZonesByMode[mode] || plannerZonesByMode.frauen || [];
-    const totalCount = zones.length;
-    const selectedCount = selectedSet ? selectedSet.size : 0;
-    const progressRatio = totalCount > 0 ? (selectedCount / totalCount) : 0;
+    const recommendation = plannerNextBenefitRecommendation(mode, selectedSet);
+    if(!recommendation){
+      plannerNextBenefit.hidden = true;
+      return;
+    }
+    const progressRatio = recommendation.totalCount > 0 ? (recommendation.selectedCount / recommendation.totalCount) : 0;
     plannerNextBenefit.hidden = false;
     if(plannerNextBenefitBarFill && plannerNextBenefitBarFill.parentElement){
-      plannerNextBenefitBarFill.parentElement.style.setProperty("--planner-benefit-step-size", `calc(100% / ${Math.max(1, totalCount)})`);
+      plannerNextBenefitBarFill.parentElement.style.setProperty("--planner-benefit-step-size", `calc(100% / ${Math.max(1, recommendation.totalCount)})`);
     }
     plannerNextBenefitBarFill.style.width = `${Math.max(0, Math.min(100, progressRatio * 100))}%`;
   }
