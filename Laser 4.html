@@ -2621,84 +2621,54 @@
     .plannerNextBenefit{
       position:absolute;
       top:18px;
-      right:18px;
+      left:18px;
       z-index:8;
-      width:min(190px, calc(100% - 36px));
+      width:min(160px, calc(100% - 36px));
       margin:0;
-      padding:8px 10px;
-      border:1px solid rgba(17,18,24,.08);
-      border-radius:14px;
-      background:rgba(255,255,255,.86);
-      box-shadow:0 8px 22px rgba(17,18,24,.06);
-      backdrop-filter:blur(10px);
-      -webkit-backdrop-filter:blur(10px);
+      padding:0;
+      border:none;
+      border-radius:0;
+      background:transparent;
+      box-shadow:none;
+      backdrop-filter:none;
+      -webkit-backdrop-filter:none;
     }
     .plannerNextBenefit[hidden]{display:none}
-    .plannerNextBenefitKicker{
-      display:none;
-    }
-    .plannerNextBenefitNameRow{
-      margin-top:0;
-      display:flex;
-      align-items:baseline;
-      justify-content:space-between;
-      gap:8px;
-    }
-    .plannerNextBenefitName{
-      font-size:13px;
-      line-height:1.16;
-      letter-spacing:-.01em;
-      font-weight:640;
-      color:#111218;
-    }
-    .plannerNextBenefitSave{
-      flex:0 0 auto;
-      font-size:10px;
-      line-height:1.2;
-      color:#007a2c;
-      font-weight:700;
-      white-space:nowrap;
-      margin-top:0;
-    }
-    .plannerNextBenefitText{
-      margin:3px 0 0;
-      font-size:11px;
-      line-height:1.25;
-      color:rgba(17,18,24,.62);
-      font-weight:560;
+    .plannerNextBenefitProgressRow{
+      display:block;
     }
     .plannerNextBenefitBar{
-      margin-top:6px;
-      width:min(118px, 100%);
-      height:8px;
+      position:relative;
+      width:100%;
+      height:10px;
       border-radius:999px;
-      background:
-        repeating-linear-gradient(
-          90deg,
-          rgba(17,18,24,.12) 0 14px,
-          rgba(17,18,24,0) 14px 18px
-        );
+      background:rgba(17,18,24,.10);
       overflow:hidden;
+    }
+    .plannerNextBenefitBar::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background-image:linear-gradient(to right, rgba(255,255,255,.72) 1px, transparent 1px);
+      background-size:var(--planner-benefit-step-size, 100%) 100%;
+      background-position:left top;
+      pointer-events:none;
+      opacity:.75;
     }
     .plannerNextBenefitBarFill{
       display:block;
       height:100%;
       width:0%;
       border-radius:inherit;
-      background:
-        repeating-linear-gradient(
-          90deg,
-          #1f9b43 0 14px,
-          rgba(31,155,67,0) 14px 18px
-        );
+      background:linear-gradient(90deg, #23a548 0%, #42cd72 100%);
       transition:width .22s ease;
     }
     .plannerNextBenefitProgress{
-      margin-top:4px;
       font-size:10px;
       line-height:1.25;
-      color:rgba(17,18,24,.52);
-      font-weight:600;
+      color:rgba(17,18,24,.58);
+      font-weight:700;
+      white-space:nowrap;
     }
     .orderSummary{
       margin-top:auto;
@@ -3671,7 +3641,7 @@
       }
       .plannerNextBenefit{
         top:10px;
-        right:10px;
+        left:10px;
       }
       .plannerFigureWrap{
         overflow:visible;
@@ -3797,7 +3767,7 @@
       }
       .plannerNextBenefit{
         top:18px;
-        right:14px;
+        left:14px;
         width:min(180px, calc(100vw - 28px));
         padding:9px 10px;
       }
@@ -4000,19 +3970,14 @@
   <section class="section" id="interactive-placeholder">
     <div class="laserPlanner" aria-label="Interaktiver Zonenplaner">
       <div class="plannerPane plannerPane--zones">
-        <div class="plannerNextBenefit" id="plannerNextBenefit" hidden>
-          <div class="plannerNextBenefitKicker" id="plannerNextBenefitTitle">Dein nächster Vorteil</div>
-          <div class="plannerNextBenefitNameRow">
-            <strong class="plannerNextBenefitName" id="plannerNextBenefitName"></strong>
-            <span class="plannerNextBenefitSave" id="plannerNextBenefitSave"></span>
-          </div>
-          <p class="plannerNextBenefitText" id="plannerNextBenefitText"></p>
-          <div class="plannerNextBenefitBar" aria-hidden="true">
-            <span class="plannerNextBenefitBarFill" id="plannerNextBenefitBarFill"></span>
-          </div>
-          <div class="plannerNextBenefitProgress" id="plannerNextBenefitProgress"></div>
-        </div>
         <div class="plannerFigureWrap">
+          <div class="plannerNextBenefit" id="plannerNextBenefit" hidden>
+            <div class="plannerNextBenefitProgressRow">
+              <div class="plannerNextBenefitBar" aria-hidden="true">
+                <span class="plannerNextBenefitBarFill" id="plannerNextBenefitBarFill"></span>
+              </div>
+            </div>
+          </div>
           <button type="button" class="plannerViewArrow plannerViewArrow--prev" id="plannerViewPrev" aria-label="Previous view">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
           </button>
@@ -4306,12 +4271,7 @@
   const plannerMobileInfoPriceCurrent = document.getElementById("plannerMobileInfoPriceCurrent");
   const plannerMobileInfoSaved = document.getElementById("plannerMobileInfoSaved");
   const plannerNextBenefit = document.getElementById("plannerNextBenefit");
-  const plannerNextBenefitTitle = document.getElementById("plannerNextBenefitTitle");
-  const plannerNextBenefitName = document.getElementById("plannerNextBenefitName");
-  const plannerNextBenefitSave = document.getElementById("plannerNextBenefitSave");
-  const plannerNextBenefitText = document.getElementById("plannerNextBenefitText");
   const plannerNextBenefitBarFill = document.getElementById("plannerNextBenefitBarFill");
-  const plannerNextBenefitProgress = document.getElementById("plannerNextBenefitProgress");
   const plannerFigureImage = document.getElementById("plannerFigureImage");
   const plannerViewPrevBtn = document.getElementById("plannerViewPrev");
   const plannerViewNextBtn = document.getElementById("plannerViewNext");
@@ -6999,7 +6959,7 @@
           displayGroup:"smart",
           zoneIds:["glabella", "upperlip", "kinn", "wangen", "koteletten", "chin", "nacken"],
           componentIds:["smart_face_complete", "smart_neck_complete"],
-          label:{ de:"Gesicht komplett + Hals komplett", en:"Full face + full neck", ru:"Лицо полностью + шея полностью" }
+          label:{ de:"Gesicht & Hals komplett", en:"Full face + full neck", ru:"Лицо и шея полностью" }
         },
         {
           id:"smart_face_small",
@@ -11708,30 +11668,16 @@
     return null;
   }
   function renderPlannerNextBenefit(mode, selectedSet){
-    if(!plannerNextBenefit || !plannerNextBenefitName || !plannerNextBenefitText || !plannerNextBenefitBarFill || !plannerNextBenefitProgress || !plannerNextBenefitSave) return;
-    const recommendation = plannerNextBenefitRecommendation(mode, selectedSet);
-    if(!recommendation){
-      plannerNextBenefit.hidden = true;
-      return;
-    }
-    const label = plannerLabel(recommendation.label).trim();
-    const progressRatio = recommendation.totalCount > 0 ? (recommendation.selectedCount / recommendation.totalCount) : 0;
+    if(!plannerNextBenefit || !plannerNextBenefitBarFill) return;
+    const zones = plannerZonesByMode[mode] || plannerZonesByMode.frauen || [];
+    const totalCount = zones.length;
+    const selectedCount = selectedSet ? selectedSet.size : 0;
+    const progressRatio = totalCount > 0 ? (selectedCount / totalCount) : 0;
     plannerNextBenefit.hidden = false;
-    if(plannerNextBenefitTitle) plannerNextBenefitTitle.textContent = plannerText("nextBenefitTitle");
-    plannerNextBenefitName.textContent = label;
-    plannerNextBenefitBarFill.style.width = `${Math.max(0, Math.min(100, progressRatio * 100))}%`;
-    plannerNextBenefitProgress.textContent = `${recommendation.selectedCount} / ${recommendation.totalCount}`;
-    if(recommendation.type === "package"){
-      plannerNextBenefitText.textContent = recommendation.missingCount <= 1
-        ? plannerText("nextBenefitOne")
-        : plannerTextTemplate("nextBenefitMany", { count:String(recommendation.missingCount), name:label });
-      plannerNextBenefitSave.textContent = recommendation.savings > 0
-        ? plannerTextTemplate("nextBenefitSave", { value:formatEuro(recommendation.savings) })
-        : "";
-    } else {
-      plannerNextBenefitText.textContent = plannerText("nextBenefitNext");
-      plannerNextBenefitSave.textContent = "";
+    if(plannerNextBenefitBarFill && plannerNextBenefitBarFill.parentElement){
+      plannerNextBenefitBarFill.parentElement.style.setProperty("--planner-benefit-step-size", `calc(100% / ${Math.max(1, totalCount)})`);
     }
+    plannerNextBenefitBarFill.style.width = `${Math.max(0, Math.min(100, progressRatio * 100))}%`;
   }
   function plannerMobileInfoVisualProgress(){
     if(!(plannerFigureViewportScroll instanceof HTMLElement) || plannerViewTransport !== "scroll-snap"){
@@ -11944,7 +11890,6 @@
     if(plannerZonesSub) plannerZonesSub.textContent = plannerText("zonesSub");
     if(plannerOrderTitle) plannerOrderTitle.textContent = plannerText("orderTitle");
     if(plannerOrderEmpty) plannerOrderEmpty.textContent = plannerText("empty");
-    if(plannerNextBenefitTitle) plannerNextBenefitTitle.textContent = plannerText("nextBenefitTitle");
     if(plannerTotalLabel) plannerTotalLabel.textContent = plannerText("total");
     if(plannerClearBtn) plannerClearBtn.textContent = plannerText("clear");
     if(plannerCopyBtn) plannerCopyBtn.textContent = plannerText("copy");
