@@ -1153,12 +1153,29 @@
       color:#111218;
       letter-spacing:-.01em;
       font-weight:650;
+<<<<<<< ours
+<<<<<<< ours
+      white-space:normal;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      opacity:var(--planner-mobile-row-opacity, 1);
+      transform:translateY(var(--planner-mobile-row-shift, 0px));
+      filter:blur(var(--planner-mobile-row-blur, 0px));
+      animation:plannerMobileInfoRowSlide .42s cubic-bezier(.22,.8,.24,1) both;
+      animation-delay:var(--planner-mobile-row-delay, 0ms);
+=======
+=======
+>>>>>>> theirs
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
       opacity:1;
       transform:none;
       filter:none;
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
     }
     .plannerMobileInfoZoneRow--latest{
       opacity:1;
@@ -1270,6 +1287,12 @@
       opacity:var(--planner-mobile-price-opacity, 1);
       transform:translateY(var(--planner-mobile-price-shift, 0px));
       filter:blur(var(--planner-mobile-price-blur, 0px));
+    }
+    .plannerMobileInfoPriceOld.is-animating,
+    .plannerMobileInfoPriceCurrent.is-animating,
+    .plannerMobileInfoSaved.is-animating{
+      animation:plannerMobileInfoPriceSlide .42s cubic-bezier(.22,.8,.24,1) both;
+      animation-delay:var(--planner-mobile-price-delay, 0ms);
     }
     .plannerMobileInfoPriceCurrent{
       display:block;
@@ -6937,11 +6960,14 @@
         smart_neck_complete:39,
         smart_arms_complete_with_hands:89,
         smart_legs_complete_with_feet:169,
+        smart_arms_legs_complete:209,
         smart_bauch_complete:59,
         smart_back_complete:79,
         premium_upperbody_front:89,
+        premium_upperbody_back:99,
+        premium_upperbody_complete:169,
         
-        premium_bikini_intim_pofalte:null,
+        premium_bikini_intim_pofalte:89,
 
         premium_all_zones:390
       },
@@ -7019,6 +7045,15 @@
           label:{ de:"Beine komplett + Füße", en:"Legs complete + feet", ru:"Ноги полностью + стопы" }
         },
         {
+          id:"smart_arms_legs_complete",
+          level:2,
+          priority:398,
+          displayGroup:"smart",
+          zoneIds:["upperarms", "underarms", "obersch", "untersch"],
+          componentIds:["smart_arms_complete", "smart_legs_complete"],
+          label:{ de:"Arme & Beine komplett", en:"Arms & legs complete", ru:"Руки и ноги полностью" }
+        },
+        {
           id:"smart_bauch_complete",
           level:2,
           priority:380,
@@ -7046,6 +7081,24 @@
           label:{ de:"Oberkörper vorne", en:"Upper body front", ru:"Верх тела спереди" }
         },
         {
+          id:"premium_upperbody_back",
+          level:3,
+          priority:360,
+          displayGroup:"premium",
+          zoneIds:["upperback", "lowerback", "pobacken"],
+          componentIds:["smart_back_complete", "pobacken"],
+          label:{ de:"Oberkörper hinten", en:"Upper body back", ru:"Верх тела сзади" }
+        },
+        {
+          id:"premium_upperbody_complete",
+          level:3,
+          priority:370,
+          displayGroup:"premium",
+          zoneIds:["chest", "bauchfull", "medialinebauch", "upperback", "lowerback", "pobacken"],
+          componentIds:["premium_upperbody_front", "premium_upperbody_back"],
+          label:{ de:"Oberkörper komplett", en:"Upper body complete", ru:"Верх тела полностью" }
+        },
+        {
           id:"premium_bikini_intim_pofalte",
           level:3,
           priority:340,
@@ -7060,7 +7113,7 @@
           priority:1000,
           displayGroup:"premium",
           zoneIds:["chin", "nacken", "kinn", "wangen", "koteletten", "glabella", "upperlip", "chest", "upperback", "lowerback", "hands", "feet", "axilla", "upperarms", "underarms", "bauchfull", "pobacken", "medialinebauch", "obersch", "untersch", "bikini", "intim"],
-          componentIds:["premium_bikini_intim_pofalte", "smart_legs_complete", "smart_arms_complete", "smart_bauch_complete", "pobacken", "axilla", "feet", "hands", "smart_back_complete", "chest", "smart_face_small", "glabella", "koteletten", "wangen", "smart_neck_complete"],
+          componentIds:["premium_bikini_intim_pofalte", "smart_legs_complete", "smart_arms_complete", "premium_upperbody_complete", "axilla", "feet", "hands", "smart_face_small", "glabella", "koteletten", "wangen", "smart_neck_complete"],
           label:{ de:"Alle Zonen", en:"All zones", ru:"Все зоны" }
         }
       ]
@@ -7090,12 +7143,30 @@
           label:{ de:"Beine komplett", en:"Legs complete", ru:"Ноги полностью" }
         },
         {
+          id:"upperbody_front_bundle",
+          level:3,
+          priority:365,
+          displayGroup:"premium",
+          zoneIds:["chest", "bauchfull", "medialinebauch"],
+          componentIds:["chest", "bauchfull", "medialinebauch"],
+          label:{ de:"Oberkörper vorne", en:"Upper body front", ru:"Верх тела спереди" }
+        },
+        {
+          id:"upperbody_back_bundle",
+          level:3,
+          priority:360,
+          displayGroup:"premium",
+          zoneIds:["lowerback", "upperback", "pobacken"],
+          componentIds:["lowerback", "upperback", "pobacken"],
+          label:{ de:"Oberkörper hinten", en:"Upper body back", ru:"Верх тела сзади" }
+        },
+        {
           id:"upperbody_bundle",
           level:3,
           priority:370,
           displayGroup:"premium",
-          zoneIds:["chest", "bauchfull", "medialinebauch", "lowerback", "upperback"],
-          componentIds:["chest", "bauchfull", "medialinebauch", "lowerback", "upperback"],
+          zoneIds:["chest", "bauchfull", "medialinebauch", "lowerback", "upperback", "pobacken"],
+          componentIds:["upperbody_front_bundle", "upperbody_back_bundle"],
           packagePrice:260,
           label:{ de:"Oberkörper komplett", en:"Upper body complete", ru:"Верх тела полностью" }
         },
@@ -10668,26 +10739,29 @@
     plannerLastUserScrollAt = now;
   }
   function ensureInteractiveInViewForInteraction(){
-    const focusTarget = plannerFigureWrap || plannerFigure || interactiveSection;
-    if(!focusTarget) return;
+    const focusFrame = plannerFigure || plannerFigureViewportScroll || plannerFigureWrap || interactiveSection;
+    if(!focusFrame) return;
     if(!(mobileVideoMq && mobileVideoMq.matches)) return;
     const now = Date.now();
     if(now < plannerAutoFocusCooldownUntil) return;
     if(now - plannerLastUserScrollAt < 320) return;
-    const rect = focusTarget.getBoundingClientRect();
+    const rect = focusFrame.getBoundingClientRect();
     const vh = window.innerHeight || document.documentElement.clientHeight || 0;
     if(!vh || rect.height <= 0) return;
-    const rectCenter = rect.top + (rect.height / 2);
-    const visibleTop = Math.max(0, rect.top);
-    const visibleBottom = Math.min(vh, rect.bottom);
-    const visibleHeight = Math.max(0, visibleBottom - visibleTop);
-    const visibleRatio = visibleHeight / rect.height;
-    const topInComfortZone = rect.top >= vh * 0.12 && rect.top <= vh * 0.28;
-    const centerInComfortZone = rectCenter >= vh * 0.36 && rectCenter <= vh * 0.49;
-    if(visibleRatio > 0.72 && (topInComfortZone || centerInComfortZone)) return;
+    const topInset = Math.max(10, Math.min(32, vh * 0.05));
+    const bottomInset = Math.max(22, Math.min(72, vh * 0.08));
+    const availableHeight = Math.max(1, vh - topInset - bottomInset);
+    const frameFitsComfortably = rect.height <= availableHeight;
+    const desiredTop = frameFitsComfortably
+      ? topInset + ((availableHeight - rect.height) / 2)
+      : topInset;
+    const desiredBottom = desiredTop + rect.height;
+    const topDelta = Math.abs(rect.top - desiredTop);
+    const bottomDelta = Math.abs(rect.bottom - desiredBottom);
+    const frameAlreadyInFocus = rect.top >= (desiredTop - 18) && rect.bottom <= (desiredBottom + 18);
+    if(frameAlreadyInFocus || (topDelta < 18 && bottomDelta < 18)) return;
     const currentScrollTop = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
-    const desiredCenterY = vh * 0.43;
-    const desiredScrollTop = currentScrollTop + rectCenter - desiredCenterY;
+    const desiredScrollTop = currentScrollTop + rect.top - desiredTop;
     const maxScrollTop = Math.max(
       0,
       (document.documentElement.scrollHeight || document.body.scrollHeight || 0) - vh
@@ -11110,20 +11184,6 @@
       if((b.zoneIds || []).length !== (a.zoneIds || []).length) return (b.zoneIds || []).length - (a.zoneIds || []).length;
       return String(a.id).localeCompare(String(b.id));
     });
-    if(mode === "frauen"){
-      const armBundle = normalizedItems.find((item) => item.id === "smart_arms_complete_with_hands")
-        || normalizedItems.find((item) => item.id === "smart_arms_complete");
-      const legBundle = normalizedItems.find((item) => item.id === "smart_legs_complete_with_feet")
-        || normalizedItems.find((item) => item.id === "smart_legs_complete");
-      if(armBundle && legBundle){
-        const comboDiscount = 29;
-        const armOrder = Number.isFinite(Number(armBundle.earliestSelectionOrder)) ? Number(armBundle.earliestSelectionOrder) : Number.MAX_SAFE_INTEGER;
-        const legOrder = Number.isFinite(Number(legBundle.earliestSelectionOrder)) ? Number(legBundle.earliestSelectionOrder) : Number.MAX_SAFE_INTEGER;
-        const discountedBundle = legOrder >= armOrder ? legBundle : armBundle;
-        discountedBundle.price = Math.max(0, (Number(discountedBundle.price) || 0) - comboDiscount);
-        discountedBundle.comboExtraSaving = comboDiscount;
-      }
-    }
     const total = normalizedItems.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
     const originalTotal = normalizedItems.reduce((sum, item) => sum + (Number(item.originalPrice) || Number(item.price) || 0), 0);
     const snapshot = {
@@ -11348,6 +11408,7 @@
     return entries.map((entry) => entry.label).join(separator);
   }
   function spawnPlannerComboFx(text, options = {}){
+    if(plannerIsLowPerfMode()) return 0;
     if(!plannerFigureInner || !text) return 0;
     const fx = document.createElement("span");
     fx.className = `plannerComboFx${options.premium ? " plannerComboFx--premium" : ""}`;
@@ -11700,8 +11761,8 @@
     if(!Array.isArray(selected) || !selected.length) return [];
     return selected.filter(Boolean);
   }
-  function plannerMobileLatestItem(selected){
-    const items = Array.isArray(selected) ? selected.filter(Boolean) : [];
+  function plannerMobileLatestItem(snapshot){
+    const items = snapshot && Array.isArray(snapshot.items) ? snapshot.items.filter(Boolean) : [];
     if(!items.length) return null;
     return items.reduce((latest, item) => {
       const itemOrder = Number.isFinite(Number(item && item.latestSelectionOrder)) ? Number(item.latestSelectionOrder) : -1;
@@ -11742,17 +11803,26 @@
     ].filter((el) => el instanceof HTMLElement);
     priceLines.forEach((el, index) => {
       el.classList.remove("is-animating");
-      el.style.animation = "";
+      el.style.animation = "none";
       el.style.setProperty("--planner-mobile-price-opacity", el.textContent ? "1" : "0");
       el.style.setProperty("--planner-mobile-price-shift", `${Math.min(index, 2) * 2.5}px`);
       el.style.setProperty("--planner-mobile-price-blur", index === 2 ? "0.2px" : "0px");
-      el.style.setProperty("--planner-mobile-price-delay", "0ms");
+      el.style.setProperty("--planner-mobile-price-delay", `${index * 36}ms`);
+    });
+    priceLines.forEach((el) => {
+      void el.offsetWidth;
+      el.style.animation = "";
+    });
+    requestAnimationFrame(() => {
+      priceLines.forEach((el) => {
+        if(el.textContent) el.classList.add("is-animating");
+      });
     });
   }
-  function plannerRenderMobileZoneNames(mode, selected){
+  function plannerRenderMobileZoneNames(mode, snapshot){
     if(!plannerMobileInfoZones) return;
     plannerMobileInfoZones.replaceChildren();
-    const latestItem = plannerMobileLatestItem(selected);
+    const latestItem = plannerMobileLatestItem(snapshot);
     const label = latestItem ? plannerLabel(latestItem.label).trim() : "";
     if(!label) return;
     const row = document.createElement("div");
@@ -11784,7 +11854,7 @@
       : originalSessionTotal;
     const saved = Math.max(0, oldTotal - displayTotal);
     plannerMobileInfo.classList.remove("is-empty");
-    plannerRenderMobileZoneNames(mode, selected);
+    plannerRenderMobileZoneNames(mode, snapshot);
     plannerMobileInfoPriceCurrent.textContent = formatEuro(displayTotal);
     plannerMobileInfoPriceOld.textContent = saved > 0 ? formatEuro(oldTotal) : "";
     plannerMobileInfoSaved.textContent = saved > 0 ? plannerSavedLabel(saved) : "";
