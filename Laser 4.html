@@ -1144,6 +1144,7 @@
       flex-direction:column;
       align-items:stretch;
       gap:4px;
+      grid-column:1;
       flex:0 1 auto;
       min-width:0;
       max-width:min(40vw, 240px);
@@ -1251,8 +1252,10 @@
       font-weight:620;
     }
     .plannerMobileInfoPrice{
-      min-width:112px;
-      max-width:36vw;
+      grid-column:3;
+      width:5ch;
+      min-width:5ch;
+      max-width:none;
       display:flex;
       flex-direction:column;
       text-align:right;
@@ -2669,6 +2672,7 @@
       line-height:1.45;
     }
     .plannerNextBenefit{
+      grid-column:2;
       position:absolute;
       top:18px;
       left:18px;
@@ -2693,7 +2697,7 @@
       width:100%;
       height:10px;
       border-radius:999px;
-      background:rgba(17,18,24,.10);
+      background:transparent;
       overflow:hidden;
     }
     .plannerNextBenefitBarFill{
@@ -3898,9 +3902,9 @@
       }
       .plannerMobileInfo{
         display:grid;
-        grid-template-columns:minmax(0, 1fr) 40px auto;
+        grid-template-columns:minmax(0, 1fr) 40px 5ch;
         align-items:center;
-        column-gap:8px;
+        column-gap:0;
         left:22px;
         right:22px;
       }
@@ -3917,9 +3921,13 @@
         left:auto;
         z-index:auto;
         width:40px;
+        display:flex;
+        align-items:center;
+        align-self:center;
         justify-self:end;
         margin:0;
         padding:0;
+        transform:translateY(1px);
       }
       .plannerNextBenefitProgressRow{
         width:100%;
@@ -4338,6 +4346,9 @@
   const plannerMobileInfoSaved = document.getElementById("plannerMobileInfoSaved");
   const plannerNextBenefit = document.getElementById("plannerNextBenefit");
   const plannerNextBenefitBarFill = document.getElementById("plannerNextBenefitBarFill");
+  const PLANNER_NEXT_BENEFIT_COMPLETE_HOLD_MS = 1200;
+  let plannerNextBenefitLastRecommendation = null;
+  let plannerNextBenefitHoldState = null;
   const plannerFigureImage = document.getElementById("plannerFigureImage");
   const plannerViewPrevBtn = document.getElementById("plannerViewPrev");
   const plannerViewNextBtn = document.getElementById("plannerViewNext");
@@ -11985,6 +11996,13 @@
     return null;
   }
   function renderPlannerNextBenefit(mode, selectedSet){
+    const showPlannerNextBenefit = (totalCount, progressPercent) => {
+      plannerNextBenefit.hidden = false;
+      if(plannerNextBenefitBarFill.parentElement){
+        plannerNextBenefitBarFill.parentElement.style.setProperty("--planner-benefit-step-size", `calc(100% / ${Math.max(1, totalCount)})`);
+      }
+      plannerNextBenefitBarFill.style.width = `${Math.max(0, Math.min(100, progressPercent))}%`;
+    };
     const viewportWidth = Math.max(
       window.innerWidth || 0,
       document.documentElement ? (document.documentElement.clientWidth || 0) : 0
@@ -11993,20 +12011,52 @@
     if(!plannerNextBenefit || !plannerNextBenefitBarFill || !isMobileViewport){
       if(plannerNextBenefit) plannerNextBenefit.hidden = true;
       if(plannerNextBenefitBarFill) plannerNextBenefitBarFill.style.width = "0%";
+      plannerNextBenefitLastRecommendation = null;
+      plannerNextBenefitHoldState = null;
       return;
     }
+    const now = Date.now();
+    if(
+      plannerNextBenefitLastRecommendation &&
+      plannerNextBenefitLastRecommendation.mode === mode &&
+      selectedSet &&
+      plannerNextBenefitLastRecommendation.zoneIds.every((zoneId) => selectedSet.has(zoneId))
+    ){
+      plannerNextBenefitHoldState = {
+        mode,
+        totalCount:plannerNextBenefitLastRecommendation.totalCount,
+        holdUntil:now + PLANNER_NEXT_BENEFIT_COMPLETE_HOLD_MS
+      };
+      plannerNextBenefitLastRecommendation = null;
+    }
+    if(
+      plannerNextBenefitHoldState &&
+      plannerNextBenefitHoldState.mode === mode &&
+      plannerNextBenefitHoldState.holdUntil > now
+    ){
+      showPlannerNextBenefit(plannerNextBenefitHoldState.totalCount, 100);
+      return;
+    }
+    plannerNextBenefitHoldState = null;
     const recommendation = plannerNextBenefitRecommendation(mode, selectedSet);
     if(!recommendation){
       plannerNextBenefit.hidden = true;
       plannerNextBenefitBarFill.style.width = "0%";
+      plannerNextBenefitLastRecommendation = null;
       return;
     }
     const progressRatio = recommendation.totalCount > 0 ? (recommendation.selectedCount / recommendation.totalCount) : 0;
-    plannerNextBenefit.hidden = false;
-    if(plannerNextBenefitBarFill.parentElement){
-      plannerNextBenefitBarFill.parentElement.style.setProperty("--planner-benefit-step-size", `calc(100% / ${Math.max(1, recommendation.totalCount)})`);
+    plannerNextBenefitLastRecommendation = {
+      mode,
+      zoneIds:[...recommendation.zoneIds],
+      totalCount:recommendation.totalCount
+    };
+    if(progressRatio <= 0){
+      plannerNextBenefit.hidden = true;
+      plannerNextBenefitBarFill.style.width = "0%";
+      return;
     }
-    plannerNextBenefitBarFill.style.width = `${Math.max(0, Math.min(100, progressRatio * 100))}%`;
+    showPlannerNextBenefit(recommendation.totalCount, progressRatio * 100);
   }
   function plannerMobileInfoVisualProgress(){
     if(!(plannerFigureViewportScroll instanceof HTMLElement) || plannerViewTransport !== "scroll-snap"){
@@ -12080,17 +12130,17 @@
     if(!plannerMobileInfoZones) return;
     plannerMobileInfoZones.replaceChildren();
     const items = plannerMobileSummaryItems(selected);
+    const summaryLabel = items.length ? plannerLabel(items[0].label).trim() : "";
     const selectedZoneIds = Array.from(selectedSet || []);
     const latestZoneId = selectedZoneIds[selectedZoneIds.length - 1] || "";
     const zonesById = plannerZonesMap(mode);
     const latestZone = latestZoneId ? zonesById.get(latestZoneId) : null;
     const latestLabel = latestZone ? plannerLabel(latestZone.label).trim() : "";
-    if(!items.length && !latestLabel){
+    if(!summaryLabel && !latestLabel){
       plannerMobileInfoZones.classList.remove("is-expanded");
       return;
     }
-    const latestItem = items[0];
-    const label = latestLabel || (latestItem ? plannerLabel(latestItem.label).trim() : "");
+    const label = summaryLabel || latestLabel;
     if(label){
       const row = document.createElement("div");
       row.className = "plannerMobileInfoZoneRow plannerMobileInfoZoneRow--latest";
