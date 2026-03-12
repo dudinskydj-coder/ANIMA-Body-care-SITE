@@ -6,7 +6,7 @@
   <title>Laser — ANIMA</title>
   <meta name="application-name" content="ANIMA" />
   <meta name="apple-mobile-web-app-title" content="ANIMA" />
-  <meta name="theme-color" content="#ffffff" />
+  <meta name="theme-color" content="#f3f3f6" />
   <link rel="icon" href="./favicon.svg?v=20260310" type="image/svg+xml" />
   <link rel="icon" href="./favicon-32x32.png?v=20260310" sizes="32x32" type="image/png" />
   <link rel="icon" href="./favicon-16x16.png?v=20260310" sizes="16x16" type="image/png" />
@@ -21,6 +21,7 @@
       --muted:#6b6b75;
       --card:#f5f5f7;        /* apple-ish */
       --menuLayer:#f9f9fb;
+      --overscrollBg:#f3f3f6;
       --line:rgba(0,0,0,.10);
       --shadow:0 14px 34px rgba(0,0,0,.10);
       --radius:28px;
@@ -83,7 +84,10 @@
         box-shadow:none !important;
       }
     }
-    html{scroll-behavior:smooth}
+    html{
+      scroll-behavior:smooth;
+      background:var(--overscrollBg);
+    }
     body{
       margin:0;
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -2348,6 +2352,34 @@
       overflow:auto;
       scrollbar-gutter:stable;
     }
+    .plannerSetAddWrap{
+      display:flex;
+      justify-content:center;
+      padding:14px 16px 4px 0;
+    }
+    .plannerSetAddBtn{
+      width:44px;
+      height:44px;
+      border:none;
+      border-radius:999px;
+      background:rgba(17,18,24,.06);
+      color:#111218;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      font-size:28px;
+      line-height:1;
+      padding:0;
+      transition:background .18s ease, transform .18s ease;
+    }
+    .plannerSetAddBtn:hover{
+      background:rgba(17,18,24,.1);
+      transform:translateY(-1px);
+    }
+    .plannerSetAddBtn[hidden]{
+      display:none;
+    }
     .orderItem{
       display:grid;
       grid-template-columns:minmax(0,1fr) auto;
@@ -2356,6 +2388,20 @@
       border-bottom:1px solid rgba(17,18,24,.14);
       padding:14px 0;
       background:transparent;
+    }
+    .orderItem[data-set-id]{
+      cursor:pointer;
+    }
+    .orderItem--set-active{
+      background:transparent;
+      box-shadow:none;
+      border-radius:0;
+      padding:14px 0;
+      margin:0;
+      border-bottom:1px solid rgba(17,18,24,.14);
+    }
+    .orderItem--set-inactive{
+      opacity:1;
     }
     .orderItemName{
       font-size:clamp(18px, 1.5vw, 28px);
@@ -2705,6 +2751,7 @@
     .orderSummary{
       margin-top:auto;
       padding-top:16px;
+      padding-right:16px;
       border-top:1px solid rgba(0,0,0,.1);
       display:flex;
       align-items:baseline;
@@ -3944,7 +3991,7 @@
   <div class="overlayInner">
     <nav class="menuGrid" aria-label="Main navigation">
       <div class="menuCol services">
-        <a href="Laser%204.html" id="menu_female">Alexandrit-Laser-Haarentfernung</a>
+        <a href="Laser%204.html" id="menu_female">Alexandrit-Laser Haarentfernung</a>
         <a href="detox-thermo.html" id="menu_wrap">Detox &amp; Thermo-Wickel</a>
       </div>
       <div class="menuCol info">
@@ -3953,14 +4000,12 @@
         <a href="https://salonkee.de/salon/anima-body-care-salon" target="_blank" rel="noopener" id="menu_book">Termin buchen</a>
       </div>
       <div class="menuCol contacts">
-        <a href="mailto:info@anima-konstanz.de" id="menu_email">E-Mail schreiben</a>
+        <a href="mailto:info@anima-konstanz.de" id="menu_email">E-Mail</a>
         <a href="tel:+4916098348968" id="menu_phone">Anrufen</a>
         <a href="https://maps.app.goo.gl/2tFHV9ZprfdjDPKR9" target="_blank" rel="noopener" id="menu_directions">Anfahrt</a>
       </div>
       <div class="menuCol legal">
         <a href="#faq" id="menu_faq">FAQ</a>
-        <a href="impressum.html" id="menu_impressum">Impressum</a>
-        <a href="datenschutz.html" id="menu_datenschutz">Datenschutz</a>
       </div>
     </nav>
   </div>
@@ -3989,12 +4034,9 @@
 <div class="wrap" id="top">
   <!-- 1) HERO -->
   <section class="hero section">
-    <h1 class="reveal" id="hero_title">Laser-Haarentfernung.<br/>Sanft. Präzise. Gepflegt.</h1>
+    <h1 class="reveal" id="hero_title">Alexandrit-Laser Haarentfernung.<br/>Sanft. Präzise. Gepflegt.</h1>
     <div class="heroGhostSpace reveal" aria-hidden="true"></div>
     <div class="heroBottomDock" id="heroBottomDock">
-      <div class="btnRow heroCtaRow">
-        <a class="btn primary" href="https://salonkee.de/salon/anima-body-care-salon" target="_blank" rel="noopener" id="btn_buy">Kaufen</a>
-      </div>
       <p class="heroPrice" id="hero_price"><strong>Ab 25 €</strong> pro Behandlung.</p>
     </div>
 
@@ -4097,18 +4139,21 @@
         </div>
         <p class="orderEmpty" id="plannerOrderEmpty">Noch keine Zonen ausgewählt.</p>
         <ul class="orderList" id="plannerOrderList"></ul>
+        <div class="plannerSetAddWrap">
+          <button type="button" class="plannerSetAddBtn" id="plannerAddSetBtn" aria-label="Neues Set" hidden>+</button>
+        </div>
         <p class="plannerCourseHint" id="plannerCourseHint" hidden>6 Sitzungen zum Preis von 5 (1 gratis).</p>
         <div class="orderSummary copy-enabled" id="plannerRegularSummary">
           <span class="orderTotalLabel" id="planner_total_label">Gesamt</span>
           <strong class="orderTotalValue copy-enabled" id="plannerTotalValue">0 €</strong>
         </div>
-        <p class="orderItemSave orderSummarySave" id="plannerSavedTotalLine" hidden>Paketrabatt 0 €</p>
         <p class="orderTaxNote" id="planner_tax_note">Alle Preise inkl. gesetzlicher MwSt. (19 %).</p>
         <div class="orderActions">
           <button type="button" class="orderClearBtn" id="plannerCopyBtn">Kopieren</button>
           <button type="button" class="orderClearBtn" id="plannerClearBtn">Auswahl löschen</button>
         </div>
         <div class="plannerCtaRow">
+          <a class="btn primary plannerCtaBtn" href="https://salonkee.de/salon/anima-body-care-salon" target="_blank" rel="noopener" id="plannerBuyBtn">Kaufen</a>
           <a class="btn plannerCtaBtn" href="https://salonkee.de/salon/anima-body-care-salon" target="_blank" rel="noopener" id="plannerTermBtn">Termin</a>
         </div>
       </div>
@@ -4118,7 +4163,7 @@
   <footer id="contacts">
     <div class="footerLine"><a href="#top" id="footer_brand">© 2026 ANIMA Body care salon</a></div>
     <div class="footerLine">
-      <a href="mailto:info@anima-konstanz.de" id="footer_write">E-Mail schreiben</a> ·
+      <a href="mailto:info@anima-konstanz.de" id="footer_write">E-Mail</a> ·
       <a href="tel:+4916098348968" id="footer_call">Anrufen</a> ·
       <a href="https://maps.app.goo.gl/2tFHV9ZprfdjDPKR9" target="_blank" rel="noopener" id="footer_directions">Anfahrt</a> ·
       <a href="https://www.instagram.com/anima.bodycare/" target="_blank" rel="noopener" id="footer_instagram">Instagram</a>
@@ -5168,12 +5213,12 @@
   const plannerSketch = document.getElementById("plannerSketch");
   const plannerZoneGrid = document.getElementById("plannerZoneGrid");
   const plannerOrderList = document.getElementById("plannerOrderList");
+  const plannerAddSetBtn = document.getElementById("plannerAddSetBtn");
   const plannerOrderEmpty = document.getElementById("plannerOrderEmpty");
   const plannerCourseSwitch = document.getElementById("plannerCourseSwitch");
   const plannerRegularSummary = document.getElementById("plannerRegularSummary");
   const plannerCourseHint = document.getElementById("plannerCourseHint");
   const plannerTotalValue = document.getElementById("plannerTotalValue");
-  const plannerSavedTotalLine = document.getElementById("plannerSavedTotalLine");
   const plannerClearBtn = document.getElementById("plannerClearBtn");
   const plannerCopyBtn = document.getElementById("plannerCopyBtn");
   const plannerBuyBtn = document.getElementById("plannerBuyBtn");
@@ -5221,6 +5266,18 @@
   let plannerModeSwitchFrame1 = null;
   let plannerModeSwitchFrame2 = null;
   const plannerFrauenViewOrder = ["front", "back", "face"];
+  const plannerSetsByMode = {
+    frauen:[],
+    herren:[]
+  };
+  const plannerActiveSetIdByMode = {
+    frauen:null,
+    herren:null
+  };
+  const plannerSetSeqByMode = {
+    frauen:0,
+    herren:0
+  };
   const plannerFaceMovableZoneIdsByModeAndView = {
     frauen:{
       front:new Set(["upperarms", "bauchfull", "medialinebauch"]),
@@ -6083,6 +6140,7 @@
   const PLANNER_VIEW_SLIDE_MOBILE_EASING = "cubic-bezier(.32, 0, .2, 1)";
   const PLANNER_BASE_FIGURE_SCALE_DESKTOP = 1.02;
   const PLANNER_BASE_FIGURE_SCALE_MOBILE = 1;
+  const PLANNER_SET_CREATION_ZONE_THRESHOLD = 4;
   const PLANNER_STATE_SESSION_KEY = "anima_laser_planner_state_v3";
   const SALONKEE_BOOKING_FALLBACK_URL = "https://salonkee.de/salon/anima-body-care-salon";
   const plannerSalonkeeUrlByMode = {
@@ -7038,7 +7096,7 @@
           displayGroup:"smart",
           zoneIds:["upperarms", "underarms", "hands"],
           componentIds:["smart_arms_complete", "hands"],
-          label:{ de:"Arme komplett + Hände", en:"Arms complete + hands", ru:"Руки полностью + кисти" }
+          label:{ de:"Arme komplett & Hände", en:"Arms complete + hands", ru:"Руки полностью + кисти" }
         },
         {
           id:"smart_legs_complete",
@@ -7056,7 +7114,7 @@
           displayGroup:"smart",
           zoneIds:["obersch", "untersch", "feet"],
           componentIds:["smart_legs_complete", "feet"],
-          label:{ de:"Beine komplett + Füße", en:"Legs complete + feet", ru:"Ноги полностью + стопы" }
+          label:{ de:"Beine komplett & Füße", en:"Legs complete + feet", ru:"Ноги полностью + стопы" }
         },
         {
           id:"smart_arms_legs_complete",
@@ -7129,7 +7187,7 @@
           zoneIds:["bikini", "intim", "axilla", "obersch", "untersch"],
           componentIds:["premium_bikini_intim_pofalte", "axilla", "smart_legs_complete"],
           packagePrice:199,
-          label:{ de:"Intim + Achseln + Beine komplett", en:"Intimate + underarms + legs complete", ru:"Интим + подмышки + ноги полностью" },
+          label:{ de:"Intim & Achseln & Beine komplett", en:"Intimate + underarms + legs complete", ru:"Интим + подмышки + ноги полностью" },
           promoNote:{ de:"Aktionspreis gueltig bis 15. April 2026.", en:"Promotional price valid until April 15, 2026.", ru:"Акция действует до 15 апреля 2026." }
         },
         {
@@ -7203,7 +7261,7 @@
           zoneIds:["intim", "pobacken"],
           componentIds:["intim", "pobacken"],
           packagePrice:230,
-          label:{ de:"Intim + Pobacken", en:"Intimate + buttocks", ru:"Интим + ягодицы" }
+          label:{ de:"Intim & Pobacken", en:"Intimate + buttocks", ru:"Интим + ягодицы" }
         },
         {
           id:"intim_pobacken_axilla_bundle",
@@ -7213,7 +7271,7 @@
           zoneIds:["intim", "pobacken", "axilla"],
           componentIds:["intim_pobacken_bundle", "axilla"],
           packagePrice:265,
-          label:{ de:"Intim + Pobacken + Achseln", en:"Intimate + buttocks + underarms", ru:"Интим + ягодицы + подмышки" }
+          label:{ de:"Intim & Pobacken & Achseln", en:"Intimate + buttocks + underarms", ru:"Интим + ягодицы + подмышки" }
         },
         {
           id:"upperbody_axilla_bundle",
@@ -7223,7 +7281,7 @@
           zoneIds:["chest", "bauchfull", "medialinebauch", "lowerback", "upperback", "axilla"],
           componentIds:["upperbody_bundle", "axilla"],
           packagePrice:285,
-          label:{ de:"Oberkörper + Achseln", en:"Upper body + underarms", ru:"Верх тела + подмышки" }
+          label:{ de:"Oberkörper & Achseln", en:"Upper body + underarms", ru:"Верх тела + подмышки" }
         },
         {
           id:"upperbody_axilla_intim_bundle",
@@ -7233,7 +7291,7 @@
           zoneIds:["chest", "bauchfull", "medialinebauch", "lowerback", "upperback", "axilla", "intim", "pobacken"],
           componentIds:["upperbody_bundle", "intim_pobacken_axilla_bundle"],
           packagePrice:420,
-          label:{ de:"Oberkörper + Achseln + Intim (inkl. Pobacken)", en:"Upper body + underarms + intimate (incl. buttocks)", ru:"Верх тела + подмышки + интим (вкл. ягодицы)" }
+          label:{ de:"Oberkörper & Achseln & Intim (inkl. Pobacken)", en:"Upper body + underarms + intimate (incl. buttocks)", ru:"Верх тела + подмышки + интим (вкл. ягодицы)" }
         },
         {
           id:"premium_bundle",
@@ -7276,6 +7334,7 @@
       premiumTag:"Premium Paket",
       mergeArms:"Arme komplett",
       mergeLegs:"Beine komplett",
+      orderGroupTitle:"Dein Set {number}",
       premiumExtraSaved:"Um 30 € günstiger",
       termPromptTitle:"Bitte zuerst Zonen waehlen",
       termPromptAction:"OK"
@@ -7307,6 +7366,7 @@
       premiumTag:"Premium Package",
       mergeArms:"Arms pack",
       mergeLegs:"Legs pack",
+      orderGroupTitle:"Your set {number}",
       premiumExtraSaved:"Better value by €30",
       termPromptTitle:"Please choose zones first",
       termPromptAction:"OK"
@@ -7338,6 +7398,7 @@
       premiumTag:"Премиум пакет",
       mergeArms:"Руки комплект",
       mergeLegs:"Ноги комплект",
+      orderGroupTitle:"Ваш сет {number}",
       premiumExtraSaved:"Выгоднее на 30 €",
       termPromptTitle:"Пожалуйста, сначала выберите зоны",
       termPromptAction:"OK"
@@ -10766,7 +10827,11 @@
   function ensureInteractiveInViewForInteraction(){
     const focusFrame = plannerFigure || plannerFigureViewportScroll || plannerFigureWrap || interactiveSection;
     if(!focusFrame) return;
-    if(!(mobileVideoMq && mobileVideoMq.matches)) return;
+    const canAutoFocus =
+      (desktopHover && desktopHover.matches)
+      || (mobileVideoMq && mobileVideoMq.matches)
+      || (coarsePointerMq && coarsePointerMq.matches);
+    if(!canAutoFocus) return;
     const now = Date.now();
     if(now < plannerAutoFocusCooldownUntil) return;
     if(now - plannerLastUserScrollAt < 320) return;
@@ -11373,6 +11438,47 @@
     }
     return plannerSortDisplayNodes(working);
   }
+  function plannerCloneOrderItemNode(node){
+    if(!node) return null;
+    return {
+      ...node,
+      children:Array.isArray(node.children) ? node.children.map((child) => plannerCloneOrderItemNode(child)).filter(Boolean) : []
+    };
+  }
+  function plannerFindOrderPackageNode(nodes, packageIds){
+    const list = Array.isArray(nodes) ? nodes : [];
+    for(const node of list){
+      if(node && node.type === "package" && packageIds.includes(node.id)) return node;
+      const nested = plannerFindOrderPackageNode(node && node.children, packageIds);
+      if(nested) return nested;
+    }
+    return null;
+  }
+  function plannerMergeSupplementaryOrderItems(items){
+    const working = (items || []).map((item) => plannerCloneOrderItemNode(item)).filter(Boolean);
+    const extractTopLevelSingle = (zoneId) => {
+      const index = working.findIndex((item) => item && item.type === "single" && item.id === zoneId);
+      if(index < 0) return null;
+      return working.splice(index, 1)[0] || null;
+    };
+    const handsItem = extractTopLevelSingle("hands");
+    const feetItem = extractTopLevelSingle("feet");
+    const armsPackageItem = plannerFindOrderPackageNode(working, ["smart_arms_complete", "smart_arms_complete_with_hands", "arms_bundle"]);
+    const legsPackageItem = plannerFindOrderPackageNode(working, ["smart_legs_complete", "smart_legs_complete_with_feet", "legs_bundle"]);
+    if(handsItem && armsPackageItem){
+      const nextChildren = Array.isArray(armsPackageItem.children) ? [...armsPackageItem.children, handsItem] : [handsItem];
+      armsPackageItem.children = nextChildren;
+    } else if(handsItem){
+      working.push(handsItem);
+    }
+    if(feetItem && legsPackageItem){
+      const nextChildren = Array.isArray(legsPackageItem.children) ? [...legsPackageItem.children, feetItem] : [feetItem];
+      legsPackageItem.children = nextChildren;
+    } else if(feetItem){
+      working.push(feetItem);
+    }
+    return working;
+  }
   function plannerCompositeLabelFromNodes(nodes, fallbackLabel){
     const sortedNodes = plannerSortDisplayNodes(nodes);
     const suffixByLang = {
@@ -11543,6 +11649,118 @@
     });
     return text;
   }
+  function plannerAllowedZoneIds(mode){
+    return new Set((plannerZonesByMode[mode] || []).map((zone) => zone.id));
+  }
+  function plannerNormalizeSetSelection(mode, selected){
+    const allowed = plannerAllowedZoneIds(mode);
+    const raw = Array.isArray(selected) ? selected : Array.from(selected || []);
+    return raw.filter((zoneId, index, list) => typeof zoneId === "string" && allowed.has(zoneId) && list.indexOf(zoneId) === index);
+  }
+  function plannerFindSetEntry(mode, setId){
+    return (plannerSetsByMode[mode] || []).find((entry) => entry && entry.id === setId) || null;
+  }
+  function plannerSyncActiveSetSelection(mode){
+    const activeSetId = plannerActiveSetIdByMode[mode];
+    if(!activeSetId) return;
+    const entry = plannerFindSetEntry(mode, activeSetId);
+    if(!entry) return;
+    entry.selected = plannerNormalizeSetSelection(mode, plannerSelectedByMode[mode] || []);
+  }
+  function plannerCreateSetEntry(mode){
+    plannerSetSeqByMode[mode] = (plannerSetSeqByMode[mode] || 0) + 1;
+    const number = plannerSetSeqByMode[mode];
+    const entry = {
+      id:`planner_set_${mode}_${number}`,
+      number,
+      selected:[]
+    };
+    plannerSetsByMode[mode].push(entry);
+    return entry;
+  }
+  function plannerEnsureActiveSetEntry(mode){
+    const activeSetId = plannerActiveSetIdByMode[mode];
+    const selected = plannerNormalizeSetSelection(mode, plannerSelectedByMode[mode] || []);
+    if(!activeSetId){
+      if(selected.length < PLANNER_SET_CREATION_ZONE_THRESHOLD) return null;
+      const entry = plannerCreateSetEntry(mode);
+      entry.selected = selected;
+      plannerActiveSetIdByMode[mode] = entry.id;
+      return entry;
+    }
+    let entry = plannerFindSetEntry(mode, activeSetId);
+    if(!entry){
+      entry = plannerCreateSetEntry(mode);
+      plannerActiveSetIdByMode[mode] = entry.id;
+    }
+    entry.selected = selected;
+    return entry;
+  }
+  function plannerSetSummaryItem(mode, entry){
+    if(!entry) return null;
+    const selection = new Set(plannerNormalizeSetSelection(mode, entry.selected || []));
+    const snapshot = plannerSummarySnapshot(mode, selection);
+    const items = plannerDisplayItems(snapshot);
+    const positionCount = selection.size;
+    return {
+      id:entry.id,
+      type:"package",
+      label:{
+        de:`Dein Set ${entry.number}`,
+        en:`Your set ${entry.number}`,
+        ru:`Ваш сет ${entry.number}`
+      },
+      metaLabel:{
+        de:`${positionCount} Positionen`,
+        en:`${positionCount} items`,
+        ru:`${positionCount} позиций`
+      },
+      price:snapshot.total,
+      originalPrice:snapshot.originalTotal,
+      parts:[],
+      zoneIds:[],
+      level:3,
+      children:items,
+      promoNote:null,
+      isSetContainer:true,
+      isSetActive:plannerActiveSetIdByMode[mode] === entry.id
+    };
+  }
+  function plannerDeactivateSet(mode, options = {}){
+    const preserveSelection = !!options.preserveSelection;
+    plannerActiveSetIdByMode[mode] = null;
+    if(!preserveSelection && plannerSelectedByMode[mode]){
+      plannerSelectedByMode[mode].clear();
+    }
+  }
+  function plannerDeleteSet(mode, setId){
+    const entries = plannerSetsByMode[mode] || [];
+    const nextEntries = entries.filter((entry) => entry && entry.id !== setId);
+    if(nextEntries.length === entries.length) return false;
+    plannerSetsByMode[mode] = nextEntries;
+    if(plannerActiveSetIdByMode[mode] === setId){
+      plannerActiveSetIdByMode[mode] = null;
+      plannerSelectedByMode[mode] = new Set();
+    }
+    return true;
+  }
+  function plannerActivateSet(mode, setId){
+    const entry = plannerFindSetEntry(mode, setId);
+    if(!entry) return false;
+    plannerActiveSetIdByMode[mode] = setId;
+    plannerSelectedByMode[mode] = new Set(plannerNormalizeSetSelection(mode, entry.selected || []));
+    return true;
+  }
+  function plannerCommitCurrentSelectionToSet(mode){
+    const selected = plannerNormalizeSetSelection(mode, plannerSelectedByMode[mode] || []);
+    let entry = plannerFindSetEntry(mode, plannerActiveSetIdByMode[mode]);
+    if(!entry){
+      entry = plannerCreateSetEntry(mode);
+    }
+    entry.selected = selected;
+    plannerActiveSetIdByMode[mode] = entry.id;
+    return entry;
+  }
   function syncBookingPromptCopy(){
     if(bookingPromptTitle) bookingPromptTitle.textContent = plannerText("termPromptTitle");
     if(bookingPromptActionBtn) bookingPromptActionBtn.textContent = plannerText("termPromptAction");
@@ -11590,6 +11808,26 @@
       selected:{
         frauen:Array.from(plannerSelectedByMode.frauen || []),
         herren:Array.from(plannerSelectedByMode.herren || [])
+      },
+      sets:{
+        frauen:(plannerSetsByMode.frauen || []).map((entry) => ({
+          id:entry.id,
+          number:entry.number,
+          selected:plannerNormalizeSetSelection("frauen", entry.selected || [])
+        })),
+        herren:(plannerSetsByMode.herren || []).map((entry) => ({
+          id:entry.id,
+          number:entry.number,
+          selected:plannerNormalizeSetSelection("herren", entry.selected || [])
+        }))
+      },
+      activeSetId:{
+        frauen:plannerActiveSetIdByMode.frauen || null,
+        herren:plannerActiveSetIdByMode.herren || null
+      },
+      setSeq:{
+        frauen:plannerSetSeqByMode.frauen || 0,
+        herren:plannerSetSeqByMode.herren || 0
       }
     };
     try{
@@ -11621,6 +11859,22 @@
     };
     restoreModeSet("frauen");
     restoreModeSet("herren");
+    ["frauen", "herren"].forEach((mode) => {
+      const rawSets = Array.isArray(payload.sets && payload.sets[mode]) ? payload.sets[mode] : [];
+      plannerSetsByMode[mode] = rawSets.map((entry, index) => ({
+        id:(entry && typeof entry.id === "string" && entry.id) ? entry.id : `planner_set_${mode}_${index + 1}`,
+        number:Number.isFinite(Number(entry && entry.number)) ? Number(entry.number) : (index + 1),
+        selected:plannerNormalizeSetSelection(mode, entry && entry.selected)
+      }));
+      plannerSetSeqByMode[mode] = Math.max(
+        Number(payload.setSeq && payload.setSeq[mode]) || 0,
+        plannerSetsByMode[mode].reduce((max, entry) => Math.max(max, Number(entry.number) || 0), 0)
+      );
+      const activeSetId = payload.activeSetId && typeof payload.activeSetId[mode] === "string"
+        ? payload.activeSetId[mode]
+        : null;
+      plannerActiveSetIdByMode[mode] = plannerFindSetEntry(mode, activeSetId) ? activeSetId : null;
+    });
     if(payload.pricingView === "course" || payload.pricingView === "single"){
       setPlannerPricingView(payload.pricingView);
     }
@@ -12071,10 +12325,17 @@
     const renderSummaryRow = (item) => {
       const li = document.createElement("li");
       li.className = "orderItem";
+      if(item.isSetContainer){
+        li.dataset.setId = item.id;
+        li.classList.add(item.isSetActive ? "orderItem--set-active" : "orderItem--set-inactive");
+        li.setAttribute("role", "button");
+        li.setAttribute("tabindex", "0");
+        li.setAttribute("aria-pressed", item.isSetActive ? "true" : "false");
+      }
       const isPackageRow = item.type === "package";
       const canExpand = isPackageRow && Array.isArray(item.children) && item.children.length > 0;
       const isExpanded = canExpand && collapsedBundleRows.has(item.id);
-      let detailNodes = item.children;
+      let detailNodes = plannerMergeSupplementaryOrderItems(item.children);
       if(isPackageRow && item.displayGroup === "smart" && canExpand && item.children.every((child) => child && child.type === "single")){
         detailNodes = [{
           type:"package",
@@ -12121,7 +12382,8 @@
           ]
         }];
       }
-      const partsText = "";
+      detailNodes = plannerMergeSupplementaryOrderItems(detailNodes);
+      const partsText = item.metaLabel ? plannerLabel(item.metaLabel).trim() : "";
       const basePrice = item.price;
       const originalPrice = Number(item.originalPrice) || basePrice;
       const priceMeta = displayPriceMeta(basePrice, originalPrice);
@@ -12160,9 +12422,14 @@
       setPlannerPricingView("single");
     }
     const selected = plannerDisplayItems(snapshot);
+    const activeSetEntry = plannerEnsureActiveSetEntry(mode);
+    const savedSetItems = (plannerSetsByMode[mode] || [])
+      .map((entry) => plannerSetSummaryItem(mode, entry))
+      .filter(Boolean);
+    const groupedSelection = (savedSetItems.length || activeSetEntry) ? savedSetItems : selected;
     const sessionTotal = snapshot.total;
     updatePlannerCourseOffer(mode, selectedSet, sessionTotal);
-    const visibleBundleIds = new Set(selected.filter((item) => item.type === "package").map((item) => item.id));
+    const visibleBundleIds = new Set(groupedSelection.filter((item) => item.type === "package").map((item) => item.id));
     const hasExpandedVisibleBundle = Array.from(collapsedBundleRows).some((bundleId) => visibleBundleIds.has(bundleId));
     if(!hasExpandedVisibleBundle && collapsedBundleRows.size > 0 && visibleBundleIds.size === 1){
       collapsedBundleRows.clear();
@@ -12174,11 +12441,14 @@
     });
     let displayTotal = sessionTotal;
     plannerOrderList.innerHTML = "";
-    if(!selected.length){
+    if(!groupedSelection.length){
       plannerOrderEmpty.hidden = false;
     } else {
       plannerOrderEmpty.hidden = true;
-      selected.forEach((item) => renderSummaryRow(item));
+      groupedSelection.forEach((item) => renderSummaryRow(item));
+    }
+    if(plannerAddSetBtn){
+      plannerAddSetBtn.hidden = !(savedSetItems.length || selectedSet.size >= PLANNER_SET_CREATION_ZONE_THRESHOLD);
     }
     Array.from(seenDetailEntryKeys).forEach((key) => {
       if(activeDetailEntryKeys.has(key)) return;
@@ -12190,15 +12460,6 @@
     }
     if(plannerPricingView === "course"){
       displayTotal = sessionTotal * PLANNER_COURSE_PAYABLE_SESSIONS;
-    }
-    const displaySavedTotal = selected.reduce((sum, item) => {
-      const basePrice = Number(item.price) || 0;
-      const originalPrice = Number(item.originalPrice) || basePrice;
-      return sum + displayPriceMeta(basePrice, originalPrice).saved;
-    }, 0);
-    if(plannerSavedTotalLine){
-      plannerSavedTotalLine.hidden = !(selected.length && displaySavedTotal > 0);
-      plannerSavedTotalLine.textContent = plannerSavedLabel(displaySavedTotal);
     }
     renderPlannerTotalValue(displayTotal, false);
     updatePlannerMobileInfo(mode, selectedSet, selected, displayTotal);
@@ -13979,7 +14240,27 @@
       if(selectedSet && selectedSet.size){
         plannerHistoryPush("clear-selection");
       }
+      plannerDeactivateSet(mode);
       if(selectedSet) selectedSet.clear();
+      schedulePlannerRender(mode);
+      plannerPersistState();
+    });
+  }
+  if(plannerAddSetBtn){
+    plannerAddSetBtn.addEventListener("click", () => {
+      const mode = activeLaserMode();
+      const selected = plannerNormalizeSetSelection(mode, plannerSelectedByMode[mode] || []);
+      const hasExistingSets = !!((plannerSetsByMode[mode] || []).length);
+      const meetsCreateThreshold = selected.length >= PLANNER_SET_CREATION_ZONE_THRESHOLD;
+      if(!hasExistingSets && !meetsCreateThreshold && !selected.length) return;
+      plannerCommitCurrentSelectionToSet(mode);
+      const nextEntry = plannerCreateSetEntry(mode);
+      nextEntry.selected = [];
+      plannerActiveSetIdByMode[mode] = nextEntry.id;
+      plannerSelectedByMode[mode] = new Set();
+      clearPlannerPremiumSequence();
+      clearPlannerBundleSequencesForMode(mode);
+      requestPlannerSelectionUiSync(mode);
       schedulePlannerRender(mode);
       plannerPersistState();
     });
@@ -14051,16 +14332,34 @@
   }
   if(plannerOrderList){
     plannerOrderList.addEventListener("click", (event) => {
-      const toggleBtn = event.target.closest(".orderItemSaveHintBtn");
-      if(!toggleBtn || !plannerOrderList.contains(toggleBtn)) return;
-      const bundleId = toggleBtn.dataset.bundleId;
-      if(!bundleId) return;
       const mode = activeLaserMode();
-      const collapsedSet = plannerCollapsedBundleRowsByMode[mode] || new Set();
-      if(collapsedSet.has(bundleId)) collapsedSet.delete(bundleId);
-      else collapsedSet.add(bundleId);
-      plannerCollapsedBundleRowsByMode[mode] = collapsedSet;
-      schedulePlannerRender(mode);
+      const toggleBtn = event.target.closest(".orderItemSaveHintBtn");
+      if(toggleBtn && plannerOrderList.contains(toggleBtn)){
+        const bundleId = toggleBtn.dataset.bundleId;
+        if(!bundleId) return;
+        const collapsedSet = plannerCollapsedBundleRowsByMode[mode] || new Set();
+        if(collapsedSet.has(bundleId)) collapsedSet.delete(bundleId);
+        else collapsedSet.add(bundleId);
+        plannerCollapsedBundleRowsByMode[mode] = collapsedSet;
+        schedulePlannerRender(mode);
+        return;
+      }
+      const setCard = event.target.closest(".orderItem[data-set-id]");
+      if(setCard && plannerOrderList.contains(setCard)){
+        if(event.target.closest(".orderItemDetails")) return;
+        const setId = setCard.dataset.setId || "";
+        if(!setId) return;
+        if(plannerActiveSetIdByMode[mode] === setId){
+          plannerDeactivateSet(mode);
+        } else if(plannerActivateSet(mode, setId)){
+          clearPlannerPremiumSequence();
+          clearPlannerBundleSequencesForMode(mode);
+        }
+        requestPlannerSelectionUiSync(mode);
+        schedulePlannerRender(mode);
+        plannerPersistState();
+        return;
+      }
     });
   }
   if(plannerTotalValue){
@@ -14537,7 +14836,7 @@
   const t = {
     de: {
       hero_promo_strip:"Erhalte 150 bis 450 € Rabatt auf Laser-Haarentfernung bei Vorauszahlung eines Kurses.",
-      hero_title:"Laser-Haarentfernung.<br/>Sanft. Präzise. Gepflegt.",
+      hero_title:"Alexandrit-Laser Haarentfernung.<br/>Sanft. Präzise. Gepflegt.",
       hero_price:"<strong>Ab 25 €</strong> pro Behandlung.",
       btn_buy:"Kaufen",
       why_title:"Warum unser Laser besser ist",
@@ -14563,11 +14862,11 @@
       cta_text:"Buche deinen Termin — wir wählen Format und Wirkstoff passend zu deinem Ziel.",
       cta_book:"Termin buchen",
       cta_back:"Nach oben",
-      menu_female:"Alexandrit-Laser-Haarentfernung",
-      menu_male:"Alexandrit-Laser-Haarentfernung",
+      menu_female:"Alexandrit-Laser Haarentfernung",
+      menu_male:"Alexandrit-Laser Haarentfernung",
       menu_wrap:"Detox & Thermo-Wickel",
       menu_phone:"Anrufen",
-      menu_email:"E-Mail schreiben",
+      menu_email:"E-Mail",
       menu_directions:"Anfahrt",
       menu_gift:"Geschenkgutschein",
       menu_special:"Spezialangebot",
@@ -14578,7 +14877,7 @@
       planner_tax_note:"Alle Preise inkl. gesetzlicher MwSt. (19 %).",
       laser_switch_hint:"Wähle Frauen oder Herren, um direkt zu den passenden Laser-Angeboten zu springen.",
       footer_top:"ANIMA Body care salon",
-      footer_write:"E-Mail schreiben",
+      footer_write:"E-Mail",
       footer_call:"Anrufen",
       footer_directions:"Anfahrt",
       faq_title:"FAQ",
@@ -14591,7 +14890,7 @@
     },
     en: {
       hero_promo_strip:"Get €150 to €450 off laser hair removal when you prepay for a treatment course.",
-      hero_title:"Laser Hair Removal.<br/>Gentle. Precise. Polished.",
+      hero_title:"Alexandrite Laser Hair Removal.<br/>Gentle. Precise. Polished.",
       hero_price:"<strong>From €25</strong> per treatment.",
       btn_buy:"Buy",
       why_title:"Why our laser performs better",
@@ -14621,7 +14920,7 @@
       menu_male:"Alexandrite Laser Hair Removal",
       menu_wrap:"Detox & Thermo Wrap",
       menu_phone:"Call us",
-      menu_email:"Email us",
+      menu_email:"E-Mail",
       menu_directions:"Directions",
       menu_gift:"Gift voucher",
       menu_special:"Special offer",
@@ -14632,7 +14931,7 @@
       menu_datenschutz:"Privacy",
       planner_tax_note:"All prices include statutory VAT (19%).",
       footer_top:"ANIMA Body care salon",
-      footer_write:"Email us",
+      footer_write:"E-Mail",
       footer_call:"Call us",
       footer_directions:"Directions",
       faq_title:"FAQ",
@@ -14645,7 +14944,7 @@
     },
     ru: {
       hero_promo_strip:"Получите скидку от 150 до 450 € на лазерную депиляцию при оформлении предоплаты за курс.",
-      hero_title:"Лазерная эпиляция.<br/>Бережно. Точно. Эстетично.",
+      hero_title:"Александритовая лазерная эпиляция.<br/>Бережно. Точно. Эстетично.",
       hero_price:"<strong>От 25 €</strong> за процедуру.",
       btn_buy:"Купить",
       why_title:"Почему наш лазер лучше",
@@ -14675,7 +14974,7 @@
       menu_male:"Александритовая лазерная эпиляция",
       menu_wrap:"Detox & Thermo-обёртывание",
       menu_phone:"Позвонить",
-      menu_email:"Написать на почту",
+      menu_email:"E-Mail",
       menu_directions:"Как добраться",
       menu_gift:"Подарочный сертификат",
       menu_special:"Специальное предложение",
@@ -14686,7 +14985,7 @@
       planner_tax_note:"Все цены включают НДС по закону (19 %).",
       laser_switch_hint:"Выберите Frauen или Herren, чтобы сразу перейти к нужным лазерным предложениям.",
       footer_top:"ANIMA Body care salon",
-      footer_write:"Написать на почту",
+      footer_write:"E-Mail",
       footer_call:"Позвонить",
       footer_directions:"Как добраться",
       faq_title:"FAQ",
