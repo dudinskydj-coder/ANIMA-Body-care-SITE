@@ -35,6 +35,29 @@
     body{
       -webkit-tap-highlight-color:transparent;
     }
+    body,
+    body *:not(input):not(textarea):not(select):not(option):not([contenteditable="true"]):not([contenteditable=""]):not([contenteditable]){
+      -webkit-user-select:none;
+      -moz-user-select:none;
+      -ms-user-select:none;
+      user-select:none;
+      -webkit-touch-callout:none;
+    }
+    input,
+    textarea,
+    select,
+    option,
+    [contenteditable],
+    .allow-selection,
+    .allow-selection *,
+    .copy-enabled,
+    .copy-enabled *{
+      -webkit-user-select:text;
+      -moz-user-select:text;
+      -ms-user-select:text;
+      user-select:text;
+      -webkit-touch-callout:default;
+    }
     a,
     button,
     [role="button"],
@@ -4040,9 +4063,9 @@
         <p class="orderEmpty" id="plannerOrderEmpty">Noch keine Zonen ausgewählt.</p>
         <ul class="orderList" id="plannerOrderList"></ul>
         <p class="plannerCourseHint" id="plannerCourseHint" hidden>6 Sitzungen zum Preis von 5 (1 gratis).</p>
-        <div class="orderSummary" id="plannerRegularSummary">
+        <div class="orderSummary copy-enabled" id="plannerRegularSummary">
           <span class="orderTotalLabel" id="planner_total_label">Gesamt</span>
-          <strong class="orderTotalValue" id="plannerTotalValue">0 €</strong>
+          <strong class="orderTotalValue copy-enabled" id="plannerTotalValue">0 €</strong>
         </div>
         <div class="orderActions">
           <button type="button" class="orderClearBtn" id="plannerCopyBtn">Kopieren</button>
@@ -5935,6 +5958,8 @@
   let plannerRenderRaf = null;
   let plannerSelectionUiSyncRaf = null;
   let plannerAutoFocusCooldownUntil = 0;
+  let plannerAutoFocusInternalScrollUntil = 0;
+  let plannerLastUserScrollAt = 0;
   let plannerMobileSnapCooldownUntil = 0;
   let plannerMouseMoveRaf = null;
   let plannerMouseMovePendingEvent = null;
@@ -10637,22 +10662,41 @@
     plannerFigureInner.style.width = "100%";
     plannerFigureInner.style.height = `${baseScale * 100}%`;
   }
+  function plannerMarkUserScrollIntent(){
+    const now = Date.now();
+    if(now < plannerAutoFocusInternalScrollUntil) return;
+    plannerLastUserScrollAt = now;
+  }
   function ensureInteractiveInViewForInteraction(){
-    if(!interactiveSection) return;
-    if(instantMenuMq && instantMenuMq.matches) return;
+    const focusTarget = plannerFigureWrap || plannerFigure || interactiveSection;
+    if(!focusTarget) return;
+    if(!(mobileVideoMq && mobileVideoMq.matches)) return;
     const now = Date.now();
     if(now < plannerAutoFocusCooldownUntil) return;
-    const rect = interactiveSection.getBoundingClientRect();
+    if(now - plannerLastUserScrollAt < 320) return;
+    const rect = focusTarget.getBoundingClientRect();
     const vh = window.innerHeight || document.documentElement.clientHeight || 0;
     if(!vh || rect.height <= 0) return;
+    const rectCenter = rect.top + (rect.height / 2);
     const visibleTop = Math.max(0, rect.top);
     const visibleBottom = Math.min(vh, rect.bottom);
     const visibleHeight = Math.max(0, visibleBottom - visibleTop);
     const visibleRatio = visibleHeight / rect.height;
-    const centerDelta = Math.abs((rect.top + rect.bottom) / 2 - (vh / 2));
-    if(visibleRatio > 0.9 && centerDelta < vh * 0.14) return;
-    plannerAutoFocusCooldownUntil = now + 1200;
-    interactiveSection.scrollIntoView({ behavior:"smooth", block:"center" });
+    const topInComfortZone = rect.top >= vh * 0.12 && rect.top <= vh * 0.28;
+    const centerInComfortZone = rectCenter >= vh * 0.36 && rectCenter <= vh * 0.49;
+    if(visibleRatio > 0.72 && (topInComfortZone || centerInComfortZone)) return;
+    const currentScrollTop = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+    const desiredCenterY = vh * 0.43;
+    const desiredScrollTop = currentScrollTop + rectCenter - desiredCenterY;
+    const maxScrollTop = Math.max(
+      0,
+      (document.documentElement.scrollHeight || document.body.scrollHeight || 0) - vh
+    );
+    const clampedScrollTop = Math.max(0, Math.min(maxScrollTop, desiredScrollTop));
+    if(Math.abs(clampedScrollTop - currentScrollTop) < 20) return;
+    plannerAutoFocusCooldownUntil = now + 900;
+    plannerAutoFocusInternalScrollUntil = now + 900;
+    window.scrollTo({ top:clampedScrollTop, behavior:"smooth" });
   }
   function plannerFocusInteractiveForSwitch(mode = activeLaserMode()){
     ensureInteractiveInViewForInteraction();
@@ -13758,6 +13802,15 @@
       });
     });
   }
+  window.addEventListener("scroll", () => {
+    plannerMarkUserScrollIntent();
+  }, { passive:true });
+  window.addEventListener("wheel", () => {
+    plannerMarkUserScrollIntent();
+  }, { passive:true });
+  window.addEventListener("touchmove", () => {
+    plannerMarkUserScrollIntent();
+  }, { passive:true });
   window.addEventListener("resize", () => {
     plannerSyncKonvaEditor(activeLaserMode());
     plannerSyncScrollSnapPosition(plannerFrauenView, { instant:true });
