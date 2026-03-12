@@ -1232,7 +1232,7 @@
     }
     .plannerMobileInfoPriceOld{
       display:block;
-      order:1;
+      order:2;
       font-size:13px;
       line-height:1.16;
       color:rgba(17,18,24,.52);
@@ -1250,7 +1250,7 @@
     }
     .plannerMobileInfoPriceCurrent{
       display:block;
-      order:2;
+      order:3;
       margin-top:1px;
       font-size:13px;
       line-height:1.16;
@@ -1261,7 +1261,7 @@
     }
     .plannerMobileInfoSaved{
       display:block;
-      order:3;
+      order:1;
       margin-top:1px;
       font-size:13px;
       line-height:1.16;
@@ -2326,6 +2326,7 @@
       display:flex;
       align-items:center;
       min-width:0;
+      gap:10px;
     }
     .orderItemNameWrap{
       display:flex;
@@ -2613,6 +2614,7 @@
       box-shadow:none;
       backdrop-filter:none;
       -webkit-backdrop-filter:none;
+      display:none;
     }
     .plannerNextBenefit[hidden]{display:none}
     .plannerNextBenefitProgressRow{
@@ -3747,6 +3749,7 @@
         overflow:visible;
       }
       .plannerNextBenefit{
+        display:block;
         top:18px;
         left:14px;
         width:min(180px, calc(100vw - 28px));
@@ -11608,8 +11611,28 @@
     return null;
   }
   function renderPlannerNextBenefit(mode, selectedSet){
-    if(plannerNextBenefit) plannerNextBenefit.hidden = true;
-    if(plannerNextBenefitBarFill) plannerNextBenefitBarFill.style.width = "0%";
+    const viewportWidth = Math.max(
+      window.innerWidth || 0,
+      document.documentElement ? (document.documentElement.clientWidth || 0) : 0
+    );
+    const isMobileViewport = viewportWidth <= 767;
+    if(!plannerNextBenefit || !plannerNextBenefitBarFill || !isMobileViewport){
+      if(plannerNextBenefit) plannerNextBenefit.hidden = true;
+      if(plannerNextBenefitBarFill) plannerNextBenefitBarFill.style.width = "0%";
+      return;
+    }
+    const recommendation = plannerNextBenefitRecommendation(mode, selectedSet);
+    if(!recommendation){
+      plannerNextBenefit.hidden = true;
+      plannerNextBenefitBarFill.style.width = "0%";
+      return;
+    }
+    const progressRatio = recommendation.totalCount > 0 ? (recommendation.selectedCount / recommendation.totalCount) : 0;
+    plannerNextBenefit.hidden = false;
+    if(plannerNextBenefitBarFill.parentElement){
+      plannerNextBenefitBarFill.parentElement.style.setProperty("--planner-benefit-step-size", `calc(100% / ${Math.max(1, recommendation.totalCount)})`);
+    }
+    plannerNextBenefitBarFill.style.width = `${Math.max(0, Math.min(100, progressRatio * 100))}%`;
   }
   function plannerMobileInfoVisualProgress(){
     if(!(plannerFigureViewportScroll instanceof HTMLElement) || plannerViewTransport !== "scroll-snap"){
@@ -11961,8 +11984,8 @@
         : "";
       const todoPriceHtml = "";
       const saveHtml = saved > 0
-        ? `<span class="orderItemSave">${plannerSavedLabel(saved)}${expandHintHtml}</span>`
-        : (canExpand ? `<span class="orderSavingLine">${expandHintHtml}</span>` : "")
+        ? `<span class="orderItemSave">${plannerSavedLabel(saved)}</span>`
+        : ""
       ;
       const detailsHtml = (canExpand && isExpanded)
         ? `<div class="orderItemDetails">${premiumTagHtml}${detailNodes.map((child, index) => renderTreeNode(child, [String(item.id), String(child && child.id ? child.id : `idx-${index}`)])).filter(Boolean).join("")}</div>`
@@ -11973,7 +11996,7 @@
           ? `<span class="orderItemPriceOldLine"><span class="orderItemPriceCalc">${plannerTextTemplate("courseDetail", { count:String(PLANNER_COURSE_SESSIONS), value:formatEuro(calcUnitPrice) })}</span><span class="orderItemPriceEq">= <span class="orderItemPriceEqValue">${formatEuro(priceMeta.original)}</span></span></span>`
           : `<span class="orderItemPriceOld">${formatEuro(priceMeta.original)}</span>`)
         : "";
-      li.innerHTML = `<span class="orderItemNameWrap">${courseTagHtml}<span class="orderItemNameLine"><span class="orderItemName">${titleText}</span></span>${partsText ? `<span class="orderItemMeta">${partsText}</span>` : ""}${todoPriceHtml}${saveHtml}${detailsHtml}</span><span class="orderItemPriceWrap">${oldPriceHtml}<strong class="orderItemPrice">${formatEuro(priceMeta.price)}</strong></span>`;
+      li.innerHTML = `<span class="orderItemNameWrap">${courseTagHtml}<span class="orderItemNameLine"><span class="orderItemName">${titleText}</span>${expandHintHtml}</span>${partsText ? `<span class="orderItemMeta">${partsText}</span>` : ""}${todoPriceHtml}${saveHtml}${detailsHtml}</span><span class="orderItemPriceWrap">${oldPriceHtml}<strong class="orderItemPrice">${formatEuro(priceMeta.price)}</strong></span>`;
       plannerOrderList.appendChild(li);
     };
     updatePlannerTermLink(mode, selectedSet);
