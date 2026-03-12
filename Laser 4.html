@@ -6933,9 +6933,7 @@
         premium_upperbody_front:89,
         
         premium_bikini_intim_pofalte:null,
-        
-        premium_legs_intim:220,
-        
+
         premium_all_zones:390
       },
       packages:[
@@ -7046,15 +7044,6 @@
           zoneIds:["bikini", "intim"],
           componentIds:["bikini", "intim"],
           label:{ de:"Intim komplett", en:"Intimate complete", ru:"Интим полностью" }
-        },
-        {
-          id:"premium_legs_intim",
-          level:3,
-          priority:360,
-          displayGroup:"premium",
-          zoneIds:["obersch", "untersch", "intim"],
-          componentIds:["smart_legs_complete", "intim"],
-          label:{ de:"Beine + Intim", en:"Legs + intimate", ru:"Ноги + интим" }
         },
         {
           id:"premium_all_zones",
@@ -10848,6 +10837,21 @@
     const pricing = plannerPricingConfig(mode);
     return !Number.isFinite(pricing.packagePriceOverrides ? pricing.packagePriceOverrides[pkg.id] : null);
   }
+  function plannerPackageHasSavings(mode, pkg, zonesById){
+    if(!pkg) return false;
+    const resolvedPrice = plannerPackageResolvedPrice(mode, pkg, zonesById);
+    if(!Number.isFinite(resolvedPrice)) return false;
+    return resolvedPrice < plannerPackageOriginalPrice(pkg, zonesById);
+  }
+  function plannerHasAxillaAddonDiscountPackage(mode, selectedZoneIdSet, zonesById){
+    if(mode !== "frauen" || !selectedZoneIdSet || !selectedZoneIdSet.size) return false;
+    return plannerBundlesForMode(mode).some((pkg) => {
+      if(!pkg || !Array.isArray(pkg.zoneIds) || !pkg.zoneIds.length) return false;
+      if(pkg.zoneIds.includes("axilla")) return false;
+      if(pkg.zoneIds.some((zoneId) => !selectedZoneIdSet.has(zoneId))) return false;
+      return plannerPackageHasSavings(mode, pkg, zonesById);
+    });
+  }
   function plannerPackageTreeNodeForZone(mode, zone, selectedOrder = null){
     if(!zone) return null;
     return {
@@ -10942,6 +10946,7 @@
       return emptySnapshot;
     }
     const selectedZoneIdSet = new Set(selectedZoneIds);
+    const hasAxillaAddonDiscountPackage = plannerHasAxillaAddonDiscountPackage(mode, selectedZoneIdSet, zonesById);
     const zoneIndexById = new Map(selectedZoneIds.map((zoneId, index) => [zoneId, index]));
     const fullMask = (1 << selectedZoneIds.length) - 1;
     const buildMask = (zoneIds) => zoneIds.reduce((mask, zoneId) => {
@@ -10951,7 +10956,7 @@
     }, 0);
     const candidates = selectedZoneIds.map((zoneId) => {
       const zone = zonesById.get(zoneId);
-      const isAxillaAddon = mode === "frauen" && zone && zone.id === "axilla" && selectedZoneIds.length > 1;
+      const isAxillaAddon = mode === "frauen" && zone && zone.id === "axilla" && hasAxillaAddonDiscountPackage;
       const isFeetAddon = mode === "frauen" && zone && zone.id === "feet" && selectedZoneIdSet.has("obersch") && selectedZoneIdSet.has("untersch");
       const isHandsAddon = mode === "frauen" && zone && zone.id === "hands" && selectedZoneIdSet.has("upperarms") && selectedZoneIdSet.has("underarms");
       const candidatePrice = isAxillaAddon ? 29 : (isFeetAddon ? 10 : (isHandsAddon ? 10 : zone.price));
@@ -11622,18 +11627,8 @@
     return null;
   }
   function renderPlannerNextBenefit(mode, selectedSet){
-    if(!plannerNextBenefit || !plannerNextBenefitBarFill) return;
-    const recommendation = plannerNextBenefitRecommendation(mode, selectedSet);
-    if(!recommendation){
-      plannerNextBenefit.hidden = true;
-      return;
-    }
-    const progressRatio = recommendation.totalCount > 0 ? (recommendation.selectedCount / recommendation.totalCount) : 0;
-    plannerNextBenefit.hidden = false;
-    if(plannerNextBenefitBarFill && plannerNextBenefitBarFill.parentElement){
-      plannerNextBenefitBarFill.parentElement.style.setProperty("--planner-benefit-step-size", `calc(100% / ${Math.max(1, recommendation.totalCount)})`);
-    }
-    plannerNextBenefitBarFill.style.width = `${Math.max(0, Math.min(100, progressRatio * 100))}%`;
+    if(plannerNextBenefit) plannerNextBenefit.hidden = true;
+    if(plannerNextBenefitBarFill) plannerNextBenefitBarFill.style.width = "0%";
   }
   function plannerMobileInfoVisualProgress(){
     if(!(plannerFigureViewportScroll instanceof HTMLElement) || plannerViewTransport !== "scroll-snap"){
