@@ -1132,7 +1132,7 @@
       right:12px;
       top:12px;
       z-index:1;
-      align-items:flex-start;
+      align-items:center;
       justify-content:space-between;
       gap:10px;
       pointer-events:none;
@@ -1144,10 +1144,10 @@
       flex-direction:column;
       align-items:stretch;
       gap:4px;
-      flex:1 1 auto;
+      flex:0 1 auto;
       min-width:0;
-      max-width:min(54vw, 240px);
-      padding-right:4px;
+      max-width:min(40vw, 240px);
+      padding-right:0;
       pointer-events:auto;
       mask-image:linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 78%, rgba(0,0,0,.42) 91%, rgba(0,0,0,0) 100%);
       -webkit-mask-image:linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 78%, rgba(0,0,0,.42) 91%, rgba(0,0,0,0) 100%);
@@ -1171,11 +1171,10 @@
       white-space:normal;
       overflow-wrap:anywhere;
       word-break:break-word;
-      opacity:var(--planner-mobile-row-opacity, 1);
-      transform:translateY(var(--planner-mobile-row-shift, 0px));
-      filter:blur(var(--planner-mobile-row-blur, 0px));
-      animation:plannerMobileInfoRowSlide .42s cubic-bezier(.22,.8,.24,1) both;
-      animation-delay:var(--planner-mobile-row-delay, 0ms);
+      opacity:1;
+      transform:none;
+      filter:none;
+      animation:none;
     }
     .plannerMobileInfoZoneRow--latest{
       opacity:1;
@@ -1251,18 +1250,6 @@
       color:rgba(17,18,24,.76);
       font-weight:620;
     }
-    @keyframes plannerMobileInfoRowSlide{
-      from{
-        opacity:0;
-        transform:translateY(-12px);
-        filter:blur(2px);
-      }
-      to{
-        opacity:var(--planner-mobile-row-opacity, 1);
-        transform:translateY(var(--planner-mobile-row-shift, 0px));
-        filter:blur(var(--planner-mobile-row-blur, 0px));
-      }
-    }
     .plannerMobileInfoPrice{
       min-width:112px;
       max-width:36vw;
@@ -1271,7 +1258,7 @@
       text-align:right;
     }
     .plannerMobileInfoPriceOld{
-      display:block;
+      display:none;
       order:2;
       font-size:13px;
       line-height:1.16;
@@ -1284,29 +1271,28 @@
     .plannerMobileInfoPriceOld,
     .plannerMobileInfoPriceCurrent,
     .plannerMobileInfoSaved{
-      opacity:var(--planner-mobile-price-opacity, 1);
-      transform:translateY(var(--planner-mobile-price-shift, 0px));
-      filter:blur(var(--planner-mobile-price-blur, 0px));
+      opacity:1;
+      transform:none;
+      filter:none;
     }
     .plannerMobileInfoPriceOld.is-animating,
     .plannerMobileInfoPriceCurrent.is-animating,
     .plannerMobileInfoSaved.is-animating{
-      animation:plannerMobileInfoPriceSlide .42s cubic-bezier(.22,.8,.24,1) both;
-      animation-delay:var(--planner-mobile-price-delay, 0ms);
+      animation:none;
     }
     .plannerMobileInfoPriceCurrent{
       display:block;
       order:3;
       margin-top:1px;
-      font-size:13px;
-      line-height:1.16;
+      font-size:14px;
+      line-height:1.12;
       color:#111218;
       letter-spacing:-.01em;
-      font-weight:600;
+      font-weight:650;
       white-space:nowrap;
     }
     .plannerMobileInfoSaved{
-      display:block;
+      display:none;
       order:1;
       margin-top:1px;
       font-size:13px;
@@ -1323,18 +1309,6 @@
     .plannerMobileInfo.is-empty .plannerMobileInfoSaved{
       color:rgba(17,18,24,.45);
       font-weight:540;
-    }
-    @keyframes plannerMobileInfoPriceSlide{
-      from{
-        opacity:0;
-        transform:translateY(-12px);
-        filter:blur(2px);
-      }
-      to{
-        opacity:var(--planner-mobile-price-opacity, 1);
-        transform:translateY(var(--planner-mobile-price-shift, 0px));
-        filter:blur(var(--planner-mobile-price-blur, 0px));
-      }
     }
     .plannerFigure::-webkit-scrollbar{
       width:0;
@@ -2343,7 +2317,6 @@
     .orderList{
       margin:18px 0 0;
       padding:0;
-      padding-right:16px;
       list-style:none;
       display:flex;
       flex-direction:column;
@@ -2355,7 +2328,7 @@
     .plannerSetAddWrap{
       display:flex;
       justify-content:center;
-      padding:14px 16px 4px 0;
+      padding:14px 0 4px;
     }
     .plannerSetAddBtn{
       width:44px;
@@ -2700,7 +2673,7 @@
       top:18px;
       left:18px;
       z-index:8;
-      width:min(160px, calc(100% - 36px));
+      width:40px;
       margin:0;
       padding:0;
       border:none;
@@ -2723,16 +2696,6 @@
       background:rgba(17,18,24,.10);
       overflow:hidden;
     }
-    .plannerNextBenefitBar::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background-image:linear-gradient(to right, rgba(255,255,255,.72) 1px, transparent 1px);
-      background-size:var(--planner-benefit-step-size, 100%) 100%;
-      background-position:left top;
-      pointer-events:none;
-      opacity:.75;
-    }
     .plannerNextBenefitBarFill{
       display:block;
       height:100%;
@@ -2741,17 +2704,9 @@
       background:linear-gradient(90deg, #23a548 0%, #42cd72 100%);
       transition:width .22s ease;
     }
-    .plannerNextBenefitProgress{
-      font-size:10px;
-      line-height:1.25;
-      color:rgba(17,18,24,.58);
-      font-weight:700;
-      white-space:nowrap;
-    }
     .orderSummary{
       margin-top:auto;
       padding-top:16px;
-      padding-right:16px;
       border-top:1px solid rgba(0,0,0,.1);
       display:flex;
       align-items:baseline;
@@ -3858,7 +3813,7 @@
         display:block;
         top:18px;
         left:14px;
-        width:min(180px, calc(100vw - 28px));
+        width:80px;
         padding:9px 10px;
       }
       .plannerPane--zones .plannerFigureWrap{
@@ -3942,9 +3897,32 @@
         display:none;
       }
       .plannerMobileInfo{
-        display:flex;
+        display:grid;
+        grid-template-columns:minmax(0, 1fr) 40px auto;
+        align-items:center;
+        column-gap:8px;
         left:22px;
         right:22px;
+      }
+      .plannerMobileInfoZones{
+        max-width:none;
+        max-height:none;
+        overflow:visible;
+        mask-image:none;
+        -webkit-mask-image:none;
+      }
+      .plannerNextBenefit{
+        position:static;
+        top:auto;
+        left:auto;
+        z-index:auto;
+        width:40px;
+        justify-self:end;
+        margin:0;
+        padding:0;
+      }
+      .plannerNextBenefitProgressRow{
+        width:100%;
       }
       .orderItemSave{
         font-size:15px;
@@ -4055,13 +4033,6 @@
     <div class="laserPlanner" aria-label="Interaktiver Zonenplaner">
       <div class="plannerPane plannerPane--zones">
         <div class="plannerFigureWrap">
-          <div class="plannerNextBenefit" id="plannerNextBenefit" hidden>
-            <div class="plannerNextBenefitProgressRow">
-              <div class="plannerNextBenefitBar" aria-hidden="true">
-                <span class="plannerNextBenefitBarFill" id="plannerNextBenefitBarFill"></span>
-              </div>
-            </div>
-          </div>
           <button type="button" class="plannerViewArrow plannerViewArrow--prev" id="plannerViewPrev" aria-label="Previous view">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
           </button>
@@ -4070,6 +4041,13 @@
           </button>
           <div class="plannerMobileInfo" id="plannerMobileInfo" aria-hidden="true">
             <div class="plannerMobileInfoZones" id="plannerMobileInfoZones"></div>
+            <div class="plannerNextBenefit" id="plannerNextBenefit" hidden>
+              <div class="plannerNextBenefitProgressRow">
+                <div class="plannerNextBenefitBar" aria-hidden="true">
+                  <span class="plannerNextBenefitBarFill" id="plannerNextBenefitBarFill"></span>
+                </div>
+              </div>
+            </div>
             <span class="plannerMobileInfoPrice" id="plannerMobileInfoPrice">
               <span class="plannerMobileInfoPriceOld" id="plannerMobileInfoPriceOld"></span>
               <span class="plannerMobileInfoPriceCurrent" id="plannerMobileInfoPriceCurrent"></span>
@@ -12098,29 +12076,27 @@
       });
     });
   }
-  function plannerRenderMobileZoneNames(mode, selected){
+  function plannerRenderMobileZoneNames(mode, selectedSet, selected){
     if(!plannerMobileInfoZones) return;
     plannerMobileInfoZones.replaceChildren();
     const items = plannerMobileSummaryItems(selected);
-    if(!items.length){
+    const selectedZoneIds = Array.from(selectedSet || []);
+    const latestZoneId = selectedZoneIds[selectedZoneIds.length - 1] || "";
+    const zonesById = plannerZonesMap(mode);
+    const latestZone = latestZoneId ? zonesById.get(latestZoneId) : null;
+    const latestLabel = latestZone ? plannerLabel(latestZone.label).trim() : "";
+    if(!items.length && !latestLabel){
       plannerMobileInfoZones.classList.remove("is-expanded");
       return;
     }
-    items.forEach((item, index) => {
-      const label = plannerLabel(item.label).trim();
-      if(!label) return;
+    const latestItem = items[0];
+    const label = latestLabel || (latestItem ? plannerLabel(latestItem.label).trim() : "");
+    if(label){
       const row = document.createElement("div");
-      row.className = `plannerMobileInfoZoneRow${index === 0 ? " plannerMobileInfoZoneRow--latest" : ""}`;
-      const opacity = index < 3 ? 1 : (index === 3 ? 0.5 : 0.24);
-      const shift = Math.min(index, 4) * 2.5;
-      const blur = index >= 4 ? 0.35 : 0;
-      row.style.setProperty("--planner-mobile-row-opacity", String(opacity));
-      row.style.setProperty("--planner-mobile-row-shift", `${shift}px`);
-      row.style.setProperty("--planner-mobile-row-blur", `${blur}px`);
-      row.style.setProperty("--planner-mobile-row-delay", `${Math.min(index, 4) * 36}ms`);
+      row.className = "plannerMobileInfoZoneRow plannerMobileInfoZoneRow--latest";
       row.textContent = label;
       plannerMobileInfoZones.appendChild(row);
-    });
+    }
     plannerMobileInfoZones.classList.remove("is-expanded");
   }
   function updatePlannerMobileInfo(mode, selectedSet, selected, displayTotal){
@@ -12147,10 +12123,10 @@
       : originalSessionTotal;
     const saved = Math.max(0, oldTotal - displayTotal);
     plannerMobileInfo.classList.remove("is-empty");
-    plannerRenderMobileZoneNames(mode, selected);
+    plannerRenderMobileZoneNames(mode, selectedSet, selected);
     plannerMobileInfoPriceCurrent.textContent = formatEuro(displayTotal);
-    plannerMobileInfoPriceOld.textContent = saved > 0 ? formatEuro(oldTotal) : "";
-    plannerMobileInfoSaved.textContent = saved > 0 ? plannerSavedLabel(saved) : "";
+    plannerMobileInfoPriceOld.textContent = "";
+    plannerMobileInfoSaved.textContent = "";
     plannerAnimateMobilePriceBlock();
     plannerApplyMobileInfoOpacity();
   }
@@ -14333,6 +14309,21 @@
   if(plannerOrderList){
     plannerOrderList.addEventListener("click", (event) => {
       const mode = activeLaserMode();
+      const deleteBtn = event.target.closest("[data-set-delete]");
+      if(deleteBtn && plannerOrderList.contains(deleteBtn)){
+        event.preventDefault();
+        event.stopPropagation();
+        const setId = deleteBtn.getAttribute("data-set-delete") || "";
+        if(!setId) return;
+        if(plannerDeleteSet(mode, setId)){
+          clearPlannerPremiumSequence();
+          clearPlannerBundleSequencesForMode(mode);
+          requestPlannerSelectionUiSync(mode);
+          schedulePlannerRender(mode);
+          plannerPersistState();
+        }
+        return;
+      }
       const toggleBtn = event.target.closest(".orderItemSaveHintBtn");
       if(toggleBtn && plannerOrderList.contains(toggleBtn)){
         const bundleId = toggleBtn.dataset.bundleId;
