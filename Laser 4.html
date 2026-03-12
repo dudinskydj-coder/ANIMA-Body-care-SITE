@@ -1147,8 +1147,6 @@
       opacity:var(--planner-mobile-row-opacity, 1);
       transform:translateY(var(--planner-mobile-row-shift, 0px));
       filter:blur(var(--planner-mobile-row-blur, 0px));
-      animation:plannerMobileInfoRowSlide .42s cubic-bezier(.22,.8,.24,1) both;
-      animation-delay:var(--planner-mobile-row-delay, 0ms);
     }
     .plannerMobileInfoZoneRow--latest{
       opacity:1;
@@ -1260,12 +1258,6 @@
       opacity:var(--planner-mobile-price-opacity, 1);
       transform:translateY(var(--planner-mobile-price-shift, 0px));
       filter:blur(var(--planner-mobile-price-blur, 0px));
-    }
-    .plannerMobileInfoPriceOld.is-animating,
-    .plannerMobileInfoPriceCurrent.is-animating,
-    .plannerMobileInfoSaved.is-animating{
-      animation:plannerMobileInfoPriceSlide .42s cubic-bezier(.22,.8,.24,1) both;
-      animation-delay:var(--planner-mobile-price-delay, 0ms);
     }
     .plannerMobileInfoPriceCurrent{
       display:block;
@@ -11682,33 +11674,21 @@
     ].filter((el) => el instanceof HTMLElement);
     priceLines.forEach((el, index) => {
       el.classList.remove("is-animating");
+      el.style.animation = "";
       el.style.setProperty("--planner-mobile-price-opacity", el.textContent ? "1" : "0");
       el.style.setProperty("--planner-mobile-price-shift", `${Math.min(index, 2) * 2.5}px`);
       el.style.setProperty("--planner-mobile-price-blur", index === 2 ? "0.2px" : "0px");
-      el.style.setProperty("--planner-mobile-price-delay", `${index * 36}ms`);
-    });
-    requestAnimationFrame(() => {
-      priceLines.forEach((el) => {
-        if(el.textContent) el.classList.add("is-animating");
-      });
+      el.style.setProperty("--planner-mobile-price-delay", "0ms");
     });
   }
   function plannerRenderMobileZoneNames(mode, selected){
     if(!plannerMobileInfoZones) return;
     plannerMobileInfoZones.replaceChildren();
     const items = plannerMobileSummaryItems(selected);
-    const expandedRows = plannerMobileExpandedRowsByMode[mode] || new Set();
-    let hasExpandedRow = false;
     if(!items.length){
       plannerMobileInfoZones.classList.remove("is-expanded");
       return;
     }
-    const visibleIds = new Set(items.map((item) => String(item.id || "")));
-    Array.from(expandedRows).forEach((rowId) => {
-      if(visibleIds.has(rowId)) return;
-      expandedRows.delete(rowId);
-    });
-    plannerMobileExpandedRowsByMode[mode] = expandedRows;
     items.forEach((item, index) => {
       const label = plannerLabel(item.label).trim();
       if(!label) return;
@@ -11721,56 +11701,10 @@
       row.style.setProperty("--planner-mobile-row-shift", `${shift}px`);
       row.style.setProperty("--planner-mobile-row-blur", `${blur}px`);
       row.style.setProperty("--planner-mobile-row-delay", `${Math.min(index, 4) * 36}ms`);
-      const packageRows = item.type === "package" ? plannerMobileLeafRows(item) : [];
-      const isExpandable = packageRows.length > 0;
-      const rowId = String(item.id || label);
-      const isOpen = isExpandable && expandedRows.has(rowId);
-      if(isExpandable){
-        row.classList.add("plannerMobileInfoZoneCard");
-        if(isOpen) row.classList.add("is-open");
-        const toggle = document.createElement("button");
-        toggle.type = "button";
-        toggle.className = "plannerMobileInfoZoneToggle";
-        toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-        const toggleText = document.createElement("span");
-        toggleText.className = "plannerMobileInfoZoneToggleText";
-        toggleText.textContent = label;
-        const chevron = document.createElement("span");
-        chevron.className = "plannerMobileInfoZoneChevron";
-        chevron.textContent = "▾";
-        toggle.append(toggleText, chevron);
-        toggle.addEventListener("click", () => {
-          const nextExpandedRows = plannerMobileExpandedRowsByMode[mode] || new Set();
-          if(nextExpandedRows.has(rowId)) nextExpandedRows.delete(rowId);
-          else nextExpandedRows.add(rowId);
-          plannerMobileExpandedRowsByMode[mode] = nextExpandedRows;
-          updatePlannerOrder(mode);
-        });
-        row.appendChild(toggle);
-        if(isOpen){
-          hasExpandedRow = true;
-          const details = document.createElement("div");
-          details.className = "plannerMobileInfoZoneDetails";
-          packageRows.forEach((entry) => {
-            const detailRow = document.createElement("div");
-            detailRow.className = "plannerMobileInfoZoneDetailRow";
-            const name = document.createElement("span");
-            name.className = "plannerMobileInfoZoneDetailName";
-            name.textContent = entry.label;
-            const price = document.createElement("span");
-            price.className = "plannerMobileInfoZoneDetailPrice";
-            price.textContent = formatEuro(entry.price);
-            detailRow.append(name, price);
-            details.appendChild(detailRow);
-          });
-          row.appendChild(details);
-        }
-      } else {
-        row.textContent = label;
-      }
+      row.textContent = label;
       plannerMobileInfoZones.appendChild(row);
     });
-    plannerMobileInfoZones.classList.toggle("is-expanded", hasExpandedRow);
+    plannerMobileInfoZones.classList.remove("is-expanded");
   }
   function updatePlannerMobileInfo(mode, selectedSet, selected, displayTotal){
     if(!plannerMobileInfo || !plannerMobileInfoZones || !plannerMobileInfoPriceOld || !plannerMobileInfoPriceCurrent || !plannerMobileInfoSaved) return;
