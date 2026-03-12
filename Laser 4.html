@@ -2383,6 +2383,13 @@
       letter-spacing:-.01em;
       font-weight:500;
     }
+    .orderItemPromoNote{
+      font-size:12px;
+      line-height:1.35;
+      color:rgba(0,163,57,.94);
+      letter-spacing:-.01em;
+      font-weight:600;
+    }
     .orderItemSave{
       display:inline-flex;
       align-items:center;
@@ -7104,6 +7111,17 @@
           label:{ de:"Intim komplett", en:"Intimate complete", ru:"Интим полностью" }
         },
         {
+          id:"promo_intim_axilla_legs_bundle",
+          level:3,
+          priority:346,
+          displayGroup:"premium",
+          zoneIds:["bikini", "intim", "axilla", "obersch", "untersch"],
+          componentIds:["premium_bikini_intim_pofalte", "axilla", "smart_legs_complete"],
+          packagePrice:199,
+          label:{ de:"Intim + Achseln + Beine komplett", en:"Intimate + underarms + legs complete", ru:"Интим + подмышки + ноги полностью" },
+          promoNote:{ de:"Aktionspreis gueltig bis 15. April 2026.", en:"Promotional price valid until April 15, 2026.", ru:"Акция действует до 15 апреля 2026." }
+        },
+        {
           id:"premium_all_zones",
           level:3,
           priority:1000,
@@ -11045,6 +11063,11 @@
     }
     const selectedZoneIdSet = new Set(selectedZoneIds);
     const hasAxillaAddonDiscountPackage = plannerHasAxillaAddonDiscountPackage(mode, selectedZoneIdSet, zonesById);
+    const hasArmsLegsCompleteBundle = mode === "frauen"
+      && selectedZoneIdSet.has("upperarms")
+      && selectedZoneIdSet.has("underarms")
+      && selectedZoneIdSet.has("obersch")
+      && selectedZoneIdSet.has("untersch");
     const zoneIndexById = new Map(selectedZoneIds.map((zoneId, index) => [zoneId, index]));
     const fullMask = (1 << selectedZoneIds.length) - 1;
     const buildMask = (zoneIds) => zoneIds.reduce((mask, zoneId) => {
@@ -11057,7 +11080,13 @@
       const isAxillaAddon = mode === "frauen" && zone && zone.id === "axilla" && hasAxillaAddonDiscountPackage;
       const isFeetAddon = mode === "frauen" && zone && zone.id === "feet" && selectedZoneIdSet.has("obersch") && selectedZoneIdSet.has("untersch");
       const isHandsAddon = mode === "frauen" && zone && zone.id === "hands" && selectedZoneIdSet.has("upperarms") && selectedZoneIdSet.has("underarms");
-      const candidatePrice = isAxillaAddon ? 29 : (isFeetAddon ? 10 : (isHandsAddon ? 10 : zone.price));
+      const candidatePrice = isAxillaAddon
+        ? 29
+        : (isFeetAddon
+          ? (hasArmsLegsCompleteBundle ? 0 : 10)
+          : (isHandsAddon
+            ? (hasArmsLegsCompleteBundle ? 0 : 10)
+            : zone.price));
       return {
         id:zone.id,
         type:"single",
@@ -11088,6 +11117,7 @@
         originalPrice:plannerPackageOriginalPrice(pkg, zonesById),
         mask:buildMask(pkg.zoneIds),
         label:pkg.label,
+        promoNote:pkg.promoNote || null,
         displayGroup:pkg.displayGroup || "",
         isTodoPrice:plannerPackageIsTodoPrice(mode, pkg)
       });
@@ -11163,6 +11193,7 @@
         originalPrice:candidate.originalPrice,
         zoneIds:[...candidate.zoneIds],
         parts:candidate.zoneIds.map((zoneId) => zonesById.get(zoneId)).filter(Boolean).map((zone) => zone.label),
+        promoNote:candidate.promoNote || null,
         displayGroup:candidate.displayGroup,
         isTodoPrice:candidate.isTodoPrice,
         comboExtraSaving:0,
@@ -12097,6 +12128,10 @@
         ? `<span class="orderItemSave">${plannerSavedLabel(saved)}</span>`
         : ""
       ;
+      const promoNoteText = plannerLabel(item.promoNote).trim();
+      const promoNoteHtml = promoNoteText
+        ? `<span class="orderItemPromoNote">${promoNoteText}</span>`
+        : "";
       const detailsHtml = (canExpand && isExpanded)
         ? `<div class="orderItemDetails">${premiumTagHtml}${detailNodes.map((child, index) => renderTreeNode(child, [String(item.id), String(child && child.id ? child.id : `idx-${index}`)])).filter(Boolean).join("")}</div>`
         : "";
@@ -12106,7 +12141,7 @@
           ? `<span class="orderItemPriceOldLine"><span class="orderItemPriceCalc">${plannerTextTemplate("courseDetail", { count:String(PLANNER_COURSE_SESSIONS), value:formatEuro(calcUnitPrice) })}</span><span class="orderItemPriceEq">= <span class="orderItemPriceEqValue">${formatEuro(priceMeta.original)}</span></span></span>`
           : `<span class="orderItemPriceOld">${formatEuro(priceMeta.original)}</span>`)
         : "";
-      li.innerHTML = `<span class="orderItemNameWrap">${courseTagHtml}<span class="orderItemNameLine"><span class="orderItemName">${titleText}</span>${expandHintHtml}</span>${partsText ? `<span class="orderItemMeta">${partsText}</span>` : ""}${todoPriceHtml}${saveHtml}${detailsHtml}</span><span class="orderItemPriceWrap">${oldPriceHtml}<strong class="orderItemPrice">${formatEuro(priceMeta.price)}</strong></span>`;
+      li.innerHTML = `<span class="orderItemNameWrap">${courseTagHtml}<span class="orderItemNameLine"><span class="orderItemName">${titleText}</span>${expandHintHtml}</span>${partsText ? `<span class="orderItemMeta">${partsText}</span>` : ""}${todoPriceHtml}${saveHtml}${promoNoteHtml}${detailsHtml}</span><span class="orderItemPriceWrap">${oldPriceHtml}<strong class="orderItemPrice">${formatEuro(priceMeta.price)}</strong></span>`;
       plannerOrderList.appendChild(li);
     };
     updatePlannerTermLink(mode, selectedSet);
