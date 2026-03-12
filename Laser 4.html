@@ -2717,6 +2717,10 @@
       line-height:1.45;
       color:rgba(17,18,24,.58);
     }
+    .orderSummarySave{
+      display:flex;
+      margin-top:8px;
+    }
     .plannerHead{
       display:flex;
       align-items:center;
@@ -3949,7 +3953,7 @@
         <a href="https://salonkee.de/salon/anima-body-care-salon" target="_blank" rel="noopener" id="menu_book">Termin buchen</a>
       </div>
       <div class="menuCol contacts">
-        <a href="mailto:info@anima-konstanz.de" id="menu_email">info@anima-konstanz.de</a>
+        <a href="mailto:info@anima-konstanz.de" id="menu_email">E-Mail schreiben</a>
         <a href="tel:+4916098348968" id="menu_phone">Anrufen</a>
         <a href="https://maps.app.goo.gl/2tFHV9ZprfdjDPKR9" target="_blank" rel="noopener" id="menu_directions">Anfahrt</a>
       </div>
@@ -4098,13 +4102,13 @@
           <span class="orderTotalLabel" id="planner_total_label">Gesamt</span>
           <strong class="orderTotalValue copy-enabled" id="plannerTotalValue">0 €</strong>
         </div>
+        <p class="orderItemSave orderSummarySave" id="plannerSavedTotalLine" hidden>Paketrabatt 0 €</p>
         <p class="orderTaxNote" id="planner_tax_note">Alle Preise inkl. gesetzlicher MwSt. (19 %).</p>
         <div class="orderActions">
           <button type="button" class="orderClearBtn" id="plannerCopyBtn">Kopieren</button>
           <button type="button" class="orderClearBtn" id="plannerClearBtn">Auswahl löschen</button>
         </div>
         <div class="plannerCtaRow">
-          <a class="btn primary plannerCtaBtn" href="https://salonkee.de/salon/anima-body-care-salon" target="_blank" rel="noopener" id="plannerBuyBtn">Kaufen</a>
           <a class="btn plannerCtaBtn" href="https://salonkee.de/salon/anima-body-care-salon" target="_blank" rel="noopener" id="plannerTermBtn">Termin</a>
         </div>
       </div>
@@ -4114,7 +4118,7 @@
   <footer id="contacts">
     <div class="footerLine"><a href="#top" id="footer_brand">© 2026 ANIMA Body care salon</a></div>
     <div class="footerLine">
-      <a href="mailto:info@anima-konstanz.de" id="footer_write">info@anima-konstanz.de</a> ·
+      <a href="mailto:info@anima-konstanz.de" id="footer_write">E-Mail schreiben</a> ·
       <a href="tel:+4916098348968" id="footer_call">Anrufen</a> ·
       <a href="https://maps.app.goo.gl/2tFHV9ZprfdjDPKR9" target="_blank" rel="noopener" id="footer_directions">Anfahrt</a> ·
       <a href="https://www.instagram.com/anima.bodycare/" target="_blank" rel="noopener" id="footer_instagram">Instagram</a>
@@ -5169,6 +5173,7 @@
   const plannerRegularSummary = document.getElementById("plannerRegularSummary");
   const plannerCourseHint = document.getElementById("plannerCourseHint");
   const plannerTotalValue = document.getElementById("plannerTotalValue");
+  const plannerSavedTotalLine = document.getElementById("plannerSavedTotalLine");
   const plannerClearBtn = document.getElementById("plannerClearBtn");
   const plannerCopyBtn = document.getElementById("plannerCopyBtn");
   const plannerBuyBtn = document.getElementById("plannerBuyBtn");
@@ -12186,6 +12191,15 @@
     if(plannerPricingView === "course"){
       displayTotal = sessionTotal * PLANNER_COURSE_PAYABLE_SESSIONS;
     }
+    const displaySavedTotal = selected.reduce((sum, item) => {
+      const basePrice = Number(item.price) || 0;
+      const originalPrice = Number(item.originalPrice) || basePrice;
+      return sum + displayPriceMeta(basePrice, originalPrice).saved;
+    }, 0);
+    if(plannerSavedTotalLine){
+      plannerSavedTotalLine.hidden = !(selected.length && displaySavedTotal > 0);
+      plannerSavedTotalLine.textContent = plannerSavedLabel(displaySavedTotal);
+    }
     renderPlannerTotalValue(displayTotal, false);
     updatePlannerMobileInfo(mode, selectedSet, selected, displayTotal);
     renderPlannerNextBenefit(mode, selectedSet);
@@ -14553,7 +14567,7 @@
       menu_male:"Alexandrit-Laser-Haarentfernung",
       menu_wrap:"Detox & Thermo-Wickel",
       menu_phone:"Anrufen",
-      menu_email:"info@anima-konstanz.de",
+      menu_email:"E-Mail schreiben",
       menu_directions:"Anfahrt",
       menu_gift:"Geschenkgutschein",
       menu_special:"Spezialangebot",
@@ -14564,7 +14578,7 @@
       planner_tax_note:"Alle Preise inkl. gesetzlicher MwSt. (19 %).",
       laser_switch_hint:"Wähle Frauen oder Herren, um direkt zu den passenden Laser-Angeboten zu springen.",
       footer_top:"ANIMA Body care salon",
-      footer_write:"info@anima-konstanz.de",
+      footer_write:"E-Mail schreiben",
       footer_call:"Anrufen",
       footer_directions:"Anfahrt",
       faq_title:"FAQ",
@@ -14607,7 +14621,7 @@
       menu_male:"Alexandrite Laser Hair Removal",
       menu_wrap:"Detox & Thermo Wrap",
       menu_phone:"Call us",
-      menu_email:"info@anima-konstanz.de",
+      menu_email:"Email us",
       menu_directions:"Directions",
       menu_gift:"Gift voucher",
       menu_special:"Special offer",
@@ -14618,7 +14632,7 @@
       menu_datenschutz:"Privacy",
       planner_tax_note:"All prices include statutory VAT (19%).",
       footer_top:"ANIMA Body care salon",
-      footer_write:"info@anima-konstanz.de",
+      footer_write:"Email us",
       footer_call:"Call us",
       footer_directions:"Directions",
       faq_title:"FAQ",
@@ -14661,7 +14675,7 @@
       menu_male:"Александритовая лазерная эпиляция",
       menu_wrap:"Detox & Thermo-обёртывание",
       menu_phone:"Позвонить",
-      menu_email:"info@anima-konstanz.de",
+      menu_email:"Написать на почту",
       menu_directions:"Как добраться",
       menu_gift:"Подарочный сертификат",
       menu_special:"Специальное предложение",
@@ -14672,7 +14686,7 @@
       planner_tax_note:"Все цены включают НДС по закону (19 %).",
       laser_switch_hint:"Выберите Frauen или Herren, чтобы сразу перейти к нужным лазерным предложениям.",
       footer_top:"ANIMA Body care salon",
-      footer_write:"info@anima-konstanz.de",
+      footer_write:"Написать на почту",
       footer_call:"Позвонить",
       footer_directions:"Как добраться",
       faq_title:"FAQ",
