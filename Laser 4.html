@@ -6069,7 +6069,7 @@
       { id:"obersch", label:{ de:"Oberschenkel", en:"Upper legs", ru:"Верхняя часть ног" }, price:90 },
       { id:"untersch", label:{ de:"Unterschenkel", en:"Lower legs", ru:"Нижняя часть ног" }, price:90 },
       { id:"bikini", label:{ de:"Bikini", en:"Bikini line", ru:"Бикини" }, price:40 },
-      { id:"intim", label:{ de:"Intim komplett inkl. Pofalte", en:"Intimate full incl. gluteal fold", ru:"Интим полностью, включая межъягодичную зону" }, price:85 }
+      { id:"intim", label:{ de:"Intim inkl. Pofalte", en:"Intimate full incl. gluteal fold", ru:"Интим полностью, включая межъягодичную зону" }, price:85 }
     ],
     herren: [
       { id:"chin", label:{ de:"Hals", en:"Neck", ru:"Шея" }, price:25 },
@@ -6924,22 +6924,18 @@
         smart_face_complete_neck_complete:99,
         smart_arms_complete:79,
         smart_legs_complete:159,
-        premium_legs_arms:209,
         smart_face_small:39,
         smart_neck_complete:39,
         smart_arms_complete_with_hands:89,
         smart_legs_complete_with_feet:169,
-        smart_bauch_complete:null,
+        smart_bauch_complete:59,
         smart_back_complete:80,
-        premium_bikini_axilla:65,
-        premium_axilla_intim:115,
+        premium_upperbody_front:89,
+        
         premium_bikini_intim_pofalte:null,
-        premium_legs_axilla:180,
+        
         premium_legs_intim:220,
-        premium_legs_intim_axilla:250,
-        premium_legs_arms_with_hands:225,
-        premium_legs_arms_with_feet:225,
-        premium_legs_arms_with_hands_feet:229,
+        
         premium_all_zones:390
       },
       packages:[
@@ -6995,7 +6991,7 @@
           displayGroup:"smart",
           zoneIds:["upperarms", "underarms", "hands"],
           componentIds:["smart_arms_complete", "hands"],
-          label:{ de:"Arme + Hände komplett", en:"Arms complete + hands", ru:"Руки полностью + кисти" }
+          label:{ de:"Arme komplett + Hände", en:"Arms complete + hands", ru:"Руки полностью + кисти" }
         },
         {
           id:"smart_legs_complete",
@@ -7013,7 +7009,7 @@
           displayGroup:"smart",
           zoneIds:["obersch", "untersch", "feet"],
           componentIds:["smart_legs_complete", "feet"],
-          label:{ de:"Beine + Füße komplett", en:"Legs complete + feet", ru:"Ноги полностью + стопы" }
+          label:{ de:"Beine komplett + Füße", en:"Legs complete + feet", ru:"Ноги полностью + стопы" }
         },
         {
           id:"smart_bauch_complete",
@@ -7031,25 +7027,16 @@
           displayGroup:"smart",
           zoneIds:["upperback", "lowerback"],
           componentIds:["upperback", "lowerback"],
-          label:{ de:"Rücken", en:"Back", ru:"Спина" }
+          label:{ de:"Rücken komplett", en:"Back complete", ru:"Спина полностью" }
         },
         {
-          id:"premium_bikini_axilla",
+          id:"premium_upperbody_front",
           level:3,
-          priority:320,
+          priority:365,
           displayGroup:"premium",
-          zoneIds:["bikini", "axilla"],
-          componentIds:["bikini", "axilla"],
-          label:{ de:"Bikini + Achseln", en:"Bikini + underarms", ru:"Бикини + подмышки" }
-        },
-        {
-          id:"premium_axilla_intim",
-          level:3,
-          priority:330,
-          displayGroup:"premium",
-          zoneIds:["axilla", "intim"],
-          componentIds:["axilla", "intim"],
-          label:{ de:"Achseln + Intim", en:"Underarms + intimate", ru:"Подмышки + интим" }
+          zoneIds:["chest", "bauchfull", "medialinebauch"],
+          componentIds:["chest", "smart_bauch_complete"],
+          label:{ de:"Oberkörper vorne", en:"Upper body front", ru:"Верх тела спереди" }
         },
         {
           id:"premium_bikini_intim_pofalte",
@@ -7058,16 +7045,7 @@
           displayGroup:"premium",
           zoneIds:["bikini", "intim"],
           componentIds:["bikini", "intim"],
-          label:{ de:"Bikini + Intim", en:"Bikini + intimate", ru:"Бикини + интим" }
-        },
-        {
-          id:"premium_legs_axilla",
-          level:3,
-          priority:350,
-          displayGroup:"premium",
-          zoneIds:["obersch", "untersch", "axilla"],
-          componentIds:["smart_legs_complete", "axilla"],
-          label:{ de:"Beine + Achseln", en:"Legs + underarms", ru:"Ноги + подмышки" }
+          label:{ de:"Intim komplett", en:"Intimate complete", ru:"Интим полностью" }
         },
         {
           id:"premium_legs_intim",
@@ -7079,57 +7057,12 @@
           label:{ de:"Beine + Intim", en:"Legs + intimate", ru:"Ноги + интим" }
         },
         {
-          id:"premium_legs_intim_axilla",
-          level:3,
-          priority:365,
-          displayGroup:"premium",
-          zoneIds:["obersch", "untersch", "intim", "axilla"],
-          componentIds:["smart_legs_complete", "intim", "axilla"],
-          label:{ de:"Beine + Intim + Achseln", en:"Legs + intimate + underarms", ru:"Ноги + интим + подмышки" }
-        },
-        {
-          id:"premium_legs_arms",
-          level:3,
-          priority:370,
-          displayGroup:"premium",
-          zoneIds:["obersch", "untersch", "upperarms", "underarms"],
-          componentIds:["smart_legs_complete", "smart_arms_complete"],
-          label:{ de:"Arme & Beine komplett", en:"Legs + arms", ru:"Ноги + руки полностью" }
-        },
-        {
-          id:"premium_legs_arms_with_hands",
-          level:3,
-          priority:371,
-          displayGroup:"premium",
-          zoneIds:["obersch", "untersch", "upperarms", "underarms", "hands"],
-          componentIds:["premium_legs_arms", "hands"],
-          label:{ de:"Arme & Beine komplett + Hände", en:"Legs + arms + hands", ru:"Ноги + руки полностью + кисти" }
-        },
-        {
-          id:"premium_legs_arms_with_feet",
-          level:3,
-          priority:372,
-          displayGroup:"premium",
-          zoneIds:["obersch", "untersch", "upperarms", "underarms", "feet"],
-          componentIds:["premium_legs_arms", "feet"],
-          label:{ de:"Arme & Beine komplett + Füße", en:"Legs + arms + feet", ru:"Ноги + руки полностью + стопы" }
-        },
-        {
-          id:"premium_legs_arms_with_hands_feet",
-          level:3,
-          priority:373,
-          displayGroup:"premium",
-          zoneIds:["obersch", "untersch", "upperarms", "underarms", "hands", "feet"],
-          componentIds:["premium_legs_arms", "hands", "feet"],
-          label:{ de:"Arme + Hände + Beine + Füße komplett", en:"Legs + arms + hands + feet", ru:"Ноги + руки + кисти + стопы полностью" }
-        },
-        {
           id:"premium_all_zones",
           level:3,
           priority:1000,
           displayGroup:"premium",
           zoneIds:["chin", "nacken", "kinn", "wangen", "koteletten", "glabella", "upperlip", "chest", "upperback", "lowerback", "hands", "feet", "axilla", "upperarms", "underarms", "bauchfull", "pobacken", "medialinebauch", "obersch", "untersch", "bikini", "intim"],
-          componentIds:["premium_bikini_intim_pofalte", "premium_legs_arms", "smart_bauch_complete", "pobacken", "axilla", "feet", "hands", "smart_back_complete", "chest", "smart_face_small", "glabella", "koteletten", "wangen", "smart_neck_complete"],
+          componentIds:["premium_bikini_intim_pofalte", "smart_legs_complete", "smart_arms_complete", "smart_bauch_complete", "pobacken", "axilla", "feet", "hands", "smart_back_complete", "chest", "smart_face_small", "glabella", "koteletten", "wangen", "smart_neck_complete"],
           label:{ de:"Alle Zonen", en:"All zones", ru:"Все зоны" }
         }
       ]
@@ -11018,13 +10951,17 @@
     }, 0);
     const candidates = selectedZoneIds.map((zoneId) => {
       const zone = zonesById.get(zoneId);
+      const isAxillaAddon = mode === "frauen" && zone && zone.id === "axilla" && selectedZoneIds.length > 1;
+      const isFeetAddon = mode === "frauen" && zone && zone.id === "feet" && selectedZoneIdSet.has("obersch") && selectedZoneIdSet.has("untersch");
+      const isHandsAddon = mode === "frauen" && zone && zone.id === "hands" && selectedZoneIdSet.has("upperarms") && selectedZoneIdSet.has("underarms");
+      const candidatePrice = isAxillaAddon ? 29 : (isFeetAddon ? 10 : (isHandsAddon ? 10 : zone.price));
       return {
         id:zone.id,
         type:"single",
         level:1,
         priority:0,
         zoneIds:[zone.id],
-        price:zone.price,
+        price:candidatePrice,
         originalPrice:zone.price,
         mask:buildMask([zone.id]),
         label:zone.label,
@@ -11034,6 +10971,7 @@
     });
     plannerBundlesForMode(mode).forEach((pkg) => {
       if(!Array.isArray(pkg.zoneIds) || !pkg.zoneIds.length) return;
+      if(mode === "frauen" && (pkg.id === "smart_legs_complete_with_feet" || pkg.id === "smart_arms_complete_with_hands")) return;
       if(pkg.zoneIds.some((zoneId) => !selectedZoneIdSet.has(zoneId))) return;
       const resolvedPrice = plannerPackageResolvedPrice(mode, pkg, zonesById);
       if(!Number.isFinite(resolvedPrice)) return;
@@ -11124,6 +11062,7 @@
         parts:candidate.zoneIds.map((zoneId) => zonesById.get(zoneId)).filter(Boolean).map((zone) => zone.label),
         displayGroup:candidate.displayGroup,
         isTodoPrice:candidate.isTodoPrice,
+        comboExtraSaving:0,
         children:tree && Array.isArray(tree.children) ? tree.children : [],
         earliestSelectionOrder:candidate.zoneIds.reduce((earliest, zoneId) => {
           const order = selectedOrder.has(zoneId) ? Number(selectedOrder.get(zoneId)) : Number.MAX_SAFE_INTEGER;
@@ -11132,11 +11071,26 @@
         latestSelectionOrder
       };
     }).sort((a, b) => {
-      if(b.latestSelectionOrder !== a.latestSelectionOrder) return b.latestSelectionOrder - a.latestSelectionOrder;
+      if(a.earliestSelectionOrder !== b.earliestSelectionOrder) return a.earliestSelectionOrder - b.earliestSelectionOrder;
+      if(a.latestSelectionOrder !== b.latestSelectionOrder) return a.latestSelectionOrder - b.latestSelectionOrder;
       if(b.level !== a.level) return b.level - a.level;
       if((b.zoneIds || []).length !== (a.zoneIds || []).length) return (b.zoneIds || []).length - (a.zoneIds || []).length;
       return String(a.id).localeCompare(String(b.id));
     });
+    if(mode === "frauen"){
+      const armBundle = normalizedItems.find((item) => item.id === "smart_arms_complete_with_hands")
+        || normalizedItems.find((item) => item.id === "smart_arms_complete");
+      const legBundle = normalizedItems.find((item) => item.id === "smart_legs_complete_with_feet")
+        || normalizedItems.find((item) => item.id === "smart_legs_complete");
+      if(armBundle && legBundle){
+        const comboDiscount = 29;
+        const armOrder = Number.isFinite(Number(armBundle.earliestSelectionOrder)) ? Number(armBundle.earliestSelectionOrder) : Number.MAX_SAFE_INTEGER;
+        const legOrder = Number.isFinite(Number(legBundle.earliestSelectionOrder)) ? Number(legBundle.earliestSelectionOrder) : Number.MAX_SAFE_INTEGER;
+        const discountedBundle = legOrder >= armOrder ? legBundle : armBundle;
+        discountedBundle.price = Math.max(0, (Number(discountedBundle.price) || 0) - comboDiscount);
+        discountedBundle.comboExtraSaving = comboDiscount;
+      }
+    }
     const total = normalizedItems.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
     const originalTotal = normalizedItems.reduce((sum, item) => sum + (Number(item.originalPrice) || Number(item.price) || 0), 0);
     const snapshot = {
@@ -11956,6 +11910,16 @@
           premium:(activatedLead.level || 0) >= 3
         });
       }
+    } else {
+      const activatedSingle = (nextSnapshot.items || []).find((item) => item.type === "single" && item.id === zoneId);
+      if(activatedSingle){
+        const saved = Math.max(0, (Number(activatedSingle.originalPrice) || 0) - (Number(activatedSingle.price) || 0));
+        if(saved > 0){
+          spawnPlannerComboFx(plannerSavedLabel(saved), {
+            premium:false
+          });
+        }
+      }
     }
     maybeStartPlannerGuideEffect();
     plannerPersistState();
@@ -12035,6 +11999,35 @@
             children:[...armsPackage.children, ...extraChildren]
           }];
         }
+      } else if(isPackageRow && item.id === "smart_legs_complete_with_feet" && canExpand){
+        const [legsPackage, ...extraChildren] = item.children;
+        if(legsPackage && legsPackage.type === "package" && Array.isArray(legsPackage.children)){
+          detailNodes = [{
+            ...legsPackage,
+            children:[...legsPackage.children, ...extraChildren]
+          }];
+        }
+      } else if(isPackageRow && item.id === "premium_bikini_intim_pofalte" && canExpand){
+        detailNodes = [{
+          type:"package",
+          id:`${item.id}__details`,
+          label:item.label,
+          level:item.level || 2,
+          children:[
+            {
+              type:"single",
+              id:"premium_bikini_intim_pofalte__bikini",
+              label:{ de:"Bikini", en:"Bikini", ru:"Бикини" },
+              price:40
+            },
+            {
+              type:"single",
+              id:"premium_bikini_intim_pofalte__intim",
+              label:{ de:"Intim inkl pof", en:"Intimate incl. fold", ru:"Интим вкл. складку" },
+              price:85
+            }
+          ]
+        }];
       }
       const partsText = "";
       const basePrice = item.price;
