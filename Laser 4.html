@@ -1137,13 +1137,24 @@
     }
     .plannerMobileInfoZones{
       display:flex;
-      align-items:center;
+      flex-direction:column;
+      align-items:stretch;
+      gap:4px;
       flex:1 1 auto;
       min-width:0;
       max-width:min(54vw, 240px);
       padding-right:4px;
-      pointer-events:none;
+      pointer-events:auto;
+      mask-image:linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 78%, rgba(0,0,0,.42) 91%, rgba(0,0,0,0) 100%);
+      -webkit-mask-image:linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 78%, rgba(0,0,0,.42) 91%, rgba(0,0,0,0) 100%);
+      max-height:calc((1.18em * 4) + 14px);
       overflow:hidden;
+    }
+    .plannerMobileInfoZones.is-expanded{
+      max-height:min(38vh, 280px);
+      overflow:auto;
+      mask-image:none;
+      -webkit-mask-image:none;
     }
     .plannerMobileInfoZoneRow{
       display:block;
@@ -1153,8 +1164,6 @@
       color:#111218;
       letter-spacing:-.01em;
       font-weight:650;
-<<<<<<< ours
-<<<<<<< ours
       white-space:normal;
       overflow-wrap:anywhere;
       word-break:break-word;
@@ -1163,19 +1172,6 @@
       filter:blur(var(--planner-mobile-row-blur, 0px));
       animation:plannerMobileInfoRowSlide .42s cubic-bezier(.22,.8,.24,1) both;
       animation-delay:var(--planner-mobile-row-delay, 0ms);
-=======
-=======
->>>>>>> theirs
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      opacity:1;
-      transform:none;
-      filter:none;
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
     }
     .plannerMobileInfoZoneRow--latest{
       opacity:1;
@@ -11761,19 +11757,6 @@
     if(!Array.isArray(selected) || !selected.length) return [];
     return selected.filter(Boolean);
   }
-  function plannerMobileLatestItem(snapshot){
-    const items = snapshot && Array.isArray(snapshot.items) ? snapshot.items.filter(Boolean) : [];
-    if(!items.length) return null;
-    return items.reduce((latest, item) => {
-      const itemOrder = Number.isFinite(Number(item && item.latestSelectionOrder)) ? Number(item.latestSelectionOrder) : -1;
-      const latestOrder = Number.isFinite(Number(latest && latest.latestSelectionOrder)) ? Number(latest.latestSelectionOrder) : -1;
-      if(itemOrder !== latestOrder) return itemOrder > latestOrder ? item : latest;
-      const itemLevel = Number(item && item.level) || 0;
-      const latestLevel = Number(latest && latest.level) || 0;
-      if(itemLevel !== latestLevel) return itemLevel > latestLevel ? item : latest;
-      return latest || item;
-    }, null);
-  }
   function plannerMobileLeafRows(item){
     const rows = [];
     const visit = (node) => {
@@ -11819,18 +11802,32 @@
       });
     });
   }
-  function plannerRenderMobileZoneNames(mode, snapshot){
+  function plannerRenderMobileZoneNames(mode, selected){
     if(!plannerMobileInfoZones) return;
     plannerMobileInfoZones.replaceChildren();
-    const latestItem = plannerMobileLatestItem(snapshot);
-    const label = latestItem ? plannerLabel(latestItem.label).trim() : "";
-    if(!label) return;
-    const row = document.createElement("div");
-    row.className = "plannerMobileInfoZoneRow plannerMobileInfoZoneRow--latest";
-    row.textContent = label;
-    plannerMobileInfoZones.appendChild(row);
+    const items = plannerMobileSummaryItems(selected);
+    if(!items.length){
+      plannerMobileInfoZones.classList.remove("is-expanded");
+      return;
+    }
+    items.forEach((item, index) => {
+      const label = plannerLabel(item.label).trim();
+      if(!label) return;
+      const row = document.createElement("div");
+      row.className = `plannerMobileInfoZoneRow${index === 0 ? " plannerMobileInfoZoneRow--latest" : ""}`;
+      const opacity = index < 3 ? 1 : (index === 3 ? 0.5 : 0.24);
+      const shift = Math.min(index, 4) * 2.5;
+      const blur = index >= 4 ? 0.35 : 0;
+      row.style.setProperty("--planner-mobile-row-opacity", String(opacity));
+      row.style.setProperty("--planner-mobile-row-shift", `${shift}px`);
+      row.style.setProperty("--planner-mobile-row-blur", `${blur}px`);
+      row.style.setProperty("--planner-mobile-row-delay", `${Math.min(index, 4) * 36}ms`);
+      row.textContent = label;
+      plannerMobileInfoZones.appendChild(row);
+    });
+    plannerMobileInfoZones.classList.remove("is-expanded");
   }
-  function updatePlannerMobileInfo(mode, selectedSet, selected, displayTotal, snapshot = null){
+  function updatePlannerMobileInfo(mode, selectedSet, selected, displayTotal){
     if(!plannerMobileInfo || !plannerMobileInfoZones || !plannerMobileInfoPriceOld || !plannerMobileInfoPriceCurrent || !plannerMobileInfoSaved) return;
     const selectedCount = selectedSet ? selectedSet.size : 0;
     if(!selectedCount){
@@ -11854,7 +11851,7 @@
       : originalSessionTotal;
     const saved = Math.max(0, oldTotal - displayTotal);
     plannerMobileInfo.classList.remove("is-empty");
-    plannerRenderMobileZoneNames(mode, snapshot);
+    plannerRenderMobileZoneNames(mode, selected);
     plannerMobileInfoPriceCurrent.textContent = formatEuro(displayTotal);
     plannerMobileInfoPriceOld.textContent = saved > 0 ? formatEuro(oldTotal) : "";
     plannerMobileInfoSaved.textContent = saved > 0 ? plannerSavedLabel(saved) : "";
@@ -12149,7 +12146,7 @@
       displayTotal = sessionTotal * PLANNER_COURSE_PAYABLE_SESSIONS;
     }
     renderPlannerTotalValue(displayTotal, false);
-    updatePlannerMobileInfo(mode, selectedSet, selected, displayTotal, snapshot);
+    updatePlannerMobileInfo(mode, selectedSet, selected, displayTotal);
     renderPlannerNextBenefit(mode, selectedSet);
   }
   function renderPlannerZones(mode){
