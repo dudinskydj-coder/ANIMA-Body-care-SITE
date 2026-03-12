@@ -11304,7 +11304,6 @@
     return entries.map((entry) => entry.label).join(separator);
   }
   function spawnPlannerComboFx(text, options = {}){
-    if(plannerIsLowPerfMode()) return 0;
     if(!plannerFigureInner || !text) return 0;
     const fx = document.createElement("span");
     fx.className = `plannerComboFx${options.premium ? " plannerComboFx--premium" : ""}`;
@@ -11657,8 +11656,8 @@
     if(!Array.isArray(selected) || !selected.length) return [];
     return selected.filter(Boolean);
   }
-  function plannerMobileLatestItem(snapshot){
-    const items = snapshot && Array.isArray(snapshot.items) ? snapshot.items.filter(Boolean) : [];
+  function plannerMobileLatestItem(selected){
+    const items = Array.isArray(selected) ? selected.filter(Boolean) : [];
     if(!items.length) return null;
     return items.reduce((latest, item) => {
       const itemOrder = Number.isFinite(Number(item && item.latestSelectionOrder)) ? Number(item.latestSelectionOrder) : -1;
@@ -11706,10 +11705,10 @@
       el.style.setProperty("--planner-mobile-price-delay", "0ms");
     });
   }
-  function plannerRenderMobileZoneNames(mode, snapshot){
+  function plannerRenderMobileZoneNames(mode, selected){
     if(!plannerMobileInfoZones) return;
     plannerMobileInfoZones.replaceChildren();
-    const latestItem = plannerMobileLatestItem(snapshot);
+    const latestItem = plannerMobileLatestItem(selected);
     const label = latestItem ? plannerLabel(latestItem.label).trim() : "";
     if(!label) return;
     const row = document.createElement("div");
@@ -11741,7 +11740,7 @@
       : originalSessionTotal;
     const saved = Math.max(0, oldTotal - displayTotal);
     plannerMobileInfo.classList.remove("is-empty");
-    plannerRenderMobileZoneNames(mode, snapshot);
+    plannerRenderMobileZoneNames(mode, selected);
     plannerMobileInfoPriceCurrent.textContent = formatEuro(displayTotal);
     plannerMobileInfoPriceOld.textContent = saved > 0 ? formatEuro(oldTotal) : "";
     plannerMobileInfoSaved.textContent = saved > 0 ? plannerSavedLabel(saved) : "";
