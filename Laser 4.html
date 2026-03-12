@@ -2711,6 +2711,12 @@
       justify-content:space-between;
       gap:14px;
     }
+    .orderTaxNote{
+      margin:8px 0 0;
+      font-size:12px;
+      line-height:1.45;
+      color:rgba(17,18,24,.58);
+    }
     .plannerHead{
       display:flex;
       align-items:center;
@@ -3934,8 +3940,7 @@
   <div class="overlayInner">
     <nav class="menuGrid" aria-label="Main navigation">
       <div class="menuCol services">
-        <a href="Laser%204.html?laser=frauen" id="menu_female">Laser-Haarentfernung Frauen</a>
-        <a href="Laser%204.html?laser=herren" id="menu_male">Laser-Haarentfernung Herren</a>
+        <a href="Laser%204.html" id="menu_female">Alexandrit-Laser-Haarentfernung</a>
         <a href="detox-thermo.html" id="menu_wrap">Detox &amp; Thermo-Wickel</a>
       </div>
       <div class="menuCol info">
@@ -4093,6 +4098,7 @@
           <span class="orderTotalLabel" id="planner_total_label">Gesamt</span>
           <strong class="orderTotalValue copy-enabled" id="plannerTotalValue">0 €</strong>
         </div>
+        <p class="orderTaxNote" id="planner_tax_note">Alle Preise inkl. gesetzlicher MwSt. (19 %).</p>
         <div class="orderActions">
           <button type="button" class="orderClearBtn" id="plannerCopyBtn">Kopieren</button>
           <button type="button" class="orderClearBtn" id="plannerClearBtn">Auswahl löschen</button>
@@ -14543,8 +14549,8 @@
       cta_text:"Buche deinen Termin — wir wählen Format und Wirkstoff passend zu deinem Ziel.",
       cta_book:"Termin buchen",
       cta_back:"Nach oben",
-      menu_female:"Laser-Haarentfernung Frauen",
-      menu_male:"Laser-Haarentfernung Herren",
+      menu_female:"Alexandrit-Laser-Haarentfernung",
+      menu_male:"Alexandrit-Laser-Haarentfernung",
       menu_wrap:"Detox & Thermo-Wickel",
       menu_phone:"Anrufen",
       menu_email:"E-Mail schreiben",
@@ -14555,6 +14561,7 @@
       menu_faq:"FAQ",
       menu_impressum:"Impressum",
       menu_datenschutz:"Datenschutz",
+      planner_tax_note:"Alle Preise inkl. gesetzlicher MwSt. (19 %).",
       laser_switch_hint:"Wähle Frauen oder Herren, um direkt zu den passenden Laser-Angeboten zu springen.",
       footer_top:"ANIMA Body care salon",
       footer_write:"E-Mail schreiben",
@@ -14596,8 +14603,8 @@
       cta_text:"Book your appointment — we’ll tailor the format to your goal.",
       cta_book:"Book appointment",
       cta_back:"Back to top",
-      menu_female:"Women’s Laser Hair Removal",
-      menu_male:"Men’s Laser Hair Removal",
+      menu_female:"Alexandrite Laser Hair Removal",
+      menu_male:"Alexandrite Laser Hair Removal",
       menu_wrap:"Detox & Thermo Wrap",
       menu_phone:"Call us",
       menu_email:"Email us",
@@ -14609,6 +14616,7 @@
       laser_switch_hint:"Choose Women or Men to jump directly to the matching laser offers.",
       menu_impressum:"Imprint",
       menu_datenschutz:"Privacy",
+      planner_tax_note:"All prices include statutory VAT (19%).",
       footer_top:"ANIMA Body care salon",
       footer_write:"Email us",
       footer_call:"Call us",
@@ -14649,8 +14657,8 @@
       cta_text:"Запишитесь на процедуру — мы подберём формат и состав под ваш запрос.",
       cta_book:"Записаться",
       cta_back:"Наверх",
-      menu_female:"Женская лазерная эпиляция",
-      menu_male:"Мужская лазерная эпиляция",
+      menu_female:"Александритовая лазерная эпиляция",
+      menu_male:"Александритовая лазерная эпиляция",
       menu_wrap:"Detox & Thermo-обёртывание",
       menu_phone:"Позвонить",
       menu_email:"Написать на почту",
@@ -14661,6 +14669,7 @@
       menu_faq:"FAQ",
       menu_impressum:"Impressum",
       menu_datenschutz:"Datenschutz",
+      planner_tax_note:"Все цены включают НДС по закону (19 %).",
       laser_switch_hint:"Выберите Frauen или Herren, чтобы сразу перейти к нужным лазерным предложениям.",
       footer_top:"ANIMA Body care salon",
       footer_write:"Написать на почту",
@@ -14715,7 +14724,6 @@
     set("cta_book", m.cta_book);
     set("cta_back", m.cta_back);
     set("menu_female", m.menu_female);
-    set("menu_male", m.menu_male);
     set("menu_wrap", m.menu_wrap);
     set("menu_phone", m.menu_phone);
     set("menu_email", m.menu_email);
@@ -14727,6 +14735,7 @@
     set("laser_switch_hint", m.laser_switch_hint);
     set("menu_impressum", m.menu_impressum);
     set("menu_datenschutz", m.menu_datenschutz);
+    set("planner_tax_note", m.planner_tax_note);
     set("footer_brand", `© 2026 ${m.footer_top}`);
     set("footer_write", m.footer_write);
     set("footer_call", m.footer_call);
