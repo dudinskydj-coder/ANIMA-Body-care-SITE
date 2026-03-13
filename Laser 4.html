@@ -1177,7 +1177,7 @@
     .plannerMobileInfoZoneRow{
       display:block;
       min-width:0;
-      font-size:16px;
+      font-size:15px;
       line-height:1.12;
       color:#111218;
       letter-spacing:-.01em;
@@ -1306,6 +1306,7 @@
     .plannerMobileInfo.is-completion-promo-price-green .plannerMobileInfoPriceCurrent{
       color:rgba(0,163,57,.94);
       font-weight:700;
+      font-size:18px;
     }
     .plannerMobileInfoPriceOld{
       display:none;
@@ -1334,7 +1335,7 @@
       display:block;
       order:3;
       margin-top:1px;
-      font-size:16px;
+      font-size:15px;
       line-height:1.12;
       color:#111218;
       letter-spacing:-.01em;
@@ -6673,7 +6674,7 @@
   const LASER_VIDEO_DESKTOP_SRC = "img/VIDEO/DEKA Epilation.mp4";
   const LASER_VIDEO_MOBILE_SRC = "img/VIDEO/DEKA Epilation Mob.mp4";
   const PLANNER_COURSE_SESSIONS = 6;
-  const PLANNER_COURSE_PAYABLE_SESSIONS = 6;
+  const PLANNER_COURSE_PAYABLE_SESSIONS = 5;
   const PLANNER_VIEW_SLIDE_ANIMATION = true;
   const PLANNER_VIEW_SLIDE_MS = 420;
   const PLANNER_VIEW_SLIDE_MOBILE_MS = 520;
@@ -7842,7 +7843,7 @@
           priority:340,
           displayGroup:"premium",
           zoneIds:["chest", "bauchfull", "medialinebauch", "lowerback", "upperback", "axilla"],
-          componentIds:["upperbody_bundle", "axilla"],
+          componentIds:["upperbody_front_bundle", "lowerback", "upperback", "axilla"],
           packagePrice:285,
           label:{ de:"Oberkörper & Achseln", en:"Upper body + underarms", ru:"Верх тела + подмышки" }
         },
@@ -7852,7 +7853,7 @@
           priority:330,
           displayGroup:"premium",
           zoneIds:["chest", "bauchfull", "medialinebauch", "lowerback", "upperback", "axilla", "intim", "pobacken"],
-          componentIds:["upperbody_bundle", "intim_pobacken_axilla_bundle"],
+          componentIds:["upperbody_axilla_bundle", "intim_pobacken_bundle"],
           packagePrice:420,
           label:{ de:"Oberkörper & Achseln & Intim (inkl. Pobacken)", en:"Upper body + underarms + intimate (incl. buttocks)", ru:"Верх тела + подмышки + интим (вкл. ягодицы)" }
         },
@@ -7874,6 +7875,7 @@
       zonesTitle:"Zonen wählen",
       zonesSub:"Wähle links die gewünschten Bereiche. Mehrfachauswahl ist möglich.",
       orderTitle:"Deine Auswahl",
+      courseOrderTitle:"6er Kurspaket",
       orderPriceLabel:"Launch Preis",
       empty:"Noch keine Zonen ausgewählt.",
       total:"Gesamt",
@@ -7883,8 +7885,8 @@
       term:"Termin",
       courseHint:"Angebot gilt nur bei Zahlung des kompletten Kurses (online oder vor Ort). Ratenzahlung ab {value}/Monat über PayPal oder Klarna.",
       courseDetail:"{count} x {value}",
-      courseTag:"6er Kur Paket",
-      courseTagPremium:"Premium 6er Kur Paket",
+      courseTag:"6er Kurspaket",
+      courseTagPremium:"Premium 6er Kurspaket",
       buyCourse:"Kurs kaufen",
       savedWord:"günstiger",
       nextBenefitTitle:"Dein nächster Vorteil",
@@ -7916,6 +7918,7 @@
       zonesTitle:"Choose zones",
       zonesSub:"Select treatment areas on the left. Multiple selections are supported.",
       orderTitle:"Your selection",
+      courseOrderTitle:"6-session course pack",
       orderPriceLabel:"Launch Price",
       empty:"No zones selected yet.",
       total:"Total",
@@ -7958,6 +7961,7 @@
       zonesTitle:"Выберите зоны",
       zonesSub:"Отметьте нужные зоны слева. Можно выбрать несколько.",
       orderTitle:"Ваш заказ",
+      courseOrderTitle:"Курс на 6 визитов",
       orderPriceLabel:"Стартовая цена",
       empty:"Пока не выбрана ни одна зона.",
       total:"Итого",
@@ -12146,6 +12150,62 @@
       if(index < 0) return null;
       return working.splice(index, 1)[0] || null;
     };
+    const mergeSupplementaryChildIntoPackage = (packageItem, extraItem, options = {}) => {
+      if(!packageItem || !extraItem) return;
+      const appendChild = options.appendChild !== false;
+      const updateLabel = options.updateLabel !== false;
+      const basePrice = Number(packageItem.price) || 0;
+      const baseOriginalPrice = Number(packageItem.originalPrice) || basePrice;
+      const extraPrice = Number(extraItem.price) || 0;
+      const extraOriginalPrice = Number(extraItem.originalPrice) || extraPrice;
+      const nextZoneIds = Array.isArray(packageItem.zoneIds) ? [...packageItem.zoneIds] : [];
+      const extraZoneIds = Array.isArray(extraItem.zoneIds) && extraItem.zoneIds.length
+        ? extraItem.zoneIds
+        : (extraItem.id ? [extraItem.id] : []);
+      extraZoneIds.forEach((zoneId) => {
+        if(!zoneId || nextZoneIds.includes(zoneId)) return;
+        nextZoneIds.push(zoneId);
+      });
+      if(appendChild){
+        const nextChildren = Array.isArray(packageItem.children) ? [...packageItem.children, extraItem] : [extraItem];
+        packageItem.children = nextChildren;
+      }
+      if(updateLabel){
+        packageItem.label = plannerCompositeLabel(packageItem, [extraItem]);
+      }
+      packageItem.price = basePrice + extraPrice;
+      packageItem.originalPrice = baseOriginalPrice + extraOriginalPrice;
+      packageItem.zoneIds = nextZoneIds;
+      packageItem.parts = [
+        ...(Array.isArray(packageItem.parts) ? packageItem.parts : []),
+        ...(Array.isArray(extraItem.parts) ? extraItem.parts : [])
+      ];
+      packageItem.earliestSelectionOrder = Math.min(
+        Number.isFinite(Number(packageItem.earliestSelectionOrder)) ? Number(packageItem.earliestSelectionOrder) : Number.MAX_SAFE_INTEGER,
+        Number.isFinite(Number(extraItem.earliestSelectionOrder)) ? Number(extraItem.earliestSelectionOrder) : Number.MAX_SAFE_INTEGER
+      );
+      packageItem.latestSelectionOrder = Math.max(
+        Number.isFinite(Number(packageItem.latestSelectionOrder)) ? Number(packageItem.latestSelectionOrder) : -1,
+        Number.isFinite(Number(extraItem.latestSelectionOrder)) ? Number(extraItem.latestSelectionOrder) : -1
+      );
+    };
+    const propagateSupplementaryChildToAncestors = (nodes, targetItem, extraItem) => {
+      const visit = (node) => {
+        const children = Array.isArray(node && node.children) ? node.children : [];
+        for(const child of children){
+          if(child === targetItem){
+            mergeSupplementaryChildIntoPackage(node, extraItem, { appendChild:false, updateLabel:false });
+            return true;
+          }
+          if(visit(child)){
+            mergeSupplementaryChildIntoPackage(node, extraItem, { appendChild:false, updateLabel:false });
+            return true;
+          }
+        }
+        return false;
+      };
+      return (nodes || []).some((node) => node !== targetItem && visit(node));
+    };
     const handsItem = extractTopLevelSingle("hands");
     const feetItem = extractTopLevelSingle("feet");
     const armsPackageItem = plannerFindOrderPackageNode(working, ["smart_arms_complete", "smart_arms_complete_with_hands", "arms_bundle"]);
@@ -12156,8 +12216,8 @@
         Object.keys(armsPackageItem).forEach((key) => { delete armsPackageItem[key]; });
         Object.assign(armsPackageItem, upgradedItem);
       } else {
-        const nextChildren = Array.isArray(armsPackageItem.children) ? [...armsPackageItem.children, handsItem] : [handsItem];
-        armsPackageItem.children = nextChildren;
+        mergeSupplementaryChildIntoPackage(armsPackageItem, handsItem);
+        propagateSupplementaryChildToAncestors(working, armsPackageItem, handsItem);
       }
     } else if(handsItem){
       working.push(handsItem);
@@ -12168,8 +12228,8 @@
         Object.keys(legsPackageItem).forEach((key) => { delete legsPackageItem[key]; });
         Object.assign(legsPackageItem, upgradedItem);
       } else {
-        const nextChildren = Array.isArray(legsPackageItem.children) ? [...legsPackageItem.children, feetItem] : [feetItem];
-        legsPackageItem.children = nextChildren;
+        mergeSupplementaryChildIntoPackage(legsPackageItem, feetItem);
+        propagateSupplementaryChildToAncestors(working, legsPackageItem, feetItem);
       }
     } else if(feetItem){
       working.push(feetItem);
@@ -12360,6 +12420,30 @@
       text = text.replace(`{${name}}`, params[name]);
     });
     return text;
+  }
+  function plannerOrderTitleText(hasCourseSelection = false){
+    return hasCourseSelection ? plannerText("courseOrderTitle") : plannerText("orderTitle");
+  }
+  function plannerDisplayPriceMeta(item, isCourseMode = plannerPricingView === "course"){
+    const basePrice = Number(item && item.price) || 0;
+    const originalPrice = Number(item && item.originalPrice) || basePrice;
+    if(!isCourseMode){
+      return {
+        price:basePrice,
+        original:originalPrice,
+        saved:Math.max(0, originalPrice - basePrice),
+        unitPrice:basePrice
+      };
+    }
+    const courseUnitPrice = basePrice;
+    const coursePrice = courseUnitPrice * PLANNER_COURSE_PAYABLE_SESSIONS;
+    const courseOriginal = courseUnitPrice * PLANNER_COURSE_SESSIONS;
+    return {
+      price:coursePrice,
+      original:courseOriginal,
+      saved:Math.max(0, courseOriginal - coursePrice),
+      unitPrice:courseUnitPrice
+    };
   }
   function plannerAllowedZoneIds(mode){
     return new Set((plannerZonesByMode[mode] || []).map((zone) => zone.id));
@@ -14364,8 +14448,15 @@
     const selected = plannerOrderItems(mode, selectedSet || new Set());
     const header = `Laser Auswahl (${plannerModeLabel(mode)})`;
     if(!selected.length) return `${header}\n- ${plannerText("empty")}`;
-    const total = selected.reduce((sum, item) => sum + (item.price || 0), 0);
-    const lines = selected.map((item) => `- ${plannerLabel(item.label)} (${formatEuro(item.price || 0)})`);
+    const isCourseMode = plannerPricingView === "course";
+    const total = selected.reduce((sum, item) => sum + (plannerDisplayPriceMeta(item, isCourseMode).price || 0), 0);
+    const lines = selected.map((item) => {
+      const priceMeta = plannerDisplayPriceMeta(item, isCourseMode);
+      const label = isCourseMode
+        ? `${plannerLabel(item.label)} - ${plannerTextTemplate("courseDetail", { count:String(PLANNER_COURSE_SESSIONS), value:formatEuro(priceMeta.unitPrice) })}`
+        : plannerLabel(item.label);
+      return `- ${label} (${formatEuro(priceMeta.price || 0)})`;
+    });
     lines.push(`${plannerText("total")}: ${formatEuro(total)}`);
     return [header, ...lines].join("\n");
   }
@@ -14396,7 +14487,7 @@
   function renderPlannerText(){
     if(plannerZonesTitle) plannerZonesTitle.textContent = plannerText("zonesTitle");
     if(plannerZonesSub) plannerZonesSub.textContent = plannerText("zonesSub");
-    if(plannerOrderTitle) plannerOrderTitle.textContent = plannerText("orderTitle");
+    if(plannerOrderTitle) plannerOrderTitle.textContent = plannerOrderTitleText(false);
     if(plannerOrderEmpty) plannerOrderEmpty.textContent = plannerText("empty");
     if(plannerTotalLabel) plannerTotalLabel.textContent = plannerText("total");
     if(plannerClearBtn) plannerClearBtn.textContent = plannerText("clear");
@@ -14488,22 +14579,7 @@
     const selectedSet = plannerSelectedByMode[mode] || new Set();
     const snapshot = plannerSummarySnapshot(mode, selectedSet);
     const activeDetailEntryKeys = new Set();
-    const displayPriceMeta = (basePrice, originalPrice) => {
-      if(!isCourseMode){
-        return {
-          price:basePrice,
-          original:originalPrice,
-          saved:Math.max(0, originalPrice - basePrice)
-        };
-      }
-      const coursePrice = basePrice * PLANNER_COURSE_PAYABLE_SESSIONS;
-      const courseOriginal = originalPrice * PLANNER_COURSE_SESSIONS;
-      return {
-        price:coursePrice,
-        original:courseOriginal,
-        saved:Math.max(0, courseOriginal - coursePrice)
-      };
-    };
+    const displayPriceMeta = (item) => plannerDisplayPriceMeta(item, isCourseMode);
     const renderTreeNode = (node, path = []) => {
       if(!node) return "";
       const label = plannerLabel(node.label);
@@ -14514,9 +14590,9 @@
           ? nodePrice
           : (Number(node.price) || 0);
         const nodePriceHtml = isCourseMode
-          ? plannerTextTemplate("courseDetail", { count:String(PLANNER_COURSE_SESSIONS), value:formatEuro(displayNodePrice) })
-          : formatEuro(displayNodePrice);
-        return `<div class="orderItemDetailRow"><span class="orderItemDetailName">${label}</span><span class="orderItemDetailPrice">${nodePriceHtml}</span></div>`;
+          ? ""
+          : `<span class="orderItemDetailPrice">${formatEuro(displayNodePrice)}</span>`;
+        return `<div class="orderItemDetailRow"><span class="orderItemDetailName">${label}</span>${nodePriceHtml}</div>`;
       }
       const badgeText = "";
       const childrenHtml = node.children.map((child, index) => {
@@ -14598,16 +14674,12 @@
         }];
       }
       detailNodes = plannerMergeSupplementaryOrderItems(detailNodes, mode);
-      const partsText = item.metaLabel ? plannerLabel(item.metaLabel).trim() : "";
-      const basePrice = item.price;
-      const originalPrice = Number(item.originalPrice) || basePrice;
-      const priceMeta = displayPriceMeta(basePrice, originalPrice);
-      const calcUnitPrice = isCourseMode ? (priceMeta.original / PLANNER_COURSE_SESSIONS) : basePrice;
+      const partsText = isCourseMode ? "" : (item.metaLabel ? plannerLabel(item.metaLabel).trim() : "");
+      const priceMeta = displayPriceMeta(item);
+      const calcUnitPrice = Number(priceMeta.unitPrice) || 0;
       const saved = priceMeta.saved;
       const premiumTagHtml = "";
-      const courseTagHtml = isCourseMode
-        ? `<span class="orderItemPremiumTag">${plannerText((item.level || 0) >= 3 ? "courseTagPremium" : "courseTag")}</span>`
-        : "";
+      const courseTagHtml = "";
       const expandHintHtml = canExpand
         ? `<button type="button" class="orderItemSaveHintBtn${isExpanded ? " is-open" : ""}" data-bundle-id="${item.id}" aria-expanded="${isExpanded ? "true" : "false"}" aria-label="Toggle details"><span class="orderItemSaveHintIcon" aria-hidden="true"></span></button>`
         : "";
@@ -14620,11 +14692,15 @@
       const promoNoteHtml = promoNoteText
         ? `<span class="orderItemPromoNote">${promoNoteText}</span>`
         : "";
-      const detailPriceLabelHtml = `<div class="orderItemDetailsPriceLabelRow"><span class="orderItemPriceLabel">${plannerText("orderPriceLabel")}</span></div>`;
+      const detailPriceLabelHtml = isCourseMode
+        ? ""
+        : `<div class="orderItemDetailsPriceLabelRow"><span class="orderItemPriceLabel">${plannerText("orderPriceLabel")}</span></div>`;
       const detailsHtml = (canExpand && isExpanded)
         ? `<div class="orderItemDetails">${detailPriceLabelHtml}${premiumTagHtml}${detailNodes.map((child, index) => renderTreeNode(child, [String(item.id), String(child && child.id ? child.id : `idx-${index}`)])).filter(Boolean).join("")}</div>`
         : "";
-      const titleText = plannerLabel(item.label);
+      const titleText = isCourseMode
+        ? `${plannerLabel(item.label)} - ${plannerTextTemplate("courseDetail", { count:String(PLANNER_COURSE_SESSIONS), value:formatEuro(calcUnitPrice) })}`
+        : plannerLabel(item.label);
       const oldPriceHtml = (priceMeta.original > priceMeta.price)
         ? (isCourseMode
           ? `<span class="orderItemPriceOldLine"><span class="orderItemPriceCalc">${plannerTextTemplate("courseDetail", { count:String(PLANNER_COURSE_SESSIONS), value:formatEuro(calcUnitPrice) })}</span><span class="orderItemPriceEq">= <span class="orderItemPriceEqValue">${formatEuro(priceMeta.original)}</span></span></span>`
@@ -14636,6 +14712,9 @@
     updatePlannerTermLink(mode, selectedSet);
     if(!selectedSet.size && plannerPricingView === "course"){
       setPlannerPricingView("single");
+    }
+    if(plannerOrderTitle){
+      plannerOrderTitle.textContent = plannerOrderTitleText(plannerPricingView === "course" && selectedSet.size > 0);
     }
     const selected = plannerDisplayItems(snapshot);
     const activeSetEntry = plannerEnsureActiveSetEntry(mode);
