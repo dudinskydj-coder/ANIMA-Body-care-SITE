@@ -1322,6 +1322,10 @@
       font-weight:600;
       white-space:nowrap;
     }
+    .plannerMobileInfoPriceOld:not(:empty),
+    .plannerMobileInfoSaved:not(:empty){
+      display:block;
+    }
     .plannerMobileInfo.is-empty .plannerMobileInfoPriceCurrent{
       color:rgba(17,18,24,.62);
       font-weight:620;
@@ -1674,7 +1678,7 @@
       padding:0;
       cursor:pointer;
       pointer-events:auto;
-      transition:background-color .2s ease, border-color .2s ease, transform .18s ease, color .18s ease;
+      transition:background-color .2s ease, border-color .2s ease, transform .18s ease, scale .18s ease, color .18s ease;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -1682,6 +1686,7 @@
       -webkit-tap-highlight-color:transparent;
       -webkit-appearance:none;
       appearance:none;
+      scale:1;
     }
     .zoneSketchBtn--no-appear-anim{
       transition:none !important;
@@ -1691,6 +1696,9 @@
       background:rgba(255,255,255,.82);
       border-color:rgba(17,18,24,.55);
       transform:translateY(-1px);
+    }
+    .zoneSketchBtn:active{
+      scale:.96;
     }
     .zoneSketchBtn.is-tap-feedback{
       animation:plannerZoneTapFeedback .32s cubic-bezier(.22, 1, .36, 1);
@@ -4604,8 +4612,8 @@
   const plannerNextBenefitShellExpandStateByMode = { frauen:null, herren:null };
   const plannerNextBenefitShellExpandTimerByMode = { frauen:0, herren:0 };
   const plannerNextBenefitPromoByMode = {
-    frauen:{ text:"", texts:[], index:0, visible:false, animate:false, key:"" },
-    herren:{ text:"", texts:[], index:0, visible:false, animate:false, key:"" }
+    frauen:{ text:"", texts:[], items:[], item:null, index:0, visible:false, animate:false, pending:false, key:"", kind:"" },
+    herren:{ text:"", texts:[], items:[], item:null, index:0, visible:false, animate:false, pending:false, key:"", kind:"" }
   };
   const plannerNextBenefitPromoTimerByMode = { frauen:0, herren:0 };
   const plannerNextBenefitPromoSettleTimerByMode = { frauen:0, herren:0 };
@@ -4920,6 +4928,7 @@
   let plannerProgrammaticViewLocked = false;
   let plannerQueuedProgrammaticView = null;
   let plannerTapFeedbackTimer = null;
+  let plannerLastHapticAt = 0;
   let plannerModeSwitchUsesTransform = false;
   function plannerAllRenderedSketchHosts(){
     return [plannerSketch, plannerBackSketch, plannerScrollSketch, plannerScrollBackSketch].filter((host) => host instanceof HTMLElement);
@@ -5110,6 +5119,15 @@
       btn.classList.remove("is-tap-feedback");
       plannerTapFeedbackTimer = null;
     }, 320);
+    if(typeof navigator !== "undefined" && typeof navigator.vibrate === "function"){
+      const now = Date.now();
+      if(now - plannerLastHapticAt >= 40){
+        plannerLastHapticAt = now;
+        try{
+          navigator.vibrate(10);
+        } catch(_err){}
+      }
+    }
   }
   function plannerCommitScrollSnapSettledView(options = {}){
     if(plannerViewTransport !== "scroll-snap") return;
@@ -7790,6 +7808,9 @@
       nextBenefitAddonSave:"{name} dazu, spare {value}",
       nextBenefitAddonOnly:"{name} nur {value}",
       nextBenefitAddonGift:"{name} geschenkt!",
+      completionOfferBest:"Naechster Vorteil {name}",
+      completionOfferQuick:"Schnelles Add-on {name}",
+      completionOfferPopular:"Dazu passt {name}",
       plusWord:"plus",
       packageTag:"Smart Paket",
       premiumBadge:"Premium Paket",
@@ -7826,6 +7847,9 @@
       nextBenefitAddonSave:"Add {name}, save {value}",
       nextBenefitAddonOnly:"{name} only {value}",
       nextBenefitAddonGift:"{name} free!",
+      completionOfferBest:"Best next set {name}",
+      completionOfferQuick:"Quick add-on {name}",
+      completionOfferPopular:"Also popular {name}",
       plusWord:"plus",
       packageTag:"Smart package",
       premiumBadge:"Premium package",
@@ -7862,6 +7886,9 @@
       nextBenefitAddonSave:"Добавьте {name} и сэкономьте {value}",
       nextBenefitAddonOnly:"{name} всего {value}",
       nextBenefitAddonGift:"{name} в подарок!",
+      completionOfferBest:"Следующий выгодный шаг {name}",
+      completionOfferQuick:"Быстрое дополнение {name}",
+      completionOfferPopular:"С этим набором также берут {name}",
       plusWord:"плюс",
       packageTag:"Smart пакет",
       premiumBadge:"Премиум пакет",
@@ -7958,6 +7985,52 @@
         ]
       }
     ]
+  };
+  const plannerCompletionUpsellConfigByMode = {
+    frauen:{
+      smart_arms_complete_with_hands:{
+        baseZoneIds:["upperarms", "underarms", "hands"],
+        followupSectionId:"legs",
+        followupZoneIds:["obersch", "untersch", "feet"],
+        offers:[
+          { type:"package", id:"smart_legs_complete_with_feet", copyKey:"completionOfferBest" },
+          { type:"zone", id:"axilla", copyKey:"completionOfferQuick" },
+          { type:"package", id:"premium_bikini_intim_pofalte", copyKey:"completionOfferPopular" }
+        ]
+      },
+      smart_legs_complete_with_feet:{
+        baseZoneIds:["obersch", "untersch", "feet"],
+        followupSectionId:"arms",
+        followupZoneIds:["upperarms", "underarms", "hands"],
+        offers:[
+          { type:"package", id:"smart_arms_complete_with_hands", copyKey:"completionOfferBest" },
+          { type:"zone", id:"axilla", copyKey:"completionOfferQuick" },
+          { type:"package", id:"premium_bikini_intim_pofalte", copyKey:"completionOfferPopular" }
+        ]
+      }
+    },
+    herren:{
+      smart_arms_complete_with_hands:{
+        baseZoneIds:["upperarms", "underarms", "hands"],
+        followupSectionId:"legs",
+        followupZoneIds:["obersch", "untersch", "feet"],
+        offers:[
+          { type:"package", id:"legs_bundle", copyKey:"completionOfferBest" },
+          { type:"zone", id:"axilla", copyKey:"completionOfferQuick" },
+          { type:"package", id:"upperbody_axilla_bundle", copyKey:"completionOfferPopular" }
+        ]
+      },
+      smart_legs_complete_with_feet:{
+        baseZoneIds:["obersch", "untersch", "feet"],
+        followupSectionId:"arms",
+        followupZoneIds:["upperarms", "underarms", "hands"],
+        offers:[
+          { type:"package", id:"arms_bundle", copyKey:"completionOfferBest" },
+          { type:"zone", id:"hands", copyKey:"completionOfferQuick" },
+          { type:"package", id:"upperbody_axilla_bundle", copyKey:"completionOfferPopular" }
+        ]
+      }
+    }
   };
 
   function clearPlannerPremiumSequence(){
@@ -12487,6 +12560,101 @@
   function plannerNextBenefitSections(mode){
     return plannerNextBenefitConfigByMode[mode] || plannerNextBenefitConfigByMode.frauen || [];
   }
+  function plannerPromoDisplayPriceMeta(sessionPrice, originalSessionPrice = sessionPrice){
+    const safeSessionPrice = Math.max(0, Number(sessionPrice) || 0);
+    const safeOriginalSessionPrice = Math.max(safeSessionPrice, Number(originalSessionPrice) || 0);
+    const currentPrice = plannerPricingView === "course"
+      ? (safeSessionPrice * PLANNER_COURSE_PAYABLE_SESSIONS)
+      : safeSessionPrice;
+    const originalPrice = plannerPricingView === "course"
+      ? (safeOriginalSessionPrice * PLANNER_COURSE_SESSIONS)
+      : safeOriginalSessionPrice;
+    const saved = Math.max(0, originalPrice - currentPrice);
+    return {
+      priceCurrent:`+${formatEuro(currentPrice)}`,
+      priceOld:originalPrice > (currentPrice + 0.5) ? `+${formatEuro(originalPrice)}` : "",
+      priceSaved:saved > 0
+        ? plannerTextTemplate("nextBenefitSaveShort", { value:formatEuro(saved) })
+        : ""
+    };
+  }
+  function plannerCompletionUpsellOfferMeta(mode, offer, zonesById){
+    if(!offer || !zonesById) return null;
+    if(offer.type === "package"){
+      const bundle = plannerBundleById(mode, offer.id);
+      if(!bundle) return null;
+      const resolvedPrice = Number(plannerPackageResolvedPrice(mode, bundle, zonesById)) || 0;
+      return {
+        id:bundle.id,
+        type:"package",
+        label:bundle.label,
+        zoneIds:[...(bundle.zoneIds || [])],
+        ...plannerPromoDisplayPriceMeta(resolvedPrice, plannerPackageOriginalPrice(bundle, zonesById))
+      };
+    }
+    const zone = zonesById.get(offer.id);
+    if(!zone) return null;
+    return {
+      id:zone.id,
+      type:"zone",
+      label:zone.label,
+      zoneIds:[zone.id],
+      ...plannerPromoDisplayPriceMeta(zone.price, zone.price)
+    };
+  }
+  function plannerBuildCompletionPromoItems(mode, completionState, zonesById, selectedSet){
+    if(!completionState || !zonesById) return [];
+    const safeSelectedSet = selectedSet || new Set();
+    return (completionState.offers || [])
+      .map((offer) => {
+        const meta = plannerCompletionUpsellOfferMeta(mode, offer, zonesById);
+        if(!meta) return null;
+        if(meta.zoneIds.length && meta.zoneIds.every((zoneId) => safeSelectedSet.has(zoneId))) return null;
+        const name = plannerLabel(meta.label).trim();
+        if(!name) return null;
+        const copyKey = offer.copyKey || "completionOfferPopular";
+        return {
+          text:plannerTextTemplate(copyKey, { name }),
+          priceCurrent:meta.priceCurrent || "",
+          priceOld:meta.priceOld || "",
+          priceSaved:meta.priceSaved || ""
+        };
+      })
+      .filter(Boolean);
+  }
+  function plannerCompletionUpsellState(mode, selectedSet){
+    const safeSelectedSet = selectedSet || new Set();
+    if(!safeSelectedSet.size) return null;
+    const modeConfig = plannerCompletionUpsellConfigByMode[mode] || plannerCompletionUpsellConfigByMode.frauen || {};
+    const candidates = Object.entries(modeConfig).filter(([, config]) => {
+      const baseZoneIds = Array.isArray(config && config.baseZoneIds) ? config.baseZoneIds : [];
+      return baseZoneIds.length && baseZoneIds.every((zoneId) => safeSelectedSet.has(zoneId));
+    });
+    if(candidates.length !== 1) return null;
+    const [basePackageId, config] = candidates[0];
+    const baseZoneIds = Array.isArray(config.baseZoneIds) ? [...config.baseZoneIds] : [];
+    const followupZoneIds = Array.isArray(config.followupZoneIds) ? [...config.followupZoneIds] : [];
+    const baseCount = baseZoneIds.length;
+    const followupSelectedCount = followupZoneIds.filter((zoneId) => safeSelectedSet.has(zoneId)).length;
+    const extraSelectedCount = Math.max(0, safeSelectedSet.size - baseCount);
+    const extraOutsideCount = Math.max(0, extraSelectedCount - followupSelectedCount);
+    const totalCount = baseCount + followupZoneIds.length;
+    return {
+      ...config,
+      basePackageId,
+      baseZoneIds,
+      followupZoneIds,
+      baseCount,
+      followupSelectedCount,
+      followupTotalCount:followupZoneIds.length,
+      extraSelectedCount,
+      extraOutsideCount,
+      isPureBaseSelection:extraSelectedCount === 0,
+      isContinuationActive:followupSelectedCount > 0 && extraOutsideCount === 0,
+      fixedShellWidthPx:Math.max(40, Math.round(baseCount * 20)),
+      baseProgressPercent:totalCount > 0 ? ((baseCount / totalCount) * 100) : 100
+    };
+  }
   function plannerNextBenefitStepMeta(mode, step, zonesById){
     if(!step) return null;
     if(step.type === "zone"){
@@ -12619,22 +12787,89 @@
     };
     const clearPlannerNextBenefitPromo = () => {
       clearPlannerNextBenefitPromoTimers();
-      plannerNextBenefitPromoByMode[mode] = { text:"", texts:[], index:0, visible:false, animate:false, key:"" };
+      plannerNextBenefitPromoByMode[mode] = {
+        text:"",
+        texts:[],
+        items:[],
+        item:null,
+        index:0,
+        visible:false,
+        animate:false,
+        pending:false,
+        key:"",
+        kind:""
+      };
     };
-    const schedulePlannerNextBenefitPromo = (texts, key) => {
-      const promoTexts = (Array.isArray(texts) ? texts : [texts])
-        .map((value) => String(value || "").trim())
+    const schedulePlannerNextBenefitPromo = (entries, key, options = {}) => {
+      const promoItems = (Array.isArray(entries) ? entries : [entries])
+        .map((value) => {
+          if(value && typeof value === "object" && !Array.isArray(value)){
+            const text = String(value.text || "").trim();
+            if(!text) return null;
+            return {
+              text,
+              priceCurrent:String(value.priceCurrent || "").trim(),
+              priceOld:String(value.priceOld || "").trim(),
+              priceSaved:String(value.priceSaved || "").trim()
+            };
+          }
+          const text = String(value || "").trim();
+          return text ? { text, priceCurrent:"", priceOld:"", priceSaved:"" } : null;
+        })
         .filter(Boolean)
-        .filter((value, index, arr) => arr.indexOf(value) === index);
-      if(!promoTexts.length || !key) return;
-      const currentPromoState = plannerNextBenefitPromoByMode[mode] || { text:"", texts:[], index:0, visible:false, animate:false, key:"" };
-      if(currentPromoState.key === key && currentPromoState.visible) return;
+        .filter((value, index, arr) => (
+          arr.findIndex((item) => (
+            item.text === value.text
+            && item.priceCurrent === value.priceCurrent
+            && item.priceOld === value.priceOld
+            && item.priceSaved === value.priceSaved
+          )) === index
+        ));
+      if(!promoItems.length || !key) return;
+      const currentPromoState = plannerNextBenefitPromoByMode[mode] || {
+        text:"",
+        texts:[],
+        items:[],
+        item:null,
+        index:0,
+        visible:false,
+        animate:false,
+        pending:false,
+        key:"",
+        kind:""
+      };
+      if(currentPromoState.key === key && (currentPromoState.visible || currentPromoState.pending)) return;
       clearPlannerNextBenefitPromoTimers();
-      plannerNextBenefitPromoByMode[mode] = { text:"", texts:promoTexts, index:0, visible:false, animate:false, key };
+      const promoTexts = promoItems.map((item) => item.text);
+      const kind = String(options.kind || "").trim();
+      const delayMs = Math.max(0, Number(options.delayMs) || 0);
+      plannerNextBenefitPromoByMode[mode] = {
+        text:"",
+        texts:promoTexts,
+        items:promoItems,
+        item:null,
+        index:0,
+        visible:false,
+        animate:false,
+        pending:true,
+        key,
+        kind
+      };
       const schedulePromoSettle = (expectedKey, index) => {
         plannerNextBenefitPromoSettleTimerByMode[mode] = window.setTimeout(() => {
           plannerNextBenefitPromoSettleTimerByMode[mode] = 0;
-          const activePromoState = plannerNextBenefitPromoByMode[mode] || { text:"", texts:[], index:0, visible:false, animate:false, key:"" };
+          const activePromoState = plannerNextBenefitPromoByMode[mode] || {
+            text:"",
+            texts:[],
+            items:[],
+            item:null,
+            index:0,
+            visible:false,
+            animate:false,
+            pending:false,
+            key:"",
+            kind:""
+          };
           if(activePromoState.key !== expectedKey || !activePromoState.visible || activePromoState.index !== index) return;
           plannerNextBenefitPromoByMode[mode] = {
             ...activePromoState,
@@ -12644,19 +12879,35 @@
         }, 760);
       };
       const schedulePromoCycle = (expectedKey) => {
-        if(promoTexts.length <= 1) return;
+        if(promoItems.length <= 1) return;
         plannerNextBenefitPromoCycleTimerByMode[mode] = window.setTimeout(() => {
           plannerNextBenefitPromoCycleTimerByMode[mode] = 0;
-          const activePromoState = plannerNextBenefitPromoByMode[mode] || { text:"", texts:[], index:0, visible:false, animate:false, key:"" };
+          const activePromoState = plannerNextBenefitPromoByMode[mode] || {
+            text:"",
+            texts:[],
+            items:[],
+            item:null,
+            index:0,
+            visible:false,
+            animate:false,
+            pending:false,
+            key:"",
+            kind:""
+          };
           if(activePromoState.key !== expectedKey || !activePromoState.visible) return;
           const nextIndex = ((Number(activePromoState.index) || 0) + 1) % promoTexts.length;
+          const nextItem = promoItems[nextIndex] || null;
           plannerNextBenefitPromoByMode[mode] = {
-            text:promoTexts[nextIndex],
+            text:nextItem ? nextItem.text : promoTexts[nextIndex],
             texts:promoTexts,
+            items:promoItems,
+            item:nextItem,
             index:nextIndex,
             visible:true,
             animate:true,
-            key:expectedKey
+            pending:false,
+            key:expectedKey,
+            kind
           };
           schedulePlannerRender(mode);
           schedulePromoSettle(expectedKey, nextIndex);
@@ -12665,18 +12916,23 @@
       };
       plannerNextBenefitPromoTimerByMode[mode] = window.setTimeout(() => {
         plannerNextBenefitPromoTimerByMode[mode] = 0;
+        const firstItem = promoItems[0] || null;
         plannerNextBenefitPromoByMode[mode] = {
-          text:promoTexts[0],
+          text:firstItem ? firstItem.text : promoTexts[0],
           texts:promoTexts,
+          items:promoItems,
+          item:firstItem,
           index:0,
           visible:true,
           animate:true,
-          key
+          pending:false,
+          key,
+          kind
         };
         schedulePlannerRender(mode);
         schedulePromoSettle(key, 0);
         schedulePromoCycle(key);
-      }, 1000);
+      }, delayMs);
     };
     const setPlannerNextBenefitHint = (text, visible) => {
       if(plannerNextBenefitHintTimer){
@@ -12926,22 +13182,17 @@
     }
     plannerNextBenefitHoldState = null;
     const selectedZoneIdSet = selectedSet || new Set();
-    const hasArmsCompleteWithHands =
-      selectedZoneIdSet.has("upperarms")
-      && selectedZoneIdSet.has("underarms")
-      && selectedZoneIdSet.has("hands");
-    const hasLegsCompleteWithFeet =
-      selectedZoneIdSet.has("obersch")
-      && selectedZoneIdSet.has("untersch")
-      && selectedZoneIdSet.has("feet");
-    const completedAddonPackageId = hasArmsCompleteWithHands
-      ? "smart_arms_complete_with_hands"
-      : (hasLegsCompleteWithFeet ? "smart_legs_complete_with_feet" : "");
-    if(completedAddonPackageId){
+    const zonesById = plannerZonesMap(mode);
+    const completionUpsellState = plannerCompletionUpsellState(mode, selectedZoneIdSet);
+    if(completionUpsellState && completionUpsellState.isPureBaseSelection){
       resetPlannerNextBenefitCancelBackoff();
       resetPlannerNextBenefitIntroExpand();
       resetPlannerNextBenefitCompletionFade(mode);
-      const targetShellWidth = 58;
+      const completedAddonPackageId = completionUpsellState.basePackageId;
+      const targetShellWidth = completionUpsellState.fixedShellWidthPx;
+      const promoItems = plannerBuildCompletionPromoItems(mode, completionUpsellState, zonesById, selectedZoneIdSet);
+      const completionPromoKey = `${completedAddonPackageId}:completion-offer`;
+      const completionPromoDelayMs = PLANNER_NEXT_BENEFIT_HANDS_COLLAPSE_DELAY_MS + PLANNER_MOBILE_INFO_HANDS_COLLAPSE_MS;
       const currentHandsCollapseState = plannerNextBenefitHandsCollapseByMode[mode] || { active:false, startAt:0, started:false, key:"" };
       if(!currentHandsCollapseState.active || currentHandsCollapseState.key !== completedAddonPackageId){
         const collapseStartAt = now + PLANNER_NEXT_BENEFIT_HANDS_COLLAPSE_DELAY_MS;
@@ -12970,6 +13221,14 @@
           started:true
         };
       }
+      if(promoItems.length){
+        schedulePlannerNextBenefitPromo(promoItems, completionPromoKey, {
+          delayMs:completionPromoDelayMs,
+          kind:"completion-offer"
+        });
+      } else {
+        clearPlannerNextBenefitPromo();
+      }
       showPlannerNextBenefit(
         targetShellWidth,
         shouldStartHandsCollapse ? 0 : 100,
@@ -12983,14 +13242,12 @@
           : {}
       );
       plannerNextBenefitLastRecommendation = null;
-      clearPlannerNextBenefitPromo();
       setPlannerNextBenefitHint("", false);
       return;
     }
     resetPlannerNextBenefitCompletionFade(mode);
     resetPlannerNextBenefitHandsCollapse();
     const recommendation = plannerNextBenefitRecommendation(mode, selectedSet);
-    const zonesById = plannerZonesMap(mode);
     const previousRenderedPercent = Math.max(0, Math.min(100, Number(plannerNextBenefitProgressByMode[mode]) || 0));
     const previousRenderedShellWidth = Math.max(0, Number(plannerNextBenefitShellWidthByMode[mode]) || 40);
     const hadVisibleIndicatorBefore = !plannerNextBenefit.hidden || previousRenderedPercent > 0.5;
@@ -13044,29 +13301,63 @@
       return;
     }
     resetPlannerNextBenefitCancelBackoff();
-    const baseStepCount = previousStepState
-      ? (previousStepState.totalCount || recommendation.totalCount || 2)
-      : (recommendation.totalCount || 2);
-    const expandedStepCount = recommendation.sectionTotalCount || recommendation.totalCount || 2;
-    const baseShellWidthPx = Math.max(40, Math.round(baseStepCount * 20));
-    const expandedShellWidthPx = Math.max(40, Math.round(expandedStepCount * 20));
-    const baseProgressRatioSource = previousStepState
-      ? previousStepState.selectedCount
-      : recommendation.selectedCount;
+    const continuationProgressState = completionUpsellState
+      && completionUpsellState.isContinuationActive
+      && recommendation.sectionId === completionUpsellState.followupSectionId
+      ? completionUpsellState
+      : null;
+    const baseStepCount = continuationProgressState
+      ? (continuationProgressState.baseCount + (recommendation.sectionTotalCount || recommendation.totalCount || 2))
+      : (
+        previousStepState
+          ? (previousStepState.totalCount || recommendation.totalCount || 2)
+          : (recommendation.totalCount || 2)
+      );
+    const expandedStepCount = continuationProgressState
+      ? baseStepCount
+      : (recommendation.sectionTotalCount || recommendation.totalCount || 2);
+    const baseShellWidthPx = continuationProgressState
+      ? continuationProgressState.fixedShellWidthPx
+      : Math.max(40, Math.round(baseStepCount * 20));
+    const expandedShellWidthPx = continuationProgressState
+      ? continuationProgressState.fixedShellWidthPx
+      : Math.max(40, Math.round(expandedStepCount * 20));
+    const baseProgressRatioSource = continuationProgressState
+      ? (continuationProgressState.baseCount + (recommendation.sectionSelectedCount || recommendation.selectedCount || 0))
+      : (
+        previousStepState
+          ? previousStepState.selectedCount
+          : recommendation.selectedCount
+      );
     const baseProgressRatio = baseStepCount > 0
       ? (baseProgressRatioSource / baseStepCount)
       : 0;
-    const expandedProgressRatio = expandedStepCount > 0
-      ? (recommendation.sectionSelectedCount / expandedStepCount)
-      : 0;
-    const canDelayExpandShell = expandedStepCount > baseStepCount
+    const expandedProgressRatio = continuationProgressState
+      ? baseProgressRatio
+      : (
+        expandedStepCount > 0
+          ? (recommendation.sectionSelectedCount / expandedStepCount)
+          : 0
+      );
+    const canDelayExpandShell = !continuationProgressState
+      && expandedStepCount > baseStepCount
       && (previousStepState
         ? previousStepState.selectedCount >= previousStepState.totalCount
         : recommendation.selectedCount >= recommendation.totalCount)
       && recommendation.sectionSelectedCount > recommendation.selectedCount;
-    const shellExpandKey = `${recommendation.sectionId}:${recommendation.id}:${baseStepCount}:${recommendation.sectionSelectedCount}`;
+    const continuationPromoKey = `${recommendation.sectionId}:${recommendation.id}:${baseStepCount}:${recommendation.sectionSelectedCount}:continuation`;
+    const shellExpandKey = continuationProgressState
+      ? continuationPromoKey
+      : `${recommendation.sectionId}:${recommendation.id}:${baseStepCount}:${recommendation.sectionSelectedCount}`;
     const promoText = buildPlannerNextBenefitPromoText(recommendation, previousStepState, zonesById);
     const promoSaveText = buildPlannerNextBenefitPromoSaveText(recommendation, zonesById);
+    const shouldUseTextOnlyContinuationPromo = !!(
+      continuationProgressState
+      && recommendation.upgradePackageId
+      && previousStepState
+      && previousStepState.selectedCount >= previousStepState.totalCount
+      && (promoText || promoSaveText)
+    );
     let shellWidthPx = baseShellWidthPx;
     let progressRatio = baseProgressRatio;
     let playShellPush = false;
@@ -13078,7 +13369,7 @@
       ? `${recommendation.sectionId}:${recommendation.id}:${recommendation.selectedCount}:${recommendation.totalCount}`
       : "";
     const existingIntroState = introExpandKey ? plannerNextBenefitIntroExpandStateByMode[mode] : null;
-    const canPlayIntroExpand = !!introExpandKey && (
+    const canPlayIntroExpand = !continuationProgressState && !!introExpandKey && (
       !hadVisibleIndicatorBefore
       || (!!existingIntroState && existingIntroState.key === introExpandKey && !existingIntroState.pushed)
     );
@@ -13105,7 +13396,7 @@
         if(!activeShellExpandState.played){
           playShellPush = true;
           activeShellExpandState.played = true;
-          schedulePlannerNextBenefitPromo([promoText, promoSaveText], shellExpandKey);
+          schedulePlannerNextBenefitPromo([promoText, promoSaveText], shellExpandKey, { delayMs:1000 });
         }
       } else {
         shellWidthPx = baseShellWidthPx;
@@ -13114,7 +13405,14 @@
     } else {
       plannerNextBenefitShellExpandStateByMode[mode] = null;
       clearPlannerNextBenefitShellExpandTimer();
-      clearPlannerNextBenefitPromo();
+      if(shouldUseTextOnlyContinuationPromo){
+        schedulePlannerNextBenefitPromo([promoText, promoSaveText], continuationPromoKey, {
+          delayMs:1000,
+          kind:"continuation-upgrade"
+        });
+      } else {
+        clearPlannerNextBenefitPromo();
+      }
     }
     let startShellWidthOverride;
     let startProgressOverride;
@@ -13161,6 +13459,20 @@
     } else {
       resetPlannerNextBenefitIntroExpand();
     }
+    const activeCompletionCollapseState = plannerNextBenefitHandsCollapseByMode[mode] || { active:false, key:"" };
+    if(
+      continuationProgressState
+      && (
+        previousRenderedPercent < (continuationProgressState.baseProgressPercent - 0.5)
+        || (
+          activeCompletionCollapseState.active
+          && activeCompletionCollapseState.key === continuationProgressState.basePackageId
+        )
+      )
+    ){
+      startShellWidthOverride = continuationProgressState.fixedShellWidthPx;
+      startProgressOverride = continuationProgressState.baseProgressPercent;
+    }
     const nextProgressPercent = progressRatio * 100;
     const isVisibleStepShrink = hadVisibleIndicatorBefore
       && nextProgressPercent > 0.5
@@ -13173,7 +13485,9 @@
     plannerNextBenefitLastRecommendation = {
       mode,
       zoneIds:[...recommendation.zoneIds],
-      totalCount:recommendation.sectionTotalCount || recommendation.totalCount,
+      totalCount:continuationProgressState
+        ? baseStepCount
+        : (recommendation.sectionTotalCount || recommendation.totalCount),
       sectionId:recommendation.sectionId,
       shellWidth:Math.max(shellWidthPx, baseShellWidthPx)
     };
@@ -13309,11 +13623,13 @@
     plannerMobileInfoZones.replaceChildren();
     const items = plannerMobileSummaryItems(selected);
     const selectedZoneIdSet = selectedSet || new Set();
-    const hasArmsCompleteWithHands =
-      selectedZoneIdSet.has("upperarms")
-      && selectedZoneIdSet.has("underarms")
-      && selectedZoneIdSet.has("hands");
-    const summaryLabel = hasArmsCompleteWithHands
+    const completionUpsellState = plannerCompletionUpsellState(mode, selectedZoneIdSet);
+    const hasPureArmsCompleteWithHands = !!(
+      completionUpsellState
+      && completionUpsellState.isPureBaseSelection
+      && completionUpsellState.basePackageId === "smart_arms_complete_with_hands"
+    );
+    const summaryLabel = hasPureArmsCompleteWithHands
       ? `${plannerText("mergeArms")} +`
       : (items.length ? plannerLabel(items[0].label).trim() : "");
     const selectedZoneIds = Array.from(selectedSet || []);
@@ -13328,16 +13644,40 @@
       plannerMobileInfoZones.classList.remove("is-expanded");
       return;
     }
-    const promoState = plannerNextBenefitPromoByMode[mode] || { text:"", texts:[], index:0, visible:false, animate:false, key:"" };
+    const promoState = plannerNextBenefitPromoByMode[mode] || {
+      text:"",
+      texts:[],
+      items:[],
+      item:null,
+      index:0,
+      visible:false,
+      animate:false,
+      pending:false,
+      key:"",
+      kind:""
+    };
     const hintState = plannerNextBenefitHintByMode[mode] || { text:"", visible:false };
-    const shouldShowPromo = !hasArmsCompleteWithHands && promoState.visible && promoState.text;
+    const isCompletionPromo = !!(
+      promoState.kind === "completion-offer"
+      && completionUpsellState
+      && completionUpsellState.isPureBaseSelection
+    );
+    const shouldShowPromo = !!(
+      promoState.visible
+      && promoState.text
+      && (!hasPureArmsCompleteWithHands || isCompletionPromo)
+    );
     let label = shouldShowPromo
       ? promoState.text
       : ((hintState.visible && hintState.text) ? hintState.text : (summaryLabel || latestLabel));
     let isHintLabel = !shouldShowPromo && hintState.visible && hintState.text && label === hintState.text;
     let shouldAnimateLabelChange = !!(shouldShowPromo && promoState.animate);
-    const isPromoSaveLabel = !!(shouldShowPromo && (Number(promoState.index) || 0) > 0);
-    if(hasArmsCompleteWithHands){
+    const isPromoSaveLabel = !!(
+      shouldShowPromo
+      && promoState.kind !== "completion-offer"
+      && (Number(promoState.index) || 0) > 0
+    );
+    if(hasPureArmsCompleteWithHands && !shouldShowPromo){
       const handsLabel = plannerLabel((zonesById.get("hands") || {}).label).trim();
       const currentCycleState = plannerMobileInfoHandsCycleByMode[mode] || { phase:"arms", animate:false, active:false, armsVisits:1, collapseActive:false };
       if(!currentCycleState.active){
@@ -13385,18 +13725,37 @@
       schedulePlannerNextBenefitPriceSpacingSync();
       return;
     }
-    const originalSessionTotal = Array.isArray(selected)
-      ? selected.reduce((sum, item) => sum + (Number(item.originalPrice) || Number(item.price) || 0), 0)
-      : 0;
-    const oldTotal = plannerPricingView === "course"
-      ? (originalSessionTotal * PLANNER_COURSE_SESSIONS)
-      : originalSessionTotal;
-    const saved = Math.max(0, oldTotal - displayTotal);
     plannerMobileInfo.classList.remove("is-empty");
     plannerRenderMobileZoneNames(mode, selectedSet, selected);
-    plannerMobileInfoPriceCurrent.textContent = formatEuro(displayTotal);
-    plannerMobileInfoPriceOld.textContent = "";
-    plannerMobileInfoSaved.textContent = "";
+    const completionUpsellState = plannerCompletionUpsellState(mode, selectedSet || new Set());
+    const promoState = plannerNextBenefitPromoByMode[mode] || {
+      text:"",
+      texts:[],
+      items:[],
+      item:null,
+      index:0,
+      visible:false,
+      animate:false,
+      pending:false,
+      key:"",
+      kind:""
+    };
+    const activeCompletionPromoItem = (
+      completionUpsellState
+      && completionUpsellState.isPureBaseSelection
+      && promoState.kind === "completion-offer"
+      && promoState.visible
+      && promoState.item
+    ) ? promoState.item : null;
+    if(activeCompletionPromoItem){
+      plannerMobileInfoPriceCurrent.textContent = activeCompletionPromoItem.priceCurrent || "";
+      plannerMobileInfoPriceOld.textContent = activeCompletionPromoItem.priceOld || "";
+      plannerMobileInfoSaved.textContent = activeCompletionPromoItem.priceSaved || "";
+    } else {
+      plannerMobileInfoPriceCurrent.textContent = formatEuro(displayTotal);
+      plannerMobileInfoPriceOld.textContent = "";
+      plannerMobileInfoSaved.textContent = "";
+    }
     plannerAnimateMobilePriceBlock();
     plannerApplyMobileInfoOpacity();
     schedulePlannerNextBenefitPriceSpacingSync();
@@ -13550,10 +13909,13 @@
       const label = plannerLabel(node.label);
       if(!Array.isArray(node.children) || !node.children.length){
         if(!label) return "";
-        const nodePrice = Number(node.price) || 0;
+        const nodePrice = Number(node.originalPrice);
+        const displayNodePrice = Number.isFinite(nodePrice)
+          ? nodePrice
+          : (Number(node.price) || 0);
         const nodePriceHtml = isCourseMode
-          ? plannerTextTemplate("courseDetail", { count:String(PLANNER_COURSE_SESSIONS), value:formatEuro(nodePrice) })
-          : formatEuro(nodePrice);
+          ? plannerTextTemplate("courseDetail", { count:String(PLANNER_COURSE_SESSIONS), value:formatEuro(displayNodePrice) })
+          : formatEuro(displayNodePrice);
         return `<div class="orderItemDetailRow"><span class="orderItemDetailName">${label}</span><span class="orderItemDetailPrice">${nodePriceHtml}</span></div>`;
       }
       const badgeText = "";
