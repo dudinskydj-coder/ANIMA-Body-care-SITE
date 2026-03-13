@@ -2743,8 +2743,13 @@
       will-change:transform, filter;
       transition:background-color .24s ease, opacity .24s ease;
     }
+    .plannerNextBenefitBar.is-forward-collapse{
+      display:flex;
+      justify-content:flex-end;
+    }
     .plannerNextBenefitBar.is-shell-pushing{
-      animation:plannerNextBenefitShellPush .92s cubic-bezier(.22,.74,.24,1) both;
+      background:rgba(17,18,24,.10) !important;
+      animation:plannerNextBenefitShellPush .92s cubic-bezier(.22,.74,.24,1) both !important;
     }
     .plannerNextBenefitBar.is-warning-backoff{
       animation:plannerNextBenefitShellBackoff 1s cubic-bezier(.24,.74,.22,1) both;
@@ -2769,7 +2774,8 @@
       animation:plannerNextBenefitGrowPulse .8s ease-out both;
     }
     .plannerNextBenefitBarFill.is-shell-pushing{
-      animation:plannerNextBenefitFillPush .92s cubic-bezier(.22,.74,.24,1) both;
+      background:linear-gradient(90deg, #23a548 0%, #42cd72 100%) !important;
+      animation:plannerNextBenefitFillPush .92s cubic-bezier(.22,.74,.24,1) both !important;
     }
     .plannerNextBenefitBarFill.is-warning-backoff{
       animation:plannerNextBenefitFillBackoff 1s cubic-bezier(.24,.74,.22,1) both;
@@ -4605,8 +4611,8 @@
   const plannerNextBenefitPromoSettleTimerByMode = { frauen:0, herren:0 };
   const plannerNextBenefitPromoCycleTimerByMode = { frauen:0, herren:0 };
   const plannerNextBenefitHandsCollapseByMode = {
-    frauen:{ active:false, startAt:0, started:false },
-    herren:{ active:false, startAt:0, started:false }
+    frauen:{ active:false, startAt:0, hideAt:0, started:false, key:"", doneKey:"" },
+    herren:{ active:false, startAt:0, hideAt:0, started:false, key:"", doneKey:"" }
   };
   const plannerNextBenefitHandsCollapseTimerByMode = { frauen:0, herren:0 };
   const plannerNextBenefitCancelBackoffByMode = {
@@ -4722,6 +4728,29 @@
       plannerNextBenefitPriceSpacingRaf = 0;
       syncPlannerNextBenefitPriceSpacing();
     });
+  }
+  function clearPlannerNextBenefitHandsCollapseTimer(mode){
+    if(plannerNextBenefitHandsCollapseTimerByMode[mode]){
+      clearTimeout(plannerNextBenefitHandsCollapseTimerByMode[mode]);
+      plannerNextBenefitHandsCollapseTimerByMode[mode] = 0;
+    }
+  }
+  function startPlannerNextBenefitHandsCollapse(mode, packageId){
+    if(!packageId) return;
+    clearPlannerNextBenefitHandsCollapseTimer(mode);
+    plannerNextBenefitHandsCollapseByMode[mode] = {
+      active:true,
+      startAt:Date.now() + PLANNER_NEXT_BENEFIT_HANDS_COLLAPSE_DELAY_MS,
+      hideAt:0,
+      started:false,
+      key:packageId,
+      doneKey:""
+    };
+    plannerNextBenefitHandsCollapseTimerByMode[mode] = window.setTimeout(() => {
+      plannerNextBenefitHandsCollapseTimerByMode[mode] = 0;
+      schedulePlannerRender(mode);
+    }, PLANNER_NEXT_BENEFIT_HANDS_COLLAPSE_DELAY_MS + 20);
+    schedulePlannerRender(mode);
   }
   function clearPlannerNextBenefitCompletionFadeTimer(mode){
     if(plannerNextBenefitCompletionFadeTimerByMode[mode]){
@@ -12564,7 +12593,7 @@
     };
     const resetPlannerNextBenefitHandsCollapse = () => {
       clearPlannerNextBenefitHandsCollapseTimer();
-      plannerNextBenefitHandsCollapseByMode[mode] = { active:false, startAt:0, started:false };
+      plannerNextBenefitHandsCollapseByMode[mode] = { active:false, startAt:0, hideAt:0, started:false, key:"", doneKey:"" };
     };
     const resetPlannerNextBenefitCancelBackoff = () => {
       clearPlannerNextBenefitCancelBackoffTimer();
@@ -12737,6 +12766,8 @@
       const targetWidth = `${targetProgress}%`;
       const settleTransition = typeof options.settleTransition === "string" ? options.settleTransition.trim() : "";
       const fillCollapseOnly = !!options.fillCollapseOnly;
+      const forwardCollapse = !!options.forwardCollapse;
+      const greenOnly = !!options.greenOnly;
       const errorBackoff = !!options.errorBackoff;
       const completionFadeDurationMs = Number.isFinite(Number(options.completionFadeDurationMs))
         ? Math.max(0, Number(options.completionFadeDurationMs))
@@ -12758,7 +12789,7 @@
       const isSettlingBack = progressPercent < (previousPercent - 0.5);
       const isShellShrinking = shellWidthPx < (previousShellWidth - 0.5);
       const isCollapsingAway = shellWidthPx <= 0 && progressPercent <= 0;
-      const shouldPlayWarningBackoff = errorBackoff && (isSettlingBack || isShellShrinking) && !fillCollapseOnly && !playShellPush;
+      const shouldPlayWarningBackoff = !greenOnly && errorBackoff && (isSettlingBack || isShellShrinking) && !fillCollapseOnly && !playShellPush;
       const shouldPreserveCompletionFade = shouldPlayCompletionFade && (
         plannerNextBenefit.classList.contains("is-completion-fade") ||
         plannerNextBenefitBarFill.classList.contains("is-completion-fade")
@@ -12772,6 +12803,7 @@
       ){
         if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-collapsing", isCollapsingAway);
         if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-fill-collapsing", fillCollapseOnly);
+        if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-forward-collapse", forwardCollapse);
         if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-warning-backoff");
         plannerNextBenefit.style.setProperty("--planner-next-benefit-complete-duration", `${completionFadeDurationMs || PLANNER_NEXT_BENEFIT_COMPLETION_FADE_FALLBACK_MS}ms`);
         if(!shouldPreserveCompletionFade && plannerNextBenefit) plannerNextBenefit.classList.remove("is-completion-fade");
@@ -12793,6 +12825,7 @@
       if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-warning-backoff");
       if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-collapsing", isCollapsingAway);
       if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-fill-collapsing", fillCollapseOnly);
+      if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-forward-collapse", forwardCollapse);
       plannerNextBenefitBarFill.classList.remove("is-growing");
       plannerNextBenefitBarFill.classList.remove("is-shell-pushing");
       plannerNextBenefitBarFill.classList.remove("is-warning-backoff");
@@ -12810,6 +12843,8 @@
           plannerNextBenefitBarFill.classList.add("is-growing");
         }
         if(playShellPush){
+          if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-warning-backoff");
+          plannerNextBenefitBarFill.classList.remove("is-warning-backoff");
           if(plannerNextBenefitBar) plannerNextBenefitBar.classList.add("is-shell-pushing");
           plannerNextBenefitBarFill.classList.add("is-shell-pushing");
         }
@@ -12822,6 +12857,7 @@
           plannerNextBenefitBarFill.classList.add("is-completion-fade");
         }
         if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-fill-collapsing", fillCollapseOnly);
+        if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-forward-collapse", forwardCollapse);
         plannerNextBenefit.style.width = `${shellWidthPx}px`;
         if(isSettlingBack){
           plannerNextBenefitBarFill.style.transition = settleTransition || "width 1.02s cubic-bezier(.2,.68,.24,1) 120ms";
@@ -12841,8 +12877,11 @@
     const isMobileViewport = viewportWidth <= 767;
     if(!plannerNextBenefit || !plannerNextBenefitBarFill || !isMobileViewport){
       if(plannerNextBenefit) plannerNextBenefit.hidden = true;
-      if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-collapsing", "is-fill-collapsing");
-      if(plannerNextBenefitBarFill) plannerNextBenefitBarFill.style.width = "0%";
+      if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-collapsing", "is-fill-collapsing", "is-forward-collapse", "is-shell-pushing", "is-warning-backoff");
+      if(plannerNextBenefitBarFill){
+        plannerNextBenefitBarFill.classList.remove("is-growing", "is-shell-pushing", "is-warning-backoff", "is-completion-fade");
+        plannerNextBenefitBarFill.style.width = "0%";
+      }
       if(plannerNextBenefitAnimateRaf){
         cancelAnimationFrame(plannerNextBenefitAnimateRaf);
         plannerNextBenefitAnimateRaf = 0;
@@ -12901,41 +12940,48 @@
     if(completedAddonPackageId){
       resetPlannerNextBenefitCancelBackoff();
       resetPlannerNextBenefitIntroExpand();
-      resetPlannerNextBenefitHandsCollapse();
+      resetPlannerNextBenefitCompletionFade(mode);
       const targetShellWidth = 58;
-      const completionFadeState = plannerNextBenefitCompletionFadeByMode[mode] || { active:false, hideAt:0, durationMs:0, key:"", doneKey:"" };
-      if(completionFadeState.doneKey && completionFadeState.doneKey !== completedAddonPackageId){
-        resetPlannerNextBenefitCompletionFade(mode);
+      const currentHandsCollapseState = plannerNextBenefitHandsCollapseByMode[mode] || { active:false, startAt:0, started:false, key:"" };
+      if(!currentHandsCollapseState.active || currentHandsCollapseState.key !== completedAddonPackageId){
+        const collapseStartAt = now + PLANNER_NEXT_BENEFIT_HANDS_COLLAPSE_DELAY_MS;
+        clearPlannerNextBenefitHandsCollapseTimer();
+        plannerNextBenefitHandsCollapseByMode[mode] = {
+          active:true,
+          startAt:collapseStartAt,
+          hideAt:0,
+          started:false,
+          key:completedAddonPackageId,
+          doneKey:""
+        };
+        plannerNextBenefitHandsCollapseTimerByMode[mode] = window.setTimeout(() => {
+          plannerNextBenefitHandsCollapseTimerByMode[mode] = 0;
+          schedulePlannerRender(mode);
+        }, PLANNER_NEXT_BENEFIT_HANDS_COLLAPSE_DELAY_MS + 20);
       }
-      const activeCompletionFadeState = plannerNextBenefitCompletionFadeByMode[mode] || { active:false, hideAt:0, durationMs:0, key:"", doneKey:"" };
-      if(activeCompletionFadeState.active && activeCompletionFadeState.key === completedAddonPackageId && activeCompletionFadeState.hideAt > now){
-        showPlannerNextBenefit(targetShellWidth, 100, false, {
-          completionFadeDurationMs:activeCompletionFadeState.durationMs
-        });
-        plannerNextBenefitLastRecommendation = null;
-        clearPlannerNextBenefitPromo();
-        setPlannerNextBenefitHint("", false);
-        return;
+      const activeHandsCollapseState = plannerNextBenefitHandsCollapseByMode[mode] || { active:false, startAt:0, started:false, key:"" };
+      const shouldStartHandsCollapse = activeHandsCollapseState.active
+        && activeHandsCollapseState.key === completedAddonPackageId
+        && activeHandsCollapseState.startAt <= now;
+      if(shouldStartHandsCollapse && !activeHandsCollapseState.started){
+        clearPlannerNextBenefitHandsCollapseTimer();
+        plannerNextBenefitHandsCollapseByMode[mode] = {
+          ...activeHandsCollapseState,
+          started:true
+        };
       }
-      if(activeCompletionFadeState.doneKey === completedAddonPackageId){
-        if(plannerNextBenefitAnimateRaf){
-          cancelAnimationFrame(plannerNextBenefitAnimateRaf);
-          plannerNextBenefitAnimateRaf = 0;
-        }
-        plannerNextBenefit.hidden = true;
-        plannerNextBenefit.classList.remove("is-completion-fade");
-        if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-collapsing", "is-fill-collapsing", "is-shell-pushing", "is-warning-backoff");
-        plannerNextBenefitBarFill.classList.remove("is-growing", "is-shell-pushing", "is-warning-backoff", "is-completion-fade");
-        plannerNextBenefitBarFill.style.width = "0%";
-        plannerNextBenefitProgressByMode[mode] = 0;
-        plannerNextBenefitShellWidthByMode[mode] = 40;
-        setPlannerNextBenefitPriceAvoidShift(0);
-        plannerNextBenefitLastRecommendation = null;
-        clearPlannerNextBenefitPromo();
-        setPlannerNextBenefitHint("", false);
-        return;
-      }
-      showPlannerNextBenefit(targetShellWidth, 100, false);
+      showPlannerNextBenefit(
+        targetShellWidth,
+        shouldStartHandsCollapse ? 0 : 100,
+        false,
+        shouldStartHandsCollapse
+          ? {
+              settleTransition:`width ${PLANNER_MOBILE_INFO_HANDS_COLLAPSE_MS}ms cubic-bezier(.24,.62,.3,1)`,
+              fillCollapseOnly:true,
+              forwardCollapse:true
+            }
+          : {}
+      );
       plannerNextBenefitLastRecommendation = null;
       clearPlannerNextBenefitPromo();
       setPlannerNextBenefitHint("", false);
@@ -12977,6 +13023,9 @@
       }
       resetPlannerNextBenefitCancelBackoff();
       plannerNextBenefit.hidden = true;
+      plannerNextBenefit.classList.remove("is-completion-fade");
+      if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-collapsing", "is-fill-collapsing", "is-forward-collapse", "is-shell-pushing", "is-warning-backoff");
+      plannerNextBenefitBarFill.classList.remove("is-growing", "is-shell-pushing", "is-warning-backoff", "is-completion-fade");
       plannerNextBenefitBarFill.style.width = "0%";
       if(plannerNextBenefitAnimateRaf){
         cancelAnimationFrame(plannerNextBenefitAnimateRaf);
@@ -13022,11 +13071,17 @@
     let progressRatio = baseProgressRatio;
     let playShellPush = false;
     let introFillCollapseOnly = false;
-    const canPlayIntroExpand = !previousStepState
+    const introExpandKey = !previousStepState
       && recommendation.type === "package"
       && recommendation.selectedCount === 1
       && recommendation.totalCount > 1
-      && !hadVisibleIndicatorBefore;
+      ? `${recommendation.sectionId}:${recommendation.id}:${recommendation.selectedCount}:${recommendation.totalCount}`
+      : "";
+    const existingIntroState = introExpandKey ? plannerNextBenefitIntroExpandStateByMode[mode] : null;
+    const canPlayIntroExpand = !!introExpandKey && (
+      !hadVisibleIndicatorBefore
+      || (!!existingIntroState && existingIntroState.key === introExpandKey && !existingIntroState.pushed)
+    );
     if(canDelayExpandShell){
       resetPlannerNextBenefitIntroExpand();
       const shellExpandState = plannerNextBenefitShellExpandStateByMode[mode];
@@ -13063,8 +13118,8 @@
     }
     let startShellWidthOverride;
     let startProgressOverride;
+    let introGreenOnly = false;
     if(canPlayIntroExpand){
-      const introExpandKey = `${recommendation.sectionId}:${recommendation.id}:${recommendation.selectedCount}:${recommendation.totalCount}`;
       const introShellWidthPx = Math.max(20, Math.round(recommendation.selectedCount * 20));
       const introState = plannerNextBenefitIntroExpandStateByMode[mode];
       if(!introState || introState.key !== introExpandKey){
@@ -13085,6 +13140,7 @@
         shellWidthPx = introShellWidthPx;
         progressRatio = 1;
         introFillCollapseOnly = true;
+        introGreenOnly = true;
         if(!activeIntroState.revealed){
           activeIntroState.revealed = true;
           startShellWidthOverride = 0;
@@ -13092,10 +13148,15 @@
         }
       } else if(activeIntroState){
         clearPlannerNextBenefitIntroExpandTimer();
+        shellWidthPx = baseShellWidthPx;
+        progressRatio = baseProgressRatio;
+        startShellWidthOverride = introShellWidthPx;
+        startProgressOverride = 100;
         if(!activeIntroState.pushed){
           playShellPush = true;
           activeIntroState.pushed = true;
         }
+        introGreenOnly = true;
       }
     } else {
       resetPlannerNextBenefitIntroExpand();
@@ -13118,7 +13179,9 @@
     };
     if(progressRatio <= 0){
       plannerNextBenefit.hidden = true;
-      if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-collapsing", "is-fill-collapsing");
+      plannerNextBenefit.classList.remove("is-completion-fade");
+      if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-collapsing", "is-fill-collapsing", "is-forward-collapse", "is-shell-pushing", "is-warning-backoff");
+      plannerNextBenefitBarFill.classList.remove("is-growing", "is-shell-pushing", "is-warning-backoff", "is-completion-fade");
       plannerNextBenefitBarFill.style.width = "0%";
       if(plannerNextBenefitAnimateRaf){
         cancelAnimationFrame(plannerNextBenefitAnimateRaf);
@@ -13143,6 +13206,7 @@
     showPlannerNextBenefit(shellWidthPx, progressRatio * 100, playShellPush, {
       errorBackoff:isUndoDecrease && !isVisibleStepShrink && !playShellPush && !introFillCollapseOnly,
       fillCollapseOnly:introFillCollapseOnly,
+      greenOnly:introGreenOnly,
       settleTransition:isVisibleStepShrink ? "width .9s cubic-bezier(.2,.74,.24,1)" : undefined,
       startShellWidthPx:startShellWidthOverride,
       startProgressPercent:startProgressOverride
@@ -13439,7 +13503,7 @@
           premium:(activatedLead.level || 0) >= 3
         });
         if(mode === "frauen" && (activatedLead.id === "smart_arms_complete_with_hands" || activatedLead.id === "smart_legs_complete_with_feet")){
-          startPlannerNextBenefitCompletionFade(mode, activatedLead.id, fxDuration);
+          startPlannerNextBenefitHandsCollapse(mode, activatedLead.id);
         }
       }
     } else {
