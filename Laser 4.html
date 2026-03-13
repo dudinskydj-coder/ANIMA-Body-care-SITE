@@ -6,7 +6,7 @@
   <title>Laser — ANIMA</title>
   <meta name="application-name" content="ANIMA" />
   <meta name="apple-mobile-web-app-title" content="ANIMA" />
-  <meta name="theme-color" content="#f3f3f6" />
+  <meta name="theme-color" content="#ffffff" id="themeColorMeta" />
   <link rel="icon" href="./favicon.svg?v=20260310" type="image/svg+xml" />
   <link rel="icon" href="./favicon-32x32.png?v=20260310" sizes="32x32" type="image/png" />
   <link rel="icon" href="./favicon-16x16.png?v=20260310" sizes="16x16" type="image/png" />
@@ -2722,8 +2722,13 @@
       backdrop-filter:none;
       -webkit-backdrop-filter:none;
       display:none;
+      opacity:1;
+      will-change:width, opacity, transform;
     }
     .plannerNextBenefit[hidden]{display:none}
+    .plannerNextBenefit.is-completion-fade{
+      animation:plannerNextBenefitCompletionFade var(--planner-next-benefit-complete-duration, 1550ms) cubic-bezier(.18,.7,.22,1) both;
+    }
     .plannerNextBenefitProgressRow{
       display:block;
     }
@@ -2740,6 +2745,9 @@
     }
     .plannerNextBenefitBar.is-shell-pushing{
       animation:plannerNextBenefitShellPush .92s cubic-bezier(.22,.74,.24,1) both;
+    }
+    .plannerNextBenefitBar.is-warning-backoff{
+      animation:plannerNextBenefitShellBackoff 1s cubic-bezier(.24,.74,.22,1) both;
     }
     .plannerNextBenefitBar.is-collapsing{
       background:transparent;
@@ -2762,6 +2770,12 @@
     }
     .plannerNextBenefitBarFill.is-shell-pushing{
       animation:plannerNextBenefitFillPush .92s cubic-bezier(.22,.74,.24,1) both;
+    }
+    .plannerNextBenefitBarFill.is-warning-backoff{
+      animation:plannerNextBenefitFillBackoff 1s cubic-bezier(.24,.74,.22,1) both;
+    }
+    .plannerNextBenefitBarFill.is-completion-fade{
+      animation:plannerNextBenefitCompletionBlink var(--planner-next-benefit-complete-duration, 1550ms) cubic-bezier(.18,.7,.22,1) both;
     }
     @keyframes plannerNextBenefitShellPush{
       0%{
@@ -2795,6 +2809,50 @@
         filter:brightness(1);
       }
     }
+    @keyframes plannerNextBenefitShellBackoff{
+      0%{
+        transform:translateX(0);
+        background:rgba(214,72,72,.16);
+        filter:brightness(1);
+      }
+      28%{
+        transform:translateX(-2.1px);
+        background:rgba(214,72,72,.22);
+        filter:brightness(1.04);
+      }
+      58%{
+        transform:translateX(-1px);
+        background:rgba(191,125,77,.16);
+        filter:brightness(1.02);
+      }
+      100%{
+        transform:translateX(0);
+        background:rgba(17,18,24,.10);
+        filter:brightness(1);
+      }
+    }
+    @keyframes plannerNextBenefitFillBackoff{
+      0%{
+        background:linear-gradient(90deg, #d64848 0%, #ff8d8d 100%);
+        filter:brightness(1.04);
+        box-shadow:0 0 0 rgba(214,72,72,0);
+      }
+      30%{
+        background:linear-gradient(90deg, #d64848 0%, #ff9d76 100%);
+        filter:brightness(1.08);
+        box-shadow:0 0 10px rgba(214,72,72,.26);
+      }
+      64%{
+        background:linear-gradient(90deg, #a57b3d 0%, #7fc964 100%);
+        filter:brightness(1.04);
+        box-shadow:0 0 6px rgba(127,201,100,.18);
+      }
+      100%{
+        background:linear-gradient(90deg, #23a548 0%, #42cd72 100%);
+        filter:brightness(1);
+        box-shadow:0 0 0 rgba(66,205,114,0);
+      }
+    }
     @keyframes plannerNextBenefitGrowPulse{
       0%{
         filter:brightness(1);
@@ -2803,6 +2861,66 @@
       35%{
         filter:brightness(1.18);
         box-shadow:0 0 10px rgba(66,205,114,.38);
+      }
+      100%{
+        filter:brightness(1);
+        box-shadow:0 0 0 rgba(66,205,114,0);
+      }
+    }
+    @keyframes plannerNextBenefitCompletionFade{
+      0%{
+        opacity:1;
+      }
+      10%{
+        opacity:1;
+      }
+      18%{
+        opacity:.38;
+      }
+      28%{
+        opacity:1;
+      }
+      42%{
+        opacity:.52;
+      }
+      56%{
+        opacity:1;
+      }
+      74%{
+        opacity:.74;
+      }
+      100%{
+        opacity:0;
+      }
+    }
+    @keyframes plannerNextBenefitCompletionBlink{
+      0%{
+        filter:brightness(1);
+        box-shadow:0 0 0 rgba(66,205,114,0);
+      }
+      12%{
+        filter:brightness(1.3) saturate(1.08);
+        box-shadow:0 0 14px rgba(66,205,114,.46);
+      }
+      20%{
+        filter:brightness(.82) saturate(.94);
+        box-shadow:0 0 1px rgba(66,205,114,.05);
+      }
+      32%{
+        filter:brightness(1.26) saturate(1.06);
+        box-shadow:0 0 12px rgba(66,205,114,.36);
+      }
+      44%{
+        filter:brightness(.88) saturate(.96);
+        box-shadow:0 0 1px rgba(66,205,114,.04);
+      }
+      58%{
+        filter:brightness(1.18) saturate(1.03);
+        box-shadow:0 0 8px rgba(66,205,114,.24);
+      }
+      72%{
+        filter:brightness(.96) saturate(.98);
+        box-shadow:0 0 1px rgba(66,205,114,.03);
       }
       100%{
         filter:brightness(1);
@@ -4028,6 +4146,7 @@
         top:auto;
         left:auto;
         z-index:auto;
+        --planner-next-benefit-shift-x:0px;
         width:40px;
         max-width:58px;
         display:flex;
@@ -4037,7 +4156,8 @@
         justify-content:flex-start;
         margin:0;
         padding:0;
-        transform:translateY(1px);
+        transform:translate(var(--planner-next-benefit-shift-x), 1px);
+        transition:width .9s cubic-bezier(.2,.74,.24,1), transform .46s cubic-bezier(.22,.84,.18,1);
       }
       .plannerNextBenefitProgressRow{
         width:100%;
@@ -4443,6 +4563,7 @@
   const interactiveSection = document.getElementById("interactive-placeholder");
   const laserSwitchButtons = Array.from(document.querySelectorAll("[data-laser-switch]"));
   const heroPrice = document.getElementById("hero_price");
+  const themeColorMeta = document.getElementById("themeColorMeta");
   const laserPlanner = document.querySelector(".laserPlanner");
   const plannerZonesPane = document.querySelector(".plannerPane--zones");
   const plannerPricePane = document.querySelector(".plannerPane:not(.plannerPane--zones)");
@@ -4458,7 +4579,11 @@
   const plannerNextBenefitBar = document.getElementById("plannerNextBenefitBar");
   const plannerNextBenefitBarFill = document.getElementById("plannerNextBenefitBarFill");
   const PLANNER_NEXT_BENEFIT_COMPLETE_HOLD_MS = 1200;
-  const PLANNER_NEXT_BENEFIT_SHELL_EXPAND_DELAY_MS = 2000;
+  const PLANNER_NEXT_BENEFIT_INTRO_REVEAL_MS = 900;
+  const PLANNER_NEXT_BENEFIT_INTRO_EXPAND_DELAY_MS = 1400;
+  const PLANNER_NEXT_BENEFIT_SHELL_EXPAND_DELAY_MS = 1400;
+  const PLANNER_NEXT_BENEFIT_CANCEL_BACKOFF_MS = 980;
+  const PLANNER_NEXT_BENEFIT_COMPLETION_FADE_FALLBACK_MS = 1550;
   const PLANNER_MOBILE_INFO_HANDS_CYCLE_MS = 2400;
   const PLANNER_NEXT_BENEFIT_PROMO_CYCLE_MS = 2400;
   const PLANNER_NEXT_BENEFIT_HANDS_COLLAPSE_DELAY_MS = 2400;
@@ -4468,6 +4593,8 @@
   let plannerNextBenefitAnimateRaf = 0;
   const plannerNextBenefitProgressByMode = { frauen:0, herren:0 };
   const plannerNextBenefitShellWidthByMode = { frauen:40, herren:40 };
+  const plannerNextBenefitIntroExpandStateByMode = { frauen:null, herren:null };
+  const plannerNextBenefitIntroExpandTimerByMode = { frauen:0, herren:0 };
   const plannerNextBenefitShellExpandStateByMode = { frauen:null, herren:null };
   const plannerNextBenefitShellExpandTimerByMode = { frauen:0, herren:0 };
   const plannerNextBenefitPromoByMode = {
@@ -4482,18 +4609,187 @@
     herren:{ active:false, startAt:0, started:false }
   };
   const plannerNextBenefitHandsCollapseTimerByMode = { frauen:0, herren:0 };
+  const plannerNextBenefitCancelBackoffByMode = {
+    frauen:{ active:false, hideAt:0 },
+    herren:{ active:false, hideAt:0 }
+  };
+  const plannerNextBenefitCancelBackoffTimerByMode = { frauen:0, herren:0 };
+  const plannerNextBenefitCompletionFadeByMode = {
+    frauen:{ active:false, hideAt:0, durationMs:0, key:"", doneKey:"" },
+    herren:{ active:false, hideAt:0, durationMs:0, key:"", doneKey:"" }
+  };
+  const plannerNextBenefitCompletionFadeTimerByMode = { frauen:0, herren:0 };
   const plannerMobileInfoLastLabelByMode = { frauen:"", herren:"" };
   const plannerMobileInfoHandsCycleByMode = {
     frauen:{ phase:"arms", animate:false, active:false, armsVisits:1, collapseActive:false },
     herren:{ phase:"arms", animate:false, active:false, armsVisits:1, collapseActive:false }
   };
   const plannerMobileInfoHandsCycleTimerByMode = { frauen:0, herren:0 };
+  let plannerNextBenefitPriceSpacingRaf = 0;
+  let plannerNextBenefitPriceSpacingObserver = null;
+  const plannerTextMeasureCanvas = document.createElement("canvas");
+  const plannerTextMeasureContext = plannerTextMeasureCanvas.getContext("2d");
   let plannerNextBenefitHintTimer = 0;
   const plannerNextBenefitHintByMode = {
     frauen:{ text:"", visible:false },
     herren:{ text:"", visible:false }
   };
   const plannerFigureImage = document.getElementById("plannerFigureImage");
+  function syncThemeColor(){
+    if(!(themeColorMeta instanceof HTMLMetaElement)) return;
+    const viewportWidth = Math.max(
+      window.innerWidth || 0,
+      document.documentElement ? (document.documentElement.clientWidth || 0) : 0
+    );
+    themeColorMeta.setAttribute("content", viewportWidth <= 767 ? "#ffffff" : "#f3f3f6");
+  }
+  function setPlannerNextBenefitPriceAvoidShift(shiftPx){
+    if(!(plannerNextBenefit instanceof HTMLElement)) return;
+    const normalizedShift = Math.abs(Number(shiftPx) || 0) < 0.35 ? 0 : (Number(shiftPx) || 0);
+    plannerNextBenefit.dataset.priceAvoidShift = String(normalizedShift);
+    plannerNextBenefit.style.setProperty("--planner-next-benefit-shift-x", `${normalizedShift.toFixed(2)}px`);
+  }
+  function plannerMeasureDigitWidth(referenceEl){
+    if(!(referenceEl instanceof HTMLElement)) return 12;
+    const computedStyle = window.getComputedStyle(referenceEl);
+    const fontSize = parseFloat(computedStyle.fontSize) || 14;
+    if(!plannerTextMeasureContext){
+      return Math.max(10, fontSize * 0.56);
+    }
+    const fontStyle = computedStyle.fontStyle || "normal";
+    const fontVariant = computedStyle.fontVariant || "normal";
+    const fontWeight = computedStyle.fontWeight || "400";
+    const fontFamily = computedStyle.fontFamily || "sans-serif";
+    plannerTextMeasureContext.font = `${fontStyle} ${fontVariant} ${fontWeight} ${fontSize}px ${fontFamily}`;
+    const letterSpacing = parseFloat(computedStyle.letterSpacing) || 0;
+    const measuredWidth = plannerTextMeasureContext.measureText("0").width + letterSpacing;
+    return Math.max(10, measuredWidth || (fontSize * 0.56));
+  }
+  function plannerTextRect(element){
+    if(!(element instanceof HTMLElement)) return null;
+    const text = element.textContent ? element.textContent.trim() : "";
+    if(!text) return element.getBoundingClientRect();
+    try{
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const rect = range.getBoundingClientRect();
+      if(rect && rect.width){
+        return rect;
+      }
+    } catch(_e){}
+    return element.getBoundingClientRect();
+  }
+  function syncPlannerNextBenefitPriceSpacing(){
+    if(!(plannerNextBenefit instanceof HTMLElement)){
+      return;
+    }
+    const viewportWidth = Math.max(
+      window.innerWidth || 0,
+      document.documentElement ? (document.documentElement.clientWidth || 0) : 0
+    );
+    if(
+      viewportWidth > 767 ||
+      plannerNextBenefit.hidden ||
+      !(plannerMobileInfoPriceCurrent instanceof HTMLElement) ||
+      !plannerMobileInfoPriceCurrent.textContent ||
+      !plannerMobileInfoPriceCurrent.textContent.trim()
+    ){
+      setPlannerNextBenefitPriceAvoidShift(0);
+      return;
+    }
+    const benefitRect = plannerNextBenefit.getBoundingClientRect();
+    const priceRect = plannerTextRect(plannerMobileInfoPriceCurrent);
+    if(!benefitRect.width || !priceRect || !priceRect.width){
+      setPlannerNextBenefitPriceAvoidShift(0);
+      return;
+    }
+    const desiredGap = Math.max(10, plannerMeasureDigitWidth(plannerMobileInfoPriceCurrent));
+    const currentShift = Number.parseFloat(plannerNextBenefit.dataset.priceAvoidShift || "0") || 0;
+    const currentGap = priceRect.left - benefitRect.right;
+    let nextShift = currentShift;
+    if(currentGap < (desiredGap - 0.4)){
+      nextShift = currentShift - (desiredGap - currentGap);
+    } else if(currentShift < 0 && currentGap > (desiredGap + 0.8)){
+      nextShift = Math.min(0, currentShift + (currentGap - desiredGap));
+    }
+    setPlannerNextBenefitPriceAvoidShift(nextShift);
+  }
+  function schedulePlannerNextBenefitPriceSpacingSync(){
+    if(plannerNextBenefitPriceSpacingRaf){
+      cancelAnimationFrame(plannerNextBenefitPriceSpacingRaf);
+    }
+    plannerNextBenefitPriceSpacingRaf = requestAnimationFrame(() => {
+      plannerNextBenefitPriceSpacingRaf = 0;
+      syncPlannerNextBenefitPriceSpacing();
+    });
+  }
+  function clearPlannerNextBenefitCompletionFadeTimer(mode){
+    if(plannerNextBenefitCompletionFadeTimerByMode[mode]){
+      clearTimeout(plannerNextBenefitCompletionFadeTimerByMode[mode]);
+      plannerNextBenefitCompletionFadeTimerByMode[mode] = 0;
+    }
+  }
+  function resetPlannerNextBenefitCompletionFade(mode, keepDoneKey = false){
+    const previousState = plannerNextBenefitCompletionFadeByMode[mode] || { doneKey:"" };
+    clearPlannerNextBenefitCompletionFadeTimer(mode);
+    plannerNextBenefitCompletionFadeByMode[mode] = {
+      active:false,
+      hideAt:0,
+      durationMs:0,
+      key:"",
+      doneKey:keepDoneKey ? (previousState.doneKey || "") : ""
+    };
+  }
+  function startPlannerNextBenefitCompletionFade(mode, packageId, durationMs){
+    if(!packageId) return;
+    const safeDuration = Math.max(1100, Number(durationMs) || PLANNER_NEXT_BENEFIT_COMPLETION_FADE_FALLBACK_MS);
+    clearPlannerNextBenefitCompletionFadeTimer(mode);
+    plannerNextBenefitCompletionFadeByMode[mode] = {
+      active:true,
+      hideAt:Date.now() + safeDuration,
+      durationMs:safeDuration,
+      key:packageId,
+      doneKey:""
+    };
+    plannerNextBenefitCompletionFadeTimerByMode[mode] = window.setTimeout(() => {
+      plannerNextBenefitCompletionFadeTimerByMode[mode] = 0;
+      const state = plannerNextBenefitCompletionFadeByMode[mode] || { key:"", doneKey:"" };
+      if(state.key !== packageId) return;
+      plannerNextBenefitCompletionFadeByMode[mode] = {
+        active:false,
+        hideAt:0,
+        durationMs:0,
+        key:"",
+        doneKey:packageId
+      };
+      schedulePlannerRender(mode);
+    }, safeDuration + 20);
+    schedulePlannerRender(mode);
+  }
+  function initPlannerNextBenefitPriceSpacingObserver(){
+    if(plannerNextBenefitPriceSpacingObserver || typeof ResizeObserver !== "function"){
+      return;
+    }
+    plannerNextBenefitPriceSpacingObserver = new ResizeObserver(() => {
+      schedulePlannerNextBenefitPriceSpacingSync();
+    });
+    [
+      plannerNextBenefit,
+      plannerNextBenefitBar,
+      plannerMobileInfo,
+      plannerMobileInfoPriceCurrent
+    ].forEach((element) => {
+      if(element instanceof HTMLElement){
+        plannerNextBenefitPriceSpacingObserver.observe(element);
+      }
+    });
+  }
+  syncThemeColor();
+  initPlannerNextBenefitPriceSpacingObserver();
+  window.addEventListener("resize", syncThemeColor, { passive:true });
+  window.addEventListener("orientationchange", syncThemeColor);
+  window.addEventListener("resize", schedulePlannerNextBenefitPriceSpacingSync, { passive:true });
+  window.addEventListener("orientationchange", schedulePlannerNextBenefitPriceSpacingSync);
   const plannerViewPrevBtn = document.getElementById("plannerViewPrev");
   const plannerViewNextBtn = document.getElementById("plannerViewNext");
   const plannerViewSwitch = document.getElementById("plannerViewSwitch");
@@ -6273,7 +6569,7 @@
   const PLANNER_VIEW_SLIDE_MOBILE_EASING = "cubic-bezier(.32, 0, .2, 1)";
   const PLANNER_BASE_FIGURE_SCALE_DESKTOP = 1.02;
   const PLANNER_BASE_FIGURE_SCALE_MOBILE = 1;
-  const PLANNER_SET_CREATION_ZONE_THRESHOLD = 4;
+  const PLANNER_SET_CREATION_ZONE_THRESHOLD = 3;
   const PLANNER_STATE_SESSION_KEY = "anima_laser_planner_state_v3";
   const SALONKEE_BOOKING_FALLBACK_URL = "https://salonkee.de/salon/anima-body-care-salon";
   const plannerSalonkeeUrlByMode = {
@@ -7163,8 +7459,8 @@
         smart_legs_complete:159,
         smart_face_small:39,
         smart_neck_complete:39,
-        smart_arms_complete_with_hands:89,
-        smart_legs_complete_with_feet:169,
+        smart_arms_complete_with_hands:79,
+        smart_legs_complete_with_feet:159,
         smart_arms_legs_complete:209,
         smart_bauch_complete:59,
         smart_back_complete:79,
@@ -7247,7 +7543,7 @@
           displayGroup:"smart",
           zoneIds:["obersch", "untersch", "feet"],
           componentIds:["smart_legs_complete", "feet"],
-          label:{ de:"Beine komplett & Füße", en:"Legs complete + feet", ru:"Ноги полностью + стопы" }
+          label:{ de:"Beine komplett + Füße", en:"Legs complete + feet", ru:"Ноги полностью + стопы" }
         },
         {
           id:"smart_arms_legs_complete",
@@ -7464,6 +7760,7 @@
       nextBenefitSaveShort:"Gesamtvorteil +{value}",
       nextBenefitAddonSave:"{name} dazu, spare {value}",
       nextBenefitAddonOnly:"{name} nur {value}",
+      nextBenefitAddonGift:"{name} geschenkt!",
       plusWord:"plus",
       packageTag:"Smart Paket",
       premiumBadge:"Premium Paket",
@@ -7472,7 +7769,7 @@
       mergeLegs:"Beine komplett",
       orderGroupTitle:"Dein Set {number}",
       premiumExtraSaved:"Um 30 € günstiger",
-      termPromptTitle:"Bitte zuerst Zonen waehlen",
+      termPromptTitle:"Bitte zuerst eine Zone waehlen",
       termPromptAction:"OK"
     },
     en:{
@@ -7499,6 +7796,7 @@
       nextBenefitSaveShort:"Total benefit +{value}",
       nextBenefitAddonSave:"Add {name}, save {value}",
       nextBenefitAddonOnly:"{name} only {value}",
+      nextBenefitAddonGift:"{name} free!",
       plusWord:"plus",
       packageTag:"Smart package",
       premiumBadge:"Premium package",
@@ -7507,7 +7805,7 @@
       mergeLegs:"Legs pack",
       orderGroupTitle:"Your set {number}",
       premiumExtraSaved:"Better value by €30",
-      termPromptTitle:"Please choose zones first",
+      termPromptTitle:"Please choose a zone first",
       termPromptAction:"OK"
     },
     ru:{
@@ -7534,6 +7832,7 @@
       nextBenefitSaveShort:"Общая выгода +{value}",
       nextBenefitAddonSave:"Добавьте {name} и сэкономьте {value}",
       nextBenefitAddonOnly:"{name} всего {value}",
+      nextBenefitAddonGift:"{name} в подарок!",
       plusWord:"плюс",
       packageTag:"Smart пакет",
       premiumBadge:"Премиум пакет",
@@ -7542,7 +7841,7 @@
       mergeLegs:"Ноги комплект",
       orderGroupTitle:"Ваш сет {number}",
       premiumExtraSaved:"Выгоднее на 30 €",
-      termPromptTitle:"Пожалуйста, сначала выберите зоны",
+      termPromptTitle:"Пожалуйста, сначала выберите зону",
       termPromptAction:"OK"
     }
   };
@@ -11281,11 +11580,6 @@
     }
     const selectedZoneIdSet = new Set(selectedZoneIds);
     const hasAxillaAddonDiscountPackage = plannerHasAxillaAddonDiscountPackage(mode, selectedZoneIdSet, zonesById);
-    const hasArmsLegsCompleteBundle = mode === "frauen"
-      && selectedZoneIdSet.has("upperarms")
-      && selectedZoneIdSet.has("underarms")
-      && selectedZoneIdSet.has("obersch")
-      && selectedZoneIdSet.has("untersch");
     const zoneIndexById = new Map(selectedZoneIds.map((zoneId, index) => [zoneId, index]));
     const fullMask = (1 << selectedZoneIds.length) - 1;
     const buildMask = (zoneIds) => zoneIds.reduce((mask, zoneId) => {
@@ -11300,11 +11594,7 @@
       const isHandsAddon = mode === "frauen" && zone && zone.id === "hands" && selectedZoneIdSet.has("upperarms") && selectedZoneIdSet.has("underarms");
       const candidatePrice = isAxillaAddon
         ? 29
-        : (isFeetAddon
-          ? (hasArmsLegsCompleteBundle ? 0 : 10)
-          : (isHandsAddon
-            ? (hasArmsLegsCompleteBundle ? 0 : 10)
-            : zone.price));
+        : ((isFeetAddon || isHandsAddon) ? 0 : zone.price);
       return {
         id:zone.id,
         type:"single",
@@ -12116,6 +12406,21 @@
       window.location.href = url;
     }
   }
+  function handlePlannerCtaWithoutSelection(blurTarget = null){
+    if(blurTarget && typeof blurTarget.blur === "function") blurTarget.blur();
+    if(mobileVideoMq && mobileVideoMq.matches && interactiveSection){
+      interactiveSection.scrollIntoView({ behavior:"smooth", block:"start" });
+      if(bookingPromptOpenTimer){
+        clearTimeout(bookingPromptOpenTimer);
+      }
+      bookingPromptOpenTimer = window.setTimeout(() => {
+        bookingPromptOpenTimer = null;
+        openBookingPrompt();
+      }, 260);
+      return;
+    }
+    openBookingPrompt();
+  }
   function updatePlannerTermLink(mode, selectedSet){
     if(!plannerTermBtn) return;
     plannerTermBtn.setAttribute("href", plannerResolveTermUrl(mode, selectedSet));
@@ -12233,6 +12538,12 @@
     };
   }
   function renderPlannerNextBenefit(mode, selectedSet){
+    const clearPlannerNextBenefitIntroExpandTimer = () => {
+      if(plannerNextBenefitIntroExpandTimerByMode[mode]){
+        clearTimeout(plannerNextBenefitIntroExpandTimerByMode[mode]);
+        plannerNextBenefitIntroExpandTimerByMode[mode] = 0;
+      }
+    };
     const clearPlannerNextBenefitShellExpandTimer = () => {
       if(plannerNextBenefitShellExpandTimerByMode[mode]){
         clearTimeout(plannerNextBenefitShellExpandTimerByMode[mode]);
@@ -12245,9 +12556,23 @@
         plannerNextBenefitHandsCollapseTimerByMode[mode] = 0;
       }
     };
+    const clearPlannerNextBenefitCancelBackoffTimer = () => {
+      if(plannerNextBenefitCancelBackoffTimerByMode[mode]){
+        clearTimeout(plannerNextBenefitCancelBackoffTimerByMode[mode]);
+        plannerNextBenefitCancelBackoffTimerByMode[mode] = 0;
+      }
+    };
     const resetPlannerNextBenefitHandsCollapse = () => {
       clearPlannerNextBenefitHandsCollapseTimer();
       plannerNextBenefitHandsCollapseByMode[mode] = { active:false, startAt:0, started:false };
+    };
+    const resetPlannerNextBenefitCancelBackoff = () => {
+      clearPlannerNextBenefitCancelBackoffTimer();
+      plannerNextBenefitCancelBackoffByMode[mode] = { active:false, hideAt:0 };
+    };
+    const resetPlannerNextBenefitIntroExpand = () => {
+      clearPlannerNextBenefitIntroExpandTimer();
+      plannerNextBenefitIntroExpandStateByMode[mode] = null;
     };
     const clearPlannerNextBenefitPromoTimers = () => {
       if(plannerNextBenefitPromoTimerByMode[mode]){
@@ -12342,12 +12667,27 @@
       if(!recommendation || !recommendation.upgradePackageId) return "";
       const bundle = plannerBundleById(mode, recommendation.upgradePackageId);
       if(!bundle) return "";
+      const previousState = plannerNextBenefitPreviousStepState(mode, recommendation, selectedSet || new Set());
+      let previousPrice = 0;
+      if(previousState && previousState.type === "package"){
+        const previousBundle = plannerBundleById(mode, previousState.id);
+        if(previousBundle){
+          previousPrice = Number(plannerPackageResolvedPrice(mode, previousBundle, zonesById)) || 0;
+        }
+      } else if(previousState && previousState.type === "zone"){
+        const previousZone = zonesById.get(previousState.id);
+        previousPrice = Number(previousZone && previousZone.price) || 0;
+      }
+      const bundlePrice = Number(plannerPackageResolvedPrice(mode, bundle, zonesById)) || 0;
       const savings = Math.max(
         0,
-        plannerBundleComponentComparisonPrice(mode, bundle, zonesById) - (Number(plannerPackageResolvedPrice(mode, bundle, zonesById)) || 0)
+        plannerBundleComponentComparisonPrice(mode, bundle, zonesById) - bundlePrice
       );
       const name = plannerLabel(recommendation.label).trim();
       if(!name) return "";
+      if(previousState && bundlePrice <= previousPrice){
+        return plannerTextTemplate("nextBenefitAddonGift", { name });
+      }
       return plannerTextTemplate("nextBenefitAddonSave", {
         name,
         value:formatEuro(savings)
@@ -12371,6 +12711,9 @@
       const addOnValue = Math.max(0, upgradePrice - previousPrice);
       const name = plannerLabel(recommendation.label).trim();
       if(!name) return "";
+      if(upgradePrice <= previousPrice){
+        return plannerTextTemplate("nextBenefitAddonGift", { name });
+      }
       return plannerTextTemplate("nextBenefitAddonOnly", {
         name,
         value:formatEuro(addOnValue)
@@ -12394,19 +12737,47 @@
       const targetWidth = `${targetProgress}%`;
       const settleTransition = typeof options.settleTransition === "string" ? options.settleTransition.trim() : "";
       const fillCollapseOnly = !!options.fillCollapseOnly;
-      const previousPercent = Math.max(0, Math.min(100, Number(plannerNextBenefitProgressByMode[mode]) || 0));
-      const previousShellWidth = Math.max(0, Number(plannerNextBenefitShellWidthByMode[mode]) || 40);
+      const errorBackoff = !!options.errorBackoff;
+      const completionFadeDurationMs = Number.isFinite(Number(options.completionFadeDurationMs))
+        ? Math.max(0, Number(options.completionFadeDurationMs))
+        : 0;
+      const shouldPlayCompletionFade = completionFadeDurationMs > 0;
+      const startProgressPercent = Number.isFinite(Number(options.startProgressPercent))
+        ? Math.max(0, Math.min(100, Number(options.startProgressPercent)))
+        : null;
+      const startShellWidthPx = Number.isFinite(Number(options.startShellWidthPx))
+        ? Math.max(0, Number(options.startShellWidthPx))
+        : null;
+      const previousPercent = startProgressPercent !== null
+        ? startProgressPercent
+        : Math.max(0, Math.min(100, Number(plannerNextBenefitProgressByMode[mode]) || 0));
+      const previousShellWidth = startShellWidthPx !== null
+        ? startShellWidthPx
+        : Math.max(0, Number(plannerNextBenefitShellWidthByMode[mode]) || 40);
       const isGrowing = progressPercent > (previousPercent + 0.5);
       const isSettlingBack = progressPercent < (previousPercent - 0.5);
+      const isShellShrinking = shellWidthPx < (previousShellWidth - 0.5);
       const isCollapsingAway = shellWidthPx <= 0 && progressPercent <= 0;
+      const shouldPlayWarningBackoff = errorBackoff && (isSettlingBack || isShellShrinking) && !fillCollapseOnly && !playShellPush;
+      const shouldPreserveCompletionFade = shouldPlayCompletionFade && (
+        plannerNextBenefit.classList.contains("is-completion-fade") ||
+        plannerNextBenefitBarFill.classList.contains("is-completion-fade")
+      );
       if(
         !playShellPush &&
+        !shouldPlayCompletionFade &&
         !plannerNextBenefit.hidden &&
         Math.abs(previousShellWidth - shellWidthPx) < 0.5 &&
         Math.abs(previousPercent - targetProgress) < 0.5
       ){
         if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-collapsing", isCollapsingAway);
         if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-fill-collapsing", fillCollapseOnly);
+        if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-warning-backoff");
+        plannerNextBenefit.style.setProperty("--planner-next-benefit-complete-duration", `${completionFadeDurationMs || PLANNER_NEXT_BENEFIT_COMPLETION_FADE_FALLBACK_MS}ms`);
+        if(!shouldPreserveCompletionFade && plannerNextBenefit) plannerNextBenefit.classList.remove("is-completion-fade");
+        plannerNextBenefitBarFill.classList.remove("is-warning-backoff");
+        if(!shouldPreserveCompletionFade) plannerNextBenefitBarFill.classList.remove("is-completion-fade");
+        schedulePlannerNextBenefitPriceSpacingSync();
         return;
       }
       if(plannerNextBenefitAnimateRaf){
@@ -12416,14 +12787,19 @@
       plannerNextBenefit.hidden = false;
       plannerNextBenefit.style.width = `${previousShellWidth}px`;
       plannerNextBenefit.style.transition = "";
+      plannerNextBenefit.style.setProperty("--planner-next-benefit-complete-duration", `${completionFadeDurationMs || PLANNER_NEXT_BENEFIT_COMPLETION_FADE_FALLBACK_MS}ms`);
+      plannerNextBenefit.classList.remove("is-completion-fade");
       if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-shell-pushing");
+      if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-warning-backoff");
       if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-collapsing", isCollapsingAway);
       if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-fill-collapsing", fillCollapseOnly);
       plannerNextBenefitBarFill.classList.remove("is-growing");
       plannerNextBenefitBarFill.classList.remove("is-shell-pushing");
+      plannerNextBenefitBarFill.classList.remove("is-warning-backoff");
+      plannerNextBenefitBarFill.classList.remove("is-completion-fade");
       plannerNextBenefitBarFill.style.transition = "";
       plannerNextBenefitBarFill.style.width = `${previousPercent}%`;
-      if(playShellPush){
+      if(playShellPush || shouldPlayWarningBackoff || shouldPlayCompletionFade){
         if(plannerNextBenefitBar) void plannerNextBenefitBar.offsetWidth;
         void plannerNextBenefitBarFill.offsetWidth;
       }
@@ -12437,6 +12813,14 @@
           if(plannerNextBenefitBar) plannerNextBenefitBar.classList.add("is-shell-pushing");
           plannerNextBenefitBarFill.classList.add("is-shell-pushing");
         }
+        if(shouldPlayWarningBackoff){
+          if(plannerNextBenefitBar) plannerNextBenefitBar.classList.add("is-warning-backoff");
+          plannerNextBenefitBarFill.classList.add("is-warning-backoff");
+        }
+        if(shouldPlayCompletionFade){
+          plannerNextBenefit.classList.add("is-completion-fade");
+          plannerNextBenefitBarFill.classList.add("is-completion-fade");
+        }
         if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-fill-collapsing", fillCollapseOnly);
         plannerNextBenefit.style.width = `${shellWidthPx}px`;
         if(isSettlingBack){
@@ -12445,6 +12829,7 @@
         } else {
           plannerNextBenefitBarFill.style.width = targetWidth;
         }
+        schedulePlannerNextBenefitPriceSpacingSync();
       });
       plannerNextBenefitProgressByMode[mode] = targetProgress;
       plannerNextBenefitShellWidthByMode[mode] = shellWidthPx;
@@ -12464,13 +12849,16 @@
       }
       plannerNextBenefitProgressByMode[mode] = 0;
       plannerNextBenefitShellWidthByMode[mode] = 40;
+      resetPlannerNextBenefitIntroExpand();
       plannerNextBenefitShellExpandStateByMode[mode] = null;
       clearPlannerNextBenefitShellExpandTimer();
       resetPlannerNextBenefitHandsCollapse();
+      resetPlannerNextBenefitCancelBackoff();
       clearPlannerNextBenefitPromo();
       setPlannerNextBenefitHint("", false);
       plannerNextBenefitLastRecommendation = null;
       plannerNextBenefitHoldState = null;
+      setPlannerNextBenefitPriceAvoidShift(0);
       return;
     }
     const now = Date.now();
@@ -12503,52 +12891,91 @@
       selectedZoneIdSet.has("upperarms")
       && selectedZoneIdSet.has("underarms")
       && selectedZoneIdSet.has("hands");
-    if(hasArmsCompleteWithHands){
+    const hasLegsCompleteWithFeet =
+      selectedZoneIdSet.has("obersch")
+      && selectedZoneIdSet.has("untersch")
+      && selectedZoneIdSet.has("feet");
+    const completedAddonPackageId = hasArmsCompleteWithHands
+      ? "smart_arms_complete_with_hands"
+      : (hasLegsCompleteWithFeet ? "smart_legs_complete_with_feet" : "");
+    if(completedAddonPackageId){
+      resetPlannerNextBenefitCancelBackoff();
+      resetPlannerNextBenefitIntroExpand();
+      resetPlannerNextBenefitHandsCollapse();
       const targetShellWidth = 58;
-      const currentHandsCollapseState = plannerNextBenefitHandsCollapseByMode[mode] || { active:false, startAt:0, started:false };
-      if(!currentHandsCollapseState.active){
-        const collapseStartAt = now + PLANNER_NEXT_BENEFIT_HANDS_COLLAPSE_DELAY_MS;
-        clearPlannerNextBenefitHandsCollapseTimer();
-        plannerNextBenefitHandsCollapseByMode[mode] = {
-          active:true,
-          startAt:collapseStartAt,
-          started:false
-        };
-        plannerNextBenefitHandsCollapseTimerByMode[mode] = window.setTimeout(() => {
-          plannerNextBenefitHandsCollapseTimerByMode[mode] = 0;
-          schedulePlannerRender(mode);
-        }, PLANNER_NEXT_BENEFIT_HANDS_COLLAPSE_DELAY_MS + 20);
+      const completionFadeState = plannerNextBenefitCompletionFadeByMode[mode] || { active:false, hideAt:0, durationMs:0, key:"", doneKey:"" };
+      if(completionFadeState.doneKey && completionFadeState.doneKey !== completedAddonPackageId){
+        resetPlannerNextBenefitCompletionFade(mode);
       }
-      const activeHandsCollapseState = plannerNextBenefitHandsCollapseByMode[mode] || { active:false, startAt:0, started:false };
-      const shouldStartHandsCollapse = activeHandsCollapseState.active && activeHandsCollapseState.startAt <= now;
-      if(shouldStartHandsCollapse && !activeHandsCollapseState.started){
-        clearPlannerNextBenefitHandsCollapseTimer();
-        plannerNextBenefitHandsCollapseByMode[mode] = {
-          ...activeHandsCollapseState,
-          started:true
-        };
+      const activeCompletionFadeState = plannerNextBenefitCompletionFadeByMode[mode] || { active:false, hideAt:0, durationMs:0, key:"", doneKey:"" };
+      if(activeCompletionFadeState.active && activeCompletionFadeState.key === completedAddonPackageId && activeCompletionFadeState.hideAt > now){
+        showPlannerNextBenefit(targetShellWidth, 100, false, {
+          completionFadeDurationMs:activeCompletionFadeState.durationMs
+        });
+        plannerNextBenefitLastRecommendation = null;
+        clearPlannerNextBenefitPromo();
+        setPlannerNextBenefitHint("", false);
+        return;
       }
-      showPlannerNextBenefit(
-        targetShellWidth,
-        shouldStartHandsCollapse ? 0 : 100,
-        false,
-        shouldStartHandsCollapse
-          ? {
-              settleTransition:`width ${PLANNER_MOBILE_INFO_HANDS_COLLAPSE_MS}ms cubic-bezier(.24,.62,.3,1)`,
-              fillCollapseOnly:true
-            }
-          : {}
-      );
+      if(activeCompletionFadeState.doneKey === completedAddonPackageId){
+        if(plannerNextBenefitAnimateRaf){
+          cancelAnimationFrame(plannerNextBenefitAnimateRaf);
+          plannerNextBenefitAnimateRaf = 0;
+        }
+        plannerNextBenefit.hidden = true;
+        plannerNextBenefit.classList.remove("is-completion-fade");
+        if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-collapsing", "is-fill-collapsing", "is-shell-pushing", "is-warning-backoff");
+        plannerNextBenefitBarFill.classList.remove("is-growing", "is-shell-pushing", "is-warning-backoff", "is-completion-fade");
+        plannerNextBenefitBarFill.style.width = "0%";
+        plannerNextBenefitProgressByMode[mode] = 0;
+        plannerNextBenefitShellWidthByMode[mode] = 40;
+        setPlannerNextBenefitPriceAvoidShift(0);
+        plannerNextBenefitLastRecommendation = null;
+        clearPlannerNextBenefitPromo();
+        setPlannerNextBenefitHint("", false);
+        return;
+      }
+      showPlannerNextBenefit(targetShellWidth, 100, false);
       plannerNextBenefitLastRecommendation = null;
       clearPlannerNextBenefitPromo();
       setPlannerNextBenefitHint("", false);
       return;
     }
+    resetPlannerNextBenefitCompletionFade(mode);
     resetPlannerNextBenefitHandsCollapse();
     const recommendation = plannerNextBenefitRecommendation(mode, selectedSet);
     const zonesById = plannerZonesMap(mode);
+    const previousRenderedPercent = Math.max(0, Math.min(100, Number(plannerNextBenefitProgressByMode[mode]) || 0));
+    const previousRenderedShellWidth = Math.max(0, Number(plannerNextBenefitShellWidthByMode[mode]) || 40);
+    const hadVisibleIndicatorBefore = !plannerNextBenefit.hidden || previousRenderedPercent > 0.5;
     const previousStepState = plannerNextBenefitPreviousStepState(mode, recommendation, selectedSet || new Set());
     if(!recommendation){
+      const cancelBackoffState = plannerNextBenefitCancelBackoffByMode[mode] || { active:false, hideAt:0 };
+      const previousPercent = previousRenderedPercent;
+      const previousShellWidth = previousRenderedShellWidth;
+      const hadVisibleIndicator = hadVisibleIndicatorBefore;
+      if(cancelBackoffState.active && cancelBackoffState.hideAt > now){
+        return;
+      }
+      if(!cancelBackoffState.active && hadVisibleIndicator){
+        clearPlannerNextBenefitCancelBackoffTimer();
+        plannerNextBenefitCancelBackoffByMode[mode] = {
+          active:true,
+          hideAt:now + PLANNER_NEXT_BENEFIT_CANCEL_BACKOFF_MS
+        };
+        plannerNextBenefitCancelBackoffTimerByMode[mode] = window.setTimeout(() => {
+          plannerNextBenefitCancelBackoffTimerByMode[mode] = 0;
+          schedulePlannerRender(mode);
+        }, PLANNER_NEXT_BENEFIT_CANCEL_BACKOFF_MS + 20);
+        showPlannerNextBenefit(previousShellWidth, 0, false, {
+          errorBackoff:true,
+          startShellWidthPx:previousShellWidth,
+          startProgressPercent:previousPercent,
+          settleTransition:`width ${PLANNER_NEXT_BENEFIT_CANCEL_BACKOFF_MS}ms cubic-bezier(.22,.7,.24,1)`
+        });
+        return;
+      }
+      resetPlannerNextBenefitCancelBackoff();
       plannerNextBenefit.hidden = true;
       plannerNextBenefitBarFill.style.width = "0%";
       if(plannerNextBenefitAnimateRaf){
@@ -12557,14 +12984,17 @@
       }
       plannerNextBenefitProgressByMode[mode] = 0;
       plannerNextBenefitShellWidthByMode[mode] = 40;
+      resetPlannerNextBenefitIntroExpand();
       plannerNextBenefitShellExpandStateByMode[mode] = null;
       clearPlannerNextBenefitShellExpandTimer();
       resetPlannerNextBenefitHandsCollapse();
       clearPlannerNextBenefitPromo();
       setPlannerNextBenefitHint("", false);
       plannerNextBenefitLastRecommendation = null;
+      setPlannerNextBenefitPriceAvoidShift(0);
       return;
     }
+    resetPlannerNextBenefitCancelBackoff();
     const baseStepCount = previousStepState
       ? (previousStepState.totalCount || recommendation.totalCount || 2)
       : (recommendation.totalCount || 2);
@@ -12591,7 +13021,14 @@
     let shellWidthPx = baseShellWidthPx;
     let progressRatio = baseProgressRatio;
     let playShellPush = false;
+    let introFillCollapseOnly = false;
+    const canPlayIntroExpand = !previousStepState
+      && recommendation.type === "package"
+      && recommendation.selectedCount === 1
+      && recommendation.totalCount > 1
+      && !hadVisibleIndicatorBefore;
     if(canDelayExpandShell){
+      resetPlannerNextBenefitIntroExpand();
       const shellExpandState = plannerNextBenefitShellExpandStateByMode[mode];
       if(!shellExpandState || shellExpandState.key !== shellExpandKey){
         clearPlannerNextBenefitShellExpandTimer();
@@ -12624,12 +13061,60 @@
       clearPlannerNextBenefitShellExpandTimer();
       clearPlannerNextBenefitPromo();
     }
+    let startShellWidthOverride;
+    let startProgressOverride;
+    if(canPlayIntroExpand){
+      const introExpandKey = `${recommendation.sectionId}:${recommendation.id}:${recommendation.selectedCount}:${recommendation.totalCount}`;
+      const introShellWidthPx = Math.max(20, Math.round(recommendation.selectedCount * 20));
+      const introState = plannerNextBenefitIntroExpandStateByMode[mode];
+      if(!introState || introState.key !== introExpandKey){
+        resetPlannerNextBenefitIntroExpand();
+        plannerNextBenefitIntroExpandStateByMode[mode] = {
+          key:introExpandKey,
+          activateAt:now + PLANNER_NEXT_BENEFIT_INTRO_REVEAL_MS + PLANNER_NEXT_BENEFIT_INTRO_EXPAND_DELAY_MS,
+          revealed:false,
+          pushed:false
+        };
+        plannerNextBenefitIntroExpandTimerByMode[mode] = window.setTimeout(() => {
+          plannerNextBenefitIntroExpandTimerByMode[mode] = 0;
+          schedulePlannerRender(mode);
+        }, PLANNER_NEXT_BENEFIT_INTRO_REVEAL_MS + PLANNER_NEXT_BENEFIT_INTRO_EXPAND_DELAY_MS + 20);
+      }
+      const activeIntroState = plannerNextBenefitIntroExpandStateByMode[mode];
+      if(activeIntroState && activeIntroState.activateAt > now){
+        shellWidthPx = introShellWidthPx;
+        progressRatio = 1;
+        introFillCollapseOnly = true;
+        if(!activeIntroState.revealed){
+          activeIntroState.revealed = true;
+          startShellWidthOverride = 0;
+          startProgressOverride = 0;
+        }
+      } else if(activeIntroState){
+        clearPlannerNextBenefitIntroExpandTimer();
+        if(!activeIntroState.pushed){
+          playShellPush = true;
+          activeIntroState.pushed = true;
+        }
+      }
+    } else {
+      resetPlannerNextBenefitIntroExpand();
+    }
+    const nextProgressPercent = progressRatio * 100;
+    const isVisibleStepShrink = hadVisibleIndicatorBefore
+      && nextProgressPercent > 0.5
+      && previousRenderedShellWidth > (shellWidthPx + 0.5)
+      && previousRenderedPercent > (nextProgressPercent + 0.5);
+    const isUndoDecrease = hadVisibleIndicatorBefore && (
+      previousRenderedPercent > (nextProgressPercent + 0.5)
+      || previousRenderedShellWidth > (shellWidthPx + 0.5)
+    );
     plannerNextBenefitLastRecommendation = {
       mode,
       zoneIds:[...recommendation.zoneIds],
       totalCount:recommendation.sectionTotalCount || recommendation.totalCount,
       sectionId:recommendation.sectionId,
-      shellWidth:shellWidthPx
+      shellWidth:Math.max(shellWidthPx, baseShellWidthPx)
     };
     if(progressRatio <= 0){
       plannerNextBenefit.hidden = true;
@@ -12646,6 +13131,7 @@
       resetPlannerNextBenefitHandsCollapse();
       clearPlannerNextBenefitPromo();
       setPlannerNextBenefitHint("", false);
+      setPlannerNextBenefitPriceAvoidShift(0);
       return;
     }
     const hintText = buildPlannerNextBenefitHint(recommendation, zonesById);
@@ -12654,7 +13140,13 @@
     } else {
       setPlannerNextBenefitHint(hintText, false);
     }
-    showPlannerNextBenefit(shellWidthPx, progressRatio * 100, playShellPush);
+    showPlannerNextBenefit(shellWidthPx, progressRatio * 100, playShellPush, {
+      errorBackoff:isUndoDecrease && !isVisibleStepShrink && !playShellPush && !introFillCollapseOnly,
+      fillCollapseOnly:introFillCollapseOnly,
+      settleTransition:isVisibleStepShrink ? "width .9s cubic-bezier(.2,.74,.24,1)" : undefined,
+      startShellWidthPx:startShellWidthOverride,
+      startProgressPercent:startProgressOverride
+    });
   }
   function plannerMobileInfoVisualProgress(){
     if(!(plannerFigureViewportScroll instanceof HTMLElement) || plannerViewTransport !== "scroll-snap"){
@@ -12826,6 +13318,7 @@
         el.classList.remove("is-animating");
       });
       plannerApplyMobileInfoOpacity();
+      schedulePlannerNextBenefitPriceSpacingSync();
       return;
     }
     const originalSessionTotal = Array.isArray(selected)
@@ -12842,6 +13335,7 @@
     plannerMobileInfoSaved.textContent = "";
     plannerAnimateMobilePriceBlock();
     plannerApplyMobileInfoOpacity();
+    schedulePlannerNextBenefitPriceSpacingSync();
   }
   function plannerSelectionCopyText(mode, selectedSet){
     const selected = plannerOrderItems(mode, selectedSet || new Set());
@@ -12941,9 +13435,12 @@
     if(activatedLead){
       const saved = Math.max(0, (Number(activatedLead.originalPrice) || 0) - (Number(activatedLead.price) || 0));
       if(saved > 0){
-        spawnPlannerComboFx(plannerSavedLabel(saved), {
+        const fxDuration = spawnPlannerComboFx(plannerSavedLabel(saved), {
           premium:(activatedLead.level || 0) >= 3
         });
+        if(mode === "frauen" && (activatedLead.id === "smart_arms_complete_with_hands" || activatedLead.id === "smart_legs_complete_with_feet")){
+          startPlannerNextBenefitCompletionFade(mode, activatedLead.id, fxDuration);
+        }
       }
     } else {
       const activatedSingle = (nextSnapshot.items || []).find((item) => item.type === "single" && item.id === zoneId);
@@ -14978,9 +15475,15 @@
   }
   if(plannerBuyBtn){
     plannerBuyBtn.addEventListener("click", (event) => {
+      const mode = activeLaserMode();
+      const selectedSet = plannerSelectedByMode[mode] || new Set();
       const target = event.currentTarget;
       const url = (target && target.getAttribute("href")) || SALONKEE_BOOKING_FALLBACK_URL;
       event.preventDefault();
+      if(!selectedSet.size){
+        handlePlannerCtaWithoutSelection(target);
+        return;
+      }
       if(target && typeof target.blur === "function") target.blur();
       openPlannerExternalUrl(url);
     });
@@ -14991,19 +15494,7 @@
       const selectedSet = plannerSelectedByMode[mode] || new Set();
       if(!selectedSet.size){
         event.preventDefault();
-        if(typeof plannerTermBtn.blur === "function") plannerTermBtn.blur();
-        if(mobileVideoMq && mobileVideoMq.matches && interactiveSection){
-          interactiveSection.scrollIntoView({ behavior:"smooth", block:"start" });
-          if(bookingPromptOpenTimer){
-            clearTimeout(bookingPromptOpenTimer);
-          }
-          bookingPromptOpenTimer = window.setTimeout(() => {
-            bookingPromptOpenTimer = null;
-            openBookingPrompt();
-          }, 260);
-        } else {
-          openBookingPrompt();
-        }
+        handlePlannerCtaWithoutSelection(plannerTermBtn);
         return;
       }
       const url = plannerResolveTermUrl(mode, selectedSet);
