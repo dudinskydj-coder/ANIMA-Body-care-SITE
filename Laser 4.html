@@ -1180,6 +1180,14 @@
     .plannerMobileInfoZoneRow--latest{
       opacity:1;
     }
+    .plannerMobileInfoZoneRow--promo{
+      transform-origin:50% 52%;
+      backface-visibility:hidden;
+      will-change:transform, opacity, filter;
+    }
+    .plannerMobileInfoZoneRow--board-swap{
+      animation:plannerMobileInfoPromoSwap .62s cubic-bezier(.22,.72,.24,1) both;
+    }
     .plannerMobileInfoZoneRow--hint{
       font-size:11px;
       line-height:1.24;
@@ -1259,8 +1267,8 @@
     }
     .plannerMobileInfoPrice{
       grid-column:3;
-      width:5ch;
-      min-width:5ch;
+      width:4ch;
+      min-width:4ch;
       max-width:none;
       display:flex;
       flex-direction:column;
@@ -2374,6 +2382,23 @@
     .orderItem[data-set-id]{
       cursor:pointer;
     }
+    @keyframes plannerMobileInfoPromoSwap{
+      0%{
+        opacity:0;
+        transform:translateY(5px);
+        filter:blur(1.4px);
+      }
+      62%{
+        opacity:1;
+        transform:translateY(-1px);
+        filter:blur(0);
+      }
+      100%{
+        opacity:1;
+        transform:translateY(0);
+        filter:blur(0);
+      }
+    }
     .orderItem--set-active{
       background:transparent;
       box-shadow:none;
@@ -2425,7 +2450,7 @@
       width:max-content;
       font-size:14px;
       line-height:1.4;
-      color:#00b300;
+      color:#23a548;
       letter-spacing:-.01em;
       font-weight:650;
     }
@@ -2686,7 +2711,7 @@
       width:40px;
       margin:0;
       padding:0;
-      transition:width .62s cubic-bezier(.22,.8,.24,1);
+      transition:width .9s cubic-bezier(.2,.74,.24,1);
       border:none;
       border-radius:0;
       background:transparent;
@@ -2706,6 +2731,16 @@
       border-radius:999px;
       background:rgba(17,18,24,.10);
       overflow:hidden;
+      transform-origin:left center;
+      will-change:transform, filter;
+      transition:background-color .24s ease, opacity .24s ease;
+    }
+    .plannerNextBenefitBar.is-shell-pushing{
+      animation:plannerNextBenefitShellPush .92s cubic-bezier(.22,.74,.24,1) both;
+    }
+    .plannerNextBenefitBar.is-collapsing{
+      background:transparent;
+      opacity:0;
     }
     .plannerNextBenefitBarFill{
       display:block;
@@ -2713,10 +2748,46 @@
       width:0%;
       border-radius:inherit;
       background:linear-gradient(90deg, #23a548 0%, #42cd72 100%);
-      transition:width .7s cubic-bezier(.22,.8,.24,1);
+      transition:width .88s cubic-bezier(.2,.74,.24,1);
+      will-change:width, filter;
     }
     .plannerNextBenefitBarFill.is-growing{
       animation:plannerNextBenefitGrowPulse .8s ease-out both;
+    }
+    .plannerNextBenefitBarFill.is-shell-pushing{
+      animation:plannerNextBenefitFillPush .92s cubic-bezier(.22,.74,.24,1) both;
+    }
+    @keyframes plannerNextBenefitShellPush{
+      0%{
+        transform:translateX(0);
+        filter:brightness(1);
+      }
+      48%{
+        transform:translateX(1.8px);
+        filter:brightness(1.02);
+      }
+      78%{
+        transform:translateX(.35px);
+        filter:brightness(1.005);
+      }
+      100%{
+        transform:translateX(0);
+        filter:brightness(1);
+      }
+    }
+    @keyframes plannerNextBenefitFillPush{
+      0%{
+        filter:brightness(1);
+      }
+      48%{
+        filter:brightness(1.08);
+      }
+      78%{
+        filter:brightness(1.015);
+      }
+      100%{
+        filter:brightness(1);
+      }
     }
     @keyframes plannerNextBenefitGrowPulse{
       0%{
@@ -3926,7 +3997,7 @@
       }
       .plannerMobileInfo{
         display:grid;
-        grid-template-columns:minmax(0, 1fr) 100px 5ch;
+        grid-template-columns:minmax(0, 1fr) 58px 4ch;
         align-items:center;
         column-gap:0;
         left:22px;
@@ -3945,7 +4016,7 @@
         left:auto;
         z-index:auto;
         width:40px;
-        max-width:100px;
+        max-width:58px;
         display:flex;
         align-items:center;
         align-self:center;
@@ -4077,7 +4148,7 @@
             <div class="plannerMobileInfoZones" id="plannerMobileInfoZones"></div>
             <div class="plannerNextBenefit" id="plannerNextBenefit" hidden>
               <div class="plannerNextBenefitProgressRow">
-                <div class="plannerNextBenefitBar" aria-hidden="true">
+                <div class="plannerNextBenefitBar" id="plannerNextBenefitBar" aria-hidden="true">
                   <span class="plannerNextBenefitBarFill" id="plannerNextBenefitBarFill"></span>
                 </div>
               </div>
@@ -4371,9 +4442,11 @@
   const plannerMobileInfoPriceCurrent = document.getElementById("plannerMobileInfoPriceCurrent");
   const plannerMobileInfoSaved = document.getElementById("plannerMobileInfoSaved");
   const plannerNextBenefit = document.getElementById("plannerNextBenefit");
+  const plannerNextBenefitBar = document.getElementById("plannerNextBenefitBar");
   const plannerNextBenefitBarFill = document.getElementById("plannerNextBenefitBarFill");
   const PLANNER_NEXT_BENEFIT_COMPLETE_HOLD_MS = 1200;
   const PLANNER_NEXT_BENEFIT_SHELL_EXPAND_DELAY_MS = 2000;
+  const PLANNER_MOBILE_INFO_HANDS_CYCLE_MS = 2400;
   let plannerNextBenefitLastRecommendation = null;
   let plannerNextBenefitHoldState = null;
   let plannerNextBenefitAnimateRaf = 0;
@@ -4381,6 +4454,18 @@
   const plannerNextBenefitShellWidthByMode = { frauen:40, herren:40 };
   const plannerNextBenefitShellExpandStateByMode = { frauen:null, herren:null };
   const plannerNextBenefitShellExpandTimerByMode = { frauen:0, herren:0 };
+  const plannerNextBenefitPromoByMode = {
+    frauen:{ text:"", visible:false, animate:false, key:"" },
+    herren:{ text:"", visible:false, animate:false, key:"" }
+  };
+  const plannerNextBenefitPromoTimerByMode = { frauen:0, herren:0 };
+  const plannerNextBenefitPromoSettleTimerByMode = { frauen:0, herren:0 };
+  const plannerMobileInfoLastLabelByMode = { frauen:"", herren:"" };
+  const plannerMobileInfoHandsCycleByMode = {
+    frauen:{ phase:"arms", animate:false, active:false, armsVisits:1 },
+    herren:{ phase:"arms", animate:false, active:false, armsVisits:1 }
+  };
+  const plannerMobileInfoHandsCycleTimerByMode = { frauen:0, herren:0 };
   let plannerNextBenefitHintTimer = 0;
   const plannerNextBenefitHintByMode = {
     frauen:{ text:"", visible:false },
@@ -7355,6 +7440,7 @@
       nextBenefitMany:"Noch {count} Zonen bis {name}",
       nextBenefitSave:"Du sparst {value}",
       nextBenefitAddonSave:"{name} dazu, spare {value}",
+      nextBenefitAddonOnly:"{name} nur {value}",
       plusWord:"plus",
       packageTag:"Smart Paket",
       premiumBadge:"Premium Paket",
@@ -7388,6 +7474,7 @@
       nextBenefitMany:"{count} zones left until {name}",
       nextBenefitSave:"You save {value}",
       nextBenefitAddonSave:"Add {name}, save {value}",
+      nextBenefitAddonOnly:"{name} only {value}",
       plusWord:"plus",
       packageTag:"Smart package",
       premiumBadge:"Premium package",
@@ -7421,6 +7508,7 @@
       nextBenefitMany:"Еще {count} зоны до {name}",
       nextBenefitSave:"Вы экономите {value}",
       nextBenefitAddonSave:"Добавьте {name} и сэкономьте {value}",
+      nextBenefitAddonOnly:"{name} всего {value}",
       plusWord:"плюс",
       packageTag:"Smart пакет",
       premiumBadge:"Премиум пакет",
@@ -11483,7 +11571,39 @@
     }
     return null;
   }
-  function plannerMergeSupplementaryOrderItems(items){
+  function plannerUpgradeSupplementaryPackageItem(mode, packageItem, extraItem, upgradeBundleId){
+    if(!packageItem || !extraItem || !upgradeBundleId) return packageItem;
+    const bundle = plannerBundleById(mode, upgradeBundleId);
+    if(!bundle) return packageItem;
+    const zonesById = plannerZonesMap(mode);
+    const packageChild = plannerCloneOrderItemNode(packageItem);
+    const extraChild = plannerCloneOrderItemNode(extraItem);
+    return {
+      ...plannerCloneOrderItemNode(packageItem),
+      id:bundle.id,
+      label:bundle.label,
+      level:bundle.level || packageItem.level || 2,
+      priority:Number(bundle.priority) || packageItem.priority || 0,
+      price:Number(plannerPackageResolvedPrice(mode, bundle, zonesById)) || Number(packageItem.price) || 0,
+      originalPrice:plannerPackageOriginalPrice(bundle, zonesById),
+      zoneIds:[...(bundle.zoneIds || [])],
+      parts:(bundle.zoneIds || []).map((zoneId) => {
+        const zone = zonesById.get(zoneId);
+        return zone ? zone.label : null;
+      }).filter(Boolean),
+      displayGroup:bundle.displayGroup || packageItem.displayGroup || "",
+      children:[packageChild, extraChild],
+      earliestSelectionOrder:Math.min(
+        Number.isFinite(Number(packageItem.earliestSelectionOrder)) ? Number(packageItem.earliestSelectionOrder) : Number.MAX_SAFE_INTEGER,
+        Number.isFinite(Number(extraItem.earliestSelectionOrder)) ? Number(extraItem.earliestSelectionOrder) : Number.MAX_SAFE_INTEGER
+      ),
+      latestSelectionOrder:Math.max(
+        Number.isFinite(Number(packageItem.latestSelectionOrder)) ? Number(packageItem.latestSelectionOrder) : -1,
+        Number.isFinite(Number(extraItem.latestSelectionOrder)) ? Number(extraItem.latestSelectionOrder) : -1
+      )
+    };
+  }
+  function plannerMergeSupplementaryOrderItems(items, mode = activeLaserMode()){
     const working = (items || []).map((item) => plannerCloneOrderItemNode(item)).filter(Boolean);
     const extractTopLevelSingle = (zoneId) => {
       const index = working.findIndex((item) => item && item.type === "single" && item.id === zoneId);
@@ -11495,14 +11615,26 @@
     const armsPackageItem = plannerFindOrderPackageNode(working, ["smart_arms_complete", "smart_arms_complete_with_hands", "arms_bundle"]);
     const legsPackageItem = plannerFindOrderPackageNode(working, ["smart_legs_complete", "smart_legs_complete_with_feet", "legs_bundle"]);
     if(handsItem && armsPackageItem){
-      const nextChildren = Array.isArray(armsPackageItem.children) ? [...armsPackageItem.children, handsItem] : [handsItem];
-      armsPackageItem.children = nextChildren;
+      if(mode === "frauen" && armsPackageItem.id !== "smart_arms_complete_with_hands"){
+        const upgradedItem = plannerUpgradeSupplementaryPackageItem(mode, armsPackageItem, handsItem, "smart_arms_complete_with_hands");
+        Object.keys(armsPackageItem).forEach((key) => { delete armsPackageItem[key]; });
+        Object.assign(armsPackageItem, upgradedItem);
+      } else {
+        const nextChildren = Array.isArray(armsPackageItem.children) ? [...armsPackageItem.children, handsItem] : [handsItem];
+        armsPackageItem.children = nextChildren;
+      }
     } else if(handsItem){
       working.push(handsItem);
     }
     if(feetItem && legsPackageItem){
-      const nextChildren = Array.isArray(legsPackageItem.children) ? [...legsPackageItem.children, feetItem] : [feetItem];
-      legsPackageItem.children = nextChildren;
+      if(mode === "frauen" && legsPackageItem.id !== "smart_legs_complete_with_feet"){
+        const upgradedItem = plannerUpgradeSupplementaryPackageItem(mode, legsPackageItem, feetItem, "smart_legs_complete_with_feet");
+        Object.keys(legsPackageItem).forEach((key) => { delete legsPackageItem[key]; });
+        Object.assign(legsPackageItem, upgradedItem);
+      } else {
+        const nextChildren = Array.isArray(legsPackageItem.children) ? [...legsPackageItem.children, feetItem] : [feetItem];
+        legsPackageItem.children = nextChildren;
+      }
     } else if(feetItem){
       working.push(feetItem);
     }
@@ -11542,7 +11674,7 @@
     return composed;
   }
   function plannerDisplayItems(snapshot){
-    const items = snapshot && Array.isArray(snapshot.items) ? snapshot.items : [];
+    const items = plannerMergeSupplementaryOrderItems(snapshot && Array.isArray(snapshot.items) ? snapshot.items : [], snapshot && snapshot.mode ? snapshot.mode : activeLaserMode());
     if(!items.length) return items;
     const displayNodes = plannerMergeSupplementaryNodes(items.flatMap((item) => plannerDisplayNodesForItem(item)));
     if(items.length === 1){
@@ -11654,9 +11786,9 @@
   function plannerSavedLabel(value){
     const amount = formatEuro(value);
     const lang = currentLang();
-    if(lang === "ru") return `Пакетная скидка ${amount}`;
-    if(lang === "en") return `Package saving ${amount}`;
-    return `Paketrabatt ${amount}`;
+    if(lang === "ru") return `+${amount} сэкономлено`;
+    if(lang === "en") return `+${amount} saved`;
+    return `+${amount} gespart`;
   }
   function plannerBundleSavedAmount(mode, bundleId){
     const bundle = plannerBundleById(mode, bundleId);
@@ -12055,7 +12187,66 @@
     }
     return null;
   }
+  function plannerNextBenefitPreviousStepState(mode, recommendation, selectedSet){
+    if(!recommendation || !recommendation.sectionId) return null;
+    const sections = plannerNextBenefitSections(mode);
+    const section = sections.find((item) => item && item.id === recommendation.sectionId);
+    const steps = Array.isArray(section && section.steps) ? section.steps : [];
+    const currentStepIndex = steps.findIndex((step) => step && step.id === recommendation.id && step.type === recommendation.type);
+    if(currentStepIndex <= 0) return null;
+    const previousStep = steps[currentStepIndex - 1];
+    const zonesById = plannerZonesMap(mode);
+    const previousMeta = plannerNextBenefitStepMeta(mode, previousStep, zonesById);
+    if(!previousMeta || !previousMeta.zoneIds.length) return null;
+    const selectedCount = previousMeta.zoneIds.filter((zoneId) => selectedSet.has(zoneId)).length;
+    const totalCount = previousMeta.zoneIds.length;
+    if(selectedCount < totalCount) return null;
+    return {
+      ...previousMeta,
+      selectedCount,
+      totalCount
+    };
+  }
   function renderPlannerNextBenefit(mode, selectedSet){
+    const clearPlannerNextBenefitShellExpandTimer = () => {
+      if(plannerNextBenefitShellExpandTimerByMode[mode]){
+        clearTimeout(plannerNextBenefitShellExpandTimerByMode[mode]);
+        plannerNextBenefitShellExpandTimerByMode[mode] = 0;
+      }
+    };
+    const clearPlannerNextBenefitPromoTimers = () => {
+      if(plannerNextBenefitPromoTimerByMode[mode]){
+        clearTimeout(plannerNextBenefitPromoTimerByMode[mode]);
+        plannerNextBenefitPromoTimerByMode[mode] = 0;
+      }
+      if(plannerNextBenefitPromoSettleTimerByMode[mode]){
+        clearTimeout(plannerNextBenefitPromoSettleTimerByMode[mode]);
+        plannerNextBenefitPromoSettleTimerByMode[mode] = 0;
+      }
+    };
+    const clearPlannerNextBenefitPromo = () => {
+      clearPlannerNextBenefitPromoTimers();
+      plannerNextBenefitPromoByMode[mode] = { text:"", visible:false, animate:false, key:"" };
+    };
+    const schedulePlannerNextBenefitPromo = (text, key) => {
+      if(!text || !key) return;
+      const currentPromoState = plannerNextBenefitPromoByMode[mode] || { text:"", visible:false, animate:false, key:"" };
+      if(currentPromoState.key === key && currentPromoState.visible) return;
+      clearPlannerNextBenefitPromoTimers();
+      plannerNextBenefitPromoByMode[mode] = { text:"", visible:false, animate:false, key };
+      plannerNextBenefitPromoTimerByMode[mode] = window.setTimeout(() => {
+        plannerNextBenefitPromoTimerByMode[mode] = 0;
+        plannerNextBenefitPromoByMode[mode] = { text, visible:true, animate:true, key };
+        schedulePlannerRender(mode);
+        plannerNextBenefitPromoSettleTimerByMode[mode] = window.setTimeout(() => {
+          plannerNextBenefitPromoSettleTimerByMode[mode] = 0;
+          const activePromoState = plannerNextBenefitPromoByMode[mode] || { text:"", visible:false, animate:false, key:"" };
+          if(activePromoState.key !== key || !activePromoState.visible) return;
+          plannerNextBenefitPromoByMode[mode] = { text, visible:true, animate:false, key };
+          schedulePlannerRender(mode);
+        }, 760);
+      }, 1000);
+    };
     const setPlannerNextBenefitHint = (text, visible) => {
       if(plannerNextBenefitHintTimer){
         clearTimeout(plannerNextBenefitHintTimer);
@@ -12085,29 +12276,82 @@
         value:formatEuro(savings)
       });
     };
-    const showPlannerNextBenefit = (shellWidthPx, progressPercent) => {
-      const targetWidth = `${Math.max(0, Math.min(100, progressPercent))}%`;
+    const buildPlannerNextBenefitPromoText = (recommendation, previousStepState, zonesById) => {
+      if(!recommendation || !recommendation.upgradePackageId || !previousStepState) return "";
+      const bundle = plannerBundleById(mode, recommendation.upgradePackageId);
+      if(!bundle) return "";
+      let previousPrice = 0;
+      if(previousStepState.type === "package"){
+        const previousBundle = plannerBundleById(mode, previousStepState.id);
+        if(previousBundle){
+          previousPrice = Number(plannerPackageResolvedPrice(mode, previousBundle, zonesById)) || 0;
+        }
+      } else if(previousStepState.type === "zone"){
+        const previousZone = zonesById.get(previousStepState.id);
+        previousPrice = Number(previousZone && previousZone.price) || 0;
+      }
+      const upgradePrice = Number(plannerPackageResolvedPrice(mode, bundle, zonesById)) || 0;
+      const addOnValue = Math.max(0, upgradePrice - previousPrice);
+      const name = plannerLabel(recommendation.label).trim();
+      if(!name) return "";
+      return plannerTextTemplate("nextBenefitAddonOnly", {
+        name,
+        value:formatEuro(addOnValue)
+      });
+    };
+    const showPlannerNextBenefit = (shellWidthPx, progressPercent, playShellPush = false) => {
+      const targetProgress = Math.max(0, Math.min(100, progressPercent));
+      const targetWidth = `${targetProgress}%`;
       const previousPercent = Math.max(0, Math.min(100, Number(plannerNextBenefitProgressByMode[mode]) || 0));
       const previousShellWidth = Math.max(0, Number(plannerNextBenefitShellWidthByMode[mode]) || 40);
       const isGrowing = progressPercent > (previousPercent + 0.5);
+      const isSettlingBack = progressPercent < (previousPercent - 0.5);
+      const isCollapsingAway = shellWidthPx <= 0 && progressPercent <= 0;
+      if(
+        !playShellPush &&
+        !plannerNextBenefit.hidden &&
+        Math.abs(previousShellWidth - shellWidthPx) < 0.5 &&
+        Math.abs(previousPercent - targetProgress) < 0.5
+      ){
+        if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-collapsing", isCollapsingAway);
+        return;
+      }
       if(plannerNextBenefitAnimateRaf){
         cancelAnimationFrame(plannerNextBenefitAnimateRaf);
         plannerNextBenefitAnimateRaf = 0;
       }
       plannerNextBenefit.hidden = false;
       plannerNextBenefit.style.width = `${previousShellWidth}px`;
+      plannerNextBenefit.style.transition = "";
+      if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-shell-pushing");
+      if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-collapsing", isCollapsingAway);
       plannerNextBenefitBarFill.classList.remove("is-growing");
+      plannerNextBenefitBarFill.classList.remove("is-shell-pushing");
+      plannerNextBenefitBarFill.style.transition = "";
       plannerNextBenefitBarFill.style.width = `${previousPercent}%`;
+      if(playShellPush){
+        if(plannerNextBenefitBar) void plannerNextBenefitBar.offsetWidth;
+        void plannerNextBenefitBarFill.offsetWidth;
+      }
       void plannerNextBenefitBarFill.offsetWidth;
       plannerNextBenefitAnimateRaf = requestAnimationFrame(() => {
         plannerNextBenefitAnimateRaf = 0;
         if(isGrowing){
           plannerNextBenefitBarFill.classList.add("is-growing");
         }
+        if(playShellPush){
+          if(plannerNextBenefitBar) plannerNextBenefitBar.classList.add("is-shell-pushing");
+          plannerNextBenefitBarFill.classList.add("is-shell-pushing");
+        }
         plannerNextBenefit.style.width = `${shellWidthPx}px`;
-        plannerNextBenefitBarFill.style.width = targetWidth;
+        if(isSettlingBack){
+          plannerNextBenefitBarFill.style.transition = "width 1.02s cubic-bezier(.2,.68,.24,1) 120ms";
+          plannerNextBenefitBarFill.style.width = targetWidth;
+        } else {
+          plannerNextBenefitBarFill.style.width = targetWidth;
+        }
       });
-      plannerNextBenefitProgressByMode[mode] = Math.max(0, Math.min(100, progressPercent));
+      plannerNextBenefitProgressByMode[mode] = targetProgress;
       plannerNextBenefitShellWidthByMode[mode] = shellWidthPx;
     };
     const viewportWidth = Math.max(
@@ -12117,6 +12361,7 @@
     const isMobileViewport = viewportWidth <= 767;
     if(!plannerNextBenefit || !plannerNextBenefitBarFill || !isMobileViewport){
       if(plannerNextBenefit) plannerNextBenefit.hidden = true;
+      if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-collapsing");
       if(plannerNextBenefitBarFill) plannerNextBenefitBarFill.style.width = "0%";
       if(plannerNextBenefitAnimateRaf){
         cancelAnimationFrame(plannerNextBenefitAnimateRaf);
@@ -12124,6 +12369,9 @@
       }
       plannerNextBenefitProgressByMode[mode] = 0;
       plannerNextBenefitShellWidthByMode[mode] = 40;
+      plannerNextBenefitShellExpandStateByMode[mode] = null;
+      clearPlannerNextBenefitShellExpandTimer();
+      clearPlannerNextBenefitPromo();
       setPlannerNextBenefitHint("", false);
       plannerNextBenefitLastRecommendation = null;
       plannerNextBenefitHoldState = null;
@@ -12154,8 +12402,27 @@
       return;
     }
     plannerNextBenefitHoldState = null;
+    const selectedZoneIdSet = selectedSet || new Set();
+    const hasArmsCompleteWithHands =
+      selectedZoneIdSet.has("upperarms")
+      && selectedZoneIdSet.has("underarms")
+      && selectedZoneIdSet.has("hands");
+    if(hasArmsCompleteWithHands){
+      const handsCycleState = plannerMobileInfoHandsCycleByMode[mode] || { phase:"arms", animate:false, active:false, armsVisits:1 };
+      const targetShellWidth = 58;
+      if(handsCycleState.phase === "arms" && (Number(handsCycleState.armsVisits) || 1) >= 2){
+        showPlannerNextBenefit(0, 0);
+      } else {
+        showPlannerNextBenefit(targetShellWidth, (2 / 3) * 100);
+      }
+      plannerNextBenefitLastRecommendation = null;
+      clearPlannerNextBenefitPromo();
+      setPlannerNextBenefitHint("", false);
+      return;
+    }
     const recommendation = plannerNextBenefitRecommendation(mode, selectedSet);
     const zonesById = plannerZonesMap(mode);
+    const previousStepState = plannerNextBenefitPreviousStepState(mode, recommendation, selectedSet || new Set());
     if(!recommendation){
       plannerNextBenefit.hidden = true;
       plannerNextBenefitBarFill.style.width = "0%";
@@ -12165,18 +12432,71 @@
       }
       plannerNextBenefitProgressByMode[mode] = 0;
       plannerNextBenefitShellWidthByMode[mode] = 40;
+      plannerNextBenefitShellExpandStateByMode[mode] = null;
+      clearPlannerNextBenefitShellExpandTimer();
+      clearPlannerNextBenefitPromo();
       setPlannerNextBenefitHint("", false);
       plannerNextBenefitLastRecommendation = null;
       return;
     }
-    const useExpandedSectionProgress = recommendation.sectionSelectedCount >= recommendation.totalCount;
-    const shellStepCount = useExpandedSectionProgress
-      ? (recommendation.sectionTotalCount || recommendation.totalCount || 2)
+    const baseStepCount = previousStepState
+      ? (previousStepState.totalCount || recommendation.totalCount || 2)
       : (recommendation.totalCount || 2);
-    const progressRatio = shellStepCount > 0
-      ? ((useExpandedSectionProgress ? recommendation.sectionSelectedCount : recommendation.selectedCount) / shellStepCount)
+    const expandedStepCount = recommendation.sectionTotalCount || recommendation.totalCount || 2;
+    const baseShellWidthPx = Math.max(40, Math.round(baseStepCount * 20));
+    const expandedShellWidthPx = Math.max(40, Math.round(expandedStepCount * 20));
+    const baseProgressRatioSource = previousStepState
+      ? previousStepState.selectedCount
+      : recommendation.selectedCount;
+    const baseProgressRatio = baseStepCount > 0
+      ? (baseProgressRatioSource / baseStepCount)
       : 0;
-    const shellWidthPx = Math.max(40, Math.round(shellStepCount * 20));
+    const expandedProgressRatio = expandedStepCount > 0
+      ? (recommendation.sectionSelectedCount / expandedStepCount)
+      : 0;
+    const canDelayExpandShell = expandedStepCount > baseStepCount
+      && (previousStepState
+        ? previousStepState.selectedCount >= previousStepState.totalCount
+        : recommendation.selectedCount >= recommendation.totalCount)
+      && recommendation.sectionSelectedCount > recommendation.selectedCount;
+    const shellExpandKey = `${recommendation.sectionId}:${recommendation.id}:${baseStepCount}:${recommendation.sectionSelectedCount}`;
+    const promoText = buildPlannerNextBenefitPromoText(recommendation, previousStepState, zonesById);
+    let shellWidthPx = baseShellWidthPx;
+    let progressRatio = baseProgressRatio;
+    let playShellPush = false;
+    if(canDelayExpandShell){
+      const shellExpandState = plannerNextBenefitShellExpandStateByMode[mode];
+      if(!shellExpandState || shellExpandState.key !== shellExpandKey){
+        clearPlannerNextBenefitShellExpandTimer();
+        plannerNextBenefitShellExpandStateByMode[mode] = {
+          key:shellExpandKey,
+          activateAt:now + PLANNER_NEXT_BENEFIT_SHELL_EXPAND_DELAY_MS,
+          played:false
+        };
+        plannerNextBenefitShellExpandTimerByMode[mode] = window.setTimeout(() => {
+          plannerNextBenefitShellExpandTimerByMode[mode] = 0;
+          schedulePlannerRender(mode);
+        }, PLANNER_NEXT_BENEFIT_SHELL_EXPAND_DELAY_MS + 20);
+      }
+      const activeShellExpandState = plannerNextBenefitShellExpandStateByMode[mode];
+      if(activeShellExpandState && activeShellExpandState.activateAt <= now){
+        clearPlannerNextBenefitShellExpandTimer();
+        shellWidthPx = expandedShellWidthPx;
+        progressRatio = expandedProgressRatio;
+        if(!activeShellExpandState.played){
+          playShellPush = true;
+          activeShellExpandState.played = true;
+          schedulePlannerNextBenefitPromo(promoText, shellExpandKey);
+        }
+      } else {
+        shellWidthPx = baseShellWidthPx;
+        progressRatio = 1;
+      }
+    } else {
+      plannerNextBenefitShellExpandStateByMode[mode] = null;
+      clearPlannerNextBenefitShellExpandTimer();
+      clearPlannerNextBenefitPromo();
+    }
     plannerNextBenefitLastRecommendation = {
       mode,
       zoneIds:[...recommendation.zoneIds],
@@ -12186,6 +12506,7 @@
     };
     if(progressRatio <= 0){
       plannerNextBenefit.hidden = true;
+      if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-collapsing");
       plannerNextBenefitBarFill.style.width = "0%";
       if(plannerNextBenefitAnimateRaf){
         cancelAnimationFrame(plannerNextBenefitAnimateRaf);
@@ -12193,12 +12514,19 @@
       }
       plannerNextBenefitProgressByMode[mode] = 0;
       plannerNextBenefitShellWidthByMode[mode] = 40;
+      plannerNextBenefitShellExpandStateByMode[mode] = null;
+      clearPlannerNextBenefitShellExpandTimer();
+      clearPlannerNextBenefitPromo();
       setPlannerNextBenefitHint("", false);
       return;
     }
     const hintText = buildPlannerNextBenefitHint(recommendation, zonesById);
-    setPlannerNextBenefitHint(hintText, false);
-    showPlannerNextBenefit(shellWidthPx, progressRatio * 100);
+    if(canDelayExpandShell || (plannerNextBenefitPromoByMode[mode] && plannerNextBenefitPromoByMode[mode].visible)){
+      setPlannerNextBenefitHint("", false);
+    } else {
+      setPlannerNextBenefitHint(hintText, false);
+    }
+    showPlannerNextBenefit(shellWidthPx, progressRatio * 100, playShellPush);
   }
   function plannerMobileInfoVisualProgress(){
     if(!(plannerFigureViewportScroll instanceof HTMLElement) || plannerViewTransport !== "scroll-snap"){
@@ -12270,25 +12598,86 @@
   }
   function plannerRenderMobileZoneNames(mode, selectedSet, selected){
     if(!plannerMobileInfoZones) return;
+    const clearHandsCycleTimer = () => {
+      if(plannerMobileInfoHandsCycleTimerByMode[mode]){
+        clearTimeout(plannerMobileInfoHandsCycleTimerByMode[mode]);
+        plannerMobileInfoHandsCycleTimerByMode[mode] = 0;
+      }
+    };
+    const scheduleHandsCycle = () => {
+      clearHandsCycleTimer();
+      plannerMobileInfoHandsCycleTimerByMode[mode] = window.setTimeout(() => {
+        plannerMobileInfoHandsCycleTimerByMode[mode] = 0;
+        const currentCycleState = plannerMobileInfoHandsCycleByMode[mode] || { phase:"arms", animate:false, active:false, armsVisits:1 };
+        const nextPhase = currentCycleState.phase === "arms" ? "hands" : "arms";
+        plannerMobileInfoHandsCycleByMode[mode] = {
+          phase:nextPhase,
+          animate:true,
+          active:true,
+          armsVisits:nextPhase === "arms"
+            ? ((Number(currentCycleState.armsVisits) || 1) + 1)
+            : (Number(currentCycleState.armsVisits) || 1)
+        };
+        schedulePlannerRender(mode);
+      }, PLANNER_MOBILE_INFO_HANDS_CYCLE_MS);
+    };
     plannerMobileInfoZones.replaceChildren();
     const items = plannerMobileSummaryItems(selected);
-    const summaryLabel = items.length ? plannerLabel(items[0].label).trim() : "";
+    const selectedZoneIdSet = selectedSet || new Set();
+    const hasArmsCompleteWithHands =
+      selectedZoneIdSet.has("upperarms")
+      && selectedZoneIdSet.has("underarms")
+      && selectedZoneIdSet.has("hands");
+    const summaryLabel = hasArmsCompleteWithHands
+      ? `${plannerText("mergeArms")} +`
+      : (items.length ? plannerLabel(items[0].label).trim() : "");
     const selectedZoneIds = Array.from(selectedSet || []);
     const latestZoneId = selectedZoneIds[selectedZoneIds.length - 1] || "";
     const zonesById = plannerZonesMap(mode);
     const latestZone = latestZoneId ? zonesById.get(latestZoneId) : null;
     const latestLabel = latestZone ? plannerLabel(latestZone.label).trim() : "";
     if(!summaryLabel && !latestLabel){
+      plannerMobileInfoLastLabelByMode[mode] = "";
+      plannerMobileInfoHandsCycleByMode[mode] = { phase:"arms", animate:false, active:false, armsVisits:1 };
+      clearHandsCycleTimer();
       plannerMobileInfoZones.classList.remove("is-expanded");
       return;
     }
+    const promoState = plannerNextBenefitPromoByMode[mode] || { text:"", visible:false, animate:false, key:"" };
     const hintState = plannerNextBenefitHintByMode[mode] || { text:"", visible:false };
-    const label = (hintState.visible && hintState.text) ? hintState.text : (summaryLabel || latestLabel);
+    const shouldShowPromo = !hasArmsCompleteWithHands && promoState.visible && promoState.text;
+    let label = shouldShowPromo
+      ? promoState.text
+      : ((hintState.visible && hintState.text) ? hintState.text : (summaryLabel || latestLabel));
+    let isHintLabel = !shouldShowPromo && hintState.visible && hintState.text && label === hintState.text;
+    let shouldAnimateLabelChange = !!(shouldShowPromo && promoState.animate);
+    if(hasArmsCompleteWithHands){
+      const handsLabel = plannerLabel((zonesById.get("hands") || {}).label).trim();
+      const currentCycleState = plannerMobileInfoHandsCycleByMode[mode] || { phase:"arms", animate:false, active:false, armsVisits:1 };
+      if(!currentCycleState.active){
+        plannerMobileInfoHandsCycleByMode[mode] = { phase:"arms", animate:true, active:true, armsVisits:1 };
+      }
+      const activeCycleState = plannerMobileInfoHandsCycleByMode[mode] || { phase:"arms", animate:false, active:true, armsVisits:1 };
+      label = activeCycleState.phase === "hands" ? handsLabel : `${plannerText("mergeArms")} +`;
+      isHintLabel = false;
+      shouldAnimateLabelChange = !!activeCycleState.animate;
+      plannerMobileInfoHandsCycleByMode[mode] = {
+        phase:activeCycleState.phase,
+        animate:false,
+        active:true,
+        armsVisits:Number(activeCycleState.armsVisits) || 1
+      };
+      scheduleHandsCycle();
+    } else {
+      plannerMobileInfoHandsCycleByMode[mode] = { phase:"arms", animate:false, active:false, armsVisits:1 };
+      clearHandsCycleTimer();
+    }
     if(label){
       const row = document.createElement("div");
-      row.className = `plannerMobileInfoZoneRow plannerMobileInfoZoneRow--latest${(hintState.visible && hintState.text) ? " plannerMobileInfoZoneRow--hint" : ""}`;
+      row.className = `plannerMobileInfoZoneRow plannerMobileInfoZoneRow--latest${(shouldShowPromo || shouldAnimateLabelChange) ? " plannerMobileInfoZoneRow--promo" : ""}${((shouldShowPromo && promoState.animate) || shouldAnimateLabelChange) ? " plannerMobileInfoZoneRow--board-swap" : ""}${(!shouldShowPromo && isHintLabel) ? " plannerMobileInfoZoneRow--hint" : ""}`;
       row.textContent = label;
       plannerMobileInfoZones.appendChild(row);
+      plannerMobileInfoLastLabelByMode[mode] = label;
     }
     plannerMobileInfoZones.classList.remove("is-expanded");
   }
@@ -12551,7 +12940,7 @@
           ]
         }];
       }
-      detailNodes = plannerMergeSupplementaryOrderItems(detailNodes);
+      detailNodes = plannerMergeSupplementaryOrderItems(detailNodes, mode);
       const partsText = item.metaLabel ? plannerLabel(item.metaLabel).trim() : "";
       const basePrice = item.price;
       const originalPrice = Number(item.originalPrice) || basePrice;
