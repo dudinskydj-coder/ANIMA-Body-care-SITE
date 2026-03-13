@@ -1185,6 +1185,9 @@
       backface-visibility:hidden;
       will-change:transform, opacity, filter;
     }
+    .plannerMobileInfoZoneRow--promo-save{
+      color:#23a548;
+    }
     .plannerMobileInfoZoneRow--board-swap{
       animation:plannerMobileInfoPromoSwap .62s cubic-bezier(.22,.72,.24,1) both;
     }
@@ -2741,6 +2744,9 @@
     .plannerNextBenefitBar.is-collapsing{
       background:transparent;
       opacity:0;
+    }
+    .plannerNextBenefitBar.is-fill-collapsing{
+      background:transparent;
     }
     .plannerNextBenefitBarFill{
       display:block;
@@ -4447,6 +4453,8 @@
   const PLANNER_NEXT_BENEFIT_COMPLETE_HOLD_MS = 1200;
   const PLANNER_NEXT_BENEFIT_SHELL_EXPAND_DELAY_MS = 2000;
   const PLANNER_MOBILE_INFO_HANDS_CYCLE_MS = 2400;
+  const PLANNER_NEXT_BENEFIT_PROMO_CYCLE_MS = 2400;
+  const PLANNER_MOBILE_INFO_HANDS_COLLAPSE_MS = 5000;
   let plannerNextBenefitLastRecommendation = null;
   let plannerNextBenefitHoldState = null;
   let plannerNextBenefitAnimateRaf = 0;
@@ -4455,15 +4463,16 @@
   const plannerNextBenefitShellExpandStateByMode = { frauen:null, herren:null };
   const plannerNextBenefitShellExpandTimerByMode = { frauen:0, herren:0 };
   const plannerNextBenefitPromoByMode = {
-    frauen:{ text:"", visible:false, animate:false, key:"" },
-    herren:{ text:"", visible:false, animate:false, key:"" }
+    frauen:{ text:"", texts:[], index:0, visible:false, animate:false, key:"" },
+    herren:{ text:"", texts:[], index:0, visible:false, animate:false, key:"" }
   };
   const plannerNextBenefitPromoTimerByMode = { frauen:0, herren:0 };
   const plannerNextBenefitPromoSettleTimerByMode = { frauen:0, herren:0 };
+  const plannerNextBenefitPromoCycleTimerByMode = { frauen:0, herren:0 };
   const plannerMobileInfoLastLabelByMode = { frauen:"", herren:"" };
   const plannerMobileInfoHandsCycleByMode = {
-    frauen:{ phase:"arms", animate:false, active:false, armsVisits:1 },
-    herren:{ phase:"arms", animate:false, active:false, armsVisits:1 }
+    frauen:{ phase:"arms", animate:false, active:false, armsVisits:1, collapseActive:false },
+    herren:{ phase:"arms", animate:false, active:false, armsVisits:1, collapseActive:false }
   };
   const plannerMobileInfoHandsCycleTimerByMode = { frauen:0, herren:0 };
   let plannerNextBenefitHintTimer = 0;
@@ -7439,6 +7448,7 @@
       nextBenefitOne:"Noch 1 Zone bis zum Paket",
       nextBenefitMany:"Noch {count} Zonen bis {name}",
       nextBenefitSave:"Du sparst {value}",
+      nextBenefitSaveShort:"Gesamtvorteil +{value}",
       nextBenefitAddonSave:"{name} dazu, spare {value}",
       nextBenefitAddonOnly:"{name} nur {value}",
       plusWord:"plus",
@@ -7473,6 +7483,7 @@
       nextBenefitOne:"1 zone left until package price",
       nextBenefitMany:"{count} zones left until {name}",
       nextBenefitSave:"You save {value}",
+      nextBenefitSaveShort:"Total benefit +{value}",
       nextBenefitAddonSave:"Add {name}, save {value}",
       nextBenefitAddonOnly:"{name} only {value}",
       plusWord:"plus",
@@ -7507,6 +7518,7 @@
       nextBenefitOne:"Еще 1 зона до пакетной цены",
       nextBenefitMany:"Еще {count} зоны до {name}",
       nextBenefitSave:"Вы экономите {value}",
+      nextBenefitSaveShort:"Общая выгода +{value}",
       nextBenefitAddonSave:"Добавьте {name} и сэкономьте {value}",
       nextBenefitAddonOnly:"{name} всего {value}",
       plusWord:"плюс",
@@ -12223,28 +12235,70 @@
         clearTimeout(plannerNextBenefitPromoSettleTimerByMode[mode]);
         plannerNextBenefitPromoSettleTimerByMode[mode] = 0;
       }
+      if(plannerNextBenefitPromoCycleTimerByMode[mode]){
+        clearTimeout(plannerNextBenefitPromoCycleTimerByMode[mode]);
+        plannerNextBenefitPromoCycleTimerByMode[mode] = 0;
+      }
     };
     const clearPlannerNextBenefitPromo = () => {
       clearPlannerNextBenefitPromoTimers();
-      plannerNextBenefitPromoByMode[mode] = { text:"", visible:false, animate:false, key:"" };
+      plannerNextBenefitPromoByMode[mode] = { text:"", texts:[], index:0, visible:false, animate:false, key:"" };
     };
-    const schedulePlannerNextBenefitPromo = (text, key) => {
-      if(!text || !key) return;
-      const currentPromoState = plannerNextBenefitPromoByMode[mode] || { text:"", visible:false, animate:false, key:"" };
+    const schedulePlannerNextBenefitPromo = (texts, key) => {
+      const promoTexts = (Array.isArray(texts) ? texts : [texts])
+        .map((value) => String(value || "").trim())
+        .filter(Boolean)
+        .filter((value, index, arr) => arr.indexOf(value) === index);
+      if(!promoTexts.length || !key) return;
+      const currentPromoState = plannerNextBenefitPromoByMode[mode] || { text:"", texts:[], index:0, visible:false, animate:false, key:"" };
       if(currentPromoState.key === key && currentPromoState.visible) return;
       clearPlannerNextBenefitPromoTimers();
-      plannerNextBenefitPromoByMode[mode] = { text:"", visible:false, animate:false, key };
-      plannerNextBenefitPromoTimerByMode[mode] = window.setTimeout(() => {
-        plannerNextBenefitPromoTimerByMode[mode] = 0;
-        plannerNextBenefitPromoByMode[mode] = { text, visible:true, animate:true, key };
-        schedulePlannerRender(mode);
+      plannerNextBenefitPromoByMode[mode] = { text:"", texts:promoTexts, index:0, visible:false, animate:false, key };
+      const schedulePromoSettle = (expectedKey, index) => {
         plannerNextBenefitPromoSettleTimerByMode[mode] = window.setTimeout(() => {
           plannerNextBenefitPromoSettleTimerByMode[mode] = 0;
-          const activePromoState = plannerNextBenefitPromoByMode[mode] || { text:"", visible:false, animate:false, key:"" };
-          if(activePromoState.key !== key || !activePromoState.visible) return;
-          plannerNextBenefitPromoByMode[mode] = { text, visible:true, animate:false, key };
+          const activePromoState = plannerNextBenefitPromoByMode[mode] || { text:"", texts:[], index:0, visible:false, animate:false, key:"" };
+          if(activePromoState.key !== expectedKey || !activePromoState.visible || activePromoState.index !== index) return;
+          plannerNextBenefitPromoByMode[mode] = {
+            ...activePromoState,
+            animate:false
+          };
           schedulePlannerRender(mode);
         }, 760);
+      };
+      const schedulePromoCycle = (expectedKey) => {
+        if(promoTexts.length <= 1) return;
+        plannerNextBenefitPromoCycleTimerByMode[mode] = window.setTimeout(() => {
+          plannerNextBenefitPromoCycleTimerByMode[mode] = 0;
+          const activePromoState = plannerNextBenefitPromoByMode[mode] || { text:"", texts:[], index:0, visible:false, animate:false, key:"" };
+          if(activePromoState.key !== expectedKey || !activePromoState.visible) return;
+          const nextIndex = ((Number(activePromoState.index) || 0) + 1) % promoTexts.length;
+          plannerNextBenefitPromoByMode[mode] = {
+            text:promoTexts[nextIndex],
+            texts:promoTexts,
+            index:nextIndex,
+            visible:true,
+            animate:true,
+            key:expectedKey
+          };
+          schedulePlannerRender(mode);
+          schedulePromoSettle(expectedKey, nextIndex);
+          schedulePromoCycle(expectedKey);
+        }, PLANNER_NEXT_BENEFIT_PROMO_CYCLE_MS);
+      };
+      plannerNextBenefitPromoTimerByMode[mode] = window.setTimeout(() => {
+        plannerNextBenefitPromoTimerByMode[mode] = 0;
+        plannerNextBenefitPromoByMode[mode] = {
+          text:promoTexts[0],
+          texts:promoTexts,
+          index:0,
+          visible:true,
+          animate:true,
+          key
+        };
+        schedulePlannerRender(mode);
+        schedulePromoSettle(key, 0);
+        schedulePromoCycle(key);
       }, 1000);
     };
     const setPlannerNextBenefitHint = (text, visible) => {
@@ -12299,15 +12353,28 @@
         value:formatEuro(addOnValue)
       });
     };
-    const showPlannerNextBenefit = (shellWidthPx, progressPercent, playShellPush = false) => {
+    const buildPlannerNextBenefitPromoSaveText = (recommendation, zonesById) => {
+      if(!recommendation || !recommendation.upgradePackageId) return "";
+      const bundle = plannerBundleById(mode, recommendation.upgradePackageId);
+      if(!bundle) return "";
+      const savings = Math.max(
+        0,
+        plannerPackageOriginalPrice(bundle, zonesById) - (Number(plannerPackageResolvedPrice(mode, bundle, zonesById)) || 0)
+      );
+      if(!savings) return "";
+      return plannerTextTemplate("nextBenefitSaveShort", {
+        value:formatEuro(savings)
+      });
+    };
+    const showPlannerNextBenefit = (shellWidthPx, progressPercent, playShellPush = false, options = {}) => {
       const targetProgress = Math.max(0, Math.min(100, progressPercent));
       const targetWidth = `${targetProgress}%`;
+      const settleTransition = typeof options.settleTransition === "string" ? options.settleTransition.trim() : "";
+      const fillCollapseOnly = !!options.fillCollapseOnly;
       const previousPercent = Math.max(0, Math.min(100, Number(plannerNextBenefitProgressByMode[mode]) || 0));
       const previousShellWidth = Math.max(0, Number(plannerNextBenefitShellWidthByMode[mode]) || 40);
       const isGrowing = progressPercent > (previousPercent + 0.5);
       const isSettlingBack = progressPercent < (previousPercent - 0.5);
-      const isShellExpanding = shellWidthPx > (previousShellWidth + 0.5);
-      const shouldStageSettleBack = playShellPush && isSettlingBack && isShellExpanding;
       const isCollapsingAway = shellWidthPx <= 0 && progressPercent <= 0;
       if(
         !playShellPush &&
@@ -12316,6 +12383,7 @@
         Math.abs(previousPercent - targetProgress) < 0.5
       ){
         if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-collapsing", isCollapsingAway);
+        if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-fill-collapsing", fillCollapseOnly);
         return;
       }
       if(plannerNextBenefitAnimateRaf){
@@ -12327,6 +12395,7 @@
       plannerNextBenefit.style.transition = "";
       if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-shell-pushing");
       if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-collapsing", isCollapsingAway);
+      if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-fill-collapsing", fillCollapseOnly);
       plannerNextBenefitBarFill.classList.remove("is-growing");
       plannerNextBenefitBarFill.classList.remove("is-shell-pushing");
       plannerNextBenefitBarFill.style.transition = "";
@@ -12345,11 +12414,10 @@
           if(plannerNextBenefitBar) plannerNextBenefitBar.classList.add("is-shell-pushing");
           plannerNextBenefitBarFill.classList.add("is-shell-pushing");
         }
+        if(plannerNextBenefitBar) plannerNextBenefitBar.classList.toggle("is-fill-collapsing", fillCollapseOnly);
         plannerNextBenefit.style.width = `${shellWidthPx}px`;
         if(isSettlingBack){
-          plannerNextBenefitBarFill.style.transition = shouldStageSettleBack
-            ? "width .82s cubic-bezier(.18,.72,.24,1) 860ms"
-            : "width 1.02s cubic-bezier(.2,.68,.24,1) 120ms";
+          plannerNextBenefitBarFill.style.transition = settleTransition || "width 1.02s cubic-bezier(.2,.68,.24,1) 120ms";
           plannerNextBenefitBarFill.style.width = targetWidth;
         } else {
           plannerNextBenefitBarFill.style.width = targetWidth;
@@ -12365,7 +12433,7 @@
     const isMobileViewport = viewportWidth <= 767;
     if(!plannerNextBenefit || !plannerNextBenefitBarFill || !isMobileViewport){
       if(plannerNextBenefit) plannerNextBenefit.hidden = true;
-      if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-collapsing");
+      if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-collapsing", "is-fill-collapsing");
       if(plannerNextBenefitBarFill) plannerNextBenefitBarFill.style.width = "0%";
       if(plannerNextBenefitAnimateRaf){
         cancelAnimationFrame(plannerNextBenefitAnimateRaf);
@@ -12412,13 +12480,20 @@
       && selectedZoneIdSet.has("underarms")
       && selectedZoneIdSet.has("hands");
     if(hasArmsCompleteWithHands){
-      const handsCycleState = plannerMobileInfoHandsCycleByMode[mode] || { phase:"arms", animate:false, active:false, armsVisits:1 };
+      const handsCycleState = plannerMobileInfoHandsCycleByMode[mode] || { phase:"arms", animate:false, active:false, armsVisits:1, collapseActive:false };
       const targetShellWidth = 58;
-      if(handsCycleState.phase === "arms" && (Number(handsCycleState.armsVisits) || 1) >= 2){
-        showPlannerNextBenefit(0, 0);
-      } else {
-        showPlannerNextBenefit(targetShellWidth, (2 / 3) * 100);
-      }
+      const isHandsCollapseActive = !!handsCycleState.collapseActive;
+      showPlannerNextBenefit(
+        targetShellWidth,
+        isHandsCollapseActive ? 0 : ((2 / 3) * 100),
+        false,
+        isHandsCollapseActive
+          ? {
+              settleTransition:`width ${PLANNER_MOBILE_INFO_HANDS_COLLAPSE_MS}ms cubic-bezier(.24,.62,.3,1)`,
+              fillCollapseOnly:true
+            }
+          : {}
+      );
       plannerNextBenefitLastRecommendation = null;
       clearPlannerNextBenefitPromo();
       setPlannerNextBenefitHint("", false);
@@ -12465,6 +12540,7 @@
       && recommendation.sectionSelectedCount > recommendation.selectedCount;
     const shellExpandKey = `${recommendation.sectionId}:${recommendation.id}:${baseStepCount}:${recommendation.sectionSelectedCount}`;
     const promoText = buildPlannerNextBenefitPromoText(recommendation, previousStepState, zonesById);
+    const promoSaveText = buildPlannerNextBenefitPromoSaveText(recommendation, zonesById);
     let shellWidthPx = baseShellWidthPx;
     let progressRatio = baseProgressRatio;
     let playShellPush = false;
@@ -12490,7 +12566,7 @@
         if(!activeShellExpandState.played){
           playShellPush = true;
           activeShellExpandState.played = true;
-          schedulePlannerNextBenefitPromo(promoText, shellExpandKey);
+          schedulePlannerNextBenefitPromo([promoText, promoSaveText], shellExpandKey);
         }
       } else {
         shellWidthPx = baseShellWidthPx;
@@ -12510,7 +12586,7 @@
     };
     if(progressRatio <= 0){
       plannerNextBenefit.hidden = true;
-      if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-collapsing");
+      if(plannerNextBenefitBar) plannerNextBenefitBar.classList.remove("is-collapsing", "is-fill-collapsing");
       plannerNextBenefitBarFill.style.width = "0%";
       if(plannerNextBenefitAnimateRaf){
         cancelAnimationFrame(plannerNextBenefitAnimateRaf);
@@ -12612,7 +12688,7 @@
       clearHandsCycleTimer();
       plannerMobileInfoHandsCycleTimerByMode[mode] = window.setTimeout(() => {
         plannerMobileInfoHandsCycleTimerByMode[mode] = 0;
-        const currentCycleState = plannerMobileInfoHandsCycleByMode[mode] || { phase:"arms", animate:false, active:false, armsVisits:1 };
+        const currentCycleState = plannerMobileInfoHandsCycleByMode[mode] || { phase:"arms", animate:false, active:false, armsVisits:1, collapseActive:false };
         const nextPhase = currentCycleState.phase === "arms" ? "hands" : "arms";
         plannerMobileInfoHandsCycleByMode[mode] = {
           phase:nextPhase,
@@ -12620,7 +12696,8 @@
           active:true,
           armsVisits:nextPhase === "arms"
             ? ((Number(currentCycleState.armsVisits) || 1) + 1)
-            : (Number(currentCycleState.armsVisits) || 1)
+            : (Number(currentCycleState.armsVisits) || 1),
+          collapseActive:nextPhase === "hands" ? true : !!currentCycleState.collapseActive
         };
         schedulePlannerRender(mode);
       }, PLANNER_MOBILE_INFO_HANDS_CYCLE_MS);
@@ -12642,12 +12719,12 @@
     const latestLabel = latestZone ? plannerLabel(latestZone.label).trim() : "";
     if(!summaryLabel && !latestLabel){
       plannerMobileInfoLastLabelByMode[mode] = "";
-      plannerMobileInfoHandsCycleByMode[mode] = { phase:"arms", animate:false, active:false, armsVisits:1 };
+      plannerMobileInfoHandsCycleByMode[mode] = { phase:"arms", animate:false, active:false, armsVisits:1, collapseActive:false };
       clearHandsCycleTimer();
       plannerMobileInfoZones.classList.remove("is-expanded");
       return;
     }
-    const promoState = plannerNextBenefitPromoByMode[mode] || { text:"", visible:false, animate:false, key:"" };
+    const promoState = plannerNextBenefitPromoByMode[mode] || { text:"", texts:[], index:0, visible:false, animate:false, key:"" };
     const hintState = plannerNextBenefitHintByMode[mode] || { text:"", visible:false };
     const shouldShowPromo = !hasArmsCompleteWithHands && promoState.visible && promoState.text;
     let label = shouldShowPromo
@@ -12655,13 +12732,14 @@
       : ((hintState.visible && hintState.text) ? hintState.text : (summaryLabel || latestLabel));
     let isHintLabel = !shouldShowPromo && hintState.visible && hintState.text && label === hintState.text;
     let shouldAnimateLabelChange = !!(shouldShowPromo && promoState.animate);
+    const isPromoSaveLabel = !!(shouldShowPromo && (Number(promoState.index) || 0) > 0);
     if(hasArmsCompleteWithHands){
       const handsLabel = plannerLabel((zonesById.get("hands") || {}).label).trim();
-      const currentCycleState = plannerMobileInfoHandsCycleByMode[mode] || { phase:"arms", animate:false, active:false, armsVisits:1 };
+      const currentCycleState = plannerMobileInfoHandsCycleByMode[mode] || { phase:"arms", animate:false, active:false, armsVisits:1, collapseActive:false };
       if(!currentCycleState.active){
-        plannerMobileInfoHandsCycleByMode[mode] = { phase:"arms", animate:true, active:true, armsVisits:1 };
+        plannerMobileInfoHandsCycleByMode[mode] = { phase:"arms", animate:true, active:true, armsVisits:1, collapseActive:false };
       }
-      const activeCycleState = plannerMobileInfoHandsCycleByMode[mode] || { phase:"arms", animate:false, active:true, armsVisits:1 };
+      const activeCycleState = plannerMobileInfoHandsCycleByMode[mode] || { phase:"arms", animate:false, active:true, armsVisits:1, collapseActive:false };
       label = activeCycleState.phase === "hands" ? handsLabel : `${plannerText("mergeArms")} +`;
       isHintLabel = false;
       shouldAnimateLabelChange = !!activeCycleState.animate;
@@ -12669,16 +12747,17 @@
         phase:activeCycleState.phase,
         animate:false,
         active:true,
-        armsVisits:Number(activeCycleState.armsVisits) || 1
+        armsVisits:Number(activeCycleState.armsVisits) || 1,
+        collapseActive:!!activeCycleState.collapseActive
       };
       scheduleHandsCycle();
     } else {
-      plannerMobileInfoHandsCycleByMode[mode] = { phase:"arms", animate:false, active:false, armsVisits:1 };
+      plannerMobileInfoHandsCycleByMode[mode] = { phase:"arms", animate:false, active:false, armsVisits:1, collapseActive:false };
       clearHandsCycleTimer();
     }
     if(label){
       const row = document.createElement("div");
-      row.className = `plannerMobileInfoZoneRow plannerMobileInfoZoneRow--latest${(shouldShowPromo || shouldAnimateLabelChange) ? " plannerMobileInfoZoneRow--promo" : ""}${((shouldShowPromo && promoState.animate) || shouldAnimateLabelChange) ? " plannerMobileInfoZoneRow--board-swap" : ""}${(!shouldShowPromo && isHintLabel) ? " plannerMobileInfoZoneRow--hint" : ""}`;
+      row.className = `plannerMobileInfoZoneRow plannerMobileInfoZoneRow--latest${(shouldShowPromo || shouldAnimateLabelChange) ? " plannerMobileInfoZoneRow--promo" : ""}${isPromoSaveLabel ? " plannerMobileInfoZoneRow--promo-save" : ""}${((shouldShowPromo && promoState.animate) || shouldAnimateLabelChange) ? " plannerMobileInfoZoneRow--board-swap" : ""}${(!shouldShowPromo && isHintLabel) ? " plannerMobileInfoZoneRow--hint" : ""}`;
       row.textContent = label;
       plannerMobileInfoZones.appendChild(row);
       plannerMobileInfoLastLabelByMode[mode] = label;
