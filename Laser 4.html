@@ -1177,7 +1177,7 @@
     .plannerMobileInfoZoneRow{
       display:block;
       min-width:0;
-      font-size:14px;
+      font-size:18px;
       line-height:1.12;
       color:#111218;
       letter-spacing:-.01em;
@@ -12990,7 +12990,10 @@
         key:"",
         kind:""
       };
-      if(currentPromoState.key === key && (currentPromoState.visible || currentPromoState.pending)) return;
+      if(currentPromoState.key === key && (currentPromoState.visible || currentPromoState.pending)){
+        if(currentPromoState.pending && plannerNextBenefitPromoTimerByMode[mode]) return;
+        if(currentPromoState.visible && (promoItems.length <= 1 || plannerNextBenefitPromoCycleTimerByMode[mode])) return;
+      }
       clearPlannerNextBenefitPromoTimers();
       const promoTexts = promoItems.map((item) => item.text);
       const kind = String(options.kind || "").trim();
@@ -14039,6 +14042,36 @@
         plannerMobileSelectedPromoTimerByMode[mode] = 0;
       }
     };
+    const selectedPromoOfferHoldMs = (item) => {
+      if(!item) return Math.max(1400, PLANNER_MOBILE_SELECTED_PROMO_DELAY_MS);
+      const sequenceConfig = plannerPromoOverlaySequenceConfig(item.id);
+      const stepCount = sequenceConfig && Array.isArray(sequenceConfig.steps)
+        ? sequenceConfig.steps.length
+        : 0;
+      return PLANNER_PROMO_OVERLAY_START_DELAY_MS + Math.max(1400, stepCount * PLANNER_PROMO_OVERLAY_STEP_MS) + 420;
+    };
+    const scheduleSelectedPromoPhase = (item, expectedKey, nextPhase, delayMs) => {
+      clearSelectedPromoTimer();
+      plannerMobileSelectedPromoTimerByMode[mode] = window.setTimeout(() => {
+        plannerMobileSelectedPromoTimerByMode[mode] = 0;
+        const activeSelectedPromoState = plannerMobileSelectedPromoByMode[mode] || { key:"", phase:"idle", active:false, animate:false };
+        if(activeSelectedPromoState.key !== expectedKey || !activeSelectedPromoState.active) return;
+        plannerMobileSelectedPromoByMode[mode] = {
+          ...activeSelectedPromoState,
+          phase:nextPhase,
+          animate:true
+        };
+        schedulePlannerRender(mode);
+        scheduleSelectedPromoPhase(
+          item,
+          expectedKey,
+          nextPhase === "offer" ? "lead" : "offer",
+          nextPhase === "offer"
+            ? selectedPromoOfferHoldMs(item)
+            : PLANNER_MOBILE_SELECTED_PROMO_DELAY_MS
+        );
+      }, Math.max(360, Number(delayMs) || 0));
+    };
     const scheduleHandsCycle = () => {
       if(plannerMobileInfoHandsCycleTimerByMode[mode]) return;
       plannerMobileInfoHandsCycleTimerByMode[mode] = window.setTimeout(() => {
@@ -14074,23 +14107,30 @@
           animate:true
         };
         const expectedKey = selectedPromoBundleItem.id;
-        plannerMobileSelectedPromoTimerByMode[mode] = window.setTimeout(() => {
-          plannerMobileSelectedPromoTimerByMode[mode] = 0;
-          const activeSelectedPromoState = plannerMobileSelectedPromoByMode[mode] || { key:"", phase:"idle", active:false, animate:false };
-          if(activeSelectedPromoState.key !== expectedKey || !activeSelectedPromoState.active) return;
-          plannerMobileSelectedPromoByMode[mode] = {
-            ...activeSelectedPromoState,
-            phase:"offer",
-            animate:true
-          };
-          schedulePlannerRender(mode);
-        }, PLANNER_MOBILE_SELECTED_PROMO_DELAY_MS);
+        scheduleSelectedPromoPhase(selectedPromoBundleItem, expectedKey, "offer", PLANNER_MOBILE_SELECTED_PROMO_DELAY_MS);
       } else if(!currentSelectedPromoState.active){
         plannerMobileSelectedPromoByMode[mode] = {
           ...currentSelectedPromoState,
           active:true,
           animate:true
         };
+        scheduleSelectedPromoPhase(
+          selectedPromoBundleItem,
+          selectedPromoBundleItem.id,
+          currentSelectedPromoState.phase === "offer" ? "lead" : "offer",
+          currentSelectedPromoState.phase === "offer"
+            ? selectedPromoOfferHoldMs(selectedPromoBundleItem)
+            : PLANNER_MOBILE_SELECTED_PROMO_DELAY_MS
+        );
+      } else if(!plannerMobileSelectedPromoTimerByMode[mode]){
+        scheduleSelectedPromoPhase(
+          selectedPromoBundleItem,
+          selectedPromoBundleItem.id,
+          currentSelectedPromoState.phase === "offer" ? "lead" : "offer",
+          currentSelectedPromoState.phase === "offer"
+            ? selectedPromoOfferHoldMs(selectedPromoBundleItem)
+            : PLANNER_MOBILE_SELECTED_PROMO_DELAY_MS
+        );
       }
     }
     const selectedZoneIdSet = selectedSet || new Set();
