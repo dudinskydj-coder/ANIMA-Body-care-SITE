@@ -31,6 +31,7 @@
       --panelGap:14px;
       --overlayAppearDur:.16s;
       --appVh:100dvh;
+      --homePanelVh:100dvh;
     }
     *{box-sizing:border-box}
     html,
@@ -276,7 +277,7 @@
       margin-right:calc(50% - 50vw);
       border-radius:0;
       overflow-y:auto;
-      min-height:calc(100dvh - var(--headerH) - 56px);
+      min-height:calc(var(--homePanelVh) - var(--headerH) - 56px);
       border:none;
       box-shadow:none;
       background:linear-gradient(180deg, #f6f8fc 0%, #edf2f9 46%, #e6edf7 100%);
@@ -328,7 +329,7 @@
     .heroOverlay{
       position:relative;
       z-index:2;
-      min-height:calc(100dvh - var(--headerH) - 56px);
+      min-height:calc(var(--homePanelVh) - var(--headerH) - 56px);
       padding:44px 28px;
       display:flex;
       flex-direction:column;
@@ -407,7 +408,7 @@
       margin-bottom:var(--panelGap);
     }
     .offerSquare{
-      min-height:calc(100dvh - var(--headerH) - 56px);
+      min-height:calc(var(--homePanelVh) - var(--headerH) - 56px);
       border-radius:0;
       position:relative;
       overflow:hidden;
@@ -1400,7 +1401,7 @@
       .offerTitle{font-size:40px}
       .heroApple{padding:0}
       .heroVisual,
-      .heroOverlay{min-height:calc(100dvh - var(--headerH) - 34px)}
+      .heroOverlay{min-height:calc(var(--homePanelVh) - var(--headerH) - 34px)}
       .heroVisual{
         width:100vw;
         margin-left:calc(50% - 50vw);
@@ -1438,7 +1439,7 @@
         margin-bottom:var(--panelGap);
       }
       .offerSquare{
-        min-height:calc(100dvh - var(--headerH) - 34px);
+        min-height:calc(var(--homePanelVh) - var(--headerH) - 34px);
         padding:26px 18px;
       }
       .offerSquare h2{
@@ -1828,7 +1829,6 @@
         <p id="hero_sub">Glatte Haut für lange Zeit.</p>
         <div class="btnRow">
           <a class="btn primary" href="Laser%204.html" id="btn_book">Mehr erfahren</a>
-          <a class="btn" href="Laser%204.html#interactive-placeholder" id="btn_more">Termin buchen</a>
         </div>
       </div>
     </div>
@@ -1841,7 +1841,6 @@
         <p id="offer_detox_sub">Zurück ins Gleichgewicht.</p>
         <div class="btnRow">
           <a class="btn primary" href="detox-thermo.html" id="offer_detox_book">Mehr erfahren</a>
-          <a class="btn" href="https://salonkee.de/salon/anima-body-care-salon" target="_blank" rel="noopener" id="offer_detox_more">Termin buchen</a>
         </div>
       </div>
     </div>
@@ -2032,6 +2031,7 @@
   let legalTouchStartY = null;
   let legalTouchStartScrollTop = 0;
   let lastLegalTrigger = null;
+  let homePanelViewportWidth = 0;
   const faqState = { active:false, openIndex:null };
   const desktopHover = window.matchMedia("(hover: hover) and (pointer: fine)");
   const instantMenuMq = window.matchMedia("(max-width: 1024px)");
@@ -2058,6 +2058,14 @@
 
   function setViewportHeightVar(){
     document.documentElement.style.setProperty("--appVh", `${currentViewportHeight()}px`);
+  }
+
+  function setHomePanelHeightVar(force = false){
+    const width = Math.max(window.innerWidth || 0, document.documentElement.clientWidth || 0);
+    const widthChanged = Math.abs(width - homePanelViewportWidth) > 24;
+    if(!force && homePanelViewportWidth && !widthChanged) return;
+    homePanelViewportWidth = width;
+    document.documentElement.style.setProperty("--homePanelVh", `${currentViewportHeight()}px`);
   }
 
   function lockBodyForLegal(){
@@ -2151,14 +2159,17 @@
 
   setHeaderHeightVar();
   setViewportHeightVar();
+  setHomePanelHeightVar(true);
   window.addEventListener("resize", () => {
     setHeaderHeightVar();
     setViewportHeightVar();
+    setHomePanelHeightVar();
     scheduleMenuTintHeightSync();
   });
   window.addEventListener("orientationchange", () => {
     setHeaderHeightVar();
     setViewportHeightVar();
+    setHomePanelHeightVar(true);
     startMenuSync(260);
     scheduleMenuTintHeightSync();
   });
