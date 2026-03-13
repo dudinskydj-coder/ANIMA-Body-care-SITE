@@ -1155,6 +1155,19 @@
       max-height:calc((1.18em * 4) + 14px);
       overflow:hidden;
     }
+    .plannerMobileInfo.is-completion-promo-active{
+      gap:0;
+    }
+    .plannerMobileInfo.is-completion-promo-active .plannerMobileInfoZones{
+      max-width:min(72vw, 380px);
+    }
+    .plannerMobileInfo.is-completion-promo-active .plannerNextBenefit{
+      width:0 !important;
+      min-width:0;
+      opacity:0;
+      overflow:hidden;
+      pointer-events:none;
+    }
     .plannerMobileInfoZones.is-expanded{
       max-height:min(38vh, 280px);
       overflow:auto;
@@ -1184,6 +1197,10 @@
       transform-origin:50% 52%;
       backface-visibility:hidden;
       will-change:transform, opacity, filter;
+    }
+    .plannerMobileInfoZoneRow--promo-lead{
+      color:rgba(0,163,57,.94);
+      font-weight:700;
     }
     .plannerMobileInfoZoneRow--promo-save{
       color:#23a548;
@@ -1274,8 +1291,21 @@
       min-width:4ch;
       max-width:none;
       display:flex;
+      flex:0 0 auto;
       flex-direction:column;
       text-align:right;
+      overflow:hidden;
+      transition:opacity .22s ease, visibility .22s ease, width .22s ease, min-width .22s ease;
+    }
+    .plannerMobileInfo.is-completion-promo-price-hidden .plannerMobileInfoPrice{
+      opacity:0;
+      visibility:hidden;
+      width:0;
+      min-width:0;
+    }
+    .plannerMobileInfo.is-completion-promo-price-green .plannerMobileInfoPriceCurrent{
+      color:rgba(0,163,57,.94);
+      font-weight:700;
     }
     .plannerMobileInfoPriceOld{
       display:none;
@@ -2669,6 +2699,16 @@
       align-self:start;
       gap:3px;
     }
+    .orderItemPriceLabel{
+      white-space:nowrap;
+      font-size:11px;
+      line-height:1.2;
+      color:rgba(17,18,24,.48);
+      letter-spacing:.04em;
+      font-weight:650;
+      text-transform:uppercase;
+      margin-bottom:3px;
+    }
     .orderItemPriceOld{
       white-space:nowrap;
       font-weight:500;
@@ -2793,19 +2833,15 @@
     }
     @keyframes plannerNextBenefitShellPush{
       0%{
-        transform:translateX(0);
         filter:brightness(1);
       }
       48%{
-        transform:translateX(1.8px);
         filter:brightness(1.02);
       }
       78%{
-        transform:translateX(.35px);
         filter:brightness(1.005);
       }
       100%{
-        transform:translateX(0);
         filter:brightness(1);
       }
     }
@@ -2825,22 +2861,18 @@
     }
     @keyframes plannerNextBenefitShellBackoff{
       0%{
-        transform:translateX(0);
         background:rgba(214,72,72,.16);
         filter:brightness(1);
       }
       28%{
-        transform:translateX(-2.1px);
         background:rgba(214,72,72,.22);
         filter:brightness(1.04);
       }
       58%{
-        transform:translateX(-1px);
         background:rgba(191,125,77,.16);
         filter:brightness(1.02);
       }
       100%{
-        transform:translateX(0);
         background:rgba(17,18,24,.10);
         filter:brightness(1);
       }
@@ -3950,6 +3982,9 @@
       .orderList{
         max-height:none;
       }
+      .orderItemPriceLabel{
+        font-size:10px;
+      }
       .orderItemName{
         font-size:clamp(16px, 5.2vw, 24px);
       }
@@ -4592,16 +4627,17 @@
   const plannerNextBenefit = document.getElementById("plannerNextBenefit");
   const plannerNextBenefitBar = document.getElementById("plannerNextBenefitBar");
   const plannerNextBenefitBarFill = document.getElementById("plannerNextBenefitBarFill");
-  const PLANNER_NEXT_BENEFIT_COMPLETE_HOLD_MS = 1200;
+  const PLANNER_NEXT_BENEFIT_COMPLETE_HOLD_MS = 650;
   const PLANNER_NEXT_BENEFIT_INTRO_REVEAL_MS = 900;
-  const PLANNER_NEXT_BENEFIT_INTRO_EXPAND_DELAY_MS = 1400;
-  const PLANNER_NEXT_BENEFIT_SHELL_EXPAND_DELAY_MS = 1400;
+  const PLANNER_NEXT_BENEFIT_INTRO_EXPAND_DELAY_MS = 700;
+  const PLANNER_NEXT_BENEFIT_SHELL_EXPAND_DELAY_MS = 700;
   const PLANNER_NEXT_BENEFIT_CANCEL_BACKOFF_MS = 980;
   const PLANNER_NEXT_BENEFIT_COMPLETION_FADE_FALLBACK_MS = 1550;
   const PLANNER_MOBILE_INFO_HANDS_CYCLE_MS = 2400;
+  const PLANNER_MOBILE_SELECTED_PROMO_DELAY_MS = 3000;
   const PLANNER_NEXT_BENEFIT_PROMO_CYCLE_MS = 2400;
-  const PLANNER_NEXT_BENEFIT_HANDS_COLLAPSE_DELAY_MS = 2400;
-  const PLANNER_MOBILE_INFO_HANDS_COLLAPSE_MS = 5000;
+  const PLANNER_NEXT_BENEFIT_HANDS_COLLAPSE_DELAY_MS = 800;
+  const PLANNER_MOBILE_INFO_HANDS_COLLAPSE_MS = 1400;
   let plannerNextBenefitLastRecommendation = null;
   let plannerNextBenefitHoldState = null;
   let plannerNextBenefitAnimateRaf = 0;
@@ -4639,6 +4675,11 @@
     herren:{ phase:"arms", animate:false, active:false, armsVisits:1, collapseActive:false }
   };
   const plannerMobileInfoHandsCycleTimerByMode = { frauen:0, herren:0 };
+  const plannerMobileSelectedPromoByMode = {
+    frauen:{ key:"", phase:"idle", active:false, animate:false },
+    herren:{ key:"", phase:"idle", active:false, animate:false }
+  };
+  const plannerMobileSelectedPromoTimerByMode = { frauen:0, herren:0 };
   let plannerNextBenefitPriceSpacingRaf = 0;
   let plannerNextBenefitPriceSpacingObserver = null;
   const plannerTextMeasureCanvas = document.createElement("canvas");
@@ -7787,6 +7828,7 @@
       zonesTitle:"Zonen wählen",
       zonesSub:"Wähle links die gewünschten Bereiche. Mehrfachauswahl ist möglich.",
       orderTitle:"Deine Auswahl",
+      orderPriceLabel:"Launch Preis",
       empty:"Noch keine Zonen ausgewählt.",
       total:"Gesamt",
       clear:"Auswahl löschen",
@@ -7808,6 +7850,8 @@
       nextBenefitAddonSave:"{name} dazu, spare {value}",
       nextBenefitAddonOnly:"{name} nur {value}",
       nextBenefitAddonGift:"{name} geschenkt!",
+      completionOfferUntilApr15:"Nur bis 15. April",
+      completionOfferLead:"Dazu nehmen viele",
       completionOfferBest:"Naechster Vorteil {name}",
       completionOfferQuick:"Schnelles Add-on {name}",
       completionOfferPopular:"Dazu passt {name}",
@@ -7826,6 +7870,7 @@
       zonesTitle:"Choose zones",
       zonesSub:"Select treatment areas on the left. Multiple selections are supported.",
       orderTitle:"Your selection",
+      orderPriceLabel:"Launch Price",
       empty:"No zones selected yet.",
       total:"Total",
       clear:"Clear selection",
@@ -7847,6 +7892,8 @@
       nextBenefitAddonSave:"Add {name}, save {value}",
       nextBenefitAddonOnly:"{name} only {value}",
       nextBenefitAddonGift:"{name} free!",
+      completionOfferUntilApr15:"Only until April 15",
+      completionOfferLead:"Often added with this set",
       completionOfferBest:"Best next set {name}",
       completionOfferQuick:"Quick add-on {name}",
       completionOfferPopular:"Also popular {name}",
@@ -7865,6 +7912,7 @@
       zonesTitle:"Выберите зоны",
       zonesSub:"Отметьте нужные зоны слева. Можно выбрать несколько.",
       orderTitle:"Ваш заказ",
+      orderPriceLabel:"Стартовая цена",
       empty:"Пока не выбрана ни одна зона.",
       total:"Итого",
       clear:"Очистить выбор",
@@ -7886,6 +7934,8 @@
       nextBenefitAddonSave:"Добавьте {name} и сэкономьте {value}",
       nextBenefitAddonOnly:"{name} всего {value}",
       nextBenefitAddonGift:"{name} в подарок!",
+      completionOfferUntilApr15:"Только до 15 апреля",
+      completionOfferLead:"С этим набором также берут",
       completionOfferBest:"Следующий выгодный шаг {name}",
       completionOfferQuick:"Быстрое дополнение {name}",
       completionOfferPopular:"С этим набором также берут {name}",
@@ -7992,10 +8042,19 @@
         baseZoneIds:["upperarms", "underarms", "hands"],
         followupSectionId:"legs",
         followupZoneIds:["obersch", "untersch", "feet"],
+        completionPromo:{
+          packageId:"promo_intim_axilla_legs_bundle",
+          leadKey:"completionOfferUntilApr15",
+          rows:{
+            de:["Intim & Achseln", "& Beine komplett"],
+            en:["Intimate & underarms", "& legs pack"],
+            ru:["Интим & подмышки", "& комплект ног"]
+          }
+        },
         offers:[
-          { type:"package", id:"smart_legs_complete_with_feet", copyKey:"completionOfferBest" },
-          { type:"zone", id:"axilla", copyKey:"completionOfferQuick" },
-          { type:"package", id:"premium_bikini_intim_pofalte", copyKey:"completionOfferPopular" }
+          { type:"package", id:"smart_legs_complete_with_feet", promoLabel:{ de:"Beine + Fuesse", en:"Legs + feet", ru:"Ноги + стопы" } },
+          { type:"zone", id:"axilla", promoLabel:{ de:"Achseln", en:"Underarms", ru:"Подмышки" } },
+          { type:"package", id:"premium_bikini_intim_pofalte", promoLabel:{ de:"Intim", en:"Intimate", ru:"Интим" } }
         ]
       },
       smart_legs_complete_with_feet:{
@@ -8003,9 +8062,9 @@
         followupSectionId:"arms",
         followupZoneIds:["upperarms", "underarms", "hands"],
         offers:[
-          { type:"package", id:"smart_arms_complete_with_hands", copyKey:"completionOfferBest" },
-          { type:"zone", id:"axilla", copyKey:"completionOfferQuick" },
-          { type:"package", id:"premium_bikini_intim_pofalte", copyKey:"completionOfferPopular" }
+          { type:"package", id:"smart_arms_complete_with_hands", promoLabel:{ de:"Arme + Haende", en:"Arms + hands", ru:"Руки + кисти" } },
+          { type:"zone", id:"axilla", promoLabel:{ de:"Achseln", en:"Underarms", ru:"Подмышки" } },
+          { type:"package", id:"premium_bikini_intim_pofalte", promoLabel:{ de:"Intim", en:"Intimate", ru:"Интим" } }
         ]
       }
     },
@@ -8015,9 +8074,9 @@
         followupSectionId:"legs",
         followupZoneIds:["obersch", "untersch", "feet"],
         offers:[
-          { type:"package", id:"legs_bundle", copyKey:"completionOfferBest" },
-          { type:"zone", id:"axilla", copyKey:"completionOfferQuick" },
-          { type:"package", id:"upperbody_axilla_bundle", copyKey:"completionOfferPopular" }
+          { type:"package", id:"legs_bundle", promoLabel:{ de:"Beine + Fuesse", en:"Legs + feet", ru:"Ноги + стопы" } },
+          { type:"zone", id:"axilla", promoLabel:{ de:"Achseln", en:"Underarms", ru:"Подмышки" } },
+          { type:"package", id:"upperbody_axilla_bundle", promoLabel:{ de:"Oberkoerper", en:"Upper body", ru:"Верх тела" } }
         ]
       },
       smart_legs_complete_with_feet:{
@@ -8025,9 +8084,9 @@
         followupSectionId:"arms",
         followupZoneIds:["upperarms", "underarms", "hands"],
         offers:[
-          { type:"package", id:"arms_bundle", copyKey:"completionOfferBest" },
-          { type:"zone", id:"hands", copyKey:"completionOfferQuick" },
-          { type:"package", id:"upperbody_axilla_bundle", copyKey:"completionOfferPopular" }
+          { type:"package", id:"arms_bundle", promoLabel:{ de:"Arme + Haende", en:"Arms + hands", ru:"Руки + кисти" } },
+          { type:"zone", id:"axilla", promoLabel:{ de:"Achseln", en:"Underarms", ru:"Подмышки" } },
+          { type:"package", id:"upperbody_axilla_bundle", promoLabel:{ de:"Oberkoerper", en:"Upper body", ru:"Верх тела" } }
         ]
       }
     }
@@ -12560,36 +12619,17 @@
   function plannerNextBenefitSections(mode){
     return plannerNextBenefitConfigByMode[mode] || plannerNextBenefitConfigByMode.frauen || [];
   }
-  function plannerPromoDisplayPriceMeta(sessionPrice, originalSessionPrice = sessionPrice){
-    const safeSessionPrice = Math.max(0, Number(sessionPrice) || 0);
-    const safeOriginalSessionPrice = Math.max(safeSessionPrice, Number(originalSessionPrice) || 0);
-    const currentPrice = plannerPricingView === "course"
-      ? (safeSessionPrice * PLANNER_COURSE_PAYABLE_SESSIONS)
-      : safeSessionPrice;
-    const originalPrice = plannerPricingView === "course"
-      ? (safeOriginalSessionPrice * PLANNER_COURSE_SESSIONS)
-      : safeOriginalSessionPrice;
-    const saved = Math.max(0, originalPrice - currentPrice);
-    return {
-      priceCurrent:`+${formatEuro(currentPrice)}`,
-      priceOld:originalPrice > (currentPrice + 0.5) ? `+${formatEuro(originalPrice)}` : "",
-      priceSaved:saved > 0
-        ? plannerTextTemplate("nextBenefitSaveShort", { value:formatEuro(saved) })
-        : ""
-    };
-  }
   function plannerCompletionUpsellOfferMeta(mode, offer, zonesById){
     if(!offer || !zonesById) return null;
     if(offer.type === "package"){
       const bundle = plannerBundleById(mode, offer.id);
       if(!bundle) return null;
-      const resolvedPrice = Number(plannerPackageResolvedPrice(mode, bundle, zonesById)) || 0;
       return {
         id:bundle.id,
         type:"package",
         label:bundle.label,
-        zoneIds:[...(bundle.zoneIds || [])],
-        ...plannerPromoDisplayPriceMeta(resolvedPrice, plannerPackageOriginalPrice(bundle, zonesById))
+        promoLabel:offer.promoLabel || null,
+        zoneIds:[...(bundle.zoneIds || [])]
       };
     }
     const zone = zonesById.get(offer.id);
@@ -12598,29 +12638,52 @@
       id:zone.id,
       type:"zone",
       label:zone.label,
-      zoneIds:[zone.id],
-      ...plannerPromoDisplayPriceMeta(zone.price, zone.price)
+      promoLabel:offer.promoLabel || null,
+      zoneIds:[zone.id]
     };
   }
   function plannerBuildCompletionPromoItems(mode, completionState, zonesById, selectedSet){
     if(!completionState || !zonesById) return [];
+    const completionPromoConfig = completionState.completionPromo || null;
+    if(completionPromoConfig){
+      const promoBundle = completionPromoConfig.packageId
+        ? plannerBundleById(mode, completionPromoConfig.packageId)
+        : null;
+      const localizedRows = completionPromoConfig.rows || null;
+      const rows = Array.isArray(localizedRows && (localizedRows[currentLang()] || localizedRows.de))
+        ? (localizedRows[currentLang()] || localizedRows.de).map((row) => String(row || "").trim()).filter(Boolean)
+        : [];
+      const promoPrice = promoBundle
+        ? formatEuro(Number(plannerPackageResolvedPrice(mode, promoBundle, zonesById)) || Number(promoBundle.packagePrice) || 0)
+        : "";
+      return [
+        { text:plannerText(completionPromoConfig.leadKey || "completionOfferUntilApr15"), tone:"promo-lead" },
+        rows.length
+          ? {
+              rows,
+              priceCurrent:promoPrice,
+              tone:"promo-offer",
+              priceTone:promoPrice ? "promo-green" : ""
+            }
+          : null
+      ].filter(Boolean);
+    }
     const safeSelectedSet = selectedSet || new Set();
-    return (completionState.offers || [])
+    const offerItems = (completionState.offers || [])
       .map((offer) => {
         const meta = plannerCompletionUpsellOfferMeta(mode, offer, zonesById);
         if(!meta) return null;
         if(meta.zoneIds.length && meta.zoneIds.every((zoneId) => safeSelectedSet.has(zoneId))) return null;
-        const name = plannerLabel(meta.label).trim();
+        const name = plannerLabel(meta.promoLabel || meta.label).trim();
         if(!name) return null;
-        const copyKey = offer.copyKey || "completionOfferPopular";
-        return {
-          text:plannerTextTemplate(copyKey, { name }),
-          priceCurrent:meta.priceCurrent || "",
-          priceOld:meta.priceOld || "",
-          priceSaved:meta.priceSaved || ""
-        };
+        return { text:name };
       })
       .filter(Boolean);
+    if(!offerItems.length) return [];
+    return [
+      { text:plannerText("completionOfferLead") },
+      ...offerItems
+    ];
   }
   function plannerCompletionUpsellState(mode, selectedSet){
     const safeSelectedSet = selectedSet || new Set();
@@ -12804,25 +12867,34 @@
       const promoItems = (Array.isArray(entries) ? entries : [entries])
         .map((value) => {
           if(value && typeof value === "object" && !Array.isArray(value)){
-            const text = String(value.text || "").trim();
-            if(!text) return null;
+            const rows = Array.isArray(value.rows)
+              ? value.rows.map((row) => String(row || "").trim()).filter(Boolean)
+              : [];
+            const text = String(value.text || "").trim() || rows.join(" ");
+            if(!text && !rows.length) return null;
             return {
               text,
+              rows,
               priceCurrent:String(value.priceCurrent || "").trim(),
               priceOld:String(value.priceOld || "").trim(),
-              priceSaved:String(value.priceSaved || "").trim()
+              priceSaved:String(value.priceSaved || "").trim(),
+              tone:String(value.tone || "").trim(),
+              priceTone:String(value.priceTone || "").trim()
             };
           }
           const text = String(value || "").trim();
-          return text ? { text, priceCurrent:"", priceOld:"", priceSaved:"" } : null;
+          return text ? { text, rows:[], priceCurrent:"", priceOld:"", priceSaved:"", tone:"", priceTone:"" } : null;
         })
         .filter(Boolean)
         .filter((value, index, arr) => (
           arr.findIndex((item) => (
             item.text === value.text
+            && JSON.stringify(item.rows || []) === JSON.stringify(value.rows || [])
             && item.priceCurrent === value.priceCurrent
             && item.priceOld === value.priceOld
             && item.priceSaved === value.priceSaved
+            && item.tone === value.tone
+            && item.priceTone === value.priceTone
           )) === index
         ));
       if(!promoItems.length || !key) return;
@@ -12843,6 +12915,8 @@
       const promoTexts = promoItems.map((item) => item.text);
       const kind = String(options.kind || "").trim();
       const delayMs = Math.max(0, Number(options.delayMs) || 0);
+      const singlePass = !!options.singlePass;
+      const cycleMs = Math.max(360, Number(options.cycleMs) || PLANNER_NEXT_BENEFIT_PROMO_CYCLE_MS);
       plannerNextBenefitPromoByMode[mode] = {
         text:"",
         texts:promoTexts,
@@ -12895,7 +12969,11 @@
             kind:""
           };
           if(activePromoState.key !== expectedKey || !activePromoState.visible) return;
-          const nextIndex = ((Number(activePromoState.index) || 0) + 1) % promoTexts.length;
+          const currentIndex = Math.max(0, Number(activePromoState.index) || 0);
+          if(singlePass && currentIndex >= (promoTexts.length - 1)) return;
+          const nextIndex = singlePass
+            ? Math.min(promoTexts.length - 1, currentIndex + 1)
+            : ((currentIndex + 1) % promoTexts.length);
           const nextItem = promoItems[nextIndex] || null;
           plannerNextBenefitPromoByMode[mode] = {
             text:nextItem ? nextItem.text : promoTexts[nextIndex],
@@ -12912,7 +12990,7 @@
           schedulePlannerRender(mode);
           schedulePromoSettle(expectedKey, nextIndex);
           schedulePromoCycle(expectedKey);
-        }, PLANNER_NEXT_BENEFIT_PROMO_CYCLE_MS);
+        }, cycleMs);
       };
       plannerNextBenefitPromoTimerByMode[mode] = window.setTimeout(() => {
         plannerNextBenefitPromoTimerByMode[mode] = 0;
@@ -13224,7 +13302,9 @@
       if(promoItems.length){
         schedulePlannerNextBenefitPromo(promoItems, completionPromoKey, {
           delayMs:completionPromoDelayMs,
-          kind:"completion-offer"
+          kind:"completion-offer",
+          singlePass:true,
+          cycleMs:3000
         });
       } else {
         clearPlannerNextBenefitPromo();
@@ -13549,6 +13629,34 @@
     if(!Array.isArray(selected) || !selected.length) return [];
     return selected.filter(Boolean);
   }
+  function plannerMobileSelectedPromoBundleItem(items){
+    return (items || []).find((item) => (
+      item
+      && item.type === "package"
+      && item.id === "promo_intim_axilla_legs_bundle"
+      && item.promoNote
+    )) || null;
+  }
+  function plannerMobileSelectedPromoLeadText(item){
+    if(!item) return "";
+    if(item.id === "promo_intim_axilla_legs_bundle"){
+      return plannerText("completionOfferUntilApr15");
+    }
+    return plannerLabel(item.promoNote).trim();
+  }
+  function plannerMobileSelectedPromoRows(item){
+    if(!item) return [];
+    if(item.id === "promo_intim_axilla_legs_bundle"){
+      const lang = currentLang();
+      const rowsByLang = {
+        de:["Intim & Achseln", "& Beine komplett"],
+        en:["Intimate & underarms", "& legs pack"],
+        ru:["Интим & подмышки", "& комплект ног"]
+      };
+      return (rowsByLang[lang] || rowsByLang.de).map((row) => String(row || "").trim()).filter(Boolean);
+    }
+    return [];
+  }
   function plannerMobileLeafRows(item){
     const rows = [];
     const visit = (node) => {
@@ -13602,6 +13710,12 @@
         plannerMobileInfoHandsCycleTimerByMode[mode] = 0;
       }
     };
+    const clearSelectedPromoTimer = () => {
+      if(plannerMobileSelectedPromoTimerByMode[mode]){
+        clearTimeout(plannerMobileSelectedPromoTimerByMode[mode]);
+        plannerMobileSelectedPromoTimerByMode[mode] = 0;
+      }
+    };
     const scheduleHandsCycle = () => {
       if(plannerMobileInfoHandsCycleTimerByMode[mode]) return;
       plannerMobileInfoHandsCycleTimerByMode[mode] = window.setTimeout(() => {
@@ -13622,8 +13736,54 @@
     };
     plannerMobileInfoZones.replaceChildren();
     const items = plannerMobileSummaryItems(selected);
+    const selectedPromoBundleItem = plannerMobileSelectedPromoBundleItem(items);
+    if(!selectedPromoBundleItem){
+      plannerMobileSelectedPromoByMode[mode] = { key:"", phase:"idle", active:false, animate:false };
+      clearSelectedPromoTimer();
+    } else {
+      const currentSelectedPromoState = plannerMobileSelectedPromoByMode[mode] || { key:"", phase:"idle", active:false, animate:false };
+      if(currentSelectedPromoState.key !== selectedPromoBundleItem.id){
+        clearSelectedPromoTimer();
+        plannerMobileSelectedPromoByMode[mode] = {
+          key:selectedPromoBundleItem.id,
+          phase:"lead",
+          active:true,
+          animate:true
+        };
+        const expectedKey = selectedPromoBundleItem.id;
+        plannerMobileSelectedPromoTimerByMode[mode] = window.setTimeout(() => {
+          plannerMobileSelectedPromoTimerByMode[mode] = 0;
+          const activeSelectedPromoState = plannerMobileSelectedPromoByMode[mode] || { key:"", phase:"idle", active:false, animate:false };
+          if(activeSelectedPromoState.key !== expectedKey || !activeSelectedPromoState.active) return;
+          plannerMobileSelectedPromoByMode[mode] = {
+            ...activeSelectedPromoState,
+            phase:"offer",
+            animate:true
+          };
+          schedulePlannerRender(mode);
+        }, PLANNER_MOBILE_SELECTED_PROMO_DELAY_MS);
+      } else if(!currentSelectedPromoState.active){
+        plannerMobileSelectedPromoByMode[mode] = {
+          ...currentSelectedPromoState,
+          active:true,
+          animate:true
+        };
+      }
+    }
     const selectedZoneIdSet = selectedSet || new Set();
     const completionUpsellState = plannerCompletionUpsellState(mode, selectedZoneIdSet);
+    const continuationFollowupZoneIdSet = (
+      completionUpsellState
+      && completionUpsellState.isContinuationActive
+      && Array.isArray(completionUpsellState.followupZoneIds)
+    ) ? new Set(completionUpsellState.followupZoneIds) : null;
+    const continuationSummaryItem = continuationFollowupZoneIdSet
+      ? [...items].reverse().find((item) => (
+        item
+        && Array.isArray(item.zoneIds)
+        && item.zoneIds.some((zoneId) => continuationFollowupZoneIdSet.has(zoneId))
+      )) || null
+      : null;
     const hasPureArmsCompleteWithHands = !!(
       completionUpsellState
       && completionUpsellState.isPureBaseSelection
@@ -13631,7 +13791,11 @@
     );
     const summaryLabel = hasPureArmsCompleteWithHands
       ? `${plannerText("mergeArms")} +`
-      : (items.length ? plannerLabel(items[0].label).trim() : "");
+      : (
+        continuationSummaryItem
+          ? plannerLabel(continuationSummaryItem.label).trim()
+          : (items.length ? plannerLabel(items[0].label).trim() : "")
+      );
     const selectedZoneIds = Array.from(selectedSet || []);
     const latestZoneId = selectedZoneIds[selectedZoneIds.length - 1] || "";
     const zonesById = plannerZonesMap(mode);
@@ -13657,26 +13821,68 @@
       kind:""
     };
     const hintState = plannerNextBenefitHintByMode[mode] || { text:"", visible:false };
+    const selectedPromoState = selectedPromoBundleItem
+      ? (plannerMobileSelectedPromoByMode[mode] || { key:"", phase:"idle", active:false, animate:false })
+      : { key:"", phase:"idle", active:false, animate:false };
+    const isSelectedPromoActive = !!(
+      selectedPromoBundleItem
+      && selectedPromoState.active
+      && selectedPromoState.key === selectedPromoBundleItem.id
+    );
     const isCompletionPromo = !!(
       promoState.kind === "completion-offer"
       && completionUpsellState
       && completionUpsellState.isPureBaseSelection
     );
-    const shouldShowPromo = !!(
+    const shouldShowCompletionPromo = !!(
       promoState.visible
       && promoState.text
       && (!hasPureArmsCompleteWithHands || isCompletionPromo)
     );
+    const shouldShowPromo = isSelectedPromoActive || shouldShowCompletionPromo;
     let label = shouldShowPromo
-      ? promoState.text
+      ? (
+        isSelectedPromoActive
+          ? (
+            selectedPromoState.phase === "offer"
+              ? plannerLabel(selectedPromoBundleItem.label).trim()
+              : plannerMobileSelectedPromoLeadText(selectedPromoBundleItem)
+          )
+          : promoState.text
+      )
       : ((hintState.visible && hintState.text) ? hintState.text : (summaryLabel || latestLabel));
     let isHintLabel = !shouldShowPromo && hintState.visible && hintState.text && label === hintState.text;
-    let shouldAnimateLabelChange = !!(shouldShowPromo && promoState.animate);
+    let shouldAnimateLabelChange = !!(
+      isSelectedPromoActive
+        ? selectedPromoState.animate
+        : (shouldShowCompletionPromo && promoState.animate)
+    );
+    const promoTone = isSelectedPromoActive
+      ? (selectedPromoState.phase === "lead" ? "promo-lead" : "promo-offer")
+      : (
+        shouldShowCompletionPromo && promoState.item
+          ? String(promoState.item.tone || "").trim()
+          : ""
+      );
+    const promoRows = isSelectedPromoActive && selectedPromoState.phase === "offer"
+      ? plannerMobileSelectedPromoRows(selectedPromoBundleItem)
+      : (
+        shouldShowCompletionPromo && promoState.item && Array.isArray(promoState.item.rows)
+          ? promoState.item.rows.map((row) => String(row || "").trim()).filter(Boolean)
+          : []
+      );
     const isPromoSaveLabel = !!(
-      shouldShowPromo
+      shouldShowCompletionPromo
       && promoState.kind !== "completion-offer"
       && (Number(promoState.index) || 0) > 0
     );
+    if(isSelectedPromoActive){
+      plannerMobileSelectedPromoByMode[mode] = {
+        ...selectedPromoState,
+        animate:false,
+        active:true
+      };
+    }
     if(hasPureArmsCompleteWithHands && !shouldShowPromo){
       const handsLabel = plannerLabel((zonesById.get("hands") || {}).label).trim();
       const currentCycleState = plannerMobileInfoHandsCycleByMode[mode] || { phase:"arms", animate:false, active:false, armsVisits:1, collapseActive:false };
@@ -13699,9 +13905,20 @@
       plannerMobileInfoHandsCycleByMode[mode] = { phase:"arms", animate:false, active:false, armsVisits:1, collapseActive:false };
       clearHandsCycleTimer();
     }
+    if(promoRows.length){
+      promoRows.forEach((promoRowText) => {
+        const row = document.createElement("div");
+        row.className = `plannerMobileInfoZoneRow plannerMobileInfoZoneRow--latest plannerMobileInfoZoneRow--promo${promoTone === "promo-lead" ? " plannerMobileInfoZoneRow--promo-lead" : ""}${(shouldShowCompletionPromo && promoState.animate) ? " plannerMobileInfoZoneRow--board-swap" : ""}`;
+        row.textContent = promoRowText;
+        plannerMobileInfoZones.appendChild(row);
+      });
+      plannerMobileInfoLastLabelByMode[mode] = promoRows.join(" ");
+      plannerMobileInfoZones.classList.remove("is-expanded");
+      return;
+    }
     if(label){
       const row = document.createElement("div");
-      row.className = `plannerMobileInfoZoneRow plannerMobileInfoZoneRow--latest${(shouldShowPromo || shouldAnimateLabelChange) ? " plannerMobileInfoZoneRow--promo" : ""}${isPromoSaveLabel ? " plannerMobileInfoZoneRow--promo-save" : ""}${((shouldShowPromo && promoState.animate) || shouldAnimateLabelChange) ? " plannerMobileInfoZoneRow--board-swap" : ""}${(!shouldShowPromo && isHintLabel) ? " plannerMobileInfoZoneRow--hint" : ""}`;
+      row.className = `plannerMobileInfoZoneRow plannerMobileInfoZoneRow--latest${(shouldShowPromo || shouldAnimateLabelChange) ? " plannerMobileInfoZoneRow--promo" : ""}${promoTone === "promo-lead" ? " plannerMobileInfoZoneRow--promo-lead" : ""}${isPromoSaveLabel ? " plannerMobileInfoZoneRow--promo-save" : ""}${((shouldShowPromo && promoState.animate) || shouldAnimateLabelChange) ? " plannerMobileInfoZoneRow--board-swap" : ""}${(!shouldShowPromo && isHintLabel) ? " plannerMobileInfoZoneRow--hint" : ""}`;
       row.textContent = label;
       plannerMobileInfoZones.appendChild(row);
       plannerMobileInfoLastLabelByMode[mode] = label;
@@ -13713,6 +13930,14 @@
     const selectedCount = selectedSet ? selectedSet.size : 0;
     if(!selectedCount){
       plannerMobileInfo.classList.add("is-empty");
+      plannerMobileInfo.classList.remove("is-completion-promo-active");
+      plannerMobileInfo.classList.remove("is-completion-promo-price-hidden");
+      plannerMobileInfo.classList.remove("is-completion-promo-price-green");
+      if(plannerMobileSelectedPromoTimerByMode[mode]){
+        clearTimeout(plannerMobileSelectedPromoTimerByMode[mode]);
+        plannerMobileSelectedPromoTimerByMode[mode] = 0;
+      }
+      plannerMobileSelectedPromoByMode[mode] = { key:"", phase:"idle", active:false, animate:false };
       plannerMobileInfoZones.replaceChildren();
       plannerMobileInfoPriceCurrent.textContent = "";
       plannerMobileInfoPriceOld.textContent = "";
@@ -13727,7 +13952,6 @@
     }
     plannerMobileInfo.classList.remove("is-empty");
     plannerRenderMobileZoneNames(mode, selectedSet, selected);
-    const completionUpsellState = plannerCompletionUpsellState(mode, selectedSet || new Set());
     const promoState = plannerNextBenefitPromoByMode[mode] || {
       text:"",
       texts:[],
@@ -13740,22 +13964,35 @@
       key:"",
       kind:""
     };
-    const activeCompletionPromoItem = (
-      completionUpsellState
-      && completionUpsellState.isPureBaseSelection
-      && promoState.kind === "completion-offer"
-      && promoState.visible
-      && promoState.item
-    ) ? promoState.item : null;
-    if(activeCompletionPromoItem){
-      plannerMobileInfoPriceCurrent.textContent = activeCompletionPromoItem.priceCurrent || "";
-      plannerMobileInfoPriceOld.textContent = activeCompletionPromoItem.priceOld || "";
-      plannerMobileInfoSaved.textContent = activeCompletionPromoItem.priceSaved || "";
-    } else {
-      plannerMobileInfoPriceCurrent.textContent = formatEuro(displayTotal);
-      plannerMobileInfoPriceOld.textContent = "";
-      plannerMobileInfoSaved.textContent = "";
-    }
+    const isCompletionPromoVisible = !!(promoState.visible && promoState.kind === "completion-offer");
+    const activePromoItem = isCompletionPromoVisible && promoState.item ? promoState.item : null;
+    const completionPromoPriceCurrent = activePromoItem ? String(activePromoItem.priceCurrent || "").trim() : "";
+    const completionPromoPriceTone = activePromoItem ? String(activePromoItem.priceTone || "").trim() : "";
+    const selectedPromoBundleItem = plannerMobileSelectedPromoBundleItem(plannerMobileSummaryItems(selected));
+    const selectedPromoState = selectedPromoBundleItem
+      ? (plannerMobileSelectedPromoByMode[mode] || { key:"", phase:"idle", active:false, animate:false })
+      : { key:"", phase:"idle", active:false, animate:false };
+    const isSelectedPromoVisible = !!(
+      selectedPromoBundleItem
+      && selectedPromoState.active
+      && selectedPromoState.key === selectedPromoBundleItem.id
+    );
+    const selectedPromoPriceCurrent = (isSelectedPromoVisible && selectedPromoState.phase === "offer")
+      ? formatEuro(Number(selectedPromoBundleItem.price) || 0)
+      : "";
+    const selectedPromoPriceTone = selectedPromoPriceCurrent ? "promo-green" : "";
+    const isPromoActive = isCompletionPromoVisible || isSelectedPromoVisible;
+    const promoPriceCurrent = isSelectedPromoVisible ? selectedPromoPriceCurrent : completionPromoPriceCurrent;
+    const promoPriceTone = isSelectedPromoVisible ? selectedPromoPriceTone : completionPromoPriceTone;
+    const shouldHidePromoPrice = isPromoActive && !promoPriceCurrent;
+    plannerMobileInfo.classList.toggle("is-completion-promo-active", isPromoActive);
+    plannerMobileInfo.classList.toggle("is-completion-promo-price-hidden", shouldHidePromoPrice);
+    plannerMobileInfo.classList.toggle("is-completion-promo-price-green", isPromoActive && promoPriceTone === "promo-green");
+    plannerMobileInfoPriceCurrent.textContent = isPromoActive
+      ? promoPriceCurrent
+      : formatEuro(displayTotal);
+    plannerMobileInfoPriceOld.textContent = "";
+    plannerMobileInfoSaved.textContent = "";
     plannerAnimateMobilePriceBlock();
     plannerApplyMobileInfoOpacity();
     schedulePlannerNextBenefitPriceSpacingSync();
@@ -14024,12 +14261,13 @@
         ? `<div class="orderItemDetails">${premiumTagHtml}${detailNodes.map((child, index) => renderTreeNode(child, [String(item.id), String(child && child.id ? child.id : `idx-${index}`)])).filter(Boolean).join("")}</div>`
         : "";
       const titleText = plannerLabel(item.label);
+      const priceLabelHtml = `<span class="orderItemPriceLabel">${plannerText("orderPriceLabel")}</span>`;
       const oldPriceHtml = (priceMeta.original > priceMeta.price)
         ? (isCourseMode
           ? `<span class="orderItemPriceOldLine"><span class="orderItemPriceCalc">${plannerTextTemplate("courseDetail", { count:String(PLANNER_COURSE_SESSIONS), value:formatEuro(calcUnitPrice) })}</span><span class="orderItemPriceEq">= <span class="orderItemPriceEqValue">${formatEuro(priceMeta.original)}</span></span></span>`
           : `<span class="orderItemPriceOld">${formatEuro(priceMeta.original)}</span>`)
         : "";
-      li.innerHTML = `<span class="orderItemNameWrap">${courseTagHtml}<span class="orderItemNameLine"><span class="orderItemName">${titleText}</span>${expandHintHtml}</span>${partsText ? `<span class="orderItemMeta">${partsText}</span>` : ""}${todoPriceHtml}${saveHtml}${promoNoteHtml}${detailsHtml}</span><span class="orderItemPriceWrap">${oldPriceHtml}<strong class="orderItemPrice">${formatEuro(priceMeta.price)}</strong></span>`;
+      li.innerHTML = `<span class="orderItemNameWrap">${courseTagHtml}<span class="orderItemNameLine"><span class="orderItemName">${titleText}</span>${expandHintHtml}</span>${partsText ? `<span class="orderItemMeta">${partsText}</span>` : ""}${todoPriceHtml}${saveHtml}${promoNoteHtml}${detailsHtml}</span><span class="orderItemPriceWrap">${priceLabelHtml}${oldPriceHtml}<strong class="orderItemPrice">${formatEuro(priceMeta.price)}</strong></span>`;
       plannerOrderList.appendChild(li);
     };
     updatePlannerTermLink(mode, selectedSet);
