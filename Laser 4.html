@@ -12306,6 +12306,8 @@
       const previousShellWidth = Math.max(0, Number(plannerNextBenefitShellWidthByMode[mode]) || 40);
       const isGrowing = progressPercent > (previousPercent + 0.5);
       const isSettlingBack = progressPercent < (previousPercent - 0.5);
+      const isShellExpanding = shellWidthPx > (previousShellWidth + 0.5);
+      const shouldStageSettleBack = playShellPush && isSettlingBack && isShellExpanding;
       const isCollapsingAway = shellWidthPx <= 0 && progressPercent <= 0;
       if(
         !playShellPush &&
@@ -12345,7 +12347,9 @@
         }
         plannerNextBenefit.style.width = `${shellWidthPx}px`;
         if(isSettlingBack){
-          plannerNextBenefitBarFill.style.transition = "width 1.02s cubic-bezier(.2,.68,.24,1) 120ms";
+          plannerNextBenefitBarFill.style.transition = shouldStageSettleBack
+            ? "width .82s cubic-bezier(.18,.72,.24,1) 860ms"
+            : "width 1.02s cubic-bezier(.2,.68,.24,1) 120ms";
           plannerNextBenefitBarFill.style.width = targetWidth;
         } else {
           plannerNextBenefitBarFill.style.width = targetWidth;
