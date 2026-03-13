@@ -3890,6 +3890,13 @@
       }
     }
     @media (max-width:767px){
+      :root{
+        --overscrollBg:#ffffff;
+      }
+      html,
+      body{
+        background:#ffffff;
+      }
       #laser-switches.section{
         padding:6px 0 60px;
       }
@@ -4454,7 +4461,7 @@
   const PLANNER_NEXT_BENEFIT_SHELL_EXPAND_DELAY_MS = 2000;
   const PLANNER_MOBILE_INFO_HANDS_CYCLE_MS = 2400;
   const PLANNER_NEXT_BENEFIT_PROMO_CYCLE_MS = 2400;
-  const PLANNER_NEXT_BENEFIT_HANDS_COLLAPSE_DELAY_MS = 3000;
+  const PLANNER_NEXT_BENEFIT_HANDS_COLLAPSE_DELAY_MS = 2400;
   const PLANNER_MOBILE_INFO_HANDS_COLLAPSE_MS = 5000;
   let plannerNextBenefitLastRecommendation = null;
   let plannerNextBenefitHoldState = null;
@@ -12726,7 +12733,7 @@
       }
     };
     const scheduleHandsCycle = () => {
-      clearHandsCycleTimer();
+      if(plannerMobileInfoHandsCycleTimerByMode[mode]) return;
       plannerMobileInfoHandsCycleTimerByMode[mode] = window.setTimeout(() => {
         plannerMobileInfoHandsCycleTimerByMode[mode] = 0;
         const currentCycleState = plannerMobileInfoHandsCycleByMode[mode] || { phase:"arms", animate:false, active:false, armsVisits:1, collapseActive:false };
