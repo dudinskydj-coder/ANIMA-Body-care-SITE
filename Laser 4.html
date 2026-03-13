@@ -4454,6 +4454,7 @@
   const PLANNER_NEXT_BENEFIT_SHELL_EXPAND_DELAY_MS = 2000;
   const PLANNER_MOBILE_INFO_HANDS_CYCLE_MS = 2400;
   const PLANNER_NEXT_BENEFIT_PROMO_CYCLE_MS = 2400;
+  const PLANNER_NEXT_BENEFIT_HANDS_COLLAPSE_DELAY_MS = 3000;
   const PLANNER_MOBILE_INFO_HANDS_COLLAPSE_MS = 5000;
   let plannerNextBenefitLastRecommendation = null;
   let plannerNextBenefitHoldState = null;
@@ -4469,6 +4470,11 @@
   const plannerNextBenefitPromoTimerByMode = { frauen:0, herren:0 };
   const plannerNextBenefitPromoSettleTimerByMode = { frauen:0, herren:0 };
   const plannerNextBenefitPromoCycleTimerByMode = { frauen:0, herren:0 };
+  const plannerNextBenefitHandsCollapseByMode = {
+    frauen:{ active:false, startAt:0, started:false },
+    herren:{ active:false, startAt:0, started:false }
+  };
+  const plannerNextBenefitHandsCollapseTimerByMode = { frauen:0, herren:0 };
   const plannerMobileInfoLastLabelByMode = { frauen:"", herren:"" };
   const plannerMobileInfoHandsCycleByMode = {
     frauen:{ phase:"arms", animate:false, active:false, armsVisits:1, collapseActive:false },
@@ -7216,7 +7222,7 @@
           displayGroup:"smart",
           zoneIds:["upperarms", "underarms", "hands"],
           componentIds:["smart_arms_complete", "hands"],
-          label:{ de:"Arme komplett & Hände", en:"Arms complete + hands", ru:"Руки полностью + кисти" }
+          label:{ de:"Arme komplett + Hände", en:"Arms complete + hands", ru:"Руки полностью + кисти" }
         },
         {
           id:"smart_legs_complete",
@@ -12226,6 +12232,16 @@
         plannerNextBenefitShellExpandTimerByMode[mode] = 0;
       }
     };
+    const clearPlannerNextBenefitHandsCollapseTimer = () => {
+      if(plannerNextBenefitHandsCollapseTimerByMode[mode]){
+        clearTimeout(plannerNextBenefitHandsCollapseTimerByMode[mode]);
+        plannerNextBenefitHandsCollapseTimerByMode[mode] = 0;
+      }
+    };
+    const resetPlannerNextBenefitHandsCollapse = () => {
+      clearPlannerNextBenefitHandsCollapseTimer();
+      plannerNextBenefitHandsCollapseByMode[mode] = { active:false, startAt:0, started:false };
+    };
     const clearPlannerNextBenefitPromoTimers = () => {
       if(plannerNextBenefitPromoTimerByMode[mode]){
         clearTimeout(plannerNextBenefitPromoTimerByMode[mode]);
@@ -12443,6 +12459,7 @@
       plannerNextBenefitShellWidthByMode[mode] = 40;
       plannerNextBenefitShellExpandStateByMode[mode] = null;
       clearPlannerNextBenefitShellExpandTimer();
+      resetPlannerNextBenefitHandsCollapse();
       clearPlannerNextBenefitPromo();
       setPlannerNextBenefitHint("", false);
       plannerNextBenefitLastRecommendation = null;
@@ -12480,14 +12497,35 @@
       && selectedZoneIdSet.has("underarms")
       && selectedZoneIdSet.has("hands");
     if(hasArmsCompleteWithHands){
-      const handsCycleState = plannerMobileInfoHandsCycleByMode[mode] || { phase:"arms", animate:false, active:false, armsVisits:1, collapseActive:false };
       const targetShellWidth = 58;
-      const isHandsCollapseActive = !!handsCycleState.collapseActive;
+      const currentHandsCollapseState = plannerNextBenefitHandsCollapseByMode[mode] || { active:false, startAt:0, started:false };
+      if(!currentHandsCollapseState.active){
+        const collapseStartAt = now + PLANNER_NEXT_BENEFIT_HANDS_COLLAPSE_DELAY_MS;
+        clearPlannerNextBenefitHandsCollapseTimer();
+        plannerNextBenefitHandsCollapseByMode[mode] = {
+          active:true,
+          startAt:collapseStartAt,
+          started:false
+        };
+        plannerNextBenefitHandsCollapseTimerByMode[mode] = window.setTimeout(() => {
+          plannerNextBenefitHandsCollapseTimerByMode[mode] = 0;
+          schedulePlannerRender(mode);
+        }, PLANNER_NEXT_BENEFIT_HANDS_COLLAPSE_DELAY_MS + 20);
+      }
+      const activeHandsCollapseState = plannerNextBenefitHandsCollapseByMode[mode] || { active:false, startAt:0, started:false };
+      const shouldStartHandsCollapse = activeHandsCollapseState.active && activeHandsCollapseState.startAt <= now;
+      if(shouldStartHandsCollapse && !activeHandsCollapseState.started){
+        clearPlannerNextBenefitHandsCollapseTimer();
+        plannerNextBenefitHandsCollapseByMode[mode] = {
+          ...activeHandsCollapseState,
+          started:true
+        };
+      }
       showPlannerNextBenefit(
         targetShellWidth,
-        isHandsCollapseActive ? 0 : ((2 / 3) * 100),
+        shouldStartHandsCollapse ? 0 : ((2 / 3) * 100),
         false,
-        isHandsCollapseActive
+        shouldStartHandsCollapse
           ? {
               settleTransition:`width ${PLANNER_MOBILE_INFO_HANDS_COLLAPSE_MS}ms cubic-bezier(.24,.62,.3,1)`,
               fillCollapseOnly:true
@@ -12499,6 +12537,7 @@
       setPlannerNextBenefitHint("", false);
       return;
     }
+    resetPlannerNextBenefitHandsCollapse();
     const recommendation = plannerNextBenefitRecommendation(mode, selectedSet);
     const zonesById = plannerZonesMap(mode);
     const previousStepState = plannerNextBenefitPreviousStepState(mode, recommendation, selectedSet || new Set());
@@ -12513,6 +12552,7 @@
       plannerNextBenefitShellWidthByMode[mode] = 40;
       plannerNextBenefitShellExpandStateByMode[mode] = null;
       clearPlannerNextBenefitShellExpandTimer();
+      resetPlannerNextBenefitHandsCollapse();
       clearPlannerNextBenefitPromo();
       setPlannerNextBenefitHint("", false);
       plannerNextBenefitLastRecommendation = null;
@@ -12596,6 +12636,7 @@
       plannerNextBenefitShellWidthByMode[mode] = 40;
       plannerNextBenefitShellExpandStateByMode[mode] = null;
       clearPlannerNextBenefitShellExpandTimer();
+      resetPlannerNextBenefitHandsCollapse();
       clearPlannerNextBenefitPromo();
       setPlannerNextBenefitHint("", false);
       return;
@@ -12989,7 +13030,10 @@
         const [armsPackage, ...extraChildren] = item.children;
         if(armsPackage && armsPackage.type === "package" && Array.isArray(armsPackage.children)){
           detailNodes = [{
-            ...armsPackage,
+            type:"package",
+            id:`${item.id}__details`,
+            label:item.label,
+            level:item.level || armsPackage.level || 2,
             children:[...armsPackage.children, ...extraChildren]
           }];
         }
