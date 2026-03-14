@@ -2391,6 +2391,30 @@
       overflow:auto;
       scrollbar-gutter:stable;
     }
+    .plannerOrderCategoryBar{
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+    .plannerOrderCategoryBar[hidden]{
+      display:none;
+    }
+    .plannerOrderCategoryLabel{
+      font-size:12px;
+      line-height:1.35;
+      color:rgba(17,18,24,.52);
+      letter-spacing:-.01em;
+      font-weight:600;
+    }
+    .plannerOrderCategoryChips{
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:8px;
+      min-width:0;
+    }
     .plannerSetAddWrap{
       display:flex;
       justify-content:center;
@@ -2485,6 +2509,52 @@
       color:rgba(17,18,24,.52);
       letter-spacing:-.01em;
       font-weight:500;
+    }
+    .orderItemCategoryRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .orderItemCategoryTag,
+    .plannerOrderCategoryChip{
+      display:inline-flex;
+      align-items:center;
+      min-height:22px;
+      padding:0 10px;
+      border-radius:999px;
+      border:1px solid rgba(17,18,24,.1);
+      background:rgba(17,18,24,.05);
+      color:rgba(17,18,24,.66);
+      font-size:10px;
+      line-height:1.2;
+      font-weight:700;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+    .orderItemCategoryTag--single,
+    .plannerOrderCategoryChip--single{
+      background:rgba(17,18,24,.05);
+      border-color:rgba(17,18,24,.1);
+      color:rgba(17,18,24,.66);
+    }
+    .orderItemCategoryTag--package,
+    .plannerOrderCategoryChip--package{
+      background:rgba(15,94,191,.1);
+      border-color:rgba(15,94,191,.18);
+      color:#0f5ebf;
+    }
+    .orderItemCategoryTag--special,
+    .plannerOrderCategoryChip--special{
+      background:rgba(0,163,57,.12);
+      border-color:rgba(0,163,57,.2);
+      color:#007a2c;
+    }
+    .orderItemCategoryTag--mixed,
+    .plannerOrderCategoryChip--mixed{
+      background:rgba(173,110,0,.12);
+      border-color:rgba(173,110,0,.2);
+      color:#8a5b00;
     }
     .orderItemPromoNote{
       font-size:12px;
@@ -4417,6 +4487,10 @@
             </label>
           </div>
         </div>
+        <div class="plannerOrderCategoryBar" id="plannerOrderCategoryBar" hidden>
+          <span class="plannerOrderCategoryLabel" id="plannerOrderCategoryLabel">Kategorien</span>
+          <div class="plannerOrderCategoryChips" id="plannerOrderCategoryChips"></div>
+        </div>
         <p class="orderEmpty" id="plannerOrderEmpty">Noch keine Zonen ausgewählt.</p>
         <ul class="orderList" id="plannerOrderList"></ul>
         <div class="plannerSetAddWrap">
@@ -5757,6 +5831,9 @@
   const plannerOrderList = document.getElementById("plannerOrderList");
   const plannerAddSetBtn = document.getElementById("plannerAddSetBtn");
   const plannerOrderEmpty = document.getElementById("plannerOrderEmpty");
+  const plannerOrderCategoryBar = document.getElementById("plannerOrderCategoryBar");
+  const plannerOrderCategoryLabel = document.getElementById("plannerOrderCategoryLabel");
+  const plannerOrderCategoryChips = document.getElementById("plannerOrderCategoryChips");
   const plannerCourseSwitch = document.getElementById("plannerCourseSwitch");
   const plannerRegularSummary = document.getElementById("plannerRegularSummary");
   const plannerCourseHint = document.getElementById("plannerCourseHint");
@@ -7768,9 +7845,29 @@
           label:{ de:"Beine komplett", en:"Legs complete", ru:"Ноги полностью" }
         },
         {
+          id:"back_complete_bundle",
+          level:2,
+          priority:386,
+          displayGroup:"smart",
+          zoneIds:["lowerback", "upperback"],
+          componentIds:["lowerback", "upperback"],
+          packagePrice:179,
+          label:{ de:"Rücken komplett", en:"Full back", ru:"Спина полностью" }
+        },
+        {
+          id:"axilla_chest_belly_bundle",
+          level:3,
+          priority:385,
+          displayGroup:"smart",
+          zoneIds:["axilla", "chest", "bauchfull", "medialinebauch"],
+          componentIds:["axilla", "chest", "bauchfull", "medialinebauch"],
+          packagePrice:189,
+          label:{ de:"Achseln + Brust + Bauch (inkl. Medianlinie)", en:"Underarms + chest + belly (incl. median line)", ru:"Подмышки + грудь + живот (вкл. линию живота)" }
+        },
+        {
           id:"chest_belly_bundle",
           level:2,
-          priority:385,
+          priority:384,
           displayGroup:"smart",
           zoneIds:["chest", "bauchfull"],
           componentIds:["chest", "bauchfull"],
@@ -7780,7 +7877,7 @@
         {
           id:"intim_axilla_bundle",
           level:2,
-          priority:384,
+          priority:383,
           displayGroup:"smart",
           zoneIds:["intim", "axilla"],
           componentIds:["intim", "axilla"],
@@ -7790,12 +7887,22 @@
         {
           id:"bartkontur_hals_bundle",
           level:2,
-          priority:383,
+          priority:382,
           displayGroup:"smart",
           zoneIds:["wangen", "chin"],
           componentIds:["wangen", "chin"],
           packagePrice:89,
           label:{ de:"Bartkontur + Hals", en:"Beard contour + neck", ru:"Контур бороды + шея" }
+        },
+        {
+          id:"bart_complete_bundle",
+          level:3,
+          priority:383,
+          displayGroup:"smart",
+          zoneIds:["wangen", "koteletten", "chin", "kinn"],
+          componentIds:["wangen", "koteletten", "chin", "kinn"],
+          packagePrice:149,
+          label:{ de:"Bart komplett", en:"Full beard", ru:"Борода полностью" }
         },
         {
           id:"upperbody_front_bundle",
@@ -7957,6 +8064,11 @@
       zonesSub:"Wähle links die gewünschten Bereiche. Mehrfachauswahl ist möglich.",
       orderTitle:"Deine Auswahl",
       courseOrderTitle:"6er Kurspaket",
+      orderCategoriesLabel:"Kategorien",
+      orderCategorySingle:"Einzelzone",
+      orderCategoryPackage:"Komplett",
+      orderCategorySpecial:"Spezialangebot",
+      orderCategoryMixed:"Mix",
       orderPriceLabel:"",
       empty:"Noch keine Zonen ausgewählt.",
       total:"Gesamt",
@@ -8000,6 +8112,11 @@
       zonesSub:"Select treatment areas on the left. Multiple selections are supported.",
       orderTitle:"Your selection",
       courseOrderTitle:"6-session course pack",
+      orderCategoriesLabel:"Categories",
+      orderCategorySingle:"Single zone",
+      orderCategoryPackage:"Bundle",
+      orderCategorySpecial:"Special offer",
+      orderCategoryMixed:"Mixed",
       orderPriceLabel:"",
       empty:"No zones selected yet.",
       total:"Total",
@@ -8043,6 +8160,11 @@
       zonesSub:"Отметьте нужные зоны слева. Можно выбрать несколько.",
       orderTitle:"Ваш заказ",
       courseOrderTitle:"Курс на 6 визитов",
+      orderCategoriesLabel:"Категории",
+      orderCategorySingle:"Единичная зона",
+      orderCategoryPackage:"Комплект",
+      orderCategorySpecial:"Спецпредложение",
+      orderCategoryMixed:"Смешано",
       orderPriceLabel:"",
       empty:"Пока не выбрана ни одна зона.",
       total:"Итого",
@@ -12522,6 +12644,56 @@
   function plannerOrderTitleText(hasCourseSelection = false){
     return hasCourseSelection ? plannerText("courseOrderTitle") : plannerText("orderTitle");
   }
+  function plannerOrderCategoryTextKey(categoryKey){
+    if(categoryKey === "single") return "orderCategorySingle";
+    if(categoryKey === "package") return "orderCategoryPackage";
+    if(categoryKey === "special") return "orderCategorySpecial";
+    if(categoryKey === "mixed") return "orderCategoryMixed";
+    return "";
+  }
+  function plannerSelectionCategoryKeyForItem(item){
+    if(!item) return null;
+    if(item.isSetContainer){
+      const nestedKeys = plannerCollectSelectionCategoryKeys(item.children);
+      if(nestedKeys.size === 1) return Array.from(nestedKeys)[0];
+      if(nestedKeys.size > 1) return "mixed";
+      return null;
+    }
+    if(item.type === "single") return "single";
+    if(item.type === "package"){
+      if(item.displayGroup === "smart") return "package";
+      if(item.displayGroup === "premium") return "special";
+    }
+    return null;
+  }
+  function plannerCollectSelectionCategoryKeys(items, target = new Set()){
+    (items || []).forEach((item) => {
+      if(!item) return;
+      if(item.isSetContainer && Array.isArray(item.children) && item.children.length){
+        plannerCollectSelectionCategoryKeys(item.children, target);
+        return;
+      }
+      const categoryKey = plannerSelectionCategoryKeyForItem(item);
+      if(categoryKey && categoryKey !== "mixed") target.add(categoryKey);
+    });
+    return target;
+  }
+  function renderPlannerOrderCategories(items){
+    if(!plannerOrderCategoryBar || !plannerOrderCategoryChips) return;
+    const categoryOrder = ["single", "package", "special"];
+    const categoryKeys = Array.from(plannerCollectSelectionCategoryKeys(items)).sort((a, b) => categoryOrder.indexOf(a) - categoryOrder.indexOf(b));
+    if(!categoryKeys.length){
+      plannerOrderCategoryBar.hidden = true;
+      plannerOrderCategoryChips.innerHTML = "";
+      return;
+    }
+    plannerOrderCategoryBar.hidden = false;
+    plannerOrderCategoryChips.innerHTML = categoryKeys.map((categoryKey) => {
+      const textKey = plannerOrderCategoryTextKey(categoryKey);
+      if(!textKey) return "";
+      return `<span class="plannerOrderCategoryChip plannerOrderCategoryChip--${categoryKey}">${plannerText(textKey)}</span>`;
+    }).filter(Boolean).join("");
+  }
   function plannerDisplayPriceMeta(item, isCourseMode = plannerPricingView === "course"){
     const basePrice = Number(item && item.price) || 0;
     const originalPrice = Number(item && item.originalPrice) || basePrice;
@@ -14564,6 +14736,7 @@
     if(plannerZonesTitle) plannerZonesTitle.textContent = plannerText("zonesTitle");
     if(plannerZonesSub) plannerZonesSub.textContent = plannerText("zonesSub");
     if(plannerOrderTitle) plannerOrderTitle.textContent = plannerOrderTitleText(false);
+    if(plannerOrderCategoryLabel) plannerOrderCategoryLabel.textContent = plannerText("orderCategoriesLabel");
     if(plannerOrderEmpty) plannerOrderEmpty.textContent = plannerText("empty");
     if(plannerTotalLabel) plannerTotalLabel.textContent = plannerText("total");
     if(plannerClearBtn) plannerClearBtn.textContent = plannerText("clear");
@@ -14756,8 +14929,13 @@
       const priceMeta = displayPriceMeta(item);
       const calcUnitPrice = Number(priceMeta.unitPrice) || 0;
       const saved = priceMeta.saved;
+      const categoryKey = plannerSelectionCategoryKeyForItem(item);
+      const categoryTextKey = plannerOrderCategoryTextKey(categoryKey);
       const premiumTagHtml = "";
       const courseTagHtml = "";
+      const categoryBadgeHtml = categoryTextKey
+        ? `<span class="orderItemCategoryRow"><span class="orderItemCategoryTag orderItemCategoryTag--${categoryKey}">${plannerText(categoryTextKey)}</span></span>`
+        : "";
       const expandHintHtml = canExpand
         ? `<button type="button" class="orderItemSaveHintBtn${isExpanded ? " is-open" : ""}" data-bundle-id="${item.id}" aria-expanded="${isExpanded ? "true" : "false"}" aria-label="Toggle details"><span class="orderItemSaveHintIcon" aria-hidden="true"></span></button>`
         : "";
@@ -14785,7 +14963,7 @@
           ? `<span class="orderItemPriceOldLine"><span class="orderItemPriceCalc">${plannerTextTemplate("courseDetail", { count:String(PLANNER_COURSE_SESSIONS), value:formatEuro(calcUnitPrice) })}</span><span class="orderItemPriceEq">= <span class="orderItemPriceEqValue">${formatEuro(priceMeta.original)}</span></span></span>`
           : `<span class="orderItemPriceOld">${formatEuro(priceMeta.original)}</span>`)
         : "";
-      li.innerHTML = `<span class="orderItemNameWrap">${courseTagHtml}<span class="orderItemNameLine"><span class="orderItemName">${titleText}</span>${expandHintHtml}</span>${partsText ? `<span class="orderItemMeta">${partsText}</span>` : ""}${todoPriceHtml}${saveHtml}${promoNoteHtml}${detailsHtml}</span><span class="orderItemPriceWrap">${oldPriceHtml}<strong class="orderItemPrice">${formatEuro(priceMeta.price)}</strong></span>`;
+      li.innerHTML = `<span class="orderItemNameWrap">${courseTagHtml}<span class="orderItemNameLine"><span class="orderItemName">${titleText}</span>${expandHintHtml}</span>${categoryBadgeHtml}${partsText ? `<span class="orderItemMeta">${partsText}</span>` : ""}${todoPriceHtml}${saveHtml}${promoNoteHtml}${detailsHtml}</span><span class="orderItemPriceWrap">${oldPriceHtml}<strong class="orderItemPrice">${formatEuro(priceMeta.price)}</strong></span>`;
       plannerOrderList.appendChild(li);
     };
     updatePlannerTermLink(mode, selectedSet);
@@ -14803,6 +14981,7 @@
     const groupedSelection = (savedSetItems.length || activeSetEntry) ? savedSetItems : selected;
     const sessionTotal = snapshot.total;
     updatePlannerCourseOffer(mode, selectedSet, sessionTotal);
+    renderPlannerOrderCategories(groupedSelection);
     const visibleBundleIds = new Set(groupedSelection.filter((item) => item.type === "package").map((item) => item.id));
     const hasExpandedVisibleBundle = Array.from(collapsedBundleRows).some((bundleId) => visibleBundleIds.has(bundleId));
     if(!hasExpandedVisibleBundle && collapsedBundleRows.size > 0 && visibleBundleIds.size === 1){
@@ -14817,6 +14996,7 @@
     plannerOrderList.innerHTML = "";
     if(!groupedSelection.length){
       plannerOrderEmpty.hidden = false;
+      if(plannerOrderCategoryBar) plannerOrderCategoryBar.hidden = true;
     } else {
       plannerOrderEmpty.hidden = true;
       groupedSelection.forEach((item) => renderSummaryRow(item));

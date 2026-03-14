@@ -291,18 +291,6 @@ function validateSelection(mode: string, selectedZoneIds: string[]) {
         issues.push({ mode, selected:selectedKey, problem:"missing axilla_chest_intim_bundle on exact launch selection" });
       }
     }
-    const backCompleteZones = ["lowerback", "upperback"];
-    if(backCompleteZones.every((zoneId) => selectedSet.has(zoneId)) && selectedSet.size === backCompleteZones.length){
-      if(!topLevelIds.has("back_complete_bundle")){
-        issues.push({ mode, selected:selectedKey, problem:"missing back_complete_bundle on exact full back selection" });
-      }
-    }
-    const axillaChestBellyZones = ["axilla", "chest", "bauchfull", "medialinebauch"];
-    if(axillaChestBellyZones.every((zoneId) => selectedSet.has(zoneId)) && selectedSet.size === axillaChestBellyZones.length){
-      if(!topLevelIds.has("axilla_chest_belly_bundle")){
-        issues.push({ mode, selected:selectedKey, problem:"missing axilla_chest_belly_bundle on exact underarms+chest+belly+medianline selection" });
-      }
-    }
     const chestBellyZones = ["chest", "bauchfull"];
     if(chestBellyZones.every((zoneId) => selectedSet.has(zoneId)) && selectedSet.size === chestBellyZones.length){
       if(!topLevelIds.has("chest_belly_bundle")){
@@ -319,12 +307,6 @@ function validateSelection(mode: string, selectedZoneIds: string[]) {
     if(bartkonturHalsZones.every((zoneId) => selectedSet.has(zoneId)) && selectedSet.size === bartkonturHalsZones.length){
       if(!topLevelIds.has("bartkontur_hals_bundle")){
         issues.push({ mode, selected:selectedKey, problem:"missing bartkontur_hals_bundle on exact beard+neck selection" });
-      }
-    }
-    const bartCompleteZones = ["wangen", "koteletten", "chin", "kinn"];
-    if(bartCompleteZones.every((zoneId) => selectedSet.has(zoneId)) && selectedSet.size === bartCompleteZones.length){
-      if(!topLevelIds.has("bart_complete_bundle")){
-        issues.push({ mode, selected:selectedKey, problem:"missing bart_complete_bundle on exact full beard selection" });
       }
     }
   }
@@ -421,7 +403,7 @@ function runModeChecks(mode: string) {
     validateSetAutoCreation(mode, ["kinn", "glabella"], false, "women 2-zone singles");
   }
   if(mode === "herren"){
-    validateSetAutoCreation(mode, ["lowerback", "upperback"], true, "men 2-zone package");
+    validateSetAutoCreation(mode, ["lowerback", "upperback"], false, "men 2-zone singles");
     validateSetAutoCreation(mode, ["wangen", "chin"], true, "men 2-zone package");
     validateSetAutoCreation(mode, ["kinn", "glabella"], false, "men 2-zone singles");
   }

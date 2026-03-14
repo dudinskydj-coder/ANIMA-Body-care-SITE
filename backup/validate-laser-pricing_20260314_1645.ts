@@ -297,10 +297,10 @@ function validateSelection(mode: string, selectedZoneIds: string[]) {
         issues.push({ mode, selected:selectedKey, problem:"missing back_complete_bundle on exact full back selection" });
       }
     }
-    const axillaChestBellyZones = ["axilla", "chest", "bauchfull", "medialinebauch"];
+    const axillaChestBellyZones = ["axilla", "chest", "bauchfull"];
     if(axillaChestBellyZones.every((zoneId) => selectedSet.has(zoneId)) && selectedSet.size === axillaChestBellyZones.length){
       if(!topLevelIds.has("axilla_chest_belly_bundle")){
-        issues.push({ mode, selected:selectedKey, problem:"missing axilla_chest_belly_bundle on exact underarms+chest+belly+medianline selection" });
+        issues.push({ mode, selected:selectedKey, problem:"missing axilla_chest_belly_bundle on exact underarms+chest+belly selection" });
       }
     }
     const chestBellyZones = ["chest", "bauchfull"];
