@@ -762,6 +762,56 @@
     .laserHighlightsPlaybackBtn.is-paused .laserHighlightsPlaybackIcon--play{
       display:block;
     }
+    @media (min-width:921px) and (max-width:1440px){
+      .laserHighlightsViewport{
+        --laser-highlights-side-pad:max(20px, calc(50vw - 470px));
+      }
+      .laserHighlightsTrack{
+        gap:16px;
+        padding-top:12px;
+        padding-bottom:22px;
+      }
+      .laserHighlightCard{
+        flex-basis:min(84vw, 860px);
+        min-height:clamp(420px, 44vw, 560px);
+        padding:22px;
+        border-radius:30px;
+        gap:18px;
+      }
+      .laserHighlightCard--hero{
+        flex-basis:min(86vw, 920px);
+      }
+      .laserHighlightCard--hero .laserHighlightCopy{
+        max-width:min(48%, 390px);
+      }
+      .laserHighlightCard--result .laserHighlightCopy{
+        max-width:min(54%, 420px);
+      }
+      .laserHighlightCopy{
+        gap:10px;
+      }
+      .laserHighlightHeading{
+        font-size:clamp(30px, 4vw, 52px);
+      }
+      .laserHighlightBody{
+        font-size:clamp(16px, 1.45vw, 20px);
+      }
+      .laserHighlightMedia--flower{
+        min-height:clamp(220px, 28vw, 360px);
+      }
+      .laserHighlightMedia--hand{
+        min-height:clamp(180px, 20vw, 250px);
+      }
+      .laserHighlightMedia--ribbon{
+        min-height:clamp(150px, 16vw, 210px);
+        margin-inline:-22px;
+        margin-bottom:-22px;
+      }
+      .laserHighlightMedia--legs{
+        width:min(44%, 320px);
+        height:72%;
+      }
+    }
     .modePriceNote{
       margin:14px 0 0;
       font-size:13px;
@@ -982,36 +1032,47 @@
       -ms-user-select:none;
       user-select:none;
     }
+    .plannerViewControls{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:14px;
+      margin:12px auto 0;
+      position:relative;
+      z-index:6;
+    }
     .plannerViewSwitch{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      gap:10px;
-      align-self:center;
-      margin:10px auto 0;
-      padding:2px 4px;
-      border-radius:999px;
+      gap:8px;
+      align-self:auto;
+      margin:0;
+      padding:0;
+      border-radius:0;
       background:transparent;
       position:relative;
-      z-index:6;
+      z-index:1;
     }
     .plannerViewBtn{
       width:10px;
       height:10px;
       border-radius:50%;
       border:none;
-      background:rgba(17,18,24,.26);
+      background:rgba(17,18,24,.22);
       padding:0;
       cursor:pointer;
-      transition:transform .18s ease, background-color .18s ease, opacity .18s ease;
+      transition:transform .18s ease, background-color .18s ease, opacity .18s ease, width .18s ease;
     }
     .plannerViewBtn:hover{
-      background:rgba(17,18,24,.5);
-      transform:scale(1.1);
+      background:rgba(17,18,24,.4);
+      transform:scale(1.05);
     }
     .plannerViewBtn.is-active{
       background:#111218;
-      transform:scale(1.18);
+      width:30px;
+      border-radius:999px;
+      transform:none;
     }
     .plannerViewBtn:disabled{
       opacity:.35;
@@ -1019,27 +1080,24 @@
       transform:none;
     }
     .plannerViewArrow{
-      position:absolute;
-      top:50%;
-      transform:translateY(-50%);
-      width:36px;
-      height:36px;
-      border:1px solid rgba(255,255,255,.82);
-      border-radius:999px;
-      background:rgba(255,255,255,.08);
-      color:rgba(93,98,110,.96);
+      position:relative;
+      top:auto;
+      transform:none;
+      width:40px;
+      height:40px;
+      border:none;
+      border-radius:50%;
+      background:transparent;
+      color:rgba(17,18,24,.82);
       display:flex;
       align-items:center;
       justify-content:center;
       cursor:pointer;
-      z-index:6;
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.08),
-        0 10px 22px rgba(255,255,255,.18),
-        0 6px 16px rgba(17,24,35,.08);
-      backdrop-filter:blur(12px) saturate(1.02);
-      -webkit-backdrop-filter:blur(12px) saturate(1.02);
-      transition:background-color .2s ease, transform .18s ease, opacity .18s ease, box-shadow .2s ease, border-color .2s ease;
+      z-index:1;
+      box-shadow:none;
+      backdrop-filter:none;
+      -webkit-backdrop-filter:none;
+      transition:transform .18s ease, opacity .18s ease, color .18s ease;
       -webkit-tap-highlight-color:transparent;
       -webkit-appearance:none;
       appearance:none;
@@ -1047,37 +1105,28 @@
       outline:none;
     }
     .plannerViewArrow:hover{
-      background:rgba(255,255,255,.12);
-      border-color:rgba(255,255,255,.92);
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.10),
-        0 12px 26px rgba(255,255,255,.24),
-        0 8px 18px rgba(17,24,35,.10);
-      transform:translateY(-50%) scale(1.02);
+      background:transparent;
+      color:#111218;
+      transform:scale(1.06);
     }
     .plannerViewArrow:disabled{
-      opacity:.14;
+      opacity:.28;
       pointer-events:none;
       cursor:not-allowed;
-      transform:translateY(-50%);
+      transform:none;
       box-shadow:none;
     }
     .plannerViewArrow:focus,
     .plannerViewArrow:focus-visible,
     .plannerViewArrow:active{
       outline:none;
-      background:rgba(255,255,255,.15);
-      border-color:rgba(255,255,255,.94);
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.12),
-        0 11px 24px rgba(255,255,255,.22),
-        0 7px 16px rgba(17,24,35,.10);
+      background:transparent;
+      color:#111218;
+      box-shadow:none;
     }
     .plannerViewArrow:active{
-      transform:translateY(-50%) scale(.985);
+      transform:scale(.98);
     }
-    .plannerViewArrow--prev{ left:10px; }
-    .plannerViewArrow--next{ right:10px; }
     .plannerViewArrow svg{
       width:17px;
       height:17px;
@@ -4640,21 +4689,17 @@
       .plannerFigureScene{
         padding-inline:0;
       }
+      .plannerViewControls{
+        gap:10px;
+        margin-top:10px;
+      }
       .plannerViewSwitch{
-        margin:6px auto 0;
+        margin:0;
       }
       .plannerViewArrow{
-        width:32px;
-        height:32px;
-        top:50%;
-        border-width:1px;
-        transition:background-color .2s ease, transform .18s ease, opacity .18s ease, box-shadow .2s ease, border-color .2s ease;
+        width:36px;
+        height:36px;
       }
-      .plannerViewArrow:hover{
-        transform:translateY(-50%) scale(1.015);
-      }
-      .plannerViewArrow--prev{ left:6px; }
-      .plannerViewArrow--next{ right:6px; }
       .plannerViewArrow svg{
         width:15px;
         height:15px;
@@ -4894,12 +4939,6 @@
     <div class="laserPlanner" aria-label="Interaktiver Zonenplaner">
       <div class="plannerPane plannerPane--zones">
         <div class="plannerFigureWrap">
-          <button type="button" class="plannerViewArrow plannerViewArrow--prev" id="plannerViewPrev" aria-label="Previous view">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
-          </button>
-          <button type="button" class="plannerViewArrow plannerViewArrow--next" id="plannerViewNext" aria-label="Next view">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
-          </button>
           <div class="plannerMobileInfo" id="plannerMobileInfo" aria-hidden="true">
             <div class="plannerMobileInfoZones" id="plannerMobileInfoZones"></div>
             <div class="plannerNextBenefit" id="plannerNextBenefit" hidden>
@@ -4947,10 +4986,18 @@
               <div class="plannerSketch" id="plannerSketch"></div>
             </div>
           </div>
-          <div class="plannerViewSwitch" id="plannerViewSwitch" role="group" aria-label="Figure side">
-            <button type="button" class="plannerViewBtn is-active" data-planner-view="front" aria-pressed="true" aria-label="Front view"></button>
-            <button type="button" class="plannerViewBtn" data-planner-view="back" aria-pressed="false" aria-label="Back view"></button>
-            <button type="button" class="plannerViewBtn" data-planner-view="face" aria-pressed="false" aria-label="Face view"></button>
+          <div class="plannerViewControls" aria-label="Figure side controls">
+            <button type="button" class="plannerViewArrow plannerViewArrow--prev" id="plannerViewPrev" aria-label="Previous view">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+            </button>
+            <div class="plannerViewSwitch" id="plannerViewSwitch" role="group" aria-label="Figure side">
+              <button type="button" class="plannerViewBtn is-active" data-planner-view="front" aria-pressed="true" aria-label="Front view"></button>
+              <button type="button" class="plannerViewBtn" data-planner-view="back" aria-pressed="false" aria-label="Back view"></button>
+              <button type="button" class="plannerViewBtn" data-planner-view="face" aria-pressed="false" aria-label="Face view"></button>
+            </div>
+            <button type="button" class="plannerViewArrow plannerViewArrow--next" id="plannerViewNext" aria-label="Next view">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            </button>
           </div>
           <div class="plannerButtonInspector" id="plannerButtonInspector" aria-live="polite">
             <div class="plannerButtonInspectorTitle" id="plannerButtonInspectorTitle">BUTTON</div>
@@ -9789,18 +9836,13 @@
     plannerZonesPane.style.setProperty("--planner-interactive-shift", `${Math.round(shift)}px`);
   }
   function positionPlannerViewArrows(){
-    if(!plannerFigureWrap) return;
-    const figureRect = plannerFigure ? plannerFigure.getBoundingClientRect() : null;
-    const wrapRect = plannerFigureWrap.getBoundingClientRect();
-    if(!figureRect || !wrapRect || wrapRect.height <= 0) return;
-    const topPx = (figureRect.top - wrapRect.top) + (figureRect.height * 0.5);
     if(plannerViewPrevBtn){
-      plannerViewPrevBtn.style.top = `${topPx}px`;
-      plannerViewPrevBtn.style.transform = "translateY(-50%)";
+      plannerViewPrevBtn.style.top = "";
+      plannerViewPrevBtn.style.transform = "";
     }
     if(plannerViewNextBtn){
-      plannerViewNextBtn.style.top = `${topPx}px`;
-      plannerViewNextBtn.style.transform = "translateY(-50%)";
+      plannerViewNextBtn.style.top = "";
+      plannerViewNextBtn.style.transform = "";
     }
   }
   function syncPlannerViewSwitch(mode){
