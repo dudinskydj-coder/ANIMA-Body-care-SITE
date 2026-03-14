@@ -13,7 +13,7 @@
   <link rel="shortcut icon" href="./favicon-32x32.png?v=20260310" type="image/png" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=20260310" sizes="180x180" />
   <link rel="manifest" href="./site.webmanifest?v=20260310" />
-  <link rel="preload" as="image" href="./img/LASER/LASER HERO 1 SUPER-web.jpg" fetchpriority="high" />
+  <link rel="preload" as="image" href="./img/LASER/LASER HERO 1 SUPER 494-web.jpg" fetchpriority="high" />
 
   <style>
     :root{
@@ -255,9 +255,9 @@
 
     .section{padding:56px 0}
     .hero{
-      padding:58px 0 clamp(68px, 8vw, 132px);
+      padding:58px 0 clamp(34px, 4vw, 64px);
       text-align:center;
-      min-height:calc(100vh - var(--headerH) - 34px);
+      min-height:0;
       display:flex;
       flex-direction:column;
       align-items:center;
@@ -285,17 +285,17 @@
       max-width:980px;
     }
     .heroGhostSpace{
-      flex:1 1 auto;
       width:100vw;
       max-width:none;
-      min-height:clamp(240px, 32vw, 520px);
       margin-left:calc(50% - 50vw);
       margin-right:calc(50% - 50vw);
-      background-image:url("img/LASER/LASER HERO 1 SUPER-web.jpg");
-      background-repeat:no-repeat;
-      background-size:100% auto;
-      background-position:center 72%;
+      margin-top:clamp(10px, 1.5vw, 22px);
       pointer-events:none;
+    }
+    .heroImage{
+      display:block;
+      width:100%;
+      height:auto;
     }
     .hero p{
       margin:0 auto 24px;
@@ -303,11 +303,6 @@
       font-size:18px;
       line-height:1.45;
       max-width:860px;
-    }
-    @media (min-width:1440px){
-      .heroGhostSpace{
-        background-position:center 84%;
-      }
     }
 
     .btnRow{
@@ -325,7 +320,7 @@
       position:relative;
       z-index:6;
       width:min(92vw, 520px);
-      margin:clamp(28px, 3vw, 48px) auto 0;
+      margin:clamp(16px, 2vw, 26px) auto 0;
       display:flex;
       flex-direction:column;
       align-items:center;
@@ -3986,7 +3981,7 @@
 
     @media (max-width:920px){
       .hero{
-        padding-bottom:64px;
+        padding-bottom:36px;
       }
       .heroPromoStrip{
         font-size:12px;
@@ -4010,12 +4005,9 @@
         padding:16px 18px;
         font-size:22px;
       }
-      .heroGhostSpace{
-        min-height:clamp(180px, 48vw, 320px);
-        background-position:center 78%;
-      }
+      .heroGhostSpace{margin-top:14px}
       .heroBottomDock{
-        margin-top:26px;
+        margin-top:16px;
       }
       .laserSwitchSection{
         padding:42px 0 14px;
@@ -4402,7 +4394,9 @@
   <!-- 1) HERO -->
   <section class="hero section">
     <h1 id="hero_title">Alexandrit-Laser-Haarentfernung.<br/>Sanft. Präzise. Gepflegt.</h1>
-    <div class="heroGhostSpace" aria-hidden="true"></div>
+    <div class="heroGhostSpace" aria-hidden="true">
+      <img class="heroImage" src="img/LASER/LASER HERO 1 SUPER 494-web.jpg" alt="" loading="eager" decoding="sync" fetchpriority="high" />
+    </div>
     <div class="heroBottomDock" id="heroBottomDock">
       <p class="heroPrice" id="hero_price"><strong>Ab 25 €</strong> pro Behandlung.</p>
     </div>
