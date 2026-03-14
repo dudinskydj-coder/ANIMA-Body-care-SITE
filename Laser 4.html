@@ -488,7 +488,7 @@
       gap:18px;
       overflow-x:auto;
       overflow-y:hidden;
-      padding:6px var(--laser-highlights-side-pad) 34px;
+      padding:6px var(--laser-highlights-side-pad) 30px;
       background:#fff;
       scroll-snap-type:x mandatory;
       scroll-padding-left:var(--laser-highlights-side-pad);
@@ -509,8 +509,8 @@
       border:1px solid rgba(17,18,24,.06);
       background:#fff;
       box-shadow:
-        0 8px 14px -12px rgba(17,18,24,.08),
-        0 28px 36px -24px rgba(17,18,24,.18);
+        0 6px 12px -10px rgba(17,18,24,.08),
+        0 18px 22px -14px rgba(17,18,24,.24);
       scroll-snap-align:start;
       overflow:hidden;
       display:grid;
@@ -519,22 +519,16 @@
     }
     .laserHighlightCard--hero{
       flex-basis:min(89vw, 1020px);
-      background:
-        radial-gradient(circle at 18% 20%, rgba(242,223,231,.96) 0%, rgba(242,223,231,0) 30%),
-        linear-gradient(180deg, #faf7f8 0%, #eef1f4 100%);
+      background:#fff;
     }
     .laserHighlightCard--precision{
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(247,248,250,.96) 100%);
+      background:#fff;
     }
     .laserHighlightCard--comfort{
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(245,241,238,.98) 100%);
+      background:#fff;
     }
     .laserHighlightCard--result{
-      background:
-        radial-gradient(circle at 82% 22%, rgba(244,221,226,.85) 0%, rgba(244,221,226,0) 26%),
-        linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(247,244,245,.98) 100%);
+      background:#fff;
     }
     .laserHighlightCard--hero .laserHighlightCopy{
       max-width:min(46%, 430px);
@@ -633,15 +627,7 @@
       object-position:right bottom;
     }
     .laserHighlightGlow{
-      position:absolute;
-      inset:auto auto 12% 10%;
-      width:44%;
-      aspect-ratio:1 / 1;
-      border-radius:50%;
-      background:radial-gradient(circle at center, rgba(240,212,214,.92) 0%, rgba(240,212,214,.18) 44%, rgba(240,212,214,0) 78%);
-      filter:blur(14px);
-      opacity:.76;
-      pointer-events:none;
+      display:none;
     }
     .laserHighlightResultPill{
       display:inline-flex;
@@ -727,28 +713,31 @@
     }
     .laserHighlightsPlaybackBtn{
       display:none;
-      width:52px;
-      height:44px;
+      width:40px;
+      height:40px;
       border:none;
-      border-radius:999px;
-      background:#111218;
-      color:#fff;
+      border-radius:50%;
+      background:transparent;
+      color:rgba(17,18,24,.82);
       cursor:pointer;
       align-items:center;
       justify-content:center;
       box-shadow:none;
-      transition:background-color .18s ease, opacity .22s ease, color .18s ease;
+      transition:transform .18s ease, opacity .22s ease, color .18s ease;
     }
     .laserHighlightsPlaybackBtn:hover{
-      background:#1b1c24;
+      background:transparent;
+      color:#111218;
+      transform:scale(1.06);
     }
     .laserHighlightsPlaybackBtn.is-paused{
-      border:1px solid rgba(0,0,0,.12);
-      background:#fff;
-      color:#111218;
+      border:none;
+      background:transparent;
+      color:rgba(17,18,24,.82);
     }
     .laserHighlightsPlaybackBtn.is-paused:hover{
-      background:rgba(17,18,24,.04);
+      background:transparent;
+      color:#111218;
     }
     .laserHighlightsPlaybackBtn svg{
       width:18px;
@@ -4342,7 +4331,7 @@
       .laserHighlightsTrack{
         gap:12px;
         padding-top:6px;
-        padding-bottom:26px;
+        padding-bottom:24px;
       }
       .laserHighlightCard{
         flex-basis:calc(100vw - 72px);
@@ -4400,8 +4389,8 @@
         display:none;
       }
       .laserHighlightsPlaybackBtn{
-        width:52px;
-        height:42px;
+        width:40px;
+        height:40px;
         display:inline-flex;
       }
       .heroGhostSpace{margin-top:14px}
@@ -4415,7 +4404,7 @@
         gap:22px;
       }
       .laserSwitchBtn{
-        font-size:15px;
+        font-size:16px;
         padding-bottom:10px;
       }
       .media img{height:380px}
