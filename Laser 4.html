@@ -412,58 +412,307 @@
       font-weight:760;
       letter-spacing:-.02em;
     }
-    .laserPrimer{
-      padding-top:20px;
-      padding-bottom:30px;
-      background:#fff;
+    .laserHighlights{
+      position:relative;
+      margin-top:clamp(20px, 3vw, 32px);
+      padding:clamp(56px, 7vw, 82px) 0 clamp(30px, 4vw, 48px);
+      background:transparent;
+      overflow:visible;
     }
-    .laserPrimerInner{
+    .laserHighlightsShell{
+      position:relative;
+      z-index:1;
       display:grid;
-      gap:18px;
-      justify-items:center;
-      text-align:center;
+      gap:28px;
     }
-    .laserPrimerEyebrow{
+    .laserHighlightsHeader{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:18px;
+    }
+    .laserHighlightsIntro{
+      display:grid;
+      gap:12px;
+    }
+    .laserHighlightsEyebrow{
       margin:0;
       font-size:12px;
       letter-spacing:.18em;
       text-transform:uppercase;
-      color:rgba(17,18,24,.5);
+      color:rgba(17,18,24,.46);
     }
-    .laserPrimerLead{
+    .laserHighlightsTitle{
       margin:0;
-      max-width:920px;
-      font-size:clamp(44px, 7vw, 86px);
-      line-height:.93;
+      font-size:clamp(42px, 7vw, 82px);
+      line-height:.92;
       letter-spacing:-.06em;
-      font-weight:800;
+      font-weight:780;
       color:#111218;
       text-wrap:balance;
     }
-    .laserPrimerGrid{
-      width:100%;
-      display:grid;
-      grid-template-columns:repeat(3, minmax(0, 1fr));
-      gap:12px;
-      margin-top:6px;
+    .laserHighlightsLink{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:0 0 6px;
+      border:none;
+      background:transparent;
+      text-decoration:none;
+      font-size:18px;
+      line-height:1.2;
+      letter-spacing:-.02em;
+      color:#0066cc;
+      white-space:nowrap;
     }
-    .laserPrimerItem{
-      margin:0;
-      min-height:92px;
-      padding:20px 18px;
-      border-radius:24px;
-      border:1px solid rgba(17,18,24,.08);
-      background:linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(246,246,248,.95) 100%);
-      box-shadow:0 10px 24px rgba(17,18,24,.05);
-      font-size:24px;
-      line-height:1.05;
-      letter-spacing:-.03em;
-      font-weight:720;
-      color:#111218;
-      text-wrap:balance;
+    .laserHighlightsLink::after{
+      content:"›";
+      font-size:1.18em;
+      line-height:1;
+      transform:translateY(-1px);
+    }
+    .laserHighlightsViewport{
+      --laser-highlights-side-pad:max(22px, calc(50vw - 538px));
+      width:100vw;
+      max-width:none;
+      margin-left:calc(50% - 50vw);
+      margin-right:calc(50% - 50vw);
+    }
+    .laserHighlightsTrack{
       display:flex;
-      align-items:flex-start;
+      gap:18px;
+      overflow-x:auto;
+      overflow-y:hidden;
+      padding:0 var(--laser-highlights-side-pad) 10px;
+      scroll-snap-type:x mandatory;
+      scroll-padding-left:var(--laser-highlights-side-pad);
+      -webkit-overflow-scrolling:touch;
+      overscroll-behavior-x:contain;
+      scrollbar-width:none;
+      -ms-overflow-style:none;
+    }
+    .laserHighlightsTrack::-webkit-scrollbar{
+      display:none;
+    }
+    .laserHighlightCard{
+      position:relative;
+      flex:0 0 min(86vw, 940px);
+      min-height:clamp(460px, 56vw, 690px);
+      padding:26px;
+      border-radius:34px;
+      border:1px solid rgba(17,18,24,.06);
+      background:linear-gradient(180deg, rgba(255,255,255,.95) 0%, rgba(244,245,248,.98) 100%);
+      box-shadow:0 18px 36px rgba(17,18,24,.08);
+      scroll-snap-align:start;
+      overflow:hidden;
+      display:grid;
+      grid-template-rows:auto 1fr;
+      gap:22px;
+    }
+    .laserHighlightCard--hero{
+      flex-basis:min(89vw, 1020px);
+      background:
+        radial-gradient(circle at 18% 20%, rgba(242,223,231,.96) 0%, rgba(242,223,231,0) 30%),
+        linear-gradient(180deg, #faf7f8 0%, #eef1f4 100%);
+    }
+    .laserHighlightCard--precision{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(247,248,250,.96) 100%);
+    }
+    .laserHighlightCard--comfort{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(245,241,238,.98) 100%);
+    }
+    .laserHighlightCard--result{
+      background:
+        radial-gradient(circle at 82% 22%, rgba(244,221,226,.85) 0%, rgba(244,221,226,0) 26%),
+        linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(247,244,245,.98) 100%);
+    }
+    .laserHighlightCard--hero .laserHighlightCopy{
+      max-width:min(46%, 430px);
+    }
+    .laserHighlightCard--result .laserHighlightCopy{
+      max-width:min(52%, 470px);
+    }
+    .laserHighlightCopy{
+      position:relative;
+      z-index:2;
+      display:grid;
+      gap:12px;
+      max-width:min(620px, 88%);
+    }
+    .laserHighlightMeta{
+      margin:0;
+      font-size:12px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:rgba(17,18,24,.46);
+    }
+    .laserHighlightHeading{
+      margin:0;
+      font-size:clamp(34px, 5vw, 62px);
+      line-height:.96;
+      letter-spacing:-.055em;
+      font-weight:780;
+      color:#111218;
+      text-wrap:balance;
+    }
+    .laserHighlightBody{
+      margin:0;
+      max-width:32ch;
+      font-size:clamp(17px, 1.7vw, 22px);
+      line-height:1.32;
+      letter-spacing:-.02em;
+      color:rgba(17,18,24,.68);
+      text-wrap:balance;
+    }
+    .laserHighlightMedia{
+      position:relative;
+      min-height:220px;
+      align-self:end;
+      z-index:1;
+    }
+    .laserHighlightMedia--flower{
+      min-height:clamp(250px, 38vw, 460px);
+    }
+    .laserHighlightMedia--hand{
+      min-height:clamp(210px, 24vw, 310px);
+    }
+    .laserHighlightMedia--ribbon{
+      min-height:clamp(170px, 20vw, 250px);
+      margin-inline:-26px;
+      margin-bottom:-26px;
+    }
+    .laserHighlightMedia--legs{
+      position:absolute;
+      right:0;
+      bottom:0;
+      width:min(46%, 360px);
+      min-height:0;
+      height:76%;
+      pointer-events:none;
+    }
+    .laserHighlightVideo{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit:contain;
+      object-position:center bottom;
+      mix-blend-mode:multiply;
+      filter:saturate(1.03) contrast(1.01);
+    }
+    .laserHighlightImage{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit:cover;
+      object-position:center;
+    }
+    .laserHighlightCard--precision .laserHighlightImage{
+      object-fit:contain;
+      object-position:center bottom;
+      transform:translateY(6%);
+    }
+    .laserHighlightCard--comfort .laserHighlightImage{
+      object-position:center;
+    }
+    .laserHighlightCard--result .laserHighlightImage{
+      object-fit:contain;
+      object-position:right bottom;
+    }
+    .laserHighlightGlow{
+      position:absolute;
+      inset:auto auto 12% 10%;
+      width:44%;
+      aspect-ratio:1 / 1;
+      border-radius:50%;
+      background:radial-gradient(circle at center, rgba(240,212,214,.92) 0%, rgba(240,212,214,.18) 44%, rgba(240,212,214,0) 78%);
+      filter:blur(14px);
+      opacity:.76;
+      pointer-events:none;
+    }
+    .laserHighlightResultPill{
+      display:inline-flex;
+      align-items:center;
       justify-content:center;
+      width:max-content;
+      padding:10px 14px;
+      border-radius:999px;
+      background:#111218;
+      color:#fff;
+      font-size:14px;
+      line-height:1;
+      font-weight:720;
+      letter-spacing:-.01em;
+      box-shadow:0 10px 20px rgba(17,18,24,.16);
+    }
+    .laserHighlightsControls{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+    }
+    .laserHighlightsDots{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(17,18,24,.06);
+      border:1px solid rgba(17,18,24,.07);
+      backdrop-filter:saturate(140%) blur(10px);
+      -webkit-backdrop-filter:saturate(140%) blur(10px);
+    }
+    .laserHighlightsDot{
+      width:10px;
+      height:10px;
+      border:none;
+      border-radius:999px;
+      background:rgba(17,18,24,.22);
+      padding:0;
+      cursor:pointer;
+      transition:transform .22s ease, background-color .22s ease, width .22s ease;
+    }
+    .laserHighlightsDot.is-active{
+      width:34px;
+      background:#111218;
+    }
+    .laserHighlightsNavBtn{
+      width:46px;
+      height:46px;
+      border:none;
+      border-radius:50%;
+      background:rgba(255,255,255,.86);
+      color:#111218;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 10px 24px rgba(17,18,24,.10);
+      transition:transform .22s ease, opacity .22s ease, background-color .22s ease;
+    }
+    .laserHighlightsNavBtn:hover{
+      transform:translateY(-1px);
+      background:#fff;
+    }
+    .laserHighlightsNavBtn[disabled]{
+      opacity:.36;
+      cursor:default;
+      transform:none;
+      box-shadow:none;
+    }
+    .laserHighlightsNavBtn svg{
+      width:18px;
+      height:18px;
+      stroke:currentColor;
+      stroke-width:2.2;
+      fill:none;
+      stroke-linecap:round;
+      stroke-linejoin:round;
     }
     .modePriceNote{
       margin:14px 0 0;
@@ -3989,21 +4238,84 @@
         padding:7px 10px;
       }
       .hero h1{font-size:40px}
-      .laserPrimer{
-        padding-top:10px;
-        padding-bottom:22px;
+      .laserHighlights{
+        margin-top:18px;
+        padding-top:34px;
+        padding-bottom:24px;
       }
-      .laserPrimerLead{
-        font-size:clamp(34px, 11vw, 54px);
+      .laserHighlightsHeader{
+        align-items:flex-start;
+        flex-direction:column;
+      }
+      .laserHighlightsIntro{
+        gap:10px;
+      }
+      .laserHighlightsTitle{
+        font-size:clamp(36px, 12vw, 56px);
         line-height:.96;
       }
-      .laserPrimerGrid{
-        grid-template-columns:1fr;
+      .laserHighlightsLink{
+        padding-bottom:0;
+        font-size:17px;
       }
-      .laserPrimerItem{
-        min-height:auto;
-        padding:16px 18px;
-        font-size:22px;
+      .laserHighlightsViewport{
+        --laser-highlights-side-pad:16px;
+      }
+      .laserHighlightsTrack{
+        gap:14px;
+        padding-bottom:8px;
+      }
+      .laserHighlightCard{
+        flex-basis:calc(100vw - 32px);
+        min-height:520px;
+        padding:22px;
+        border-radius:28px;
+      }
+      .laserHighlightCard--hero{
+        flex-basis:calc(100vw - 32px);
+      }
+      .laserHighlightCopy{
+        max-width:100%;
+        gap:10px;
+      }
+      .laserHighlightCard--hero .laserHighlightCopy,
+      .laserHighlightCard--result .laserHighlightCopy{
+        max-width:100%;
+      }
+      .laserHighlightHeading{
+        font-size:clamp(30px, 9vw, 44px);
+      }
+      .laserHighlightBody{
+        max-width:100%;
+        font-size:17px;
+      }
+      .laserHighlightMedia--flower{
+        min-height:240px;
+      }
+      .laserHighlightMedia--hand{
+        min-height:180px;
+      }
+      .laserHighlightMedia--ribbon{
+        min-height:150px;
+        margin-inline:-22px;
+        margin-bottom:-22px;
+      }
+      .laserHighlightMedia--legs{
+        width:min(54%, 250px);
+        height:58%;
+      }
+      .laserHighlightResultPill{
+        font-size:13px;
+      }
+      .laserHighlightsControls{
+        gap:10px;
+      }
+      .laserHighlightsDots{
+        padding:9px 12px;
+      }
+      .laserHighlightsNavBtn{
+        width:42px;
+        height:42px;
       }
       .heroGhostSpace{margin-top:14px}
       .heroBottomDock{
@@ -4403,14 +4715,80 @@
 
   </section>
 
-  <section class="section laserPrimer" aria-labelledby="laser_intro_title">
-    <div class="laserPrimerInner reveal">
-      <p class="laserPrimerEyebrow" id="laser_intro_title">Was ist Alexandrit-Laser?</p>
-      <h2 class="laserPrimerLead" id="laser_intro_main">Entfernt Haare dauerhaft</h2>
-      <div class="laserPrimerGrid" aria-label="Alexandrit-Laser Vorteile">
-        <p class="laserPrimerItem" id="laser_intro_point_1">Sehr präzise Technologie</p>
-        <p class="laserPrimerItem" id="laser_intro_point_2">Sanft zur Haut</p>
-        <p class="laserPrimerItem" id="laser_intro_point_3">Sichtbar glattere Haut nach wenigen Sitzungen</p>
+  <section class="section laserHighlights" aria-labelledby="laser_highlights_heading" id="laser-highlights">
+    <div class="laserHighlightsShell reveal">
+      <div class="laserHighlightsHeader">
+        <div class="laserHighlightsIntro">
+          <p class="laserHighlightsEyebrow" id="laser_intro_title">Was ist Alexandrit-Laser?</p>
+          <h2 class="laserHighlightsTitle" id="laser_highlights_heading">Die Highlights.</h2>
+        </div>
+        <a class="laserHighlightsLink" id="laser_highlights_link" href="#laser-switches">Zur Zonenwahl</a>
+      </div>
+      <div class="laserHighlightsViewport">
+        <div class="laserHighlightsTrack" id="laserHighlightsTrack" aria-label="Alexandrit-Laser Highlights">
+          <article class="laserHighlightCard laserHighlightCard--hero" data-highlight-card>
+            <div class="laserHighlightCopy">
+              <p class="laserHighlightMeta" id="laser_highlight_meta_main">Wirkung</p>
+              <h3 class="laserHighlightHeading" id="laser_intro_main">Entfernt Haare dauerhaft</h3>
+              <p class="laserHighlightBody" id="laser_highlight_body_main">Gezielte Lichtenergie konzentriert sich auf das Haar und macht die Behandlung zum klaren Kern des Angebots.</p>
+            </div>
+            <div class="laserHighlightMedia laserHighlightMedia--flower">
+              <video class="laserHighlightVideo" id="laserHighlightsFlowerVideo" muted playsinline autoplay loop preload="metadata" poster="./img/VIDEO/FLOWER 2-poster.jpg" aria-hidden="true">
+                <source src="./img/VIDEO/FLOWER 2.mp4" type="video/mp4" />
+                <source src="./img/VIDEO/FLOWER 2.mov" type="video/quicktime" />
+              </video>
+            </div>
+          </article>
+
+          <article class="laserHighlightCard laserHighlightCard--precision" data-highlight-card>
+            <div class="laserHighlightCopy">
+              <p class="laserHighlightMeta" id="laser_highlight_meta_1">Präzision</p>
+              <h3 class="laserHighlightHeading" id="laser_intro_point_1">Sehr präzise Technologie</h3>
+              <p class="laserHighlightBody" id="laser_highlight_body_1">Geeignet für feine Details ebenso wie für größere Zonen, mit einem sauberen und kontrollierten Ablauf.</p>
+            </div>
+            <div class="laserHighlightMedia laserHighlightMedia--hand">
+              <img class="laserHighlightImage" src="./img/LASER/laser-hero-hand-card.jpg" alt="" loading="lazy" decoding="async" fetchpriority="low" />
+            </div>
+          </article>
+
+          <article class="laserHighlightCard laserHighlightCard--comfort" data-highlight-card>
+            <div class="laserHighlightCopy">
+              <p class="laserHighlightMeta" id="laser_highlight_meta_2">Komfort</p>
+              <h3 class="laserHighlightHeading" id="laser_intro_point_2">Sanft zur Haut</h3>
+              <p class="laserHighlightBody" id="laser_highlight_body_2">Die Inszenierung bleibt ruhig und weich, während die Behandlung hochwertig, gepflegt und nah an der Hautwirkung wirkt.</p>
+            </div>
+            <div class="laserHighlightGlow" aria-hidden="true"></div>
+            <div class="laserHighlightMedia laserHighlightMedia--ribbon">
+              <img class="laserHighlightImage" src="./img/LASER/LASER HERO 1 SUPER 494-web.jpg" alt="" loading="lazy" decoding="async" fetchpriority="low" />
+            </div>
+          </article>
+
+          <article class="laserHighlightCard laserHighlightCard--result" data-highlight-card>
+            <div class="laserHighlightCopy">
+              <span class="laserHighlightResultPill" id="laser_highlight_result_pill">Ab 25 € pro Behandlung</span>
+              <p class="laserHighlightMeta" id="laser_highlight_meta_3">Ergebnis</p>
+              <h3 class="laserHighlightHeading" id="laser_intro_point_3">Sichtbar glattere Haut nach wenigen Sitzungen</h3>
+              <p class="laserHighlightBody" id="laser_highlight_body_3">Der Vorteil wird schnell verständlich: schon nach wenigen Terminen wirkt das Hautbild ruhiger, glatter und klarer.</p>
+            </div>
+            <div class="laserHighlightMedia laserHighlightMedia--legs">
+              <img class="laserHighlightImage" src="./img/LASER/laser-hero-legs-card.jpg" alt="" loading="lazy" decoding="async" fetchpriority="low" />
+            </div>
+          </article>
+        </div>
+      </div>
+      <div class="laserHighlightsControls" aria-label="Highlights Navigation">
+        <button type="button" class="laserHighlightsNavBtn" id="laserHighlightsPrev" aria-label="Vorheriges Highlight">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
+        </button>
+        <div class="laserHighlightsDots" role="tablist" aria-label="Highlights auswählen">
+          <button type="button" class="laserHighlightsDot is-active" id="laser_highlight_dot_1" data-highlight-dot="0" aria-label="Highlight 1" aria-pressed="true"></button>
+          <button type="button" class="laserHighlightsDot" id="laser_highlight_dot_2" data-highlight-dot="1" aria-label="Highlight 2" aria-pressed="false"></button>
+          <button type="button" class="laserHighlightsDot" id="laser_highlight_dot_3" data-highlight-dot="2" aria-label="Highlight 3" aria-pressed="false"></button>
+          <button type="button" class="laserHighlightsDot" id="laser_highlight_dot_4" data-highlight-dot="3" aria-label="Highlight 4" aria-pressed="false"></button>
+        </div>
+        <button type="button" class="laserHighlightsNavBtn" id="laserHighlightsNext" aria-label="Nächstes Highlight">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+        </button>
       </div>
     </div>
   </section>
@@ -4723,6 +5101,14 @@
   const laserSwitchButtons = Array.from(document.querySelectorAll("[data-laser-switch]"));
   const heroPrice = document.getElementById("hero_price");
   const themeColorMeta = document.getElementById("themeColorMeta");
+  const laserHighlightsTrack = document.getElementById("laserHighlightsTrack");
+  const laserHighlightCards = Array.from(document.querySelectorAll("[data-highlight-card]"));
+  const laserHighlightDots = Array.from(document.querySelectorAll("[data-highlight-dot]"));
+  const laserHighlightsPrev = document.getElementById("laserHighlightsPrev");
+  const laserHighlightsNext = document.getElementById("laserHighlightsNext");
+  const laserHighlightVideos = Array.from(document.querySelectorAll(".laserHighlightVideo"));
+  const laserHighlightsMotionMedia = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let laserHighlightsScrollRaf = 0;
   const laserPlanner = document.querySelector(".laserPlanner");
   const plannerZonesPane = document.querySelector(".plannerPane--zones");
   const plannerPricePane = document.querySelector(".plannerPane:not(.plannerPane--zones)");
@@ -4765,6 +5151,103 @@
     herren:{ text:"", texts:[], items:[], item:null, index:0, passIndex:0, visible:false, animate:false, pending:false, key:"", kind:"" }
   };
   const plannerNextBenefitPromoTimerByMode = { frauen:0, herren:0 };
+
+  function laserHighlightsAnchorOffset(){
+    const firstCard = laserHighlightCards[0];
+    if(!(firstCard instanceof HTMLElement)) return 0;
+    return firstCard.offsetLeft || 0;
+  }
+
+  function laserHighlightsCurrentIndex(){
+    if(!(laserHighlightsTrack instanceof HTMLElement) || !laserHighlightCards.length) return 0;
+    const targetLeft = (laserHighlightsTrack.scrollLeft || 0) + laserHighlightsAnchorOffset();
+    let closestIndex = 0;
+    let closestDistance = Infinity;
+    laserHighlightCards.forEach((card, index) => {
+      const distance = Math.abs((card.offsetLeft || 0) - targetLeft);
+      if(distance < closestDistance){
+        closestDistance = distance;
+        closestIndex = index;
+      }
+    });
+    return closestIndex;
+  }
+
+  function laserHighlightsSetActive(index){
+    const safeIndex = Math.max(0, Math.min(laserHighlightCards.length - 1, index));
+    laserHighlightDots.forEach((dot, dotIndex) => {
+      const active = dotIndex === safeIndex;
+      dot.classList.toggle("is-active", active);
+      dot.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    if(laserHighlightsPrev) laserHighlightsPrev.disabled = safeIndex <= 0;
+    if(laserHighlightsNext) laserHighlightsNext.disabled = safeIndex >= laserHighlightCards.length - 1;
+  }
+
+  function laserHighlightsScrollTo(index){
+    if(!(laserHighlightsTrack instanceof HTMLElement)) return;
+    const safeIndex = Math.max(0, Math.min(laserHighlightCards.length - 1, index));
+    const card = laserHighlightCards[safeIndex];
+    if(!(card instanceof HTMLElement)) return;
+    laserHighlightsTrack.scrollTo({
+      left:Math.max(0, (card.offsetLeft || 0) - laserHighlightsAnchorOffset()),
+      behavior:"smooth"
+    });
+    laserHighlightsSetActive(safeIndex);
+  }
+
+  function laserHighlightsHandleScroll(){
+    if(laserHighlightsScrollRaf) return;
+    laserHighlightsScrollRaf = requestAnimationFrame(() => {
+      laserHighlightsScrollRaf = 0;
+      laserHighlightsSetActive(laserHighlightsCurrentIndex());
+    });
+  }
+
+  function syncLaserHighlightsMotion(){
+    const reducedMotion = !!(laserHighlightsMotionMedia && laserHighlightsMotionMedia.matches);
+    laserHighlightVideos.forEach((video) => {
+      if(!(video instanceof HTMLVideoElement)) return;
+      video.muted = true;
+      if(reducedMotion){
+        video.pause();
+        return;
+      }
+      const playPromise = video.play();
+      if(playPromise && typeof playPromise.catch === "function"){
+        playPromise.catch(() => {});
+      }
+    });
+  }
+
+  if(laserHighlightsTrack && laserHighlightCards.length){
+    laserHighlightsTrack.addEventListener("scroll", laserHighlightsHandleScroll, { passive:true });
+    laserHighlightDots.forEach((dot, index) => {
+      dot.addEventListener("click", () => laserHighlightsScrollTo(index));
+    });
+    if(laserHighlightsPrev){
+      laserHighlightsPrev.addEventListener("click", () => {
+        laserHighlightsScrollTo(laserHighlightsCurrentIndex() - 1);
+      });
+    }
+    if(laserHighlightsNext){
+      laserHighlightsNext.addEventListener("click", () => {
+        laserHighlightsScrollTo(laserHighlightsCurrentIndex() + 1);
+      });
+    }
+    window.addEventListener("resize", () => laserHighlightsSetActive(laserHighlightsCurrentIndex()));
+    laserHighlightsSetActive(0);
+  }
+
+  if(laserHighlightVideos.length){
+    syncLaserHighlightsMotion();
+    const handleLaserHighlightsMotionChange = () => syncLaserHighlightsMotion();
+    if(typeof laserHighlightsMotionMedia.addEventListener === "function"){
+      laserHighlightsMotionMedia.addEventListener("change", handleLaserHighlightsMotionChange);
+    }else if(typeof laserHighlightsMotionMedia.addListener === "function"){
+      laserHighlightsMotionMedia.addListener(handleLaserHighlightsMotionChange);
+    }
+  }
   const plannerNextBenefitPromoSettleTimerByMode = { frauen:0, herren:0 };
   const plannerNextBenefitPromoCycleTimerByMode = { frauen:0, herren:0 };
   const plannerNextBenefitHandsCollapseByMode = {
@@ -17354,10 +17837,21 @@
       hero_title:"Alexandrit-Laser-Haarentfernung.<br/>Sanft. Präzise. Gepflegt.",
       hero_price:"<strong>Ab 25 €</strong> pro Behandlung.",
       laser_intro_title:"Was ist Alexandrit-Laser?",
+      laser_highlights_heading:"Die Highlights.",
+      laser_highlights_link:"Zur Zonenwahl",
       laser_intro_main:"Entfernt Haare dauerhaft",
       laser_intro_point_1:"Sehr präzise Technologie",
       laser_intro_point_2:"Sanft zur Haut",
       laser_intro_point_3:"Sichtbar glattere Haut nach wenigen Sitzungen",
+      laser_highlight_meta_main:"Wirkung",
+      laser_highlight_body_main:"Gezielte Lichtenergie konzentriert sich auf das Haar und macht die Behandlung zum klaren Kern des Angebots.",
+      laser_highlight_meta_1:"Präzision",
+      laser_highlight_body_1:"Geeignet für feine Details ebenso wie für größere Zonen, mit einem sauberen und kontrollierten Ablauf.",
+      laser_highlight_meta_2:"Komfort",
+      laser_highlight_body_2:"Die Inszenierung bleibt ruhig und weich, während die Behandlung hochwertig, gepflegt und nah an der Hautwirkung wirkt.",
+      laser_highlight_meta_3:"Ergebnis",
+      laser_highlight_body_3:"Der Vorteil wird schnell verständlich: schon nach wenigen Terminen wirkt das Hautbild ruhiger, glatter und klarer.",
+      laser_highlight_result_pill:"Ab 25 € pro Behandlung",
       btn_buy:"Kaufen",
       why_title:"Warum unser Laser besser ist",
       why_1:"Weniger Schmerz",
@@ -17413,10 +17907,21 @@
       hero_title:"Alexandrite Laser Hair Removal.<br/>Gentle. Precise. Polished.",
       hero_price:"<strong>From €25</strong> per treatment.",
       laser_intro_title:"What is Alexandrite Laser?",
+      laser_highlights_heading:"Get the highlights.",
+      laser_highlights_link:"Jump to zones",
       laser_intro_main:"Removes hair long term",
       laser_intro_point_1:"Highly precise technology",
       laser_intro_point_2:"Gentle on the skin",
       laser_intro_point_3:"Visibly smoother skin after only a few sessions",
+      laser_highlight_meta_main:"Effect",
+      laser_highlight_body_main:"Focused light energy targets the hair and makes the treatment the clear center of the offer.",
+      laser_highlight_meta_1:"Precision",
+      laser_highlight_body_1:"Suitable for fine details as well as larger areas, with a clean and controlled treatment flow.",
+      laser_highlight_meta_2:"Comfort",
+      laser_highlight_body_2:"The feel stays calm and soft, while the treatment still reads as premium, polished and close to the skin.",
+      laser_highlight_meta_3:"Result",
+      laser_highlight_body_3:"The benefit becomes clear quickly: after only a few sessions, the skin looks calmer, smoother and clearer.",
+      laser_highlight_result_pill:"From €25 per treatment",
       btn_buy:"Buy",
       why_title:"Why our laser performs better",
       why_1:"Lower discomfort",
@@ -17472,10 +17977,21 @@
       hero_title:"Александритовая лазерная эпиляция.<br/>Бережно. Точно. Эстетично.",
       hero_price:"<strong>От 25 €</strong> за процедуру.",
       laser_intro_title:"Что такое александритовый лазер?",
+      laser_highlights_heading:"Главное.",
+      laser_highlights_link:"К выбору зон",
       laser_intro_main:"Долговременно удаляет волосы",
       laser_intro_point_1:"Очень точная технология",
       laser_intro_point_2:"Бережно к коже",
       laser_intro_point_3:"Заметно более гладкая кожа уже через несколько процедур",
+      laser_highlight_meta_main:"Эффект",
+      laser_highlight_body_main:"Сфокусированная световая энергия воздействует именно на волос и делает процедуру главным акцентом предложения.",
+      laser_highlight_meta_1:"Точность",
+      laser_highlight_body_1:"Подходит и для деликатных деталей, и для более крупных зон, сохраняя чистый и контролируемый ход процедуры.",
+      laser_highlight_meta_2:"Комфорт",
+      laser_highlight_body_2:"Восприятие остаётся мягким и спокойным, а сама процедура выглядит премиально, аккуратно и бережно к коже.",
+      laser_highlight_meta_3:"Результат",
+      laser_highlight_body_3:"Преимущество считывается быстро: уже через несколько процедур кожа выглядит более спокойной, гладкой и ровной.",
+      laser_highlight_result_pill:"От 25 € за процедуру",
       btn_buy:"Купить",
       why_title:"Почему наш лазер лучше",
       why_1:"Минимум боли",
@@ -17537,10 +18053,21 @@
     set("hero_promo_strip", m.hero_promo_strip);
     set("hero_price", m.hero_price);
     set("laser_intro_title", m.laser_intro_title);
+    set("laser_highlights_heading", m.laser_highlights_heading);
+    set("laser_highlights_link", m.laser_highlights_link);
     set("laser_intro_main", m.laser_intro_main);
     set("laser_intro_point_1", m.laser_intro_point_1);
     set("laser_intro_point_2", m.laser_intro_point_2);
     set("laser_intro_point_3", m.laser_intro_point_3);
+    set("laser_highlight_meta_main", m.laser_highlight_meta_main);
+    set("laser_highlight_body_main", m.laser_highlight_body_main);
+    set("laser_highlight_meta_1", m.laser_highlight_meta_1);
+    set("laser_highlight_body_1", m.laser_highlight_body_1);
+    set("laser_highlight_meta_2", m.laser_highlight_meta_2);
+    set("laser_highlight_body_2", m.laser_highlight_body_2);
+    set("laser_highlight_meta_3", m.laser_highlight_meta_3);
+    set("laser_highlight_body_3", m.laser_highlight_body_3);
+    set("laser_highlight_result_pill", m.laser_highlight_result_pill);
     set("btn_buy", m.btn_buy);
     set("why_title", m.why_title);
     set("why_1", m.why_1);
