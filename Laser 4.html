@@ -434,6 +434,7 @@
     .laserHighlightsIntro{
       display:grid;
       gap:12px;
+      justify-items:start;
     }
     .laserHighlightsEyebrow{
       margin:0;
@@ -713,6 +714,39 @@
       fill:none;
       stroke-linecap:round;
       stroke-linejoin:round;
+    }
+    .laserHighlightsPlaybackBtn{
+      display:none;
+      width:46px;
+      height:46px;
+      border:none;
+      border-radius:50%;
+      background:rgba(255,255,255,.92);
+      color:#111218;
+      cursor:pointer;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 10px 24px rgba(17,18,24,.10);
+      transition:transform .22s ease, background-color .22s ease, opacity .22s ease;
+    }
+    .laserHighlightsPlaybackBtn:hover{
+      transform:translateY(-1px);
+      background:#fff;
+    }
+    .laserHighlightsPlaybackBtn svg{
+      width:18px;
+      height:18px;
+      fill:currentColor;
+    }
+    .laserHighlightsPlaybackBtn .laserHighlightsPlaybackIcon--play{
+      display:none;
+      margin-left:2px;
+    }
+    .laserHighlightsPlaybackBtn.is-paused .laserHighlightsPlaybackIcon--pause{
+      display:none;
+    }
+    .laserHighlightsPlaybackBtn.is-paused .laserHighlightsPlaybackIcon--play{
+      display:block;
     }
     .modePriceNote{
       margin:14px 0 0;
@@ -4262,17 +4296,17 @@
         --laser-highlights-side-pad:16px;
       }
       .laserHighlightsTrack{
-        gap:14px;
-        padding-bottom:8px;
+        gap:12px;
+        padding-bottom:10px;
       }
       .laserHighlightCard{
-        flex-basis:calc(100vw - 32px);
-        min-height:520px;
-        padding:22px;
+        flex-basis:calc(100vw - 72px);
+        min-height:560px;
+        padding:20px;
         border-radius:28px;
       }
       .laserHighlightCard--hero{
-        flex-basis:calc(100vw - 32px);
+        flex-basis:calc(100vw - 72px);
       }
       .laserHighlightCopy{
         max-width:100%;
@@ -4311,11 +4345,16 @@
         gap:10px;
       }
       .laserHighlightsDots{
-        padding:9px 12px;
+        padding:10px 14px;
       }
-      .laserHighlightsNavBtn{
+      #laserHighlightsPrev,
+      #laserHighlightsNext{
+        display:none;
+      }
+      .laserHighlightsPlaybackBtn{
         width:42px;
         height:42px;
+        display:inline-flex;
       }
       .heroGhostSpace{margin-top:14px}
       .heroBottomDock{
@@ -4786,6 +4825,10 @@
           <button type="button" class="laserHighlightsDot" id="laser_highlight_dot_3" data-highlight-dot="2" aria-label="Highlight 3" aria-pressed="false"></button>
           <button type="button" class="laserHighlightsDot" id="laser_highlight_dot_4" data-highlight-dot="3" aria-label="Highlight 4" aria-pressed="false"></button>
         </div>
+        <button type="button" class="laserHighlightsPlaybackBtn" id="laserHighlightsPlayback" aria-label="Highlights pausieren" aria-pressed="false">
+          <svg class="laserHighlightsPlaybackIcon laserHighlightsPlaybackIcon--pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+          <svg class="laserHighlightsPlaybackIcon laserHighlightsPlaybackIcon--play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13L18.5 12 8 5.5z"/></svg>
+        </button>
         <button type="button" class="laserHighlightsNavBtn" id="laserHighlightsNext" aria-label="Nächstes Highlight">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
         </button>
@@ -5106,9 +5149,13 @@
   const laserHighlightDots = Array.from(document.querySelectorAll("[data-highlight-dot]"));
   const laserHighlightsPrev = document.getElementById("laserHighlightsPrev");
   const laserHighlightsNext = document.getElementById("laserHighlightsNext");
+  const laserHighlightsPlayback = document.getElementById("laserHighlightsPlayback");
   const laserHighlightVideos = Array.from(document.querySelectorAll(".laserHighlightVideo"));
   const laserHighlightsMotionMedia = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const laserHighlightsMobileMedia = window.matchMedia("(max-width:920px)");
   let laserHighlightsScrollRaf = 0;
+  let laserHighlightsAutoplayTimer = 0;
+  let laserHighlightsAutoplayEnabled = true;
   const laserPlanner = document.querySelector(".laserPlanner");
   const plannerZonesPane = document.querySelector(".plannerPane--zones");
   const plannerPricePane = document.querySelector(".plannerPane:not(.plannerPane--zones)");
@@ -5194,6 +5241,7 @@
       behavior:"smooth"
     });
     laserHighlightsSetActive(safeIndex);
+    laserHighlightsStartAutoplay();
   }
 
   function laserHighlightsHandleScroll(){
@@ -5220,6 +5268,51 @@
     });
   }
 
+  function laserHighlightsCanAutoplay(){
+    return !!(
+      laserHighlightsTrack &&
+      laserHighlightCards.length > 1 &&
+      laserHighlightsMobileMedia &&
+      laserHighlightsMobileMedia.matches &&
+      laserHighlightsMotionMedia &&
+      !laserHighlightsMotionMedia.matches
+    );
+  }
+
+  function laserHighlightsStopAutoplay(){
+    if(!laserHighlightsAutoplayTimer) return;
+    clearInterval(laserHighlightsAutoplayTimer);
+    laserHighlightsAutoplayTimer = 0;
+  }
+
+  function laserHighlightsApplyPlaybackUi(){
+    if(!(laserHighlightsPlayback instanceof HTMLButtonElement)) return;
+    const paused = !laserHighlightsAutoplayEnabled || !laserHighlightsCanAutoplay();
+    const playLabel = laserHighlightsPlayback.dataset.playLabel || "Highlights abspielen";
+    const pauseLabel = laserHighlightsPlayback.dataset.pauseLabel || "Highlights pausieren";
+    laserHighlightsPlayback.classList.toggle("is-paused", paused);
+    laserHighlightsPlayback.setAttribute("aria-label", paused ? playLabel : pauseLabel);
+    laserHighlightsPlayback.setAttribute("aria-pressed", paused ? "true" : "false");
+  }
+
+  function laserHighlightsStartAutoplay(){
+    laserHighlightsStopAutoplay();
+    if(!laserHighlightsAutoplayEnabled || !laserHighlightsCanAutoplay() || document.hidden){
+      laserHighlightsApplyPlaybackUi();
+      return;
+    }
+    laserHighlightsAutoplayTimer = window.setInterval(() => {
+      const nextIndex = (laserHighlightsCurrentIndex() + 1) % laserHighlightCards.length;
+      laserHighlightsScrollTo(nextIndex);
+    }, 4200);
+    laserHighlightsApplyPlaybackUi();
+  }
+
+  function laserHighlightsSetAutoplay(active){
+    laserHighlightsAutoplayEnabled = !!active;
+    laserHighlightsStartAutoplay();
+  }
+
   if(laserHighlightsTrack && laserHighlightCards.length){
     laserHighlightsTrack.addEventListener("scroll", laserHighlightsHandleScroll, { passive:true });
     laserHighlightDots.forEach((dot, index) => {
@@ -5235,13 +5328,29 @@
         laserHighlightsScrollTo(laserHighlightsCurrentIndex() + 1);
       });
     }
-    window.addEventListener("resize", () => laserHighlightsSetActive(laserHighlightsCurrentIndex()));
+    if(laserHighlightsPlayback){
+      laserHighlightsPlayback.addEventListener("click", () => {
+        laserHighlightsSetAutoplay(!laserHighlightsAutoplayEnabled);
+      });
+    }
+    window.addEventListener("resize", () => {
+      laserHighlightsSetActive(laserHighlightsCurrentIndex());
+      laserHighlightsStartAutoplay();
+    });
+    document.addEventListener("visibilitychange", () => {
+      if(document.hidden) laserHighlightsStopAutoplay();
+      else laserHighlightsStartAutoplay();
+    });
     laserHighlightsSetActive(0);
+    laserHighlightsStartAutoplay();
   }
 
   if(laserHighlightVideos.length){
     syncLaserHighlightsMotion();
-    const handleLaserHighlightsMotionChange = () => syncLaserHighlightsMotion();
+    const handleLaserHighlightsMotionChange = () => {
+      syncLaserHighlightsMotion();
+      laserHighlightsStartAutoplay();
+    };
     if(typeof laserHighlightsMotionMedia.addEventListener === "function"){
       laserHighlightsMotionMedia.addEventListener("change", handleLaserHighlightsMotionChange);
     }else if(typeof laserHighlightsMotionMedia.addListener === "function"){
@@ -17852,6 +17961,10 @@
       laser_highlight_meta_3:"Ergebnis",
       laser_highlight_body_3:"Der Vorteil wird schnell verständlich: schon nach wenigen Terminen wirkt das Hautbild ruhiger, glatter und klarer.",
       laser_highlight_result_pill:"Ab 25 € pro Behandlung",
+      laser_highlights_prev:"Vorheriges Highlight",
+      laser_highlights_next:"Nächstes Highlight",
+      laser_highlights_play:"Highlights abspielen",
+      laser_highlights_pause:"Highlights pausieren",
       btn_buy:"Kaufen",
       why_title:"Warum unser Laser besser ist",
       why_1:"Weniger Schmerz",
@@ -17922,6 +18035,10 @@
       laser_highlight_meta_3:"Result",
       laser_highlight_body_3:"The benefit becomes clear quickly: after only a few sessions, the skin looks calmer, smoother and clearer.",
       laser_highlight_result_pill:"From €25 per treatment",
+      laser_highlights_prev:"Previous highlight",
+      laser_highlights_next:"Next highlight",
+      laser_highlights_play:"Play highlights",
+      laser_highlights_pause:"Pause highlights",
       btn_buy:"Buy",
       why_title:"Why our laser performs better",
       why_1:"Lower discomfort",
@@ -17992,6 +18109,10 @@
       laser_highlight_meta_3:"Результат",
       laser_highlight_body_3:"Преимущество считывается быстро: уже через несколько процедур кожа выглядит более спокойной, гладкой и ровной.",
       laser_highlight_result_pill:"От 25 € за процедуру",
+      laser_highlights_prev:"Предыдущий хайлайт",
+      laser_highlights_next:"Следующий хайлайт",
+      laser_highlights_play:"Воспроизвести хайлайты",
+      laser_highlights_pause:"Поставить хайлайты на паузу",
       btn_buy:"Купить",
       why_title:"Почему наш лазер лучше",
       why_1:"Минимум боли",
@@ -18048,6 +18169,10 @@
     document.documentElement.lang = lang;
     const m = t[lang] || t.de;
     const set = (id, html) => { const el = document.getElementById(id); if(el) el.innerHTML = html; };
+    const setAttr = (id, attr, value) => {
+      const el = document.getElementById(id);
+      if(el && typeof value === "string") el.setAttribute(attr, value);
+    };
 
     set("hero_title", m.hero_title);
     set("hero_promo_strip", m.hero_promo_strip);
@@ -18068,6 +18193,10 @@
     set("laser_highlight_meta_3", m.laser_highlight_meta_3);
     set("laser_highlight_body_3", m.laser_highlight_body_3);
     set("laser_highlight_result_pill", m.laser_highlight_result_pill);
+    setAttr("laserHighlightsPrev", "aria-label", m.laser_highlights_prev);
+    setAttr("laserHighlightsNext", "aria-label", m.laser_highlights_next);
+    setAttr("laserHighlightsPlayback", "data-play-label", m.laser_highlights_play);
+    setAttr("laserHighlightsPlayback", "data-pause-label", m.laser_highlights_pause);
     set("btn_buy", m.btn_buy);
     set("why_title", m.why_title);
     set("why_1", m.why_1);
@@ -18127,6 +18256,7 @@
     syncBookingPromptCopy();
     invalidateSearchIndex();
     renderSearch(searchInput ? searchInput.value : "");
+    laserHighlightsApplyPlaybackUi();
 
     const sel = document.getElementById("langSelect");
     if(sel) sel.value = lang;
