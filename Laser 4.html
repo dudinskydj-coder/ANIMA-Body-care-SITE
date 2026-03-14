@@ -488,7 +488,7 @@
       gap:18px;
       overflow-x:auto;
       overflow-y:hidden;
-      padding:6px var(--laser-highlights-side-pad) 30px;
+      padding:14px var(--laser-highlights-side-pad) 24px;
       background:#fff;
       scroll-snap-type:x mandatory;
       scroll-padding-left:var(--laser-highlights-side-pad);
@@ -509,8 +509,8 @@
       border:1px solid rgba(17,18,24,.06);
       background:#fff;
       box-shadow:
-        0 6px 12px -10px rgba(17,18,24,.08),
-        0 18px 22px -14px rgba(17,18,24,.24);
+        0 0 22px rgba(17,18,24,.08),
+        0 12px 18px -16px rgba(17,18,24,.18);
       scroll-snap-align:start;
       overflow:hidden;
       display:grid;
@@ -4330,8 +4330,8 @@
       }
       .laserHighlightsTrack{
         gap:12px;
-        padding-top:6px;
-        padding-bottom:24px;
+        padding-top:12px;
+        padding-bottom:20px;
       }
       .laserHighlightCard{
         flex-basis:calc(100vw - 72px);
@@ -4384,14 +4384,8 @@
       .laserHighlightsDots{
         padding:0;
       }
-      #laserHighlightsPrev,
-      #laserHighlightsNext{
-        display:none;
-      }
       .laserHighlightsPlaybackBtn{
-        width:40px;
-        height:40px;
-        display:inline-flex;
+        display:none;
       }
       .heroGhostSpace{margin-top:14px}
       .heroBottomDock{
@@ -5312,9 +5306,13 @@
   }
 
   function laserHighlightsCanAutoplay(){
+    const playbackVisible = laserHighlightsPlayback instanceof HTMLElement
+      ? window.getComputedStyle(laserHighlightsPlayback).display !== "none"
+      : false;
     return !!(
       laserHighlightsTrack &&
       laserHighlightCards.length > 1 &&
+      playbackVisible &&
       laserHighlightsMobileMedia &&
       laserHighlightsMobileMedia.matches &&
       laserHighlightsMotionMedia &&
