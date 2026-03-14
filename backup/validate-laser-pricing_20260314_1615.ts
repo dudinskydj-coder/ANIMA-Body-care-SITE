@@ -91,7 +91,6 @@ const relevantSource = [
   "const window = { __ANIMA_PLANNER_PACKAGE_DEBUG__: false };",
   "function currentLang(){ return 'de'; }",
   "function activeLaserMode(){ return 'frauen'; }",
-  extractConstBlock(html, "const PLANNER_SET_CREATION_ZONE_THRESHOLD ="),
   extractConstBlock(html, "const plannerZonesByMode = {"),
   extractConstBlock(html, "const plannerPricingConfigByMode = {"),
   extractFunction(html, "plannerLabel"),
@@ -129,17 +128,7 @@ const relevantSource = [
   extractFunction(html, "plannerMergeSupplementaryOrderItems"),
   extractFunction(html, "plannerCompositeLabelFromNodes"),
   extractFunction(html, "plannerDisplayItems"),
-  "const plannerSetsByMode = { frauen:[], herren:[] };",
-  "const plannerActiveSetIdByMode = { frauen:null, herren:null };",
-  "const plannerSetSeqByMode = { frauen:0, herren:0 };",
-  "const plannerSelectedByMode = { frauen:new Set(), herren:new Set() };",
-  extractFunction(html, "plannerAllowedZoneIds"),
-  extractFunction(html, "plannerNormalizeSetSelection"),
-  extractFunction(html, "plannerCanCreateSetFromSelection"),
-  extractFunction(html, "plannerFindSetEntry"),
-  extractFunction(html, "plannerCreateSetEntry"),
-  extractFunction(html, "plannerEnsureActiveSetEntry"),
-  "return { plannerZonesByMode, plannerPricingConfigByMode, plannerZonesMap, plannerBundlesForMode, plannerBundleById, plannerPackageResolvedPrice, plannerPackageOriginalPrice, plannerSummarySnapshot, plannerOrderItems, plannerCanCreateSetFromSelection, plannerEnsureActiveSetEntry, plannerSetsByMode, plannerSelectedByMode, plannerActiveSetIdByMode };"
+  "return { plannerZonesByMode, plannerPricingConfigByMode, plannerZonesMap, plannerBundlesForMode, plannerBundleById, plannerPackageResolvedPrice, plannerPackageOriginalPrice, plannerSummarySnapshot, plannerOrderItems };"
 ].join("\n\n");
 
 const api = new Function(relevantSource)() as {
@@ -156,11 +145,6 @@ const api = new Function(relevantSource)() as {
     items:Array<{ id:string; type:string; price:number; originalPrice:number; zoneIds:string[]; children?:OrderNode[] }>;
   };
   plannerOrderItems: (mode: string, selectedSet: Set<string>) => Array<OrderNode>;
-  plannerCanCreateSetFromSelection: (mode: string, selected: Iterable<string> | Array<string>) => boolean;
-  plannerEnsureActiveSetEntry: (mode: string) => { id:string; number:number; selected:string[] } | null;
-  plannerSetsByMode: Record<string, Array<{ id:string; number:number; selected:string[] }>>;
-  plannerSelectedByMode: Record<string, Set<string>>;
-  plannerActiveSetIdByMode: Record<string, string | null>;
 };
 
 type Issue = {
@@ -291,6 +275,12 @@ function validateSelection(mode: string, selectedZoneIds: string[]) {
         issues.push({ mode, selected:selectedKey, problem:"missing axilla_chest_intim_bundle on exact launch selection" });
       }
     }
+    const backShouldersZones = ["lowerback", "upperback"];
+    if(backShouldersZones.every((zoneId) => selectedSet.has(zoneId)) && selectedSet.size === backShouldersZones.length){
+      if(!topLevelIds.has("back_shoulders_bundle")){
+        issues.push({ mode, selected:selectedKey, problem:"missing back_shoulders_bundle on exact back+shoulders selection" });
+      }
+    }
     const chestBellyZones = ["chest", "bauchfull"];
     if(chestBellyZones.every((zoneId) => selectedSet.has(zoneId)) && selectedSet.size === chestBellyZones.length){
       if(!topLevelIds.has("chest_belly_bundle")){
@@ -309,40 +299,6 @@ function validateSelection(mode: string, selectedZoneIds: string[]) {
         issues.push({ mode, selected:selectedKey, problem:"missing bartkontur_hals_bundle on exact beard+neck selection" });
       }
     }
-  }
-}
-
-function resetSetHarness(mode: string, selectedZoneIds: string[]) {
-  api.plannerSetsByMode[mode] = [];
-  api.plannerActiveSetIdByMode[mode] = null;
-  api.plannerSelectedByMode[mode] = new Set(selectedZoneIds);
-}
-
-function validateSetAutoCreation(mode: string, selectedZoneIds: string[], expected: boolean, reason: string) {
-  const selected = [...new Set(selectedZoneIds)];
-  const selectedKey = selected.slice().sort();
-  resetSetHarness(mode, selected);
-  const canCreate = api.plannerCanCreateSetFromSelection(mode, selected);
-  if(canCreate !== expected){
-    issues.push({ mode, selected:selectedKey, problem:`set eligibility mismatch for ${reason}: ${canCreate} !== ${expected}` });
-  }
-  const entry = api.plannerEnsureActiveSetEntry(mode);
-  if(expected){
-    if(!entry){
-      issues.push({ mode, selected:selectedKey, problem:`missing auto-created set for ${reason}` });
-      return;
-    }
-    if((api.plannerSetsByMode[mode] || []).length !== 1){
-      issues.push({ mode, selected:selectedKey, problem:`unexpected set count for ${reason}` });
-    }
-    const savedSelection = Array.isArray(entry.selected) ? [...entry.selected].sort() : [];
-    if(savedSelection.join(",") !== selectedKey.join(",")){
-      issues.push({ mode, selected:selectedKey, problem:`auto-created set selection mismatch for ${reason}` });
-    }
-    return;
-  }
-  if(entry){
-    issues.push({ mode, selected:selectedKey, problem:`unexpected auto-created set for ${reason}` });
   }
 }
 
@@ -396,16 +352,6 @@ function runModeChecks(mode: string) {
   validateSelection(mode, zones);
   for(const zoneId of zones){
     validateSelection(mode, zones.filter((entry) => entry !== zoneId));
-  }
-
-  if(mode === "frauen"){
-    validateSetAutoCreation(mode, ["upperarms", "underarms"], true, "women 2-zone package");
-    validateSetAutoCreation(mode, ["kinn", "glabella"], false, "women 2-zone singles");
-  }
-  if(mode === "herren"){
-    validateSetAutoCreation(mode, ["lowerback", "upperback"], false, "men 2-zone singles");
-    validateSetAutoCreation(mode, ["wangen", "chin"], true, "men 2-zone package");
-    validateSetAutoCreation(mode, ["kinn", "glabella"], false, "men 2-zone singles");
   }
 }
 

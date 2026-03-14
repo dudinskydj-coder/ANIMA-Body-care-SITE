@@ -291,6 +291,12 @@ function validateSelection(mode: string, selectedZoneIds: string[]) {
         issues.push({ mode, selected:selectedKey, problem:"missing axilla_chest_intim_bundle on exact launch selection" });
       }
     }
+    const backShouldersZones = ["lowerback", "upperback"];
+    if(backShouldersZones.every((zoneId) => selectedSet.has(zoneId)) && selectedSet.size === backShouldersZones.length){
+      if(!topLevelIds.has("back_shoulders_bundle")){
+        issues.push({ mode, selected:selectedKey, problem:"missing back_shoulders_bundle on exact back+shoulders selection" });
+      }
+    }
     const chestBellyZones = ["chest", "bauchfull"];
     if(chestBellyZones.every((zoneId) => selectedSet.has(zoneId)) && selectedSet.size === chestBellyZones.length){
       if(!topLevelIds.has("chest_belly_bundle")){
@@ -403,7 +409,7 @@ function runModeChecks(mode: string) {
     validateSetAutoCreation(mode, ["kinn", "glabella"], false, "women 2-zone singles");
   }
   if(mode === "herren"){
-    validateSetAutoCreation(mode, ["lowerback", "upperback"], false, "men 2-zone singles");
+    validateSetAutoCreation(mode, ["lowerback", "upperback"], true, "men 2-zone package");
     validateSetAutoCreation(mode, ["wangen", "chin"], true, "men 2-zone package");
     validateSetAutoCreation(mode, ["kinn", "glabella"], false, "men 2-zone singles");
   }
