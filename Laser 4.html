@@ -284,6 +284,15 @@
       letter-spacing:-1.2px;
       max-width:980px;
     }
+    .hero .heroSubtitle{
+      margin:0 auto clamp(20px, 2.6vw, 34px);
+      max-width:760px;
+      color:rgba(11,11,15,.72);
+      font-size:clamp(21px, 1.75vw, 28px);
+      line-height:1.24;
+      letter-spacing:-.01em;
+      font-weight:520;
+    }
     .heroGhostSpace{
       width:100vw;
       max-width:none;
@@ -4808,7 +4817,7 @@
   <div class="overlayInner">
     <nav class="menuGrid" aria-label="Main navigation">
       <div class="menuCol services">
-        <a href="Laser%204.html" id="menu_female">Alexandrit-Laser-Haarentfernung</a>
+        <a href="Laser%204.html" id="menu_female">Alexandrit-Laser Haarentfernung</a>
         <a href="detox-thermo.html" id="menu_wrap">Detox &amp; Thermo-Wickel</a>
       </div>
       <div class="menuCol info">
@@ -4851,7 +4860,8 @@
 <div class="wrap" id="top">
   <!-- 1) HERO -->
   <section class="hero section">
-    <h1 id="hero_title">Alexandrit-Laser-Haarentfernung.<br/>Sanft. Präzise. Gepflegt.</h1>
+    <h1 id="hero_title">Alexandrit-Laser Haarentfernung</h1>
+    <p class="heroSubtitle" id="hero_subtitle">Sanft. Präzise. Gepflegt.</p>
     <div class="heroGhostSpace" aria-hidden="true">
       <img class="heroImage" src="img/LASER/LASER HERO 1 SUPER 494-web.jpg" alt="" loading="eager" decoding="sync" fetchpriority="high" />
     </div>
@@ -4863,17 +4873,10 @@
 
   <section class="section laserHighlights" aria-labelledby="laser_highlights_heading" id="laser-highlights">
     <div class="laserHighlightsShell reveal">
-      <div class="laserHighlightsHeader">
-        <div class="laserHighlightsIntro">
-          <p class="laserHighlightsEyebrow" id="laser_intro_title">Was ist Alexandrit-Laser?</p>
-          <h2 class="laserHighlightsTitle" id="laser_highlights_heading">Die Highlights.</h2>
-        </div>
-      </div>
       <div class="laserHighlightsViewport">
         <div class="laserHighlightsTrack" id="laserHighlightsTrack" aria-label="Alexandrit-Laser Highlights">
           <article class="laserHighlightCard laserHighlightCard--hero" data-highlight-card>
             <div class="laserHighlightCopy">
-              <p class="laserHighlightMeta" id="laser_highlight_meta_main">Wirkung</p>
               <h3 class="laserHighlightHeading" id="laser_intro_main">Entfernt Haare dauerhaft</h3>
               <p class="laserHighlightBody" id="laser_highlight_body_main">Gezielte Lichtenergie konzentriert sich auf das Haar und macht die Behandlung zum klaren Kern des Angebots.</p>
             </div>
@@ -4887,7 +4890,6 @@
 
           <article class="laserHighlightCard laserHighlightCard--precision" data-highlight-card>
             <div class="laserHighlightCopy">
-              <p class="laserHighlightMeta" id="laser_highlight_meta_1">Präzision</p>
               <h3 class="laserHighlightHeading" id="laser_intro_point_1">Sehr präzise Technologie</h3>
               <p class="laserHighlightBody" id="laser_highlight_body_1">Geeignet für feine Details ebenso wie für größere Zonen, mit einem sauberen und kontrollierten Ablauf.</p>
             </div>
@@ -4898,7 +4900,6 @@
 
           <article class="laserHighlightCard laserHighlightCard--comfort" data-highlight-card>
             <div class="laserHighlightCopy">
-              <p class="laserHighlightMeta" id="laser_highlight_meta_2">Komfort</p>
               <h3 class="laserHighlightHeading" id="laser_intro_point_2">Sanft zur Haut</h3>
               <p class="laserHighlightBody" id="laser_highlight_body_2">Die Inszenierung bleibt ruhig und weich, während die Behandlung hochwertig, gepflegt und nah an der Hautwirkung wirkt.</p>
             </div>
@@ -4911,7 +4912,6 @@
           <article class="laserHighlightCard laserHighlightCard--result" data-highlight-card>
             <div class="laserHighlightCopy">
               <span class="laserHighlightResultPill" id="laser_highlight_result_pill">Ab 25 € pro Behandlung</span>
-              <p class="laserHighlightMeta" id="laser_highlight_meta_3">Ergebnis</p>
               <h3 class="laserHighlightHeading" id="laser_intro_point_3">Sichtbar glattere Haut nach wenigen Sitzungen</h3>
               <p class="laserHighlightBody" id="laser_highlight_body_3">Der Vorteil wird schnell verständlich: schon nach wenigen Terminen wirkt das Hautbild ruhiger, glatter und klarer.</p>
             </div>
@@ -5284,7 +5284,7 @@
   const PLANNER_NEXT_BENEFIT_SHELL_EXPAND_DELAY_MS = 700;
   const PLANNER_NEXT_BENEFIT_CANCEL_BACKOFF_MS = 980;
   const PLANNER_NEXT_BENEFIT_COMPLETION_FADE_FALLBACK_MS = 1550;
-  const PLANNER_NEXT_BENEFIT_DISABLED = true;
+  const PLANNER_NEXT_BENEFIT_DISABLED = false;
   const PLANNER_MOBILE_INFO_HANDS_CYCLE_MS = 2400;
   const PLANNER_MOBILE_SELECTED_PROMO_DELAY_MS = 3000;
   const PLANNER_NEXT_BENEFIT_PROMO_CYCLE_MS = 2400;
@@ -18049,7 +18049,8 @@
   const t = {
     de: {
       hero_promo_strip:"Im 6er-Kurs sparst du je nach Zone oder Paket von 25 € bis 489 € bei Vorauszahlung.",
-      hero_title:"Alexandrit-Laser-Haarentfernung.<br/>Sanft. Präzise. Gepflegt.",
+      hero_title:"Alexandrit-Laser Haarentfernung",
+      hero_subtitle:"Sanft. Präzise. Gepflegt.",
       hero_price:"<strong>Ab 25 €</strong> pro Behandlung.",
       laser_intro_title:"Was ist Alexandrit-Laser?",
       laser_highlights_heading:"Die Highlights.",
@@ -18095,8 +18096,8 @@
       cta_text:"Buche deinen Termin — wir wählen Format und Wirkstoff passend zu deinem Ziel.",
       cta_book:"Termin buchen",
       cta_back:"Nach oben",
-      menu_female:"Alexandrit-Laser-Haarentfernung",
-      menu_male:"Alexandrit-Laser-Haarentfernung",
+      menu_female:"Alexandrit-Laser Haarentfernung",
+      menu_male:"Alexandrit-Laser Haarentfernung",
       menu_wrap:"Detox & Thermo-Wickel",
       menu_phone:"Anrufen",
       menu_email:"E-Mail",
@@ -18123,7 +18124,8 @@
     },
     en: {
       hero_promo_strip:"In the 6-session course, you save from €25 to €489 depending on zone or package when prepaid.",
-      hero_title:"Alexandrite Laser Hair Removal.<br/>Gentle. Precise. Polished.",
+      hero_title:"Alexandrite Laser Hair Removal",
+      hero_subtitle:"Gentle. Precise. Polished.",
       hero_price:"<strong>From €25</strong> per treatment.",
       laser_intro_title:"What is Alexandrite Laser?",
       laser_highlights_heading:"Get the highlights.",
@@ -18197,7 +18199,8 @@
     },
     ru: {
       hero_promo_strip:"При предоплате курса из 6 процедур вы экономите от 25 € до 489 € в зависимости от зоны или пакета.",
-      hero_title:"Александритовая лазерная эпиляция.<br/>Бережно. Точно. Эстетично.",
+      hero_title:"Александритовая лазерная эпиляция",
+      hero_subtitle:"Бережно. Точно. Эстетично.",
       hero_price:"<strong>От 25 €</strong> за процедуру.",
       laser_intro_title:"Что такое александритовый лазер?",
       laser_highlights_heading:"Главное.",
@@ -18281,6 +18284,7 @@
     };
 
     set("hero_title", m.hero_title);
+    set("hero_subtitle", m.hero_subtitle);
     set("hero_promo_strip", m.hero_promo_strip);
     set("hero_price", m.hero_price);
     set("laser_intro_title", m.laser_intro_title);
