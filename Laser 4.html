@@ -455,21 +455,24 @@
     .laserHighlightsLink{
       display:inline-flex;
       align-items:center;
-      gap:8px;
-      padding:0 0 6px;
-      border:none;
-      background:transparent;
+      justify-content:center;
+      gap:0;
+      min-height:44px;
+      padding:12px 18px;
+      border:1px solid rgba(0,0,0,.12);
+      border-radius:999px;
+      background:#fff;
       text-decoration:none;
-      font-size:18px;
+      font-size:14px;
+      font-weight:700;
       line-height:1.2;
       letter-spacing:-.02em;
-      color:#0066cc;
+      color:#111218;
       white-space:nowrap;
+      transition:background-color .18s ease, transform .18s ease, border-color .18s ease;
     }
-    .laserHighlightsLink::after{
-      content:"›";
-      font-size:1.18em;
-      line-height:1;
+    .laserHighlightsLink:hover{
+      background:rgba(17,18,24,.04);
       transform:translateY(-1px);
     }
     .laserHighlightsViewport{
@@ -478,6 +481,7 @@
       max-width:none;
       margin-left:calc(50% - 50vw);
       margin-right:calc(50% - 50vw);
+      background:#fff;
     }
     .laserHighlightsTrack{
       display:flex;
@@ -485,6 +489,7 @@
       overflow-x:auto;
       overflow-y:hidden;
       padding:0 var(--laser-highlights-side-pad) 10px;
+      background:#fff;
       scroll-snap-type:x mandatory;
       scroll-padding-left:var(--laser-highlights-side-pad);
       -webkit-overflow-scrolling:touch;
@@ -501,9 +506,9 @@
       min-height:clamp(460px, 56vw, 690px);
       padding:26px;
       border-radius:34px;
-      border:1px solid rgba(17,18,24,.06);
-      background:linear-gradient(180deg, rgba(255,255,255,.95) 0%, rgba(244,245,248,.98) 100%);
-      box-shadow:0 18px 36px rgba(17,18,24,.08);
+      border:1px solid rgba(17,18,24,.08);
+      background:#fff;
+      box-shadow:none;
       scroll-snap-align:start;
       overflow:hidden;
       display:grid;
@@ -656,17 +661,17 @@
       align-items:center;
       justify-content:center;
       gap:12px;
+      flex-wrap:wrap;
     }
     .laserHighlightsDots{
       display:inline-flex;
       align-items:center;
       gap:8px;
-      padding:10px 14px;
-      border-radius:999px;
-      background:rgba(17,18,24,.06);
-      border:1px solid rgba(17,18,24,.07);
-      backdrop-filter:saturate(140%) blur(10px);
-      -webkit-backdrop-filter:saturate(140%) blur(10px);
+      min-height:0;
+      padding:0;
+      border-radius:0;
+      background:transparent;
+      border:none;
     }
     .laserHighlightsDot{
       width:10px;
@@ -678,32 +683,35 @@
       cursor:pointer;
       transition:transform .22s ease, background-color .22s ease, width .22s ease;
     }
+    .laserHighlightsDot:hover{
+      background:rgba(17,18,24,.4);
+      transform:scale(1.05);
+    }
     .laserHighlightsDot.is-active{
-      width:34px;
+      width:30px;
       background:#111218;
     }
     .laserHighlightsNavBtn{
-      width:46px;
-      height:46px;
+      width:40px;
+      height:40px;
       border:none;
       border-radius:50%;
-      background:rgba(255,255,255,.86);
-      color:#111218;
+      background:transparent;
+      color:rgba(17,18,24,.82);
       cursor:pointer;
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      box-shadow:0 10px 24px rgba(17,18,24,.10);
-      transition:transform .22s ease, opacity .22s ease, background-color .22s ease;
+      box-shadow:none;
+      transition:transform .18s ease, opacity .22s ease, color .18s ease;
     }
     .laserHighlightsNavBtn:hover{
-      transform:translateY(-1px);
-      background:#fff;
+      color:#111218;
+      transform:scale(1.06);
     }
     .laserHighlightsNavBtn[disabled]{
       opacity:.36;
       cursor:default;
-      transform:none;
       box-shadow:none;
     }
     .laserHighlightsNavBtn svg{
@@ -717,21 +725,28 @@
     }
     .laserHighlightsPlaybackBtn{
       display:none;
-      width:46px;
-      height:46px;
+      width:52px;
+      height:44px;
       border:none;
-      border-radius:50%;
-      background:rgba(255,255,255,.92);
-      color:#111218;
+      border-radius:999px;
+      background:#111218;
+      color:#fff;
       cursor:pointer;
       align-items:center;
       justify-content:center;
-      box-shadow:0 10px 24px rgba(17,18,24,.10);
-      transition:transform .22s ease, background-color .22s ease, opacity .22s ease;
+      box-shadow:none;
+      transition:background-color .18s ease, opacity .22s ease, color .18s ease;
     }
     .laserHighlightsPlaybackBtn:hover{
-      transform:translateY(-1px);
+      background:#1b1c24;
+    }
+    .laserHighlightsPlaybackBtn.is-paused{
+      border:1px solid rgba(0,0,0,.12);
       background:#fff;
+      color:#111218;
+    }
+    .laserHighlightsPlaybackBtn.is-paused:hover{
+      background:rgba(17,18,24,.04);
     }
     .laserHighlightsPlaybackBtn svg{
       width:18px;
@@ -4289,15 +4304,16 @@
         line-height:.96;
       }
       .laserHighlightsLink{
-        padding-bottom:0;
-        font-size:17px;
+        min-height:42px;
+        font-size:14px;
+        padding:10px 18px;
       }
       .laserHighlightsViewport{
         --laser-highlights-side-pad:16px;
       }
       .laserHighlightsTrack{
         gap:12px;
-        padding-bottom:10px;
+        padding-bottom:6px;
       }
       .laserHighlightCard{
         flex-basis:calc(100vw - 72px);
@@ -4343,16 +4359,19 @@
       }
       .laserHighlightsControls{
         gap:10px;
+        position:relative;
+        z-index:1;
+        background:#fff;
       }
       .laserHighlightsDots{
-        padding:10px 14px;
+        padding:6px;
       }
       #laserHighlightsPrev,
       #laserHighlightsNext{
         display:none;
       }
       .laserHighlightsPlaybackBtn{
-        width:42px;
+        width:52px;
         height:42px;
         display:inline-flex;
       }
