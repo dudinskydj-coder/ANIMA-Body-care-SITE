@@ -13,6 +13,7 @@
   <link rel="shortcut icon" href="./favicon-32x32.png?v=20260310" type="image/png" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=20260310" sizes="180x180" />
   <link rel="manifest" href="./site.webmanifest?v=20260310" />
+  <link rel="preload" as="image" href="./img/LASER/LASER HERO 1 SUPER-web.jpg" fetchpriority="high" />
 
   <style>
     :root{
@@ -254,9 +255,7 @@
 
     .section{padding:56px 0}
     .hero{
-      --hero-art-width:clamp(760px, 88vw, 1820px);
-      --hero-art-min-height:clamp(220px, 38vh, 430px);
-      padding:58px 0 18px;
+      padding:58px 0 clamp(68px, 8vw, 132px);
       text-align:center;
       min-height:calc(100vh - var(--headerH) - 34px);
       display:flex;
@@ -278,7 +277,7 @@
     }
 
     .hero h1{
-      margin:0 auto 14px;
+      margin:0 auto clamp(24px, 2.2vw, 42px);
       font-size:58px;
       line-height:1.03;
       font-weight:780;
@@ -289,13 +288,13 @@
       flex:1 1 auto;
       width:100vw;
       max-width:none;
-      min-height:var(--hero-art-min-height);
+      min-height:clamp(240px, 32vw, 520px);
       margin-left:calc(50% - 50vw);
       margin-right:calc(50% - 50vw);
-      background-image:url("img/LASER/LASER HERO 1.jpeg");
+      background-image:url("img/LASER/LASER HERO 1 SUPER-web.jpg");
       background-repeat:no-repeat;
-      background-position:right bottom;
-      background-size:var(--hero-art-width) auto;
+      background-size:100% auto;
+      background-position:center 72%;
       pointer-events:none;
     }
     .hero p{
@@ -304,6 +303,11 @@
       font-size:18px;
       line-height:1.45;
       max-width:860px;
+    }
+    @media (min-width:1440px){
+      .heroGhostSpace{
+        background-position:center 84%;
+      }
     }
 
     .btnRow{
@@ -321,7 +325,7 @@
       position:relative;
       z-index:6;
       width:min(92vw, 520px);
-      margin:24px auto 0;
+      margin:clamp(28px, 3vw, 48px) auto 0;
       display:flex;
       flex-direction:column;
       align-items:center;
@@ -412,6 +416,59 @@
       color:#111218;
       font-weight:760;
       letter-spacing:-.02em;
+    }
+    .laserPrimer{
+      padding-top:20px;
+      padding-bottom:30px;
+      background:#fff;
+    }
+    .laserPrimerInner{
+      display:grid;
+      gap:18px;
+      justify-items:center;
+      text-align:center;
+    }
+    .laserPrimerEyebrow{
+      margin:0;
+      font-size:12px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:rgba(17,18,24,.5);
+    }
+    .laserPrimerLead{
+      margin:0;
+      max-width:920px;
+      font-size:clamp(44px, 7vw, 86px);
+      line-height:.93;
+      letter-spacing:-.06em;
+      font-weight:800;
+      color:#111218;
+      text-wrap:balance;
+    }
+    .laserPrimerGrid{
+      width:100%;
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:12px;
+      margin-top:6px;
+    }
+    .laserPrimerItem{
+      margin:0;
+      min-height:92px;
+      padding:20px 18px;
+      border-radius:24px;
+      border:1px solid rgba(17,18,24,.08);
+      background:linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(246,246,248,.95) 100%);
+      box-shadow:0 10px 24px rgba(17,18,24,.05);
+      font-size:24px;
+      line-height:1.05;
+      letter-spacing:-.03em;
+      font-weight:720;
+      color:#111218;
+      text-wrap:balance;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
     }
     .modePriceNote{
       margin:14px 0 0;
@@ -3149,7 +3206,7 @@
       100%{ transform:translateY(0) scale(1); }
     }
     .laserSwitchSection{
-      padding:26px 0 8px;
+      padding:clamp(58px, 7vw, 112px) 0 18px;
     }
     .laserSwitchWrap{
       display:flex;
@@ -3929,8 +3986,7 @@
 
     @media (max-width:920px){
       .hero{
-        --hero-art-width:min(100vw, 760px);
-        --hero-art-min-height:clamp(160px, 28vh, 260px);
+        padding-bottom:64px;
       }
       .heroPromoStrip{
         font-size:12px;
@@ -3938,8 +3994,31 @@
         padding:7px 10px;
       }
       .hero h1{font-size:40px}
+      .laserPrimer{
+        padding-top:10px;
+        padding-bottom:22px;
+      }
+      .laserPrimerLead{
+        font-size:clamp(34px, 11vw, 54px);
+        line-height:.96;
+      }
+      .laserPrimerGrid{
+        grid-template-columns:1fr;
+      }
+      .laserPrimerItem{
+        min-height:auto;
+        padding:16px 18px;
+        font-size:22px;
+      }
       .heroGhostSpace{
-        min-height:var(--hero-art-min-height);
+        min-height:clamp(180px, 48vw, 320px);
+        background-position:center 78%;
+      }
+      .heroBottomDock{
+        margin-top:26px;
+      }
+      .laserSwitchSection{
+        padding:42px 0 14px;
       }
       .media img{height:380px}
       .heroPrice{
@@ -4322,12 +4401,24 @@
 <div class="wrap" id="top">
   <!-- 1) HERO -->
   <section class="hero section">
-    <h1 class="reveal" id="hero_title">Alexandrit-Laser-Haarentfernung.<br/>Sanft. Präzise. Gepflegt.</h1>
-    <div class="heroGhostSpace reveal" aria-hidden="true"></div>
+    <h1 id="hero_title">Alexandrit-Laser-Haarentfernung.<br/>Sanft. Präzise. Gepflegt.</h1>
+    <div class="heroGhostSpace" aria-hidden="true"></div>
     <div class="heroBottomDock" id="heroBottomDock">
       <p class="heroPrice" id="hero_price"><strong>Ab 25 €</strong> pro Behandlung.</p>
     </div>
 
+  </section>
+
+  <section class="section laserPrimer" aria-labelledby="laser_intro_title">
+    <div class="laserPrimerInner reveal">
+      <p class="laserPrimerEyebrow" id="laser_intro_title">Was ist Alexandrit-Laser?</p>
+      <h2 class="laserPrimerLead" id="laser_intro_main">Entfernt Haare dauerhaft</h2>
+      <div class="laserPrimerGrid" aria-label="Alexandrit-Laser Vorteile">
+        <p class="laserPrimerItem" id="laser_intro_point_1">Sehr präzise Technologie</p>
+        <p class="laserPrimerItem" id="laser_intro_point_2">Sanft zur Haut</p>
+        <p class="laserPrimerItem" id="laser_intro_point_3">Sichtbar glattere Haut nach wenigen Sitzungen</p>
+      </div>
+    </div>
   </section>
 
   <section class="section laserSwitchSection" id="laser-switches">
@@ -17268,6 +17359,11 @@
       hero_promo_strip:"Im 6er-Kurs sparst du je nach Zone oder Paket von 25 € bis 489 € bei Vorauszahlung.",
       hero_title:"Alexandrit-Laser-Haarentfernung.<br/>Sanft. Präzise. Gepflegt.",
       hero_price:"<strong>Ab 25 €</strong> pro Behandlung.",
+      laser_intro_title:"Was ist Alexandrit-Laser?",
+      laser_intro_main:"Entfernt Haare dauerhaft",
+      laser_intro_point_1:"Sehr präzise Technologie",
+      laser_intro_point_2:"Sanft zur Haut",
+      laser_intro_point_3:"Sichtbar glattere Haut nach wenigen Sitzungen",
       btn_buy:"Kaufen",
       why_title:"Warum unser Laser besser ist",
       why_1:"Weniger Schmerz",
@@ -17322,6 +17418,11 @@
       hero_promo_strip:"In the 6-session course, you save from €25 to €489 depending on zone or package when prepaid.",
       hero_title:"Alexandrite Laser Hair Removal.<br/>Gentle. Precise. Polished.",
       hero_price:"<strong>From €25</strong> per treatment.",
+      laser_intro_title:"What is Alexandrite Laser?",
+      laser_intro_main:"Removes hair long term",
+      laser_intro_point_1:"Highly precise technology",
+      laser_intro_point_2:"Gentle on the skin",
+      laser_intro_point_3:"Visibly smoother skin after only a few sessions",
       btn_buy:"Buy",
       why_title:"Why our laser performs better",
       why_1:"Lower discomfort",
@@ -17376,6 +17477,11 @@
       hero_promo_strip:"При предоплате курса из 6 процедур вы экономите от 25 € до 489 € в зависимости от зоны или пакета.",
       hero_title:"Александритовая лазерная эпиляция.<br/>Бережно. Точно. Эстетично.",
       hero_price:"<strong>От 25 €</strong> за процедуру.",
+      laser_intro_title:"Что такое александритовый лазер?",
+      laser_intro_main:"Долговременно удаляет волосы",
+      laser_intro_point_1:"Очень точная технология",
+      laser_intro_point_2:"Бережно к коже",
+      laser_intro_point_3:"Заметно более гладкая кожа уже через несколько процедур",
       btn_buy:"Купить",
       why_title:"Почему наш лазер лучше",
       why_1:"Минимум боли",
@@ -17436,6 +17542,11 @@
     set("hero_title", m.hero_title);
     set("hero_promo_strip", m.hero_promo_strip);
     set("hero_price", m.hero_price);
+    set("laser_intro_title", m.laser_intro_title);
+    set("laser_intro_main", m.laser_intro_main);
+    set("laser_intro_point_1", m.laser_intro_point_1);
+    set("laser_intro_point_2", m.laser_intro_point_2);
+    set("laser_intro_point_3", m.laser_intro_point_3);
     set("btn_buy", m.btn_buy);
     set("why_title", m.why_title);
     set("why_1", m.why_1);
