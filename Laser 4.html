@@ -488,7 +488,7 @@
       gap:18px;
       overflow-x:auto;
       overflow-y:hidden;
-      padding:0 var(--laser-highlights-side-pad) 10px;
+      padding:6px var(--laser-highlights-side-pad) 34px;
       background:#fff;
       scroll-snap-type:x mandatory;
       scroll-padding-left:var(--laser-highlights-side-pad);
@@ -506,9 +506,11 @@
       min-height:clamp(460px, 56vw, 690px);
       padding:26px;
       border-radius:34px;
-      border:1px solid rgba(17,18,24,.08);
+      border:1px solid rgba(17,18,24,.06);
       background:#fff;
-      box-shadow:none;
+      box-shadow:
+        0 8px 14px -12px rgba(17,18,24,.08),
+        0 28px 36px -24px rgba(17,18,24,.18);
       scroll-snap-align:start;
       overflow:hidden;
       display:grid;
@@ -3505,23 +3507,24 @@
       display:flex;
       flex-direction:column;
       align-items:center;
-      gap:12px;
+      gap:10px;
     }
     .laserSwitch{
       display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:6px;
-      border-radius:999px;
-      background:#f3f3f6;
-      border:1px solid rgba(0,0,0,.08);
+      align-items:flex-end;
+      gap:28px;
+      padding:0;
+      border-radius:0;
+      background:transparent;
+      border:none;
     }
     .laserSwitchBtn{
-      min-width:146px;
+      position:relative;
+      min-width:0;
       border:none;
-      border-radius:999px;
-      padding:10px 18px;
-      font-size:14px;
+      border-radius:0;
+      padding:8px 0 12px;
+      font-size:16px;
       font-weight:650;
       letter-spacing:-.01em;
       background:transparent;
@@ -3529,17 +3532,38 @@
       cursor:pointer;
       text-decoration:none;
       text-align:center;
-      transition:background .18s ease, color .18s ease;
+      transition:color .18s ease;
       -webkit-tap-highlight-color:transparent;
       touch-action:manipulation;
       user-select:none;
     }
+    .laserSwitchBtn::after{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:0;
+      height:2px;
+      border-radius:999px;
+      background:#111218;
+      opacity:0;
+      transform:scaleX(.42);
+      transform-origin:center;
+      transition:opacity .18s ease, transform .18s ease;
+    }
     .laserSwitchBtn:hover{
       color:#111218;
     }
+    .laserSwitchBtn:hover::after{
+      opacity:.34;
+      transform:scaleX(.82);
+    }
     .laserSwitchBtn.is-active{
-      background:#111218;
-      color:#fff;
+      color:#111218;
+    }
+    .laserSwitchBtn.is-active::after{
+      opacity:1;
+      transform:scaleX(1);
     }
     @media (hover:none), (pointer:coarse){
       .laserSwitchBtn{
@@ -3548,8 +3572,12 @@
       .laserSwitchBtn:hover{
         color:rgba(17,18,24,.66);
       }
+      .laserSwitchBtn:hover::after{
+        opacity:0;
+        transform:scaleX(.42);
+      }
       .laserSwitchBtn.is-active:hover{
-        color:#fff;
+        color:#111218;
       }
     }
     .laserSwitchHint{
@@ -4313,7 +4341,8 @@
       }
       .laserHighlightsTrack{
         gap:12px;
-        padding-bottom:6px;
+        padding-top:6px;
+        padding-bottom:26px;
       }
       .laserHighlightCard{
         flex-basis:calc(100vw - 72px);
@@ -4364,7 +4393,7 @@
         background:#fff;
       }
       .laserHighlightsDots{
-        padding:6px;
+        padding:0;
       }
       #laserHighlightsPrev,
       #laserHighlightsNext{
@@ -4381,6 +4410,13 @@
       }
       .laserSwitchSection{
         padding:42px 0 14px;
+      }
+      .laserSwitch{
+        gap:22px;
+      }
+      .laserSwitchBtn{
+        font-size:15px;
+        padding-bottom:10px;
       }
       .media img{height:380px}
       .heroPrice{
@@ -4780,7 +4816,6 @@
           <p class="laserHighlightsEyebrow" id="laser_intro_title">Was ist Alexandrit-Laser?</p>
           <h2 class="laserHighlightsTitle" id="laser_highlights_heading">Die Highlights.</h2>
         </div>
-        <a class="laserHighlightsLink" id="laser_highlights_link" href="#laser-switches">Zur Zonenwahl</a>
       </div>
       <div class="laserHighlightsViewport">
         <div class="laserHighlightsTrack" id="laserHighlightsTrack" aria-label="Alexandrit-Laser Highlights">
@@ -12351,7 +12386,6 @@
     window.scrollTo({ top:clampedScrollTop, behavior:"smooth" });
   }
   function plannerFocusInteractiveForSwitch(mode = activeLaserMode()){
-    ensureInteractiveInViewForInteraction();
     if(!plannerFigure) return;
     plannerFigure.scrollLeft = 0;
     plannerFigure.scrollTop = 0;
