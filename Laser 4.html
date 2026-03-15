@@ -4986,8 +4986,8 @@
     }
     .laserHighlightCard{
       min-height:clamp(360px, 40vw, 520px);
-      display:grid;
-      grid-template-rows:auto 1fr;
+      display:flex;
+      align-items:center;
       gap:18px;
       background:transparent;
       border-color:transparent;
@@ -5012,6 +5012,7 @@
       max-width:min(520px, 100%);
     }
     .laserHighlightCard--comfort .laserHighlightCopy{
+      align-self:center;
       padding:0;
       border-radius:0;
       background:transparent;
