@@ -283,6 +283,11 @@
       font-weight:780;
       letter-spacing:-1.2px;
       max-width:980px;
+      text-align:center;
+    }
+    .heroTitleLine{
+      display:inline;
+      white-space:normal;
     }
     .hero .heroSubtitle{
       margin:0 auto clamp(20px, 2.6vw, 34px);
@@ -534,6 +539,17 @@
       grid-template-rows:auto 1fr;
       gap:22px;
     }
+    .laserHighlightCard--title{
+      flex-basis:min(72vw, 780px);
+      padding:0;
+      border:0;
+      background:transparent;
+      box-shadow:none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:0;
+    }
     .laserHighlightCard--hero{
       flex-basis:min(89vw, 1020px);
       background:#fff;
@@ -547,11 +563,36 @@
     .laserHighlightCard--result{
       background:#fff;
     }
+    .laserHighlightCard--sensitive{
+      background:#fff;
+    }
     .laserHighlightCard--hero .laserHighlightCopy{
       max-width:min(46%, 430px);
     }
     .laserHighlightCard--result .laserHighlightCopy{
       max-width:min(52%, 470px);
+    }
+    .laserHighlightCard--sensitive .laserHighlightCopy{
+      max-width:min(50%, 450px);
+    }
+    .laserHighlightTitleWrap{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      height:100%;
+      padding:clamp(24px, 4vw, 52px);
+    }
+    .laserHighlightIntroTitle{
+      margin:0;
+      max-width:10ch;
+      font-size:clamp(48px, 6.8vw, 96px);
+      line-height:.92;
+      letter-spacing:-.06em;
+      font-weight:780;
+      color:#111218;
+      text-align:center;
+      text-wrap:balance;
     }
     .laserHighlightCopy{
       position:relative;
@@ -611,6 +652,15 @@
       height:76%;
       pointer-events:none;
     }
+    .laserHighlightMedia--device{
+      position:absolute;
+      right:0;
+      bottom:0;
+      width:min(48%, 390px);
+      min-height:0;
+      height:80%;
+      pointer-events:none;
+    }
     .laserHighlightVideo{
       position:absolute;
       inset:0;
@@ -642,6 +692,10 @@
     .laserHighlightCard--result .laserHighlightImage{
       object-fit:contain;
       object-position:right bottom;
+    }
+    .laserHighlightCard--sensitive .laserHighlightImage{
+      object-fit:cover;
+      object-position:center;
     }
     .laserHighlightGlow{
       display:none;
@@ -787,6 +841,10 @@
         border-radius:30px;
         gap:18px;
       }
+      .laserHighlightCard--title{
+        flex-basis:min(66vw, 680px);
+        padding:0;
+      }
       .laserHighlightCard--hero{
         flex-basis:min(86vw, 920px);
       }
@@ -796,8 +854,14 @@
       .laserHighlightCard--result .laserHighlightCopy{
         max-width:min(54%, 420px);
       }
+      .laserHighlightCard--sensitive .laserHighlightCopy{
+        max-width:min(52%, 400px);
+      }
       .laserHighlightCopy{
         gap:10px;
+      }
+      .laserHighlightIntroTitle{
+        font-size:clamp(42px, 6vw, 82px);
       }
       .laserHighlightHeading{
         font-size:clamp(30px, 4vw, 52px);
@@ -819,6 +883,10 @@
       .laserHighlightMedia--legs{
         width:min(44%, 320px);
         height:72%;
+      }
+      .laserHighlightMedia--device{
+        width:min(44%, 320px);
+        height:74%;
       }
     }
     .modePriceNote{
@@ -4371,10 +4439,14 @@
       }
       .hero h1{
         margin-bottom:18px;
-        max-width:9.2ch;
-        font-size:clamp(34px, 10.8vw, 50px);
-        line-height:.96;
-        letter-spacing:-.05em;
+        max-width:none;
+        font-size:40px;
+        line-height:1.04;
+        letter-spacing:-.03em;
+      }
+      .heroTitleLine{
+        display:block;
+        white-space:nowrap;
       }
       .heroGhostSpace{
         overflow:hidden;
@@ -4421,6 +4493,10 @@
         padding:20px;
         border-radius:28px;
       }
+      .laserHighlightCard--title{
+        min-height:420px;
+        padding:0;
+      }
       .laserHighlightCard--hero{
         flex-basis:calc(100vw - 72px);
       }
@@ -4429,8 +4505,12 @@
         gap:10px;
       }
       .laserHighlightCard--hero .laserHighlightCopy,
-      .laserHighlightCard--result .laserHighlightCopy{
+      .laserHighlightCard--result .laserHighlightCopy,
+      .laserHighlightCard--sensitive .laserHighlightCopy{
         max-width:100%;
+      }
+      .laserHighlightIntroTitle{
+        font-size:clamp(38px, 12vw, 58px);
       }
       .laserHighlightHeading{
         font-size:clamp(30px, 9vw, 44px);
@@ -4454,6 +4534,10 @@
         width:min(54%, 250px);
         height:58%;
       }
+      .laserHighlightMedia--device{
+        width:min(58%, 280px);
+        height:58%;
+      }
       .laserHighlightResultPill{
         font-size:13px;
       }
@@ -4471,7 +4555,7 @@
       }
       .heroGhostSpace{margin-top:0}
       .heroBottomDock{
-        margin-top:34px;
+        margin-top:clamp(96px, 16vw, 144px);
       }
       .laserSwitchSection{
         padding:42px 0 14px;
@@ -4860,7 +4944,7 @@
 <div class="wrap" id="top">
   <!-- 1) HERO -->
   <section class="hero section">
-    <h1 id="hero_title">Alexandrit-Laser Haarentfernung</h1>
+    <h1 id="hero_title"><span class="heroTitleLine">Alexandrit-Laser</span> <span class="heroTitleLine">Haarentfernung</span></h1>
     <p class="heroSubtitle" id="hero_subtitle">Sanft. Präzise. Gepflegt.</p>
     <div class="heroGhostSpace" aria-hidden="true">
       <img class="heroImage" src="img/LASER/LASER HERO 1 SUPER 494-web.jpg" alt="" loading="eager" decoding="sync" fetchpriority="high" />
@@ -4871,14 +4955,14 @@
 
   </section>
 
-  <section class="section laserHighlights" aria-labelledby="laser_highlights_heading" id="laser-highlights">
+  <section class="section laserHighlights" aria-labelledby="laser_intro_main" id="laser-highlights">
     <div class="laserHighlightsShell reveal">
       <div class="laserHighlightsViewport">
         <div class="laserHighlightsTrack" id="laserHighlightsTrack" aria-label="Alexandrit-Laser Highlights">
           <article class="laserHighlightCard laserHighlightCard--hero" data-highlight-card>
             <div class="laserHighlightCopy">
-              <h3 class="laserHighlightHeading" id="laser_intro_main">Entfernt Haare dauerhaft</h3>
-              <p class="laserHighlightBody" id="laser_highlight_body_main">Gezielte Lichtenergie konzentriert sich auf das Haar und macht die Behandlung zum klaren Kern des Angebots.</p>
+              <h3 class="laserHighlightHeading" id="laser_intro_main">Alexandrit-Laser</h3>
+              <p class="laserHighlightBody" id="laser_highlight_body_main">Eine der wirksamsten Technologien für Laser-Haarentfernung weltweit.</p>
             </div>
             <div class="laserHighlightMedia laserHighlightMedia--flower">
               <video class="laserHighlightVideo" id="laserHighlightsFlowerVideo" muted playsinline autoplay loop preload="metadata" poster="./img/VIDEO/FLOWER 2-poster.jpg" aria-hidden="true">
@@ -4890,8 +4974,8 @@
 
           <article class="laserHighlightCard laserHighlightCard--precision" data-highlight-card>
             <div class="laserHighlightCopy">
-              <h3 class="laserHighlightHeading" id="laser_intro_point_1">Sehr präzise Technologie</h3>
-              <p class="laserHighlightBody" id="laser_highlight_body_1">Geeignet für feine Details ebenso wie für größere Zonen, mit einem sauberen und kontrollierten Ablauf.</p>
+              <h3 class="laserHighlightHeading" id="laser_intro_point_1">Entfernt Haare langanhaltend</h3>
+              <p class="laserHighlightBody" id="laser_highlight_body_1">Der Laser wirkt direkt auf den Haarfollikel und reduziert das Haarwachstum deutlich.</p>
             </div>
             <div class="laserHighlightMedia laserHighlightMedia--hand">
               <img class="laserHighlightImage" src="./img/LASER/laser-hero-hand-card.jpg" alt="" loading="lazy" decoding="async" fetchpriority="low" />
@@ -4900,8 +4984,8 @@
 
           <article class="laserHighlightCard laserHighlightCard--comfort" data-highlight-card>
             <div class="laserHighlightCopy">
-              <h3 class="laserHighlightHeading" id="laser_intro_point_2">Sanft zur Haut</h3>
-              <p class="laserHighlightBody" id="laser_highlight_body_2">Die Inszenierung bleibt ruhig und weich, während die Behandlung hochwertig, gepflegt und nah an der Hautwirkung wirkt.</p>
+              <h3 class="laserHighlightHeading" id="laser_intro_point_2">MOVEO-Technologie</h3>
+              <p class="laserHighlightBody" id="laser_highlight_body_2">Erwärmt den Follikel gleichmäßig, ohne harte Impulse oder unangenehmes Gefühl.</p>
             </div>
             <div class="laserHighlightGlow" aria-hidden="true"></div>
             <div class="laserHighlightMedia laserHighlightMedia--ribbon">
@@ -4911,12 +4995,21 @@
 
           <article class="laserHighlightCard laserHighlightCard--result" data-highlight-card>
             <div class="laserHighlightCopy">
-              <span class="laserHighlightResultPill" id="laser_highlight_result_pill">Ab 25 € pro Behandlung</span>
-              <h3 class="laserHighlightHeading" id="laser_intro_point_3">Sichtbar glattere Haut nach wenigen Sitzungen</h3>
-              <p class="laserHighlightBody" id="laser_highlight_body_3">Der Vorteil wird schnell verständlich: schon nach wenigen Terminen wirkt das Hautbild ruhiger, glatter und klarer.</p>
+              <h3 class="laserHighlightHeading" id="laser_intro_point_3">Fast schmerzfrei</h3>
+              <p class="laserHighlightBody" id="laser_highlight_body_3">Die Behandlung fühlt sich weich an, ohne den typischen „Gummiband“-Effekt.</p>
             </div>
             <div class="laserHighlightMedia laserHighlightMedia--legs">
               <img class="laserHighlightImage" src="./img/LASER/laser-hero-legs-card.jpg" alt="" loading="lazy" decoding="async" fetchpriority="low" />
+            </div>
+          </article>
+
+          <article class="laserHighlightCard laserHighlightCard--sensitive" data-highlight-card>
+            <div class="laserHighlightCopy">
+              <h3 class="laserHighlightHeading" id="laser_intro_point_4">Für empfindliche Haut geeignet</h3>
+              <p class="laserHighlightBody" id="laser_highlight_body_4">Sicher auch für empfindliche und delikate Zonen.</p>
+            </div>
+            <div class="laserHighlightMedia laserHighlightMedia--device">
+              <img class="laserHighlightImage" src="./img/LASER/IMG_4109.JPG" alt="" loading="lazy" decoding="async" fetchpriority="low" />
             </div>
           </article>
         </div>
@@ -4930,6 +5023,7 @@
           <button type="button" class="laserHighlightsDot" id="laser_highlight_dot_2" data-highlight-dot="1" aria-label="Highlight 2" aria-pressed="false"></button>
           <button type="button" class="laserHighlightsDot" id="laser_highlight_dot_3" data-highlight-dot="2" aria-label="Highlight 3" aria-pressed="false"></button>
           <button type="button" class="laserHighlightsDot" id="laser_highlight_dot_4" data-highlight-dot="3" aria-label="Highlight 4" aria-pressed="false"></button>
+          <button type="button" class="laserHighlightsDot" id="laser_highlight_dot_5" data-highlight-dot="4" aria-label="Highlight 5" aria-pressed="false"></button>
         </div>
         <button type="button" class="laserHighlightsPlaybackBtn" id="laserHighlightsPlayback" aria-label="Highlights pausieren" aria-pressed="false">
           <svg class="laserHighlightsPlaybackIcon laserHighlightsPlaybackIcon--pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
@@ -18049,24 +18143,26 @@
   const t = {
     de: {
       hero_promo_strip:"Im 6er-Kurs sparst du je nach Zone oder Paket von 25 € bis 489 € bei Vorauszahlung.",
-      hero_title:"Alexandrit-Laser Haarentfernung",
+      hero_title:"<span class=\"heroTitleLine\">Alexandrit-Laser</span> <span class=\"heroTitleLine\">Haarentfernung</span>",
       hero_subtitle:"Sanft. Präzise. Gepflegt.",
       hero_price:"<strong>Ab 25 €</strong> pro Behandlung.",
       laser_intro_title:"Was ist Alexandrit-Laser?",
-      laser_highlights_heading:"Die Highlights.",
+      laser_highlights_heading:"Die wichtigsten Vorteile",
       laser_highlights_link:"Zur Zonenwahl",
-      laser_intro_main:"Entfernt Haare dauerhaft",
-      laser_intro_point_1:"Sehr präzise Technologie",
-      laser_intro_point_2:"Sanft zur Haut",
-      laser_intro_point_3:"Sichtbar glattere Haut nach wenigen Sitzungen",
+      laser_intro_main:"Alexandrit-Laser",
+      laser_intro_point_1:"Entfernt Haare langanhaltend",
+      laser_intro_point_2:"MOVEO-Technologie",
+      laser_intro_point_3:"Fast schmerzfrei",
+      laser_intro_point_4:"Für empfindliche Haut geeignet",
       laser_highlight_meta_main:"Wirkung",
-      laser_highlight_body_main:"Gezielte Lichtenergie konzentriert sich auf das Haar und macht die Behandlung zum klaren Kern des Angebots.",
+      laser_highlight_body_main:"Eine der wirksamsten Technologien für Laser-Haarentfernung weltweit.",
       laser_highlight_meta_1:"Präzision",
-      laser_highlight_body_1:"Geeignet für feine Details ebenso wie für größere Zonen, mit einem sauberen und kontrollierten Ablauf.",
+      laser_highlight_body_1:"Der Laser wirkt direkt auf den Haarfollikel und reduziert das Haarwachstum deutlich.",
       laser_highlight_meta_2:"Komfort",
-      laser_highlight_body_2:"Die Inszenierung bleibt ruhig und weich, während die Behandlung hochwertig, gepflegt und nah an der Hautwirkung wirkt.",
+      laser_highlight_body_2:"Erwärmt den Follikel gleichmäßig, ohne harte Impulse oder unangenehmes Gefühl.",
       laser_highlight_meta_3:"Ergebnis",
-      laser_highlight_body_3:"Der Vorteil wird schnell verständlich: schon nach wenigen Terminen wirkt das Hautbild ruhiger, glatter und klarer.",
+      laser_highlight_body_3:"Die Behandlung fühlt sich weich an, ohne den typischen „Gummiband“-Effekt.",
+      laser_highlight_body_4:"Sicher auch für empfindliche und delikate Zonen.",
       laser_highlight_result_pill:"Ab 25 € pro Behandlung",
       laser_highlights_prev:"Vorheriges Highlight",
       laser_highlights_next:"Nächstes Highlight",
@@ -18124,24 +18220,26 @@
     },
     en: {
       hero_promo_strip:"In the 6-session course, you save from €25 to €489 depending on zone or package when prepaid.",
-      hero_title:"Alexandrite Laser Hair Removal",
+      hero_title:"<span class=\"heroTitleLine\">Alexandrite Laser</span> <span class=\"heroTitleLine\">Hair Removal</span>",
       hero_subtitle:"Gentle. Precise. Polished.",
       hero_price:"<strong>From €25</strong> per treatment.",
       laser_intro_title:"What is Alexandrite Laser?",
-      laser_highlights_heading:"Get the highlights.",
+      laser_highlights_heading:"Key benefits",
       laser_highlights_link:"Jump to zones",
-      laser_intro_main:"Removes hair long term",
-      laser_intro_point_1:"Highly precise technology",
-      laser_intro_point_2:"Gentle on the skin",
-      laser_intro_point_3:"Visibly smoother skin after only a few sessions",
+      laser_intro_main:"Alexandrite laser",
+      laser_intro_point_1:"Long-lasting hair reduction",
+      laser_intro_point_2:"MOVEO technology",
+      laser_intro_point_3:"Almost painless",
+      laser_intro_point_4:"Suitable for sensitive skin",
       laser_highlight_meta_main:"Effect",
-      laser_highlight_body_main:"Focused light energy targets the hair and makes the treatment the clear center of the offer.",
+      laser_highlight_body_main:"One of the most effective laser hair removal technologies in the world.",
       laser_highlight_meta_1:"Precision",
-      laser_highlight_body_1:"Suitable for fine details as well as larger areas, with a clean and controlled treatment flow.",
+      laser_highlight_body_1:"The laser targets the hair follicle directly and noticeably reduces regrowth.",
       laser_highlight_meta_2:"Comfort",
-      laser_highlight_body_2:"The feel stays calm and soft, while the treatment still reads as premium, polished and close to the skin.",
+      laser_highlight_body_2:"Heats the follicle evenly without harsh pulses or unnecessary discomfort.",
       laser_highlight_meta_3:"Result",
-      laser_highlight_body_3:"The benefit becomes clear quickly: after only a few sessions, the skin looks calmer, smoother and clearer.",
+      laser_highlight_body_3:"The treatment feels gentle, without the typical rubber-band snap.",
+      laser_highlight_body_4:"Safe even for delicate areas.",
       laser_highlight_result_pill:"From €25 per treatment",
       laser_highlights_prev:"Previous highlight",
       laser_highlights_next:"Next highlight",
@@ -18199,24 +18297,26 @@
     },
     ru: {
       hero_promo_strip:"При предоплате курса из 6 процедур вы экономите от 25 € до 489 € в зависимости от зоны или пакета.",
-      hero_title:"Александритовая лазерная эпиляция",
+      hero_title:"<span class=\"heroTitleLine\">Александритовый лазер</span> <span class=\"heroTitleLine\">эпиляция</span>",
       hero_subtitle:"Бережно. Точно. Эстетично.",
       hero_price:"<strong>От 25 €</strong> за процедуру.",
       laser_intro_title:"Что такое александритовый лазер?",
-      laser_highlights_heading:"Главное.",
+      laser_highlights_heading:"Основные преимущества",
       laser_highlights_link:"К выбору зон",
-      laser_intro_main:"Долговременно удаляет волосы",
-      laser_intro_point_1:"Очень точная технология",
-      laser_intro_point_2:"Бережно к коже",
-      laser_intro_point_3:"Заметно более гладкая кожа уже через несколько процедур",
+      laser_intro_main:"Александритовый лазер",
+      laser_intro_point_1:"Удаляет волосы надолго",
+      laser_intro_point_2:"Технология MOVEO",
+      laser_intro_point_3:"Почти без боли",
+      laser_intro_point_4:"Подходит для чувствительной кожи",
       laser_highlight_meta_main:"Эффект",
-      laser_highlight_body_main:"Сфокусированная световая энергия воздействует именно на волос и делает процедуру главным акцентом предложения.",
+      laser_highlight_body_main:"Одна из самых эффективных технологий лазерной эпиляции в мире.",
       laser_highlight_meta_1:"Точность",
-      laser_highlight_body_1:"Подходит и для деликатных деталей, и для более крупных зон, сохраняя чистый и контролируемый ход процедуры.",
+      laser_highlight_body_1:"Лазер воздействует прямо на волосяной фолликул и значительно уменьшает рост волос.",
       laser_highlight_meta_2:"Комфорт",
-      laser_highlight_body_2:"Восприятие остаётся мягким и спокойным, а сама процедура выглядит премиально, аккуратно и бережно к коже.",
+      laser_highlight_body_2:"Равномерно нагревает фолликул без резких импульсов и дискомфорта.",
       laser_highlight_meta_3:"Результат",
-      laser_highlight_body_3:"Преимущество считывается быстро: уже через несколько процедур кожа выглядит более спокойной, гладкой и ровной.",
+      laser_highlight_body_3:"Процедура ощущается мягко, без эффекта «резинки».",
+      laser_highlight_body_4:"Безопасно даже для деликатных зон.",
       laser_highlight_result_pill:"От 25 € за процедуру",
       laser_highlights_prev:"Предыдущий хайлайт",
       laser_highlights_next:"Следующий хайлайт",
@@ -18294,6 +18394,7 @@
     set("laser_intro_point_1", m.laser_intro_point_1);
     set("laser_intro_point_2", m.laser_intro_point_2);
     set("laser_intro_point_3", m.laser_intro_point_3);
+    set("laser_intro_point_4", m.laser_intro_point_4);
     set("laser_highlight_meta_main", m.laser_highlight_meta_main);
     set("laser_highlight_body_main", m.laser_highlight_body_main);
     set("laser_highlight_meta_1", m.laser_highlight_meta_1);
@@ -18302,6 +18403,7 @@
     set("laser_highlight_body_2", m.laser_highlight_body_2);
     set("laser_highlight_meta_3", m.laser_highlight_meta_3);
     set("laser_highlight_body_3", m.laser_highlight_body_3);
+    set("laser_highlight_body_4", m.laser_highlight_body_4);
     set("laser_highlight_result_pill", m.laser_highlight_result_pill);
     setAttr("laserHighlightsPrev", "aria-label", m.laser_highlights_prev);
     setAttr("laserHighlightsNext", "aria-label", m.laser_highlights_next);
