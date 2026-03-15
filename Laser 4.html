@@ -521,7 +521,10 @@
       max-width:none;
       margin-left:calc(50% - 50vw);
       margin-right:calc(50% - 50vw);
-      background:#fff;
+      background:
+        radial-gradient(circle at 18% 24%, rgba(255,223,206,.42) 0%, rgba(255,255,255,0) 28%),
+        radial-gradient(circle at 84% 78%, rgba(232,214,221,.28) 0%, rgba(255,255,255,0) 26%),
+        linear-gradient(180deg, #fbf8f6 0%, #f2efec 100%);
     }
     .laserHighlightsTrack{
       display:flex;
@@ -529,7 +532,7 @@
       overflow-x:auto;
       overflow-y:hidden;
       padding:14px var(--laser-highlights-side-pad) 24px;
-      background:#fff;
+      background:transparent;
       scroll-snap-type:x mandatory;
       scroll-padding-left:var(--laser-highlights-side-pad);
       -webkit-overflow-scrolling:touch;
@@ -806,15 +809,15 @@
       background:rgba(17,18,24,.22);
       padding:0;
       cursor:pointer;
-      transition:transform .22s ease, background-color .22s ease, width .22s ease;
+      transition:transform .22s ease, background-color .22s ease, opacity .22s ease;
     }
     .laserHighlightsDot:hover{
       background:rgba(17,18,24,.4);
       transform:scale(1.05);
     }
     .laserHighlightsDot.is-active{
-      width:30px;
       background:#111218;
+      opacity:1;
     }
     .laserHighlightsNavBtn{
       width:40px;
@@ -5474,7 +5477,7 @@
   const PLANNER_NEXT_BENEFIT_SHELL_EXPAND_DELAY_MS = 700;
   const PLANNER_NEXT_BENEFIT_CANCEL_BACKOFF_MS = 980;
   const PLANNER_NEXT_BENEFIT_COMPLETION_FADE_FALLBACK_MS = 1550;
-  const PLANNER_NEXT_BENEFIT_DISABLED = false;
+  const PLANNER_NEXT_BENEFIT_DISABLED = true;
   const PLANNER_MOBILE_INFO_HANDS_CYCLE_MS = 2400;
   const PLANNER_MOBILE_SELECTED_PROMO_DELAY_MS = 3000;
   const PLANNER_NEXT_BENEFIT_PROMO_CYCLE_MS = 2400;
