@@ -804,6 +804,7 @@
       justify-content:center;
       gap:12px;
       flex-wrap:wrap;
+      margin-bottom:clamp(14px, 2vw, 24px);
     }
     .laserHighlightsDots{
       display:inline-flex;
@@ -1231,7 +1232,7 @@
       background:rgba(17,18,24,.22);
       padding:0;
       cursor:pointer;
-      transition:transform .18s ease, background-color .18s ease, opacity .18s ease, width .18s ease;
+      transition:transform .18s ease, background-color .18s ease, opacity .18s ease;
     }
     .plannerViewBtn:hover{
       background:rgba(17,18,24,.4);
@@ -1239,8 +1240,6 @@
     }
     .plannerViewBtn.is-active{
       background:#111218;
-      width:30px;
-      border-radius:999px;
       transform:none;
     }
     .plannerViewBtn:disabled{
@@ -3716,7 +3715,7 @@
       100%{ transform:translateY(0) scale(1); }
     }
     .laserSwitchSection{
-      padding:clamp(58px, 7vw, 112px) 0 18px;
+      padding:clamp(72px, 8vw, 124px) 0 22px;
     }
     .laserSwitchWrap{
       display:flex;
@@ -4827,7 +4826,7 @@
         background:#ffffff;
       }
       #laser-switches.section{
-        padding:6px 0 60px;
+        padding:24px 0 64px;
       }
       #interactive-placeholder.section{
         padding:0;
