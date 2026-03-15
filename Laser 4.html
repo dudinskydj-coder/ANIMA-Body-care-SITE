@@ -282,6 +282,12 @@
     .hero h1{
       margin:0 auto 10px;
       max-width:18ch;
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      align-items:flex-start;
+      column-gap:.22em;
+      row-gap:0;
       text-align:center;
       font-family:"SF Pro Display","SF Pro Text","Avenir Next","Helvetica Neue",Arial,sans-serif;
       font-size:clamp(22px, 1.85vw, 28px);
@@ -292,7 +298,7 @@
       text-wrap:balance;
     }
     .heroTitleLine{
-      display:block;
+      display:inline-block;
       white-space:normal;
     }
     .hero .heroSubtitle{
@@ -587,6 +593,13 @@
     }
     .laserHighlightCard--comfort .laserHighlightCopy{
       max-width:min(42%, 360px);
+      align-self:start;
+      padding:18px 18px 20px;
+      border-radius:24px;
+      background:linear-gradient(180deg, rgba(21,15,13,.48) 0%, rgba(21,15,13,.22) 100%);
+      box-shadow:inset 0 0 0 1px rgba(255,244,237,.09);
+      backdrop-filter:blur(6px);
+      -webkit-backdrop-filter:blur(6px);
     }
     .laserHighlightCard--result .laserHighlightCopy{
       max-width:min(var(--laser-highlight-copy-max), 52%);
@@ -617,7 +630,7 @@
       position:relative;
       z-index:2;
       display:grid;
-      gap:10px;
+      gap:6px;
       max-width:min(var(--laser-highlight-copy-max), 88%);
       align-content:start;
     }
@@ -631,33 +644,34 @@
     .laserHighlightHeading{
       margin:0;
       max-width:var(--laser-highlight-heading-max);
-      font-family:"SF Pro Display","SF Pro Text","Helvetica Neue",Arial,sans-serif;
-      font-size:clamp(31px, 3.4vw, 44px);
-      line-height:1.03;
-      letter-spacing:-.045em;
-      font-weight:760;
-      color:#111218;
+      font-family:"SF Pro Text","SF Pro Display","Helvetica Neue",Arial,sans-serif;
+      font-size:clamp(21px, 1.7vw, 25px);
+      line-height:1.24;
+      letter-spacing:-.028em;
+      font-weight:600;
+      color:rgba(17,18,24,.76);
       text-wrap:balance;
     }
     .laserHighlightCard--comfort .laserHighlightHeading{
-      max-width:8.5ch;
+      max-width:11ch;
       color:#fff7f1;
-      text-shadow:0 10px 26px rgba(0,0,0,.28);
+      text-shadow:0 6px 16px rgba(0,0,0,.2);
     }
     .laserHighlightBody{
       margin:0;
       max-width:var(--laser-highlight-body-max);
       font-family:"SF Pro Text","SF Pro Display","Helvetica Neue",Arial,sans-serif;
-      font-size:clamp(18px, 1.08vw, 20px);
-      line-height:1.4;
-      letter-spacing:-.015em;
-      color:rgba(17,18,24,.68);
+      font-size:clamp(21px, 1.7vw, 25px);
+      line-height:1.24;
+      letter-spacing:-.028em;
+      font-weight:540;
+      color:rgba(17,18,24,.76);
       text-wrap:pretty;
     }
     .laserHighlightCard--comfort .laserHighlightBody{
       max-width:24ch;
-      color:rgba(255,246,239,.86);
-      text-shadow:0 8px 22px rgba(0,0,0,.24);
+      color:rgba(255,246,239,.92);
+      text-shadow:0 4px 14px rgba(0,0,0,.18);
     }
     .laserHighlightMedia{
       position:relative;
@@ -728,8 +742,8 @@
       transform:translateY(6%);
     }
     .laserHighlightCard--comfort .laserHighlightImage{
-      object-position:60% center;
-      filter:brightness(.74) saturate(.94) contrast(1.02);
+      object-position:56% center;
+      filter:brightness(.97) saturate(1.02) contrast(1.02);
     }
     .laserHighlightCard--result .laserHighlightImage{
       object-fit:contain;
@@ -749,8 +763,8 @@
       z-index:1;
       pointer-events:none;
       background:
-        linear-gradient(118deg, rgba(20,14,12,.86) 0%, rgba(32,18,16,.55) 32%, rgba(72,42,33,.14) 62%, rgba(255,255,255,0) 100%),
-        linear-gradient(180deg, rgba(10,7,6,.18) 0%, rgba(10,7,6,0) 34%, rgba(10,7,6,.22) 100%);
+        linear-gradient(180deg, rgba(16,11,10,.32) 0%, rgba(16,11,10,.12) 28%, rgba(16,11,10,0) 58%),
+        linear-gradient(90deg, rgba(22,15,13,.18) 0%, rgba(22,15,13,.08) 24%, rgba(22,15,13,0) 52%);
     }
     .laserHighlightResultPill{
       display:inline-flex;
@@ -905,6 +919,7 @@
       }
       .laserHighlightCard--comfort .laserHighlightCopy{
         max-width:min(46%, 330px);
+        padding:16px 16px 18px;
       }
       .laserHighlightCard--hero .laserHighlightCopy{
         max-width:min(var(--laser-highlight-copy-max), 48%);
@@ -916,17 +931,18 @@
         max-width:min(var(--laser-highlight-copy-max), 52%);
       }
       .laserHighlightCopy{
-        gap:10px;
+        gap:6px;
       }
       .laserHighlightIntroTitle{
         font-size:clamp(42px, 6vw, 82px);
       }
       .laserHighlightHeading{
-        font-size:clamp(28px, 3.2vw, 38px);
+        font-size:clamp(19px, 1.8vw, 23px);
+        line-height:1.24;
       }
       .laserHighlightBody{
-        font-size:clamp(17px, 1.15vw, 18px);
-        line-height:1.38;
+        font-size:clamp(19px, 1.8vw, 23px);
+        line-height:1.24;
       }
       .laserHighlightMedia--flower{
         min-height:clamp(220px, 28vw, 360px);
@@ -4502,9 +4518,10 @@
         font-size:20px;
         line-height:1.18;
         letter-spacing:-.02em;
+        column-gap:.18em;
       }
       .heroTitleLine{
-        display:block;
+        display:inline-block;
         white-space:normal;
       }
       .hero .heroSubtitle{
@@ -4571,10 +4588,11 @@
       }
       .laserHighlightCopy{
         max-width:100%;
-        gap:9px;
+        gap:6px;
       }
       .laserHighlightCard--comfort .laserHighlightCopy{
-        max-width:min(100%, 320px);
+        max-width:min(100%, 280px);
+        padding:14px 14px 16px;
       }
       .laserHighlightCard--hero .laserHighlightCopy,
       .laserHighlightCard--result .laserHighlightCopy,
@@ -4586,16 +4604,16 @@
       }
       .laserHighlightHeading{
         max-width:11ch;
-        font-size:clamp(28px, 7.6vw, 34px);
-        line-height:1.05;
+        font-size:clamp(18px, 5.1vw, 21px);
+        line-height:1.28;
       }
       .laserHighlightBody{
         max-width:100%;
-        font-size:16px;
-        line-height:1.42;
+        font-size:clamp(18px, 5.1vw, 21px);
+        line-height:1.28;
       }
       .laserHighlightCard--comfort .laserHighlightImage{
-        object-position:66% center;
+        object-position:58% center;
       }
       .laserHighlightMedia--flower{
         min-height:240px;
@@ -5033,87 +5051,6 @@
 
   </section>
 
-  <section class="section laserHighlights" aria-labelledby="laser_intro_main" id="laser-highlights">
-    <div class="laserHighlightsShell reveal">
-      <div class="laserHighlightsViewport">
-        <div class="laserHighlightsTrack" id="laserHighlightsTrack" aria-label="Alexandrit-Laser Highlights">
-          <article class="laserHighlightCard laserHighlightCard--hero" data-highlight-card>
-            <div class="laserHighlightCopy">
-              <h3 class="laserHighlightHeading" id="laser_intro_main">Alexandrit-Laser</h3>
-              <p class="laserHighlightBody" id="laser_highlight_body_main">Eine der wirksamsten Technologien für Laser-Haarentfernung weltweit.</p>
-            </div>
-            <div class="laserHighlightMedia laserHighlightMedia--flower">
-              <video class="laserHighlightVideo" id="laserHighlightsFlowerVideo" muted playsinline autoplay loop preload="metadata" poster="./img/VIDEO/FLOWER 2-poster.jpg" aria-hidden="true">
-                <source src="./img/VIDEO/FLOWER 2.mp4" type="video/mp4" />
-                <source src="./img/VIDEO/FLOWER 2.mov" type="video/quicktime" />
-              </video>
-            </div>
-          </article>
-
-          <article class="laserHighlightCard laserHighlightCard--precision" data-highlight-card>
-            <div class="laserHighlightCopy">
-              <h3 class="laserHighlightHeading" id="laser_intro_point_1">Entfernt Haare langanhaltend</h3>
-              <p class="laserHighlightBody" id="laser_highlight_body_1">Der Laser wirkt direkt auf den Haarfollikel und reduziert das Haarwachstum deutlich.</p>
-            </div>
-            <div class="laserHighlightMedia laserHighlightMedia--hand">
-              <img class="laserHighlightImage" src="./img/LASER/laser-hero-hand-card.jpg" alt="" loading="lazy" decoding="async" fetchpriority="low" />
-            </div>
-          </article>
-
-          <article class="laserHighlightCard laserHighlightCard--comfort" data-highlight-card>
-            <div class="laserHighlightCopy">
-              <h3 class="laserHighlightHeading" id="laser_intro_point_2">MOVEO-Technologie</h3>
-              <p class="laserHighlightBody" id="laser_highlight_body_2">Erwärmt den Follikel gleichmäßig, ohne harte Impulse oder unangenehmes Gefühl.</p>
-            </div>
-            <div class="laserHighlightGlow" aria-hidden="true"></div>
-            <div class="laserHighlightMedia laserHighlightMedia--comfortFull">
-              <img class="laserHighlightImage" src="./img/LASER/IMG_4109.JPG" alt="" loading="lazy" decoding="async" fetchpriority="low" />
-            </div>
-          </article>
-
-          <article class="laserHighlightCard laserHighlightCard--result" data-highlight-card>
-            <div class="laserHighlightCopy">
-              <h3 class="laserHighlightHeading" id="laser_intro_point_3">Fast schmerzfrei</h3>
-              <p class="laserHighlightBody" id="laser_highlight_body_3">Die Behandlung fühlt sich weich an, ohne den typischen „Gummiband“-Effekt.</p>
-            </div>
-            <div class="laserHighlightMedia laserHighlightMedia--legs">
-              <img class="laserHighlightImage" src="./img/LASER/laser-hero-legs-card.jpg" alt="" loading="lazy" decoding="async" fetchpriority="low" />
-            </div>
-          </article>
-
-          <article class="laserHighlightCard laserHighlightCard--sensitive" data-highlight-card>
-            <div class="laserHighlightCopy">
-              <h3 class="laserHighlightHeading" id="laser_intro_point_4">Für empfindliche Haut geeignet</h3>
-              <p class="laserHighlightBody" id="laser_highlight_body_4">Sicher auch für empfindliche und delikate Zonen.</p>
-            </div>
-            <div class="laserHighlightMedia laserHighlightMedia--device">
-              <img class="laserHighlightImage" src="./img/LASER/IMG_4110.JPG" alt="" loading="lazy" decoding="async" fetchpriority="low" />
-            </div>
-          </article>
-        </div>
-      </div>
-      <div class="laserHighlightsControls" aria-label="Highlights Navigation">
-        <button type="button" class="laserHighlightsNavBtn" id="laserHighlightsPrev" aria-label="Vorheriges Highlight">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
-        </button>
-        <div class="laserHighlightsDots" role="tablist" aria-label="Highlights auswählen">
-          <button type="button" class="laserHighlightsDot is-active" id="laser_highlight_dot_1" data-highlight-dot="0" aria-label="Highlight 1" aria-pressed="true"></button>
-          <button type="button" class="laserHighlightsDot" id="laser_highlight_dot_2" data-highlight-dot="1" aria-label="Highlight 2" aria-pressed="false"></button>
-          <button type="button" class="laserHighlightsDot" id="laser_highlight_dot_3" data-highlight-dot="2" aria-label="Highlight 3" aria-pressed="false"></button>
-          <button type="button" class="laserHighlightsDot" id="laser_highlight_dot_4" data-highlight-dot="3" aria-label="Highlight 4" aria-pressed="false"></button>
-          <button type="button" class="laserHighlightsDot" id="laser_highlight_dot_5" data-highlight-dot="4" aria-label="Highlight 5" aria-pressed="false"></button>
-        </div>
-        <button type="button" class="laserHighlightsPlaybackBtn" id="laserHighlightsPlayback" aria-label="Highlights pausieren" aria-pressed="false">
-          <svg class="laserHighlightsPlaybackIcon laserHighlightsPlaybackIcon--pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
-          <svg class="laserHighlightsPlaybackIcon laserHighlightsPlaybackIcon--play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13L18.5 12 8 5.5z"/></svg>
-        </button>
-        <button type="button" class="laserHighlightsNavBtn" id="laserHighlightsNext" aria-label="Nächstes Highlight">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
-        </button>
-      </div>
-    </div>
-  </section>
-
   <section class="section laserSwitchSection" id="laser-switches">
     <div class="laserSwitchWrap reveal">
       <div class="laserSwitch" role="tablist" aria-label="Laser area selection">
@@ -5230,6 +5167,87 @@
           <a class="btn primary plannerCtaBtn" href="https://salonkee.de/salon/anima-body-care-salon" target="_blank" rel="noopener" id="plannerBuyBtn">Kaufen</a>
           <a class="btn plannerCtaBtn" href="https://salonkee.de/salon/anima-body-care-salon" target="_blank" rel="noopener" id="plannerTermBtn">Termin</a>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section laserHighlights" aria-labelledby="laser_intro_main" id="laser-highlights">
+    <div class="laserHighlightsShell reveal">
+      <div class="laserHighlightsViewport">
+        <div class="laserHighlightsTrack" id="laserHighlightsTrack" aria-label="Alexandrit-Laser Highlights">
+          <article class="laserHighlightCard laserHighlightCard--hero" data-highlight-card>
+            <div class="laserHighlightCopy">
+              <h3 class="laserHighlightHeading" id="laser_intro_main">Alexandrit-Laser</h3>
+              <p class="laserHighlightBody" id="laser_highlight_body_main">Eine der wirksamsten Technologien für Laser-Haarentfernung weltweit.</p>
+            </div>
+            <div class="laserHighlightMedia laserHighlightMedia--flower">
+              <video class="laserHighlightVideo" id="laserHighlightsFlowerVideo" muted playsinline autoplay loop preload="metadata" poster="./img/VIDEO/FLOWER 2-poster.jpg" aria-hidden="true">
+                <source src="./img/VIDEO/FLOWER 2.mp4" type="video/mp4" />
+                <source src="./img/VIDEO/FLOWER 2.mov" type="video/quicktime" />
+              </video>
+            </div>
+          </article>
+
+          <article class="laserHighlightCard laserHighlightCard--precision" data-highlight-card>
+            <div class="laserHighlightCopy">
+              <h3 class="laserHighlightHeading" id="laser_intro_point_1">Entfernt Haare langanhaltend</h3>
+              <p class="laserHighlightBody" id="laser_highlight_body_1">Der Laser wirkt direkt auf den Haarfollikel und reduziert das Haarwachstum deutlich.</p>
+            </div>
+            <div class="laserHighlightMedia laserHighlightMedia--hand">
+              <img class="laserHighlightImage" src="./img/LASER/laser-hero-hand-card.jpg" alt="" loading="lazy" decoding="async" fetchpriority="low" />
+            </div>
+          </article>
+
+          <article class="laserHighlightCard laserHighlightCard--comfort" data-highlight-card>
+            <div class="laserHighlightCopy">
+              <h3 class="laserHighlightHeading" id="laser_intro_point_2">MOVEO-Technologie</h3>
+              <p class="laserHighlightBody" id="laser_highlight_body_2">Erwärmt den Follikel gleichmäßig, ohne harte Impulse oder unangenehmes Gefühl.</p>
+            </div>
+            <div class="laserHighlightGlow" aria-hidden="true"></div>
+            <div class="laserHighlightMedia laserHighlightMedia--comfortFull">
+              <img class="laserHighlightImage" src="./img/LASER/IMG_4109.JPG" alt="" loading="lazy" decoding="async" fetchpriority="low" />
+            </div>
+          </article>
+
+          <article class="laserHighlightCard laserHighlightCard--result" data-highlight-card>
+            <div class="laserHighlightCopy">
+              <h3 class="laserHighlightHeading" id="laser_intro_point_3">Fast schmerzfrei</h3>
+              <p class="laserHighlightBody" id="laser_highlight_body_3">Die Behandlung fühlt sich weich an, ohne den typischen „Gummiband“-Effekt.</p>
+            </div>
+            <div class="laserHighlightMedia laserHighlightMedia--legs">
+              <img class="laserHighlightImage" src="./img/LASER/laser-hero-legs-card.jpg" alt="" loading="lazy" decoding="async" fetchpriority="low" />
+            </div>
+          </article>
+
+          <article class="laserHighlightCard laserHighlightCard--sensitive" data-highlight-card>
+            <div class="laserHighlightCopy">
+              <h3 class="laserHighlightHeading" id="laser_intro_point_4">Für empfindliche Haut geeignet</h3>
+              <p class="laserHighlightBody" id="laser_highlight_body_4">Sicher auch für empfindliche und delikate Zonen.</p>
+            </div>
+            <div class="laserHighlightMedia laserHighlightMedia--device">
+              <img class="laserHighlightImage" src="./img/LASER/IMG_4110.JPG" alt="" loading="lazy" decoding="async" fetchpriority="low" />
+            </div>
+          </article>
+        </div>
+      </div>
+      <div class="laserHighlightsControls" aria-label="Highlights Navigation">
+        <button type="button" class="laserHighlightsNavBtn" id="laserHighlightsPrev" aria-label="Vorheriges Highlight">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
+        </button>
+        <div class="laserHighlightsDots" role="tablist" aria-label="Highlights auswählen">
+          <button type="button" class="laserHighlightsDot is-active" id="laser_highlight_dot_1" data-highlight-dot="0" aria-label="Highlight 1" aria-pressed="true"></button>
+          <button type="button" class="laserHighlightsDot" id="laser_highlight_dot_2" data-highlight-dot="1" aria-label="Highlight 2" aria-pressed="false"></button>
+          <button type="button" class="laserHighlightsDot" id="laser_highlight_dot_3" data-highlight-dot="2" aria-label="Highlight 3" aria-pressed="false"></button>
+          <button type="button" class="laserHighlightsDot" id="laser_highlight_dot_4" data-highlight-dot="3" aria-label="Highlight 4" aria-pressed="false"></button>
+          <button type="button" class="laserHighlightsDot" id="laser_highlight_dot_5" data-highlight-dot="4" aria-label="Highlight 5" aria-pressed="false"></button>
+        </div>
+        <button type="button" class="laserHighlightsPlaybackBtn" id="laserHighlightsPlayback" aria-label="Highlights pausieren" aria-pressed="false">
+          <svg class="laserHighlightsPlaybackIcon laserHighlightsPlaybackIcon--pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+          <svg class="laserHighlightsPlaybackIcon laserHighlightsPlaybackIcon--play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13L18.5 12 8 5.5z"/></svg>
+        </button>
+        <button type="button" class="laserHighlightsNavBtn" id="laserHighlightsNext" aria-label="Nächstes Highlight">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+        </button>
       </div>
     </div>
   </section>
