@@ -36,6 +36,7 @@
       --appVh:100dvh;
       --laserFlowGap:clamp(40px, 4.4vw, 54px);
       --laserFlowGapHalf:calc(var(--laserFlowGap) / 2);
+      --laserHighlightCardBg:#d7d9de;
     }
     *{box-sizing:border-box}
     html,
@@ -463,20 +464,7 @@
       isolation:isolate;
     }
     .laserHighlights::before{
-      content:"";
-      position:absolute;
-      top:0;
-      bottom:0;
-      left:50%;
-      width:100vw;
-      transform:translateX(-50%);
-      z-index:0;
-      pointer-events:none;
-      background:
-        radial-gradient(circle at 16% 20%, rgba(255,214,195,.52) 0%, rgba(255,214,195,.18) 20%, rgba(255,255,255,0) 42%),
-        radial-gradient(circle at 82% 76%, rgba(255,206,222,.34) 0%, rgba(255,206,222,.12) 18%, rgba(255,255,255,0) 36%),
-        radial-gradient(circle at 50% 50%, rgba(255,240,234,.55) 0%, rgba(255,240,234,.18) 24%, rgba(255,255,255,0) 54%),
-        linear-gradient(180deg, #fffaf8 0%, #fff4ef 46%, #f8efee 100%);
+      content:none;
     }
     .laserHighlightsShell{
       position:relative;
@@ -544,7 +532,7 @@
     }
     .laserHighlightsTrack{
       display:flex;
-      gap:18px;
+      gap:16px;
       overflow-x:auto;
       overflow-y:hidden;
       padding:14px var(--laser-highlights-side-pad) var(--laserFlowGapHalf);
@@ -561,12 +549,12 @@
     }
     .laserHighlightCard{
       position:relative;
-      flex:0 0 min(86vw, 940px);
-      min-height:clamp(460px, 56vw, 690px);
-      padding:26px;
-      border-radius:34px;
+      flex:0 0 min(74vw, 820px);
+      min-height:clamp(360px, 40vw, 520px);
+      padding:22px;
+      border-radius:30px;
       border:1px solid rgba(17,18,24,.06);
-      background:#fff;
+      background:var(--laserHighlightCardBg);
       box-shadow:
         0 0 22px rgba(17,18,24,.08),
         0 12px 18px -16px rgba(17,18,24,.18);
@@ -574,8 +562,8 @@
       overflow:hidden;
       display:grid;
       grid-template-rows:auto 1fr;
-      gap:22px;
-      --laser-highlight-copy-max:430px;
+      gap:18px;
+      --laser-highlight-copy-max:380px;
       --laser-highlight-heading-max:12ch;
       --laser-highlight-body-max:30ch;
     }
@@ -591,40 +579,40 @@
       gap:0;
     }
     .laserHighlightCard--hero{
-      flex-basis:min(89vw, 1020px);
-      background:#fff;
+      flex-basis:min(78vw, 880px);
+      background:var(--laserHighlightCardBg);
     }
     .laserHighlightCard--precision{
-      background:#fff;
+      background:var(--laserHighlightCardBg);
     }
     .laserHighlightCard--comfort{
-      background:#171413;
+      background:var(--laserHighlightCardBg);
       isolation:isolate;
     }
     .laserHighlightCard--result{
-      background:#fff;
+      background:var(--laserHighlightCardBg);
     }
     .laserHighlightCard--sensitive{
-      background:#fff;
+      background:var(--laserHighlightCardBg);
     }
     .laserHighlightCard--hero .laserHighlightCopy{
-      max-width:min(var(--laser-highlight-copy-max), 46%);
+      max-width:min(var(--laser-highlight-copy-max), 44%);
     }
     .laserHighlightCard--comfort .laserHighlightCopy{
-      max-width:min(42%, 360px);
+      max-width:min(40%, 320px);
       align-self:start;
-      padding:18px 18px 20px;
-      border-radius:24px;
-      background:linear-gradient(180deg, rgba(21,15,13,.48) 0%, rgba(21,15,13,.22) 100%);
-      box-shadow:inset 0 0 0 1px rgba(255,244,237,.09);
-      backdrop-filter:blur(6px);
-      -webkit-backdrop-filter:blur(6px);
+      padding:16px 16px 18px;
+      border-radius:22px;
+      background:linear-gradient(180deg, rgba(247,248,250,.9) 0%, rgba(230,232,236,.84) 100%);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.34);
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
     }
     .laserHighlightCard--result .laserHighlightCopy{
-      max-width:min(var(--laser-highlight-copy-max), 52%);
+      max-width:min(var(--laser-highlight-copy-max), 48%);
     }
     .laserHighlightCard--sensitive .laserHighlightCopy{
-      max-width:min(var(--laser-highlight-copy-max), 50%);
+      max-width:min(var(--laser-highlight-copy-max), 46%);
     }
     .laserHighlightTitleWrap{
       display:flex;
@@ -673,8 +661,8 @@
     }
     .laserHighlightCard--comfort .laserHighlightHeading{
       max-width:11ch;
-      color:#fff7f1;
-      text-shadow:0 6px 16px rgba(0,0,0,.2);
+      color:rgba(17,18,24,.76);
+      text-shadow:none;
     }
     .laserHighlightBody{
       margin:0;
@@ -689,8 +677,8 @@
     }
     .laserHighlightCard--comfort .laserHighlightBody{
       max-width:24ch;
-      color:rgba(255,246,239,.92);
-      text-shadow:0 4px 14px rgba(0,0,0,.18);
+      color:rgba(17,18,24,.76);
+      text-shadow:none;
     }
     .laserHighlightMedia{
       position:relative;
@@ -699,15 +687,15 @@
       z-index:1;
     }
     .laserHighlightMedia--flower{
-      min-height:clamp(250px, 38vw, 460px);
+      min-height:clamp(220px, 30vw, 360px);
     }
     .laserHighlightMedia--hand{
-      min-height:clamp(210px, 24vw, 310px);
+      min-height:clamp(180px, 20vw, 260px);
     }
     .laserHighlightMedia--ribbon{
-      min-height:clamp(170px, 20vw, 250px);
-      margin-inline:-26px;
-      margin-bottom:-26px;
+      min-height:clamp(150px, 16vw, 220px);
+      margin-inline:-22px;
+      margin-bottom:-22px;
     }
     .laserHighlightMedia--comfortFull{
       position:absolute;
@@ -721,18 +709,18 @@
       position:absolute;
       right:0;
       bottom:0;
-      width:min(46%, 360px);
+      width:min(44%, 330px);
       min-height:0;
-      height:76%;
+      height:72%;
       pointer-events:none;
     }
     .laserHighlightMedia--device{
       position:absolute;
       right:0;
       bottom:0;
-      width:min(48%, 390px);
+      width:min(46%, 350px);
       min-height:0;
-      height:80%;
+      height:74%;
       pointer-events:none;
     }
     .laserHighlightVideo{
@@ -782,8 +770,8 @@
       z-index:1;
       pointer-events:none;
       background:
-        linear-gradient(180deg, rgba(16,11,10,.32) 0%, rgba(16,11,10,.12) 28%, rgba(16,11,10,0) 58%),
-        linear-gradient(90deg, rgba(22,15,13,.18) 0%, rgba(22,15,13,.08) 24%, rgba(22,15,13,0) 52%);
+        linear-gradient(180deg, rgba(231,233,237,.28) 0%, rgba(231,233,237,.14) 28%, rgba(231,233,237,0) 58%),
+        linear-gradient(90deg, rgba(223,226,231,.18) 0%, rgba(223,226,231,.08) 24%, rgba(223,226,231,0) 52%);
     }
     .laserHighlightResultPill{
       display:inline-flex;
@@ -910,6 +898,152 @@
     }
     .laserHighlightsPlaybackBtn.is-paused .laserHighlightsPlaybackIcon--play{
       display:block;
+    }
+    .laserLayoutEditable{
+      --laser-layout-edit-x:0px;
+      --laser-layout-edit-y:0px;
+      transform:translate3d(var(--laser-layout-edit-x), var(--laser-layout-edit-y), 0);
+      will-change:transform;
+      transition:outline-color .18s ease, box-shadow .18s ease;
+    }
+    .laserLayoutEditor{
+      position:fixed;
+      right:20px;
+      bottom:20px;
+      z-index:110;
+      width:min(228px, calc(100vw - 32px));
+      display:none;
+      flex-direction:column;
+      gap:10px;
+      padding:12px;
+      border-radius:20px;
+      border:1px solid rgba(17,18,24,.12);
+      background:rgba(255,255,255,.94);
+      box-shadow:0 18px 44px rgba(17,18,24,.16);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+    .laserLayoutEditor.is-available{
+      display:flex;
+    }
+    .laserLayoutEditorToggle{
+      border:1px solid rgba(17,18,24,.12);
+      border-radius:999px;
+      min-height:40px;
+      padding:0 14px;
+      background:#111218;
+      color:#fff;
+      font-size:13px;
+      line-height:1;
+      font-weight:700;
+      letter-spacing:-.01em;
+      cursor:pointer;
+    }
+    .laserLayoutEditorToggle[aria-pressed="true"]{
+      background:#fff;
+      color:#111218;
+    }
+    .laserLayoutEditorPanel{
+      display:grid;
+      gap:10px;
+    }
+    .laserLayoutEditorPanel[hidden]{
+      display:none;
+    }
+    .laserLayoutEditorLabel{
+      font-size:12px;
+      line-height:1.2;
+      font-weight:700;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      color:#111218;
+    }
+    .laserLayoutEditorData{
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      line-height:1.35;
+      color:rgba(17,18,24,.78);
+      white-space:pre-wrap;
+    }
+    .laserLayoutEditorNudge{
+      display:grid;
+      grid-template-columns:36px 36px 36px;
+      grid-template-rows:36px 36px 36px;
+      gap:6px;
+      justify-content:center;
+    }
+    .laserLayoutEditorBtn{
+      border:1px solid rgba(17,18,24,.14);
+      border-radius:12px;
+      background:#fff;
+      color:#111218;
+      font-size:12px;
+      line-height:1;
+      font-weight:700;
+      min-height:36px;
+      padding:0 10px;
+      cursor:pointer;
+    }
+    .laserLayoutEditorBtn:active{
+      background:rgba(17,18,24,.08);
+    }
+    .laserLayoutEditorBtn[disabled]{
+      opacity:.42;
+      cursor:default;
+    }
+    .laserLayoutEditorBtn[data-laser-layout-move="up"]{
+      grid-column:2;
+      grid-row:1;
+    }
+    .laserLayoutEditorBtn[data-laser-layout-move="left"]{
+      grid-column:1;
+      grid-row:2;
+    }
+    .laserLayoutEditorBtn[data-laser-layout-move="right"]{
+      grid-column:3;
+      grid-row:2;
+    }
+    .laserLayoutEditorBtn[data-laser-layout-move="down"]{
+      grid-column:2;
+      grid-row:3;
+    }
+    .laserLayoutEditorNudgeCenter{
+      grid-column:2;
+      grid-row:2;
+      border-radius:999px;
+      border:1px solid rgba(17,18,24,.12);
+      background:rgba(17,18,24,.05);
+    }
+    .laserLayoutEditorActions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:6px;
+    }
+    .laserLayoutEditorBtn--wide{
+      grid-column:1 / -1;
+    }
+    .laserLayoutEditorHint{
+      margin:0;
+      font-size:12px;
+      line-height:1.35;
+      color:rgba(17,18,24,.68);
+    }
+    body.laser-layout-edit .laserLayoutEditable{
+      outline:1px dashed rgba(17,18,24,.28);
+      outline-offset:4px;
+      cursor:grab;
+      touch-action:none;
+    }
+    body.laser-layout-edit .laserLayoutEditable > *{
+      pointer-events:none;
+    }
+    body.laser-layout-edit .laserLayoutEditable.is-selected{
+      outline:2px solid #111218;
+      box-shadow:0 0 0 5px rgba(255,255,255,.72);
+      z-index:6;
+    }
+    body.laser-layout-edit .laserLayoutEditable.is-dragging{
+      cursor:grabbing;
     }
     @media (min-width:921px) and (max-width:1440px){
       .laserHighlightsViewport{
@@ -4670,6 +4804,12 @@
       .laserHighlightsPlaybackBtn{
         display:none;
       }
+      .laserLayoutEditor{
+        right:12px;
+        left:12px;
+        bottom:12px;
+        width:auto;
+      }
       .heroGhostSpace{margin-top:0}
       .heroBottomDock{
         margin-top:clamp(96px, 16vw, 144px);
@@ -5078,11 +5218,11 @@
       <div class="laserHighlightsViewport">
         <div class="laserHighlightsTrack" id="laserHighlightsTrack" aria-label="Alexandrit-Laser Highlights">
           <article class="laserHighlightCard laserHighlightCard--hero" data-highlight-card>
-            <div class="laserHighlightCopy">
+            <div class="laserHighlightCopy laserLayoutEditable" data-laser-layout-key="hero-copy" data-laser-layout-label="Hero copy">
               <h3 class="laserHighlightHeading" id="laser_intro_main">Alexandrit-Laser</h3>
               <p class="laserHighlightBody" id="laser_highlight_body_main">Eine der wirksamsten Technologien für Laser-Haarentfernung weltweit.</p>
             </div>
-            <div class="laserHighlightMedia laserHighlightMedia--flower">
+            <div class="laserHighlightMedia laserHighlightMedia--flower laserLayoutEditable" data-laser-layout-key="hero-media" data-laser-layout-label="Flower video">
               <video class="laserHighlightVideo" id="laserHighlightsFlowerVideo" muted playsinline autoplay loop preload="metadata" poster="./img/VIDEO/FLOWER 2-poster.jpg" aria-hidden="true">
                 <source src="./img/VIDEO/FLOWER 2.mp4" type="video/mp4" />
                 <source src="./img/VIDEO/FLOWER 2.mov" type="video/quicktime" />
@@ -5091,42 +5231,42 @@
           </article>
 
           <article class="laserHighlightCard laserHighlightCard--precision" data-highlight-card>
-            <div class="laserHighlightCopy">
+            <div class="laserHighlightCopy laserLayoutEditable" data-laser-layout-key="precision-copy" data-laser-layout-label="Precision copy">
               <h3 class="laserHighlightHeading" id="laser_intro_point_1">Entfernt Haare langanhaltend</h3>
               <p class="laserHighlightBody" id="laser_highlight_body_1">Der Laser wirkt direkt auf den Haarfollikel und reduziert das Haarwachstum deutlich.</p>
             </div>
-            <div class="laserHighlightMedia laserHighlightMedia--hand">
+            <div class="laserHighlightMedia laserHighlightMedia--hand laserLayoutEditable" data-laser-layout-key="precision-media" data-laser-layout-label="Hand image">
               <img class="laserHighlightImage" src="./img/LASER/laser-hero-hand-card.jpg" alt="" loading="lazy" decoding="async" fetchpriority="low" />
             </div>
           </article>
 
           <article class="laserHighlightCard laserHighlightCard--comfort" data-highlight-card>
-            <div class="laserHighlightCopy">
+            <div class="laserHighlightCopy laserLayoutEditable" data-laser-layout-key="comfort-copy" data-laser-layout-label="MOVEO copy">
               <h3 class="laserHighlightHeading" id="laser_intro_point_2">MOVEO-Technologie</h3>
               <p class="laserHighlightBody" id="laser_highlight_body_2">Erwärmt den Follikel gleichmäßig, ohne harte Impulse oder unangenehmes Gefühl.</p>
             </div>
             <div class="laserHighlightGlow" aria-hidden="true"></div>
-            <div class="laserHighlightMedia laserHighlightMedia--comfortFull">
+            <div class="laserHighlightMedia laserHighlightMedia--comfortFull laserLayoutEditable" data-laser-layout-key="comfort-media" data-laser-layout-label="MOVEO image">
               <img class="laserHighlightImage" src="./img/LASER/IMG_4109.JPG" alt="" loading="lazy" decoding="async" fetchpriority="low" />
             </div>
           </article>
 
           <article class="laserHighlightCard laserHighlightCard--result" data-highlight-card>
-            <div class="laserHighlightCopy">
+            <div class="laserHighlightCopy laserLayoutEditable" data-laser-layout-key="result-copy" data-laser-layout-label="Comfort copy">
               <h3 class="laserHighlightHeading" id="laser_intro_point_3">Fast schmerzfrei</h3>
               <p class="laserHighlightBody" id="laser_highlight_body_3">Die Behandlung fühlt sich weich an, ohne den typischen „Gummiband“-Effekt.</p>
             </div>
-            <div class="laserHighlightMedia laserHighlightMedia--legs">
+            <div class="laserHighlightMedia laserHighlightMedia--legs laserLayoutEditable" data-laser-layout-key="result-media" data-laser-layout-label="Legs image">
               <img class="laserHighlightImage" src="./img/LASER/laser-hero-legs-card.jpg" alt="" loading="lazy" decoding="async" fetchpriority="low" />
             </div>
           </article>
 
           <article class="laserHighlightCard laserHighlightCard--sensitive" data-highlight-card>
-            <div class="laserHighlightCopy">
+            <div class="laserHighlightCopy laserLayoutEditable" data-laser-layout-key="sensitive-copy" data-laser-layout-label="Sensitive copy">
               <h3 class="laserHighlightHeading" id="laser_intro_point_4">Für empfindliche Haut geeignet</h3>
               <p class="laserHighlightBody" id="laser_highlight_body_4">Sicher auch für empfindliche und delikate Zonen.</p>
             </div>
-            <div class="laserHighlightMedia laserHighlightMedia--device">
+            <div class="laserHighlightMedia laserHighlightMedia--device laserLayoutEditable" data-laser-layout-key="sensitive-media" data-laser-layout-label="Device image">
               <img class="laserHighlightImage" src="./img/LASER/IMG_4110.JPG" alt="" loading="lazy" decoding="async" fetchpriority="low" />
             </div>
           </article>
@@ -5150,6 +5290,27 @@
         <button type="button" class="laserHighlightsNavBtn" id="laserHighlightsNext" aria-label="Nächstes Highlight">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
         </button>
+      </div>
+      <div class="laserLayoutEditor" id="laserLayoutEditor" hidden>
+        <button type="button" class="laserLayoutEditorToggle" id="laserLayoutEditorToggle" aria-pressed="false">Layout Edit</button>
+        <div class="laserLayoutEditorPanel" id="laserLayoutEditorPanel" hidden>
+          <div class="laserLayoutEditorLabel" id="laserLayoutEditorTarget">Select element</div>
+          <div class="laserLayoutEditorData" id="laserLayoutEditorData">x: 0px
+y: 0px</div>
+          <div class="laserLayoutEditorNudge" aria-label="Element position controls">
+            <button type="button" class="laserLayoutEditorBtn" data-laser-layout-move="up" aria-label="Move up">↑</button>
+            <button type="button" class="laserLayoutEditorBtn" data-laser-layout-move="left" aria-label="Move left">←</button>
+            <span class="laserLayoutEditorNudgeCenter" aria-hidden="true"></span>
+            <button type="button" class="laserLayoutEditorBtn" data-laser-layout-move="right" aria-label="Move right">→</button>
+            <button type="button" class="laserLayoutEditorBtn" data-laser-layout-move="down" aria-label="Move down">↓</button>
+          </div>
+          <div class="laserLayoutEditorActions">
+            <button type="button" class="laserLayoutEditorBtn" id="laserLayoutEditorReset">Reset</button>
+            <button type="button" class="laserLayoutEditorBtn" id="laserLayoutEditorCopy">Copy JSON</button>
+            <button type="button" class="laserLayoutEditorBtn laserLayoutEditorBtn--wide" id="laserLayoutEditorSave">Save to file</button>
+          </div>
+          <p class="laserLayoutEditorHint" id="laserLayoutEditorHint">Drag a selected element directly inside its card.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -5471,11 +5632,51 @@
   const laserHighlightsNext = document.getElementById("laserHighlightsNext");
   const laserHighlightsPlayback = document.getElementById("laserHighlightsPlayback");
   const laserHighlightVideos = Array.from(document.querySelectorAll(".laserHighlightVideo"));
+  const laserLayoutEditor = document.getElementById("laserLayoutEditor");
+  const laserLayoutEditorToggle = document.getElementById("laserLayoutEditorToggle");
+  const laserLayoutEditorPanel = document.getElementById("laserLayoutEditorPanel");
+  const laserLayoutEditorTarget = document.getElementById("laserLayoutEditorTarget");
+  const laserLayoutEditorData = document.getElementById("laserLayoutEditorData");
+  const laserLayoutEditorHint = document.getElementById("laserLayoutEditorHint");
+  const laserLayoutEditorReset = document.getElementById("laserLayoutEditorReset");
+  const laserLayoutEditorCopy = document.getElementById("laserLayoutEditorCopy");
+  const laserLayoutEditorSave = document.getElementById("laserLayoutEditorSave");
+  const laserLayoutEditableElements = Array.from(document.querySelectorAll("[data-laser-layout-key]"));
+  const laserLayoutEditorMoveButtons = Array.from(document.querySelectorAll("[data-laser-layout-move]"));
   const laserHighlightsMotionMedia = window.matchMedia("(prefers-reduced-motion: reduce)");
   const laserHighlightsMobileMedia = window.matchMedia("(max-width:920px)");
   let laserHighlightsScrollRaf = 0;
   let laserHighlightsAutoplayTimer = 0;
   let laserHighlightsAutoplayEnabled = true;
+  const LASER_HIGHLIGHT_LAYOUT_LOCAL_STATE_KEY = "anima_laser_highlight_layout_v1";
+  const LASER_HIGHLIGHT_LAYOUT_STEP = 6;
+  const LASER_HIGHLIGHT_LAYOUT_TOGGLE_PARAM = "layoutEdit";
+  const laserHighlightLayoutStateByKey = {};
+  let laserLayoutEditorEnabled = false;
+  let laserLayoutEditorTargetKey = "";
+  let laserLayoutEditorDragState = null;
+  let laserLayoutEditorHtmlFileHandle = null;
+  let laserLayoutEditorAutoplayBeforeEdit = true;
+  let laserLayoutEditorCopyFeedbackTimer = 0;
+  let laserLayoutEditorSaveFeedbackTimer = 0;
+  const LASER_HIGHLIGHT_LAYOUT_EMBEDDED_STATE = /*__LASER_HIGHLIGHT_LAYOUT_STATE_START__*/{
+  "version": 1,
+  "savedAt": "2026-03-15T01:58:49.237Z",
+  "items": {
+    "hero-copy": {
+      "x": 30.4,
+      "y": 198.8
+    },
+    "hero-media": {
+      "x": 45.1,
+      "y": -360
+    },
+    "precision-copy": {
+      "x": 83.9,
+      "y": 49.3
+    }
+  }
+}/*__LASER_HIGHLIGHT_LAYOUT_STATE_END__*/;
   const laserPlanner = document.querySelector(".laserPlanner");
   const plannerZonesPane = document.querySelector(".plannerPane--zones");
   const plannerPricePane = document.querySelector(".plannerPane:not(.plannerPane--zones)");
@@ -5589,6 +5790,7 @@
   }
 
   function laserHighlightsCanAutoplay(){
+    if(laserLayoutEditorEnabled) return false;
     const playbackVisible = laserHighlightsPlayback instanceof HTMLElement
       ? window.getComputedStyle(laserHighlightsPlayback).display !== "none"
       : false;
@@ -5681,6 +5883,449 @@
       laserHighlightsMotionMedia.addListener(handleLaserHighlightsMotionChange);
     }
   }
+  function laserLayoutEditorDevAvailable(){
+    try{
+      const url = new URL(window.location.href);
+      const requested = url.searchParams.get(LASER_HIGHLIGHT_LAYOUT_TOGGLE_PARAM) === "1";
+      const host = String(window.location.hostname || "");
+      return requested || window.location.protocol === "file:" || host === "localhost" || host === "127.0.0.1";
+    } catch(_error){
+      return window.location.protocol === "file:";
+    }
+  }
+  function laserLayoutEditorShouldAutoEnable(){
+    try{
+      return new URL(window.location.href).searchParams.get(LASER_HIGHLIGHT_LAYOUT_TOGGLE_PARAM) === "1";
+    } catch(_error){
+      return false;
+    }
+  }
+  function laserLayoutEditableElementByKey(key){
+    if(typeof key !== "string" || !key) return null;
+    return laserLayoutEditableElements.find((element) => element instanceof HTMLElement && element.dataset.laserLayoutKey === key) || null;
+  }
+  function laserLayoutEditorLabelForKey(key){
+    const element = laserLayoutEditableElementByKey(key);
+    if(!(element instanceof HTMLElement)) return "Select element";
+    return String(element.dataset.laserLayoutLabel || key);
+  }
+  function laserLayoutEditorNormalizeEntry(entry){
+    const clampPx = (value) => Math.max(-360, Math.min(360, Number(value.toFixed(1))));
+    const rawX = Number(entry && entry.x);
+    const rawY = Number(entry && entry.y);
+    return {
+      x:Number.isFinite(rawX) ? clampPx(rawX) : 0,
+      y:Number.isFinite(rawY) ? clampPx(rawY) : 0
+    };
+  }
+  function laserLayoutEditorStateForKey(key){
+    return laserHighlightLayoutStateByKey[key] || { x:0, y:0 };
+  }
+  function laserLayoutEditorApplyKey(key){
+    const element = laserLayoutEditableElementByKey(key);
+    if(!(element instanceof HTMLElement)) return;
+    const state = laserLayoutEditorStateForKey(key);
+    element.style.setProperty("--laser-layout-edit-x", `${state.x || 0}px`);
+    element.style.setProperty("--laser-layout-edit-y", `${state.y || 0}px`);
+  }
+  function laserLayoutEditorApplyAll(){
+    laserLayoutEditableElements.forEach((element) => {
+      if(!(element instanceof HTMLElement)) return;
+      laserLayoutEditorApplyKey(element.dataset.laserLayoutKey || "");
+    });
+  }
+  function laserLayoutEditorPayload(){
+    const items = {};
+    laserLayoutEditableElements.forEach((element) => {
+      if(!(element instanceof HTMLElement)) return;
+      const key = String(element.dataset.laserLayoutKey || "");
+      if(!key) return;
+      const state = laserLayoutEditorNormalizeEntry(laserHighlightLayoutStateByKey[key]);
+      if(Math.abs(state.x) < 0.05 && Math.abs(state.y) < 0.05) return;
+      items[key] = state;
+    });
+    return {
+      version:1,
+      savedAt:new Date().toISOString(),
+      items
+    };
+  }
+  function laserLayoutEditorPersistLocal(payload = null){
+    try{
+      const nextPayload = payload && typeof payload === "object" ? payload : laserLayoutEditorPayload();
+      localStorage.setItem(LASER_HIGHLIGHT_LAYOUT_LOCAL_STATE_KEY, JSON.stringify(nextPayload));
+      return true;
+    } catch(_error){
+      return false;
+    }
+  }
+  function laserLayoutEditorApplyPayload(parsed){
+    if(!parsed || typeof parsed !== "object") return false;
+    Object.keys(laserHighlightLayoutStateByKey).forEach((key) => delete laserHighlightLayoutStateByKey[key]);
+    const items = parsed.items && typeof parsed.items === "object" ? parsed.items : {};
+    Object.keys(items).forEach((key) => {
+      if(!laserLayoutEditableElementByKey(key)) return;
+      const normalized = laserLayoutEditorNormalizeEntry(items[key]);
+      if(Math.abs(normalized.x) < 0.05 && Math.abs(normalized.y) < 0.05) return;
+      laserHighlightLayoutStateByKey[key] = normalized;
+    });
+    laserLayoutEditorApplyAll();
+    return true;
+  }
+  function laserLayoutEditorRestoreFromLocal(){
+    try{
+      const raw = localStorage.getItem(LASER_HIGHLIGHT_LAYOUT_LOCAL_STATE_KEY) || "";
+      if(!raw) return false;
+      return laserLayoutEditorApplyPayload(JSON.parse(raw));
+    } catch(_error){
+      return false;
+    }
+  }
+  function laserLayoutEditorRestore(){
+    try{
+      const embeddedApplied = laserLayoutEditorApplyPayload(LASER_HIGHLIGHT_LAYOUT_EMBEDDED_STATE);
+      const localApplied = laserLayoutEditorRestoreFromLocal();
+      return embeddedApplied || localApplied;
+    } catch(_error){
+      return laserLayoutEditorRestoreFromLocal();
+    }
+  }
+  function laserLayoutEditorSetSaveText(text){
+    if(laserLayoutEditorSave) laserLayoutEditorSave.textContent = text;
+    if(laserLayoutEditorSaveFeedbackTimer){
+      clearTimeout(laserLayoutEditorSaveFeedbackTimer);
+      laserLayoutEditorSaveFeedbackTimer = 0;
+    }
+    if(text === "Save to file") return;
+    laserLayoutEditorSaveFeedbackTimer = window.setTimeout(() => {
+      laserLayoutEditorSaveFeedbackTimer = 0;
+      if(laserLayoutEditorSave) laserLayoutEditorSave.textContent = "Save to file";
+    }, 1300);
+  }
+  function laserLayoutEditorSetCopyText(text){
+    if(laserLayoutEditorCopy) laserLayoutEditorCopy.textContent = text;
+    if(laserLayoutEditorCopyFeedbackTimer){
+      clearTimeout(laserLayoutEditorCopyFeedbackTimer);
+      laserLayoutEditorCopyFeedbackTimer = 0;
+    }
+    if(text === "Copy JSON") return;
+    laserLayoutEditorCopyFeedbackTimer = window.setTimeout(() => {
+      laserLayoutEditorCopyFeedbackTimer = 0;
+      if(laserLayoutEditorCopy) laserLayoutEditorCopy.textContent = "Copy JSON";
+    }, 1300);
+  }
+  async function laserLayoutEditorSelectHtmlFileHandle(){
+    if(!window.showOpenFilePicker) return null;
+    const handles = await window.showOpenFilePicker({
+      multiple:false,
+      types:[{
+        description:"HTML",
+        accept:{ "text/html":[".html", ".htm"] }
+      }]
+    });
+    if(!Array.isArray(handles) || !handles[0]) return null;
+    laserLayoutEditorHtmlFileHandle = handles[0];
+    return laserLayoutEditorHtmlFileHandle;
+  }
+  async function laserLayoutEditorWritePayloadIntoHtmlFile(payload){
+    if(!window.showOpenFilePicker) return false;
+    const handle = laserLayoutEditorHtmlFileHandle || (await laserLayoutEditorSelectHtmlFileHandle());
+    if(!handle) return false;
+    const file = await handle.getFile();
+    const sourceText = await file.text();
+    const nextStateJson = JSON.stringify(payload, null, 2);
+    const nextStateBlock = `const LASER_HIGHLIGHT_LAYOUT_EMBEDDED_STATE = /*__LASER_HIGHLIGHT_LAYOUT_STATE_START__*/${nextStateJson}/*__LASER_HIGHLIGHT_LAYOUT_STATE_END__*/;`;
+    const statePattern = /const LASER_HIGHLIGHT_LAYOUT_EMBEDDED_STATE = \/\*__LASER_HIGHLIGHT_LAYOUT_STATE_START__\*\/[\s\S]*?\/\*__LASER_HIGHLIGHT_LAYOUT_STATE_END__\*\/;/;
+    if(!statePattern.test(sourceText)) return false;
+    const nextText = sourceText.replace(statePattern, nextStateBlock);
+    const writable = await handle.createWritable();
+    await writable.write(nextText);
+    await writable.close();
+    return true;
+  }
+  function laserLayoutEditorUpdateUi(){
+    const hasTarget = !!laserLayoutEditableElementByKey(laserLayoutEditorTargetKey);
+    const state = hasTarget ? laserLayoutEditorStateForKey(laserLayoutEditorTargetKey) : { x:0, y:0 };
+    if(laserLayoutEditorToggle){
+      laserLayoutEditorToggle.setAttribute("aria-pressed", laserLayoutEditorEnabled ? "true" : "false");
+      laserLayoutEditorToggle.textContent = laserLayoutEditorEnabled ? "Close Layout Edit" : "Layout Edit";
+    }
+    if(laserLayoutEditorPanel){
+      laserLayoutEditorPanel.hidden = !laserLayoutEditorEnabled;
+    }
+    if(laserLayoutEditorTarget){
+      laserLayoutEditorTarget.textContent = hasTarget ? laserLayoutEditorLabelForKey(laserLayoutEditorTargetKey).toUpperCase() : "Select element";
+    }
+    if(laserLayoutEditorData){
+      laserLayoutEditorData.textContent = hasTarget
+        ? `x: ${state.x.toFixed(1)}px\ny: ${state.y.toFixed(1)}px`
+        : "x: -\ny: -";
+    }
+    if(laserLayoutEditorHint){
+      laserLayoutEditorHint.textContent = laserLayoutEditorEnabled
+        ? "Drag the selected element or use arrow keys for nudging."
+        : "Enable edit mode to reposition elements inside the cards.";
+    }
+    [...laserLayoutEditorMoveButtons, laserLayoutEditorReset, laserLayoutEditorCopy, laserLayoutEditorSave].forEach((button) => {
+      if(!(button instanceof HTMLButtonElement)) return;
+      button.disabled = !laserLayoutEditorEnabled || !hasTarget;
+    });
+  }
+  function laserLayoutEditorSelect(key){
+    const element = laserLayoutEditableElementByKey(key);
+    if(!(element instanceof HTMLElement)) return false;
+    laserLayoutEditorTargetKey = key;
+    laserLayoutEditableElements.forEach((entry) => {
+      if(!(entry instanceof HTMLElement)) return;
+      entry.classList.toggle("is-selected", laserLayoutEditorEnabled && entry === element);
+    });
+    laserLayoutEditorUpdateUi();
+    return true;
+  }
+  function laserLayoutEditorSetOffset(key, x, y){
+    if(!laserLayoutEditableElementByKey(key)) return false;
+    const nextState = laserLayoutEditorNormalizeEntry({ x, y });
+    if(Math.abs(nextState.x) < 0.05 && Math.abs(nextState.y) < 0.05){
+      delete laserHighlightLayoutStateByKey[key];
+    } else {
+      laserHighlightLayoutStateByKey[key] = nextState;
+    }
+    laserLayoutEditorApplyKey(key);
+    laserLayoutEditorPersistLocal();
+    laserLayoutEditorUpdateUi();
+    return true;
+  }
+  function laserLayoutEditorNudge(dx, dy){
+    if(!laserLayoutEditorEnabled) return;
+    const key = laserLayoutEditorTargetKey;
+    if(!laserLayoutEditableElementByKey(key)) return;
+    const current = laserLayoutEditorStateForKey(key);
+    laserLayoutEditorSetOffset(key, current.x + dx, current.y + dy);
+  }
+  function laserLayoutEditorResetTarget(){
+    if(!laserLayoutEditableElementByKey(laserLayoutEditorTargetKey)) return;
+    delete laserHighlightLayoutStateByKey[laserLayoutEditorTargetKey];
+    laserLayoutEditorApplyKey(laserLayoutEditorTargetKey);
+    laserLayoutEditorPersistLocal();
+    laserLayoutEditorUpdateUi();
+  }
+  function laserLayoutEditorStopDrag(event = null){
+    if(!laserLayoutEditorDragState) return;
+    const element = laserLayoutEditorDragState.element;
+    if(element instanceof HTMLElement){
+      element.classList.remove("is-dragging");
+      if(event && typeof element.releasePointerCapture === "function"){
+        try{
+          element.releasePointerCapture(event.pointerId);
+        } catch(_error){}
+      }
+    }
+    body.style.userSelect = "";
+    body.style.cursor = "";
+    laserLayoutEditorDragState = null;
+  }
+  function laserLayoutEditorSetEnabled(enabled){
+    const available = !!(laserLayoutEditor instanceof HTMLElement && laserLayoutEditorDevAvailable() && laserLayoutEditableElements.length);
+    if(!available){
+      laserLayoutEditorEnabled = false;
+      if(laserLayoutEditor instanceof HTMLElement){
+        laserLayoutEditor.hidden = true;
+        laserLayoutEditor.classList.remove("is-available");
+      }
+      body.classList.remove("laser-layout-edit");
+      return false;
+    }
+    const nextEnabled = !!enabled;
+    if(nextEnabled === laserLayoutEditorEnabled){
+      laserLayoutEditorUpdateUi();
+      return true;
+    }
+    laserLayoutEditorEnabled = nextEnabled;
+    body.classList.toggle("laser-layout-edit", nextEnabled);
+    if(laserLayoutEditor instanceof HTMLElement){
+      laserLayoutEditor.hidden = false;
+      laserLayoutEditor.classList.add("is-available");
+    }
+    if(nextEnabled){
+      laserLayoutEditorAutoplayBeforeEdit = !!laserHighlightsAutoplayEnabled;
+      laserHighlightsStopAutoplay();
+      laserHighlightsApplyPlaybackUi();
+      if(!laserLayoutEditorSelect(laserLayoutEditorTargetKey)){
+        const first = laserLayoutEditableElements[0];
+        if(first instanceof HTMLElement){
+          laserLayoutEditorSelect(first.dataset.laserLayoutKey || "");
+        }
+      }
+    } else {
+      laserLayoutEditorStopDrag();
+      laserLayoutEditableElements.forEach((element) => {
+        if(!(element instanceof HTMLElement)) return;
+        element.classList.remove("is-selected", "is-dragging");
+      });
+      if(laserLayoutEditorAutoplayBeforeEdit){
+        laserHighlightsStartAutoplay();
+      } else {
+        laserHighlightsApplyPlaybackUi();
+      }
+    }
+    laserLayoutEditorUpdateUi();
+    return true;
+  }
+  async function laserLayoutEditorSaveCurrentState(){
+    const payload = laserLayoutEditorPayload();
+    laserLayoutEditorPersistLocal(payload);
+    if(window.showOpenFilePicker){
+      try{
+        const written = await laserLayoutEditorWritePayloadIntoHtmlFile(payload);
+        if(written){
+          laserLayoutEditorSetSaveText("Saved");
+          return true;
+        }
+      } catch(_error){
+        if(_error && _error.name === "AbortError"){
+          laserLayoutEditorSetSaveText("Save to file");
+          return false;
+        }
+      }
+    }
+    laserLayoutEditorSetSaveText("Local only");
+    return true;
+  }
+  function laserLayoutEditorInit(){
+    const available = !!(laserLayoutEditor instanceof HTMLElement && laserLayoutEditorDevAvailable() && laserLayoutEditableElements.length);
+    if(!available){
+      if(laserLayoutEditor instanceof HTMLElement){
+        laserLayoutEditor.hidden = true;
+        laserLayoutEditor.classList.remove("is-available");
+      }
+      return;
+    }
+    laserLayoutEditor.hidden = false;
+    laserLayoutEditor.classList.add("is-available");
+    laserLayoutEditorRestore();
+    laserLayoutEditorApplyAll();
+    laserLayoutEditableElements.forEach((element) => {
+      if(!(element instanceof HTMLElement)) return;
+      if(element.dataset.laserLayoutBound === "1") return;
+      element.dataset.laserLayoutBound = "1";
+      element.addEventListener("click", (event) => {
+        if(!laserLayoutEditorEnabled) return;
+        event.preventDefault();
+        event.stopPropagation();
+        laserLayoutEditorSelect(element.dataset.laserLayoutKey || "");
+      });
+      element.addEventListener("pointerdown", (event) => {
+        if(!laserLayoutEditorEnabled) return;
+        if(typeof event.button === "number" && event.button !== 0) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const key = element.dataset.laserLayoutKey || "";
+        if(!laserLayoutEditorSelect(key)) return;
+        const state = laserLayoutEditorStateForKey(key);
+        element.classList.add("is-dragging");
+        body.style.userSelect = "none";
+        body.style.cursor = "grabbing";
+        if(typeof element.setPointerCapture === "function"){
+          try{
+            element.setPointerCapture(event.pointerId);
+          } catch(_error){}
+        }
+        laserLayoutEditorDragState = {
+          key,
+          pointerId:event.pointerId,
+          startClientX:event.clientX,
+          startClientY:event.clientY,
+          startX:state.x,
+          startY:state.y,
+          element
+        };
+      });
+    });
+    window.addEventListener("pointermove", (event) => {
+      if(!laserLayoutEditorDragState) return;
+      if(event.pointerId !== laserLayoutEditorDragState.pointerId) return;
+      event.preventDefault();
+      const dx = event.clientX - laserLayoutEditorDragState.startClientX;
+      const dy = event.clientY - laserLayoutEditorDragState.startClientY;
+      laserLayoutEditorSetOffset(
+        laserLayoutEditorDragState.key,
+        laserLayoutEditorDragState.startX + dx,
+        laserLayoutEditorDragState.startY + dy
+      );
+    }, { passive:false });
+    const stopLaserLayoutEditorDrag = (event) => {
+      if(!laserLayoutEditorDragState) return;
+      if(event && event.pointerId !== laserLayoutEditorDragState.pointerId) return;
+      laserLayoutEditorStopDrag(event);
+    };
+    window.addEventListener("pointerup", stopLaserLayoutEditorDrag, { passive:true });
+    window.addEventListener("pointercancel", stopLaserLayoutEditorDrag, { passive:true });
+    if(laserLayoutEditorToggle){
+      laserLayoutEditorToggle.addEventListener("click", () => {
+        laserLayoutEditorSetEnabled(!laserLayoutEditorEnabled);
+      });
+    }
+    laserLayoutEditorMoveButtons.forEach((button) => {
+      if(!(button instanceof HTMLButtonElement)) return;
+      button.addEventListener("click", () => {
+        const move = button.dataset.laserLayoutMove || "";
+        if(move === "up") laserLayoutEditorNudge(0, -LASER_HIGHLIGHT_LAYOUT_STEP);
+        if(move === "down") laserLayoutEditorNudge(0, LASER_HIGHLIGHT_LAYOUT_STEP);
+        if(move === "left") laserLayoutEditorNudge(-LASER_HIGHLIGHT_LAYOUT_STEP, 0);
+        if(move === "right") laserLayoutEditorNudge(LASER_HIGHLIGHT_LAYOUT_STEP, 0);
+      });
+    });
+    if(laserLayoutEditorReset){
+      laserLayoutEditorReset.addEventListener("click", () => {
+        laserLayoutEditorResetTarget();
+      });
+    }
+    if(laserLayoutEditorCopy){
+      laserLayoutEditorCopy.addEventListener("click", async () => {
+        const copied = await plannerCopyToClipboard(JSON.stringify(laserLayoutEditorPayload(), null, 2));
+        laserLayoutEditorSetCopyText(copied ? "Copied" : "Copy failed");
+      });
+    }
+    if(laserLayoutEditorSave){
+      laserLayoutEditorSave.addEventListener("click", async () => {
+        await laserLayoutEditorSaveCurrentState();
+      });
+    }
+    document.addEventListener("keydown", (event) => {
+      const activeEl = document.activeElement;
+      const tag = activeEl && activeEl.tagName ? activeEl.tagName.toLowerCase() : "";
+      const typing = tag === "input" || tag === "textarea" || tag === "select" || (activeEl && activeEl.isContentEditable);
+      if((event.altKey || event.metaKey || event.ctrlKey) && event.shiftKey && event.key.toLowerCase() === "l" && !typing){
+        event.preventDefault();
+        laserLayoutEditorSetEnabled(!laserLayoutEditorEnabled);
+        return;
+      }
+      if(!laserLayoutEditorEnabled || typing) return;
+      const step = event.shiftKey ? LASER_HIGHLIGHT_LAYOUT_STEP * 3 : LASER_HIGHLIGHT_LAYOUT_STEP;
+      if(event.key === "ArrowUp"){
+        event.preventDefault();
+        laserLayoutEditorNudge(0, -step);
+      }
+      if(event.key === "ArrowDown"){
+        event.preventDefault();
+        laserLayoutEditorNudge(0, step);
+      }
+      if(event.key === "ArrowLeft"){
+        event.preventDefault();
+        laserLayoutEditorNudge(-step, 0);
+      }
+      if(event.key === "ArrowRight"){
+        event.preventDefault();
+        laserLayoutEditorNudge(step, 0);
+      }
+    });
+    if(laserLayoutEditorShouldAutoEnable()){
+      laserLayoutEditorSetEnabled(true);
+    } else {
+      laserLayoutEditorUpdateUi();
+    }
+  }
+  laserLayoutEditorInit();
   const plannerNextBenefitPromoSettleTimerByMode = { frauen:0, herren:0 };
   const plannerNextBenefitPromoCycleTimerByMode = { frauen:0, herren:0 };
   const plannerNextBenefitHandsCollapseByMode = {
