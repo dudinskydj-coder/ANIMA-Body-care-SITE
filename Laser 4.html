@@ -28,6 +28,9 @@
       --radius:28px;
       --accent:#0b0b0f;      /* можем потом заменить на нежный розовый */
       --accentText:#ffffff;
+      --heroAccentStart:#865141;
+      --heroAccentMid:#cb8867;
+      --heroAccentEnd:#f1c8b1;
       --headerH:62px;
       --headerIconStroke:2;
       --appVh:100dvh;
@@ -277,26 +280,35 @@
     }
 
     .hero h1{
-      margin:0 auto clamp(18px, 2vw, 34px);
-      font-size:58px;
-      line-height:1.03;
-      font-weight:780;
-      letter-spacing:-1.2px;
-      max-width:980px;
+      margin:0 auto 10px;
+      max-width:18ch;
       text-align:center;
+      font-family:"SF Pro Display","SF Pro Text","Avenir Next","Helvetica Neue",Arial,sans-serif;
+      font-size:clamp(22px, 1.85vw, 28px);
+      line-height:1.16;
+      font-weight:640;
+      letter-spacing:-.03em;
+      color:#111218;
+      text-wrap:balance;
     }
     .heroTitleLine{
-      display:inline;
+      display:block;
       white-space:normal;
     }
     .hero .heroSubtitle{
-      margin:0 auto clamp(20px, 2.6vw, 34px);
-      max-width:760px;
-      color:rgba(11,11,15,.72);
-      font-size:clamp(21px, 1.75vw, 28px);
-      line-height:1.24;
-      letter-spacing:-.01em;
-      font-weight:520;
+      margin:0 auto clamp(22px, 2.8vw, 36px);
+      max-width:13ch;
+      font-family:"SF Pro Display","SF Pro Text","Avenir Next","Helvetica Neue",Arial,sans-serif;
+      font-size:clamp(40px, 6.2vw, 76px);
+      line-height:.95;
+      letter-spacing:-.055em;
+      font-weight:740;
+      color:var(--heroAccentMid);
+      background:linear-gradient(118deg, var(--heroAccentStart) 0%, var(--heroAccentMid) 52%, var(--heroAccentEnd) 100%);
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color:transparent;
+      text-wrap:balance;
     }
     .heroGhostSpace{
       width:100vw;
@@ -538,6 +550,9 @@
       display:grid;
       grid-template-rows:auto 1fr;
       gap:22px;
+      --laser-highlight-copy-max:430px;
+      --laser-highlight-heading-max:12ch;
+      --laser-highlight-body-max:30ch;
     }
     .laserHighlightCard--title{
       flex-basis:min(72vw, 780px);
@@ -558,7 +573,8 @@
       background:#fff;
     }
     .laserHighlightCard--comfort{
-      background:#fff;
+      background:#171413;
+      isolation:isolate;
     }
     .laserHighlightCard--result{
       background:#fff;
@@ -567,13 +583,16 @@
       background:#fff;
     }
     .laserHighlightCard--hero .laserHighlightCopy{
-      max-width:min(46%, 430px);
+      max-width:min(var(--laser-highlight-copy-max), 46%);
+    }
+    .laserHighlightCard--comfort .laserHighlightCopy{
+      max-width:min(42%, 360px);
     }
     .laserHighlightCard--result .laserHighlightCopy{
-      max-width:min(52%, 470px);
+      max-width:min(var(--laser-highlight-copy-max), 52%);
     }
     .laserHighlightCard--sensitive .laserHighlightCopy{
-      max-width:min(50%, 450px);
+      max-width:min(var(--laser-highlight-copy-max), 50%);
     }
     .laserHighlightTitleWrap{
       display:flex;
@@ -598,8 +617,9 @@
       position:relative;
       z-index:2;
       display:grid;
-      gap:12px;
-      max-width:min(620px, 88%);
+      gap:10px;
+      max-width:min(var(--laser-highlight-copy-max), 88%);
+      align-content:start;
     }
     .laserHighlightMeta{
       margin:0;
@@ -610,21 +630,34 @@
     }
     .laserHighlightHeading{
       margin:0;
-      font-size:clamp(34px, 5vw, 62px);
-      line-height:.96;
-      letter-spacing:-.055em;
-      font-weight:780;
+      max-width:var(--laser-highlight-heading-max);
+      font-family:"SF Pro Display","SF Pro Text","Helvetica Neue",Arial,sans-serif;
+      font-size:clamp(31px, 3.4vw, 44px);
+      line-height:1.03;
+      letter-spacing:-.045em;
+      font-weight:760;
       color:#111218;
       text-wrap:balance;
     }
+    .laserHighlightCard--comfort .laserHighlightHeading{
+      max-width:8.5ch;
+      color:#fff7f1;
+      text-shadow:0 10px 26px rgba(0,0,0,.28);
+    }
     .laserHighlightBody{
       margin:0;
-      max-width:32ch;
-      font-size:clamp(17px, 1.7vw, 22px);
-      line-height:1.32;
-      letter-spacing:-.02em;
+      max-width:var(--laser-highlight-body-max);
+      font-family:"SF Pro Text","SF Pro Display","Helvetica Neue",Arial,sans-serif;
+      font-size:clamp(18px, 1.08vw, 20px);
+      line-height:1.4;
+      letter-spacing:-.015em;
       color:rgba(17,18,24,.68);
-      text-wrap:balance;
+      text-wrap:pretty;
+    }
+    .laserHighlightCard--comfort .laserHighlightBody{
+      max-width:24ch;
+      color:rgba(255,246,239,.86);
+      text-shadow:0 8px 22px rgba(0,0,0,.24);
     }
     .laserHighlightMedia{
       position:relative;
@@ -642,6 +675,14 @@
       min-height:clamp(170px, 20vw, 250px);
       margin-inline:-26px;
       margin-bottom:-26px;
+    }
+    .laserHighlightMedia--comfortFull{
+      position:absolute;
+      inset:0;
+      min-height:0;
+      margin:0;
+      z-index:0;
+      pointer-events:none;
     }
     .laserHighlightMedia--legs{
       position:absolute;
@@ -687,7 +728,8 @@
       transform:translateY(6%);
     }
     .laserHighlightCard--comfort .laserHighlightImage{
-      object-position:center;
+      object-position:60% center;
+      filter:brightness(.74) saturate(.94) contrast(1.02);
     }
     .laserHighlightCard--result .laserHighlightImage{
       object-fit:contain;
@@ -695,10 +737,20 @@
     }
     .laserHighlightCard--sensitive .laserHighlightImage{
       object-fit:cover;
-      object-position:center;
+      object-position:64% center;
     }
     .laserHighlightGlow{
       display:none;
+    }
+    .laserHighlightCard--comfort::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:1;
+      pointer-events:none;
+      background:
+        linear-gradient(118deg, rgba(20,14,12,.86) 0%, rgba(32,18,16,.55) 32%, rgba(72,42,33,.14) 62%, rgba(255,255,255,0) 100%),
+        linear-gradient(180deg, rgba(10,7,6,.18) 0%, rgba(10,7,6,0) 34%, rgba(10,7,6,.22) 100%);
     }
     .laserHighlightResultPill{
       display:inline-flex;
@@ -840,6 +892,9 @@
         padding:22px;
         border-radius:30px;
         gap:18px;
+        --laser-highlight-copy-max:390px;
+        --laser-highlight-heading-max:11.5ch;
+        --laser-highlight-body-max:28ch;
       }
       .laserHighlightCard--title{
         flex-basis:min(66vw, 680px);
@@ -848,14 +903,17 @@
       .laserHighlightCard--hero{
         flex-basis:min(86vw, 920px);
       }
+      .laserHighlightCard--comfort .laserHighlightCopy{
+        max-width:min(46%, 330px);
+      }
       .laserHighlightCard--hero .laserHighlightCopy{
-        max-width:min(48%, 390px);
+        max-width:min(var(--laser-highlight-copy-max), 48%);
       }
       .laserHighlightCard--result .laserHighlightCopy{
-        max-width:min(54%, 420px);
+        max-width:min(var(--laser-highlight-copy-max), 54%);
       }
       .laserHighlightCard--sensitive .laserHighlightCopy{
-        max-width:min(52%, 400px);
+        max-width:min(var(--laser-highlight-copy-max), 52%);
       }
       .laserHighlightCopy{
         gap:10px;
@@ -864,10 +922,11 @@
         font-size:clamp(42px, 6vw, 82px);
       }
       .laserHighlightHeading{
-        font-size:clamp(30px, 4vw, 52px);
+        font-size:clamp(28px, 3.2vw, 38px);
       }
       .laserHighlightBody{
-        font-size:clamp(16px, 1.45vw, 20px);
+        font-size:clamp(17px, 1.15vw, 18px);
+        line-height:1.38;
       }
       .laserHighlightMedia--flower{
         min-height:clamp(220px, 28vw, 360px);
@@ -4438,15 +4497,22 @@
         padding:7px 10px;
       }
       .hero h1{
-        margin-bottom:18px;
-        max-width:none;
-        font-size:40px;
-        line-height:1.04;
-        letter-spacing:-.03em;
+        margin-bottom:10px;
+        max-width:15ch;
+        font-size:20px;
+        line-height:1.18;
+        letter-spacing:-.02em;
       }
       .heroTitleLine{
         display:block;
-        white-space:nowrap;
+        white-space:normal;
+      }
+      .hero .heroSubtitle{
+        margin-bottom:24px;
+        max-width:9ch;
+        font-size:clamp(34px, 10.5vw, 48px);
+        line-height:.98;
+        letter-spacing:-.045em;
       }
       .heroGhostSpace{
         overflow:hidden;
@@ -4492,6 +4558,9 @@
         min-height:560px;
         padding:20px;
         border-radius:28px;
+        --laser-highlight-copy-max:100%;
+        --laser-highlight-heading-max:11ch;
+        --laser-highlight-body-max:100%;
       }
       .laserHighlightCard--title{
         min-height:420px;
@@ -4502,7 +4571,10 @@
       }
       .laserHighlightCopy{
         max-width:100%;
-        gap:10px;
+        gap:9px;
+      }
+      .laserHighlightCard--comfort .laserHighlightCopy{
+        max-width:min(100%, 320px);
       }
       .laserHighlightCard--hero .laserHighlightCopy,
       .laserHighlightCard--result .laserHighlightCopy,
@@ -4513,11 +4585,17 @@
         font-size:clamp(38px, 12vw, 58px);
       }
       .laserHighlightHeading{
-        font-size:clamp(30px, 9vw, 44px);
+        max-width:11ch;
+        font-size:clamp(28px, 7.6vw, 34px);
+        line-height:1.05;
       }
       .laserHighlightBody{
         max-width:100%;
-        font-size:17px;
+        font-size:16px;
+        line-height:1.42;
+      }
+      .laserHighlightCard--comfort .laserHighlightImage{
+        object-position:66% center;
       }
       .laserHighlightMedia--flower{
         min-height:240px;
@@ -4944,7 +5022,7 @@
 <div class="wrap" id="top">
   <!-- 1) HERO -->
   <section class="hero section">
-    <h1 id="hero_title"><span class="heroTitleLine">Alexandrit-Laser</span> <span class="heroTitleLine">Haarentfernung</span></h1>
+    <h1 id="hero_title"><span class="heroTitleLine">Alexandrit-Laser</span><span class="heroTitleLine">Haarentfernung</span></h1>
     <p class="heroSubtitle" id="hero_subtitle">Sanft. Präzise. Gepflegt.</p>
     <div class="heroGhostSpace" aria-hidden="true">
       <img class="heroImage" src="img/LASER/LASER HERO 1 SUPER 494-web.jpg" alt="" loading="eager" decoding="sync" fetchpriority="high" />
@@ -4988,8 +5066,8 @@
               <p class="laserHighlightBody" id="laser_highlight_body_2">Erwärmt den Follikel gleichmäßig, ohne harte Impulse oder unangenehmes Gefühl.</p>
             </div>
             <div class="laserHighlightGlow" aria-hidden="true"></div>
-            <div class="laserHighlightMedia laserHighlightMedia--ribbon">
-              <img class="laserHighlightImage" src="./img/LASER/LASER HERO 1 SUPER 494-web.jpg" alt="" loading="lazy" decoding="async" fetchpriority="low" />
+            <div class="laserHighlightMedia laserHighlightMedia--comfortFull">
+              <img class="laserHighlightImage" src="./img/LASER/IMG_4109.JPG" alt="" loading="lazy" decoding="async" fetchpriority="low" />
             </div>
           </article>
 
@@ -5009,7 +5087,7 @@
               <p class="laserHighlightBody" id="laser_highlight_body_4">Sicher auch für empfindliche und delikate Zonen.</p>
             </div>
             <div class="laserHighlightMedia laserHighlightMedia--device">
-              <img class="laserHighlightImage" src="./img/LASER/IMG_4109.JPG" alt="" loading="lazy" decoding="async" fetchpriority="low" />
+              <img class="laserHighlightImage" src="./img/LASER/IMG_4110.JPG" alt="" loading="lazy" decoding="async" fetchpriority="low" />
             </div>
           </article>
         </div>
@@ -18143,7 +18221,7 @@
   const t = {
     de: {
       hero_promo_strip:"Im 6er-Kurs sparst du je nach Zone oder Paket von 25 € bis 489 € bei Vorauszahlung.",
-      hero_title:"<span class=\"heroTitleLine\">Alexandrit-Laser</span> <span class=\"heroTitleLine\">Haarentfernung</span>",
+      hero_title:"<span class=\"heroTitleLine\">Alexandrit-Laser</span><span class=\"heroTitleLine\">Haarentfernung</span>",
       hero_subtitle:"Sanft. Präzise. Gepflegt.",
       hero_price:"<strong>Ab 25 €</strong> pro Behandlung.",
       laser_intro_title:"Was ist Alexandrit-Laser?",
@@ -18220,7 +18298,7 @@
     },
     en: {
       hero_promo_strip:"In the 6-session course, you save from €25 to €489 depending on zone or package when prepaid.",
-      hero_title:"<span class=\"heroTitleLine\">Alexandrite Laser</span> <span class=\"heroTitleLine\">Hair Removal</span>",
+      hero_title:"<span class=\"heroTitleLine\">Alexandrite Laser</span><span class=\"heroTitleLine\">Hair Removal</span>",
       hero_subtitle:"Gentle. Precise. Polished.",
       hero_price:"<strong>From €25</strong> per treatment.",
       laser_intro_title:"What is Alexandrite Laser?",
@@ -18297,7 +18375,7 @@
     },
     ru: {
       hero_promo_strip:"При предоплате курса из 6 процедур вы экономите от 25 € до 489 € в зависимости от зоны или пакета.",
-      hero_title:"<span class=\"heroTitleLine\">Александритовый лазер</span> <span class=\"heroTitleLine\">эпиляция</span>",
+      hero_title:"<span class=\"heroTitleLine\">Александритовая</span><span class=\"heroTitleLine\">лазерная эпиляция</span>",
       hero_subtitle:"Бережно. Точно. Эстетично.",
       hero_price:"<strong>От 25 €</strong> за процедуру.",
       laser_intro_title:"Что такое александритовый лазер?",
