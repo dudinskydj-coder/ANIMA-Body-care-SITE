@@ -34,6 +34,8 @@
       --headerH:62px;
       --headerIconStroke:2;
       --appVh:100dvh;
+      --laserFlowGap:clamp(40px, 4.4vw, 54px);
+      --laserFlowGapHalf:calc(var(--laserFlowGap) / 2);
     }
     *{box-sizing:border-box}
     html,
@@ -454,8 +456,8 @@
     }
     .laserHighlights{
       position:relative;
-      margin-top:clamp(32px, 4vw, 52px);
-      padding:clamp(68px, 8vw, 104px) 0 clamp(52px, 6vw, 78px);
+      margin-top:var(--laserFlowGap);
+      padding:clamp(68px, 8vw, 104px) 0 var(--laserFlowGapHalf);
       background:transparent;
       overflow:visible;
       isolation:isolate;
@@ -480,7 +482,7 @@
       position:relative;
       z-index:1;
       display:grid;
-      gap:28px;
+      gap:var(--laserFlowGapHalf);
     }
     .laserHighlightsHeader{
       display:flex;
@@ -545,7 +547,7 @@
       gap:18px;
       overflow-x:auto;
       overflow-y:hidden;
-      padding:14px var(--laser-highlights-side-pad) 24px;
+      padding:14px var(--laser-highlights-side-pad) var(--laserFlowGapHalf);
       background:transparent;
       scroll-snap-type:x mandatory;
       scroll-padding-left:var(--laser-highlights-side-pad);
@@ -804,7 +806,7 @@
       justify-content:center;
       gap:12px;
       flex-wrap:wrap;
-      margin-bottom:clamp(14px, 2vw, 24px);
+      margin-bottom:0;
     }
     .laserHighlightsDots{
       display:inline-flex;
@@ -3715,7 +3717,7 @@
       100%{ transform:translateY(0) scale(1); }
     }
     .laserSwitchSection{
-      padding:clamp(72px, 8vw, 124px) 0 22px;
+      padding:var(--laserFlowGapHalf) 0;
     }
     .laserSwitchWrap{
       display:flex;
@@ -4514,6 +4516,9 @@
     #laser-switches{
       scroll-margin-top:calc(var(--headerH, 72px) + 18px);
     }
+    #interactive-placeholder.section{
+      padding-top:var(--laserFlowGapHalf);
+    }
     #interactive-placeholder .plannerFigureOverlayImage,
     #interactive-placeholder .plannerFigureFrontline{
       transition:none !important;
@@ -4558,9 +4563,9 @@
         transform:translateX(-50%);
       }
       .laserHighlights{
-        margin-top:24px;
+        margin-top:var(--laserFlowGap);
         padding-top:42px;
-        padding-bottom:38px;
+        padding-bottom:var(--laserFlowGapHalf);
       }
       .laserHighlightsHeader{
         align-items:flex-start;
@@ -4584,7 +4589,7 @@
       .laserHighlightsTrack{
         gap:12px;
         padding-top:12px;
-        padding-bottom:20px;
+        padding-bottom:var(--laserFlowGapHalf);
       }
       .laserHighlightCard{
         flex-basis:calc(100vw - 72px);
@@ -4670,7 +4675,7 @@
         margin-top:clamp(96px, 16vw, 144px);
       }
       .laserSwitchSection{
-        padding:42px 0 14px;
+        padding:var(--laserFlowGapHalf) 0;
       }
       .laserSwitch{
         gap:22px;
@@ -4820,16 +4825,17 @@
     @media (max-width:767px){
       :root{
         --overscrollBg:#ffffff;
+        --laserFlowGap:42px;
       }
       html,
       body{
         background:#ffffff;
       }
       #laser-switches.section{
-        padding:24px 0 64px;
+        padding:var(--laserFlowGapHalf) 0;
       }
       #interactive-placeholder.section{
-        padding:0;
+        padding:var(--laserFlowGapHalf) 0 0;
         width:100vw;
         max-width:none;
         margin-left:calc(50% - 50vw);
