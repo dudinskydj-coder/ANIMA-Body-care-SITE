@@ -4662,7 +4662,7 @@
         gap:10px;
         position:relative;
         z-index:1;
-        background:#fff;
+        background:transparent;
       }
       .laserHighlightsDots{
         padding:0;
@@ -4985,8 +4985,10 @@
       }
     }
     .laserHighlightCard{
-      min-height:auto;
-      display:block;
+      min-height:clamp(360px, 40vw, 520px);
+      display:grid;
+      grid-template-rows:auto 1fr;
+      gap:18px;
       background:transparent;
       border-color:transparent;
       box-shadow:none;
@@ -5026,6 +5028,11 @@
     .laserHighlightGlow,
     .laserHighlightCard--comfort::before{
       display:none !important;
+    }
+    @media (max-width:900px){
+      .laserHighlightCard{
+        min-height:560px;
+      }
     }
   </style>
 </head>
